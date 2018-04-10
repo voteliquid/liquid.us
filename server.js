@@ -16,6 +16,21 @@ const port = PORT || WWW_PORT
 
 const server = express()
 
+const config = {
+  API_URL: process.env.API_URL,
+  APP_NAME: process.env.APP_NAME,
+  ASSETS_URL: process.env.ASSETS_URL,
+  GOOGLE_GEOCODER_KEY: process.env.GOOGLE_GEOCODER_KEY,
+  IMAGES_URL: process.env.IMAGES_URL,
+  STRIPE_API_PUBLIC_KEY: process.env.STRIPE_API_PUBLIC_KEY,
+  WWW_DOMAIN: process.env.WWW_DOMAIN,
+  WWW_URL: process.env.WWW_URL,
+}
+
+if (!Object.values(config).some(val => !!val)) {
+  throw new Error('Missing environment variables. Check .template.env for a reference of required variables.')
+}
+
 server
   .enable('trust proxy') // use x-forwarded-by for request ip
   .use(compression())
@@ -27,18 +42,7 @@ server
   .post('/rpc/twitter_username_search', bodyParser.json(), twitterUsernameSearch)
   .use(hyperloop.server(require.resolve('./components/App.js'), {
     htmlHead,
-    initialState: {
-      config: {
-        API_URL: process.env.API_URL,
-        APP_NAME: process.env.APP_NAME,
-        ASSETS_URL: process.env.ASSETS_URL,
-        GOOGLE_GEOCODER_KEY: process.env.GOOGLE_GEOCODER_KEY,
-        IMAGES_URL: process.env.IMAGES_URL,
-        STRIPE_API_PUBLIC_KEY: process.env.STRIPE_API_PUBLIC_KEY,
-        WWW_DOMAIN: process.env.WWW_DOMAIN,
-        WWW_URL: process.env.WWW_URL,
-      },
-    }
+    initialState: { config },
   }))
   .use(errorHandler(htmlHead))
   .listen(port)
