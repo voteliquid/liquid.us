@@ -84,7 +84,7 @@ class CongressMembersRow extends Component {
     return this.html`
       <tr>
         <td>
-          <a href=${`/reps/${l.username}`}>
+          <a href=${`/${l.username}`}>
             <span>${l.first_name} ${l.last_name}</span>
             <span class="has-text-grey is-size-7">(${l.party_affiliation[0]})</span>
           </a>
