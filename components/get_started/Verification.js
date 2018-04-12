@@ -548,7 +548,8 @@ class LinkToSkip extends Component {
       return { skipWarning: true }
     }
 
-    return this.location.redirect('/get_started?skip=t')
+    this.location.redirect('/get_started?skip=t')
+    return { skipWarning: false }
   }
 
   render() {
