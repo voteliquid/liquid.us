@@ -48,6 +48,11 @@ module.exports = class LegislationList extends Component {
           ${FilterTabs.for(this)}
           ${SearchForm.for(this)}
           ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(o => LegislationListRow.for(this, o, `billitem-${o.id}`))}
+          <style>
+            .highlight-hover:hover {
+              background: #f6f8fa;
+            }
+          </style>
         </div>
       </div>
     `
@@ -120,7 +125,7 @@ class LegislationListRow extends Component {
     const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
 
     return this.html`
-      <div class="card">
+      <div class="card highlight-hover">
         <div class="card-content">
           <div class="columns">
             <div class="column">
@@ -216,4 +221,3 @@ class VoteTally extends Component {
     `
   }
 }
-
