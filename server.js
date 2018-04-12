@@ -48,7 +48,7 @@ server
   .listen(port)
 
 function htmlHead({ page_description, page_title }) {
-  const description = page_description || `We're creating a new democracy for the modern world.`
+  const description = page_description || `A new democracy for the modern world.`
   const title = page_title ? `${APP_NAME} ★ ${page_title}` : APP_NAME
 
   return `
