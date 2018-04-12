@@ -12,38 +12,37 @@ module.exports = class Footer extends Component {
     const { NODE_ENV } = config
 
     return this.html`
-      <footer class="footer">
-        <div class="section has-text-centered" style="padding-bottom: 0">
-            <div class="columns is-centered">
-              <div class="column is-half" style="position: relative;">
-                <span class="quote-icon">“</span>
-                <style>
-                  .quote-icon {
-                    color: rgb(115, 115, 115);
-                    opacity: 0.2;
-                    font-size: 80px;
-                    font-weight: 700;
-                    position: absolute;
-                    left: -29px;
-                    top: -33px;
-                  }
+      <footer class="footer has-text-centered">
+        <div class="columns is-centered">
+          <div class="column is-half section" style="padding: 0 3rem;">
+            <img src="/assets/unitedvote_mark.svg" alt="united.vote" width="40" height="28">
+            <p class="is-size-7" style="margin: 3rem 0"><a href="/" class="has-text-black"><strong>United.vote</strong></a> is a non-partisan organization dedicated to creating smarter and more accountable governance, with liquid democracy.</p>
+            <style>
+              .quote-icon {
+                color: rgb(115, 115, 115);
+                opacity: 0.2;
+                font-size: 80px;
+                font-weight: 700;
+                position: absolute;
+                left: -40px;
+                top: -41px;
+              }
 
-                  @media (max-width: 768px) {
-                    .quote-icon {
-                      font-size: 71px;
-                      left: -9px;
-                      top: -38px;
-                    }
-                  }
-                </style>
-                <p class="title has-text-grey is-4 has-text-justified">${[randomQuote.text.replace(/\n/g, '<br />')]}</p>
-                ${randomQuote.author && [`<p class="title is-5 has-text-grey has-text-right">— <em>${randomQuote.author}</em></p>`]}
-                ${randomQuote.date && [`<p class="title is-6 has-text-right has-text-grey is-uppercase">${randomQuote.date}</p>`]}
-
-                <img src="/assets/unitedvote_mark.svg" alt="united.vote" width="40" height="28">
-              </div>
+              @media (max-width: 768px) {
+                .quote-icon {
+                  font-size: 71px;
+                  left: -21px;
+                  top: -51px;
+                }
+              }
+            </style>
+            <div style="position: relative;">
+              <span class="quote-icon">“</span>
+              <p class="title has-text-grey is-4 has-text-justified">${[randomQuote.text.replace(/\n/g, '<br />')]}</p>
+              ${randomQuote.author && [`<p class="title is-5 has-text-grey has-text-right">— <em>${randomQuote.author}</em></p>`]}
+              ${randomQuote.date && [`<p class="title is-6 has-text-right has-text-grey is-uppercase">${randomQuote.date}</p>`]}
             </div>
-            <p class="is-size-7"><strong><a href="/" class="has-text-black">United.vote</a></strong> is a non-partisan organization dedicated to creating smarter and more accountable governance, with liquid democracy.</p>
+          </div>
         </div>
         ${FeedbackWidget.for(this)}
         <style>
