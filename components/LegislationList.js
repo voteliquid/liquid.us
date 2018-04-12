@@ -48,7 +48,14 @@ module.exports = class LegislationList extends Component {
           ${FilterTabs.for(this)}
           ${SearchForm.for(this)}
           ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(o => LegislationListRow.for(this, o, `billitem-${o.id}`))}
+          <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
           <style>
+            .tooltip:hover::before {
+              background: #000 !important;
+            }
+            .tooltip:hover::after {
+              border-color: #000 transparent transparent transparent !important;
+            }
             .highlight-hover:hover {
               background: #f6f8fa;
             }
@@ -124,6 +131,8 @@ class LegislationListRow extends Component {
     const s = this.props
     const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
 
+    const { abstains, nays, yeas } = s
+
     return this.html`
       <div class="card highlight-hover">
         <div class="card-content">
@@ -152,6 +161,14 @@ class LegislationListRow extends Component {
             </div>
             <div class="column is-one-quarter has-text-right-tablet has-text-left-mobile">
               ${VoteButton.for(this, s, `votebutton-${s.id}`)}
+              <div class="is-hidden-mobile">
+                <br />
+              </div>
+              ${ yeas + nays + abstains > 5 ? [`
+                <span class="icon tooltip" data-tooltip="This bill amends the Bank Holding Company Act of 1956 to exempt from the Volcker Rule banks with total assets: (1) of $10 billion or less, and (2) comprised of 5% or less of trading assets and liabilities. (The Volcker Rule prohibits banking agencies from engaging in proprietary trading or entering into certain relationships with hedge funds and private-equity funds.)">
+                  <i class="fa fa-lg fa-info-circle has-text-info"></i>
+                </span>
+              `] : []}
             </div>
           </div>
         </div>
