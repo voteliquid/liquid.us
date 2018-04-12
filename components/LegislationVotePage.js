@@ -102,7 +102,7 @@ class LegislationVoteContent extends Component {
   render() {
     const { error, last_vote_public, saving_vote, selected_bill: l, user } = this.state
     const v = l.my_vote ? l.my_vote : {}
-    const public_checked = v.vote_position ? v.public : last_vote_public
+    const public_checked = v.hasOwnProperty('public') ? v.public : last_vote_public
     return this.html`
       <section>
         <div class="container">
