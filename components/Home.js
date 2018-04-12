@@ -192,7 +192,8 @@ module.exports = class Home extends Component {
             <div class="reveal">
               <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">Phase 2 — Liquid Candidates</h3>
               <h4 class="subtitle is-5 is-size-4-desktop">Pledged to vote on everything as directed by their local liquid democracy.</h4>
-              <h4 class="subtitle is-5 is-size-4-desktop">Voters can elect this upgraded representation, <strong>when we're ready</strong>, one seat at a time.</h4>
+              <h4 class="subtitle is-5 is-size-4-desktop">Voters can elect this upgraded representation, <em>when we're ready</em>, one seat at a time.</h4>
+              <h4 class="subtitle is-5 is-size-4-desktop"><span class="is-size-7">▶</span>&nbsp; Meet the <a href="https://2018candidates.united.vote" target="_blank"><strong>2018 Liquid Candidates</strong></a>.</h4>
             </div>
             <br />
             <br />
