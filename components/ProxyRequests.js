@@ -19,9 +19,14 @@ module.exports = class ProxyRequests extends Component {
     let denied = []
 
     if (proxy_requests) {
-      unresponded = proxy_requests.filter(dr => dr.approved === null)
-      approved = proxy_requests.filter(dr => dr.approved)
-      denied = proxy_requests.filter(dr => dr.approved === false)
+      const sorted_requests = proxy_requests.slice().sort((a, b) => {
+        if (a.first_name > b.first_name) { return 1 }
+        if (a.first_name < b.first_name) { return -1 }
+        return 0
+      })
+      unresponded = sorted_requests.filter(r => r.approved === null)
+      approved = sorted_requests.filter(r => r.approved)
+      denied = sorted_requests.filter(r => r.approved === false)
     }
 
     return this.html`
