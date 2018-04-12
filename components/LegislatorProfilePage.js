@@ -144,6 +144,16 @@ class LatestVotesTable extends Component {
       <table class="table is-responsive is-narrow is-fullwidth is-bordered is-striped">
         <thead>
           <tr>
+            <style>
+              .fa-sort-asc {
+                position: relative;
+                top: 4px;
+              }
+              .fa-sort-desc {
+                position: relative;
+                bottom: 3px;
+              }
+            </style>
             <th style="vertical-align: bottom;" rowspan="2">
               <a href=${setQuery(query, { order_by: 'date', order: order_by === 'date' ? opposite_order : 'desc' })}>
                 <span>Date&nbsp;${order_by === 'date' ? [`<i class="fa ${order === 'asc' ? `fa-sort-asc` : `fa-sort-desc`}" style="display:inline;"></i></span>`] : ''}
