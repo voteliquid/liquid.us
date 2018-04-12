@@ -246,6 +246,11 @@ module.exports = class Home extends Component {
 }
 
 const JoinSection = class JoinSection extends Component {
+  onclick(event) {
+    event.preventDefault()
+    return { isFeedbackWindowVisible: !this.state.isFeedbackWindowVisible }
+  }
+
   render() {
     return this.html`
       <section class="hero is-medium">
