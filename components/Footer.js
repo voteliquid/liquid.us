@@ -180,10 +180,6 @@ Every citizen has a right to participate personally, or through their representa
     date: '380 BC',
   },
   {
-    text: 'Concentrated power is not rendered harmless by the good intentions of those who create it.',
-    author: 'Milton Friedman',
-  },
-  {
     text: 'Let us never forget that government is ourselves and not an alien power over us. The ultimate rulers of our democracy are not a President and Senators and Congressmen and Government officials but the voters of this country.',
     author: 'President Franklin D. Roosevelt',
     date: 'July 1938',
