@@ -147,7 +147,7 @@ class SideBySideOptions extends Component {
 }
 
 class StripeForm extends Component {
-  onpress(event) {
+  onclick(event) {
     // Pressed the Skip button
     event.preventDefault()
 
@@ -155,7 +155,8 @@ class StripeForm extends Component {
       return { skipWarning: true }
     }
 
-    return this.location.redirect('/get_started?skip=t')
+    this.location.redirect('/get_started?skip=t')
+    return { readyToPay: false, skipWarning: false }
   }
 
   onsubmit(event, formData) {
