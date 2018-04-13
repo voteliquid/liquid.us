@@ -58,7 +58,7 @@ module.exports = class JoinForm extends Component {
           <div class="notification has-text-centered is-info">We could not automatically locate your representative. Join ${APP_NAME} to set your address.</div>
         `] : []}
         ${show_title !== false ? [`
-          <h2 class="title has-text-centered reveal">
+          <h2 class="title has-text-centered">
             ${signup_metrics && signup_metrics.length
               ? `Join ${signup_metrics[signup_metrics.length - 1].y} people for the future of democracy`
               : `Be a part of the future of democracy`
