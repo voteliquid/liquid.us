@@ -31,7 +31,11 @@ module.exports = class App extends Component {
             this.setState({ loading_page: false, error: false }, false)
           },
           beforePageChange: () => {
-            this.setState({ loading_page: true, error: false }, false)
+            this.setState({
+              hamburgerVisible: false,
+              loading_page: true,
+              error: false,
+            }, false)
           },
           loading: LoadingIndicator,
           notFound: () => {
