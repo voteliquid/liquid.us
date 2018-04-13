@@ -162,7 +162,7 @@ class LatestVotesTable extends Component {
             <th style="vertical-align: bottom;" rowspan="2">Bill</th>
             <th style="vertical-align: bottom;" rowspan="2">Title</th>
             <th style="vertical-align: bottom;" class="has-text-centered" rowspan="2">Their Vote</th>
-            <th class="has-text-centered" colspan="3">Constituents</th>
+            <th class="has-text-centered" colspan="2">Constituents</th>
             ${user ? [`
               <th style="vertical-align: bottom;" class="has-text-centered" rowspan="2">Your Vote</th>
               <th style="vertical-align: bottom;" class="has-text-centered" rowspan="2">Your Proxy</th>
@@ -177,11 +177,6 @@ class LatestVotesTable extends Component {
             <th class="has-text-centered">
               <a href=${setQuery(query, { order_by: 'against_constituents', order: order_by === 'against_constituents' ? opposite_order : 'desc' })}>
                 <span>Against&nbsp;${order_by === 'against_constituents' ? [`<i class="fa ${order === 'asc' ? `fa-sort-asc` : `fa-sort-desc`}" style="display:inline;"></i></span>`] : ''}
-              </a>
-            </th>
-            <th class="has-text-centered">
-              <a href=${setQuery(query, { order_by: 'representation_delta', order: order_by === 'representation_delta' ? opposite_order : 'desc' })}>
-                <span>Delta&nbsp;${order_by === 'representation_delta' ? [`<i class="fa ${order === 'asc' ? `fa-sort-asc` : `fa-sort-desc`}" style="display:inline;"></i></span>`] : ''}
               </a>
             </th>
           </tr>
@@ -226,11 +221,7 @@ class LatestVotesTableRow extends Component {
         </td>
         <td class="has-text-centered responsive-inline-block">
           <span class="responsive-label">Against: </span>
-          <span class=${vote.against_constituents === 0 && 'has-text-grey-lighter'}>${vote.against_constituents}</span>
-        </td>
-        <td class="has-text-centered responsive-inline-block">
-          <span class="responsive-label">Delta: </span>
-          <span class=${vote.representation_delta < 0 ? 'has-text-danger' : (vote.representation_delta === 0 && 'has-text-grey-lighter')}>${vote.representation_delta}</span>
+          <span class=${vote.against_constituents === 0 ? 'has-text-grey-lighter' : (vote.against_constituents > vote.with_constituents ? 'has-text-danger has-text-weight-semibold' : '')}>${vote.against_constituents}</span>
         </td>
         ${user ? [`
           <td class="has-text-centered">
