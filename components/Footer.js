@@ -207,11 +207,6 @@ Every citizen has a right to participate personally, or through their representa
     date: 'October 1780',
   },
   {
-    text: 'The best defense against usurpatory government is an assertive citizenry.',
-    author: 'William F. Buckley',
-    date: '1992',
-  },
-  {
     text:
 `The world will little note, nor long remember what we say here, but it can never forget what they did here. It is for us the living, rather, to be dedicated here to the unfinished work which they who fought here have thus far so nobly advanced.
 
