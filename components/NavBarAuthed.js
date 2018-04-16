@@ -17,7 +17,7 @@ module.exports = class NavBarAnon extends Component {
           <a class=${`navbar-item ${current_path === username_url ? 'is-active' : ''}`} href=${username_url}>Profile</a>
           <a class=${`navbar-item ${current_path === '/proxies/requests' ? 'is-active' : ''}`} href="/proxies/requests">Proxy Requests</a>
           ${!user.cc_verified ?
-            [`<a class=${`navbar-item ${current_path === '/get_started' ? 'is-active' : ''}`} href="/get_started">Identity Verification</a>`] :
+            [`<a class=${`navbar-item ${current_path === '/get_started' ? 'is-active' : ''}`} href="/get_started">Verify Your Identity</a>`] :
             ''}
           <a class=${`navbar-item ${current_path === '/settings' ? 'is-active' : ''}`} href="/settings">Settings</a>
           <a class=${`navbar-item ${current_path === '/sign_out' ? 'is-active' : ''}`} href=${`${WWW_URL}/sign_out`}>Sign out</a>
