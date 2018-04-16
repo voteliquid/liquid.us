@@ -89,7 +89,7 @@ class SearchForm extends Component {
             <input class="input" type="text" name="terms" placeholder="Examples: hr3440, health care, dream act" value="${terms}" />
           </div>
           <div class="control">
-            <button class=${`button is-primary ${loading_legislation ? 'is-loading' : ''}`} type="submit">
+            <button class="button is-primary" type="submit">
               <span class="icon"><i class="fa fa-search"></i></span>
               <span>Search</span>
             </button>
