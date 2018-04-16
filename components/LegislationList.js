@@ -44,7 +44,7 @@ module.exports = class LegislationList extends Component {
     return this.html`
       <div class="section">
         <div class="container">
-          <h2 class="title is-5">Bills in U.S. Congress</h2>
+          <h2 class="title is-5">U.S. Congress</h2>
           ${FilterTabs.for(this)}
           ${SearchForm.for(this)}
           ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(o => LegislationListRow.for(this, o, `billitem-${o.id}`))}
@@ -63,6 +63,12 @@ class FilterTabs extends Component {
   render() {
     const { query } = this.location
 
+    const orderDescriptions = {
+      upcoming: 'Bills on the official agenda',
+      new: 'Bills recently introduced',
+      active: 'Bills recently acted upon',
+    }
+
     return this.html`
       <div class="tabs">
         <ul>
@@ -71,6 +77,8 @@ class FilterTabs extends Component {
           <li class="${query.order === 'active' ? 'is-active' : ''}"><a href="${`/legislation?order=active&terms=${query.terms || ''}`}">Active</a></li>
         </ul>
       </div>
+      <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
+      <br />
     `
   }
 }
