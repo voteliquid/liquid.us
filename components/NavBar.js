@@ -31,6 +31,21 @@ module.exports = class NavBar extends Component {
                 margin: 0;
                 padding-top: 4px;
               }
+              .navbar-menu a.navbar-item:hover {
+                background-color: #f5f5f5 !important;
+              }
+              a.navbar-item.is-active {
+                border-top: 2px solid transparent !important;
+              }
+            }
+            a.navbar-item:hover {
+              background-color: transparent;
+            }
+            a.navbar-item {
+              border-top: 2px solid transparent;
+            }
+            a.navbar-item.is-active {
+              border-top: 2px solid #3272dc;
             }
           </style>
 
