@@ -54,51 +54,49 @@ module.exports = class PickUsernamePage extends Component {
 
     return this.html`
       <section class="section" >
-        <div class="columns is-centered">
-          <div class="column is-half">
-            <div class="content">
-              <h2 class="subtitle">
-                Thank you for verifying
-              </h2>
-              <p class="is-size-7">* We will continue strengthening our verification system, and you may need to confirm another check in the future.</p>
-              <br />
-              <p>You can now create your own profile page, so that other people can easily find and proxy to you.</p>
-              <p>
-                <form method="POST" onsubmit=${this} action=${this}>
-                  <label>Pick a username</label>
-                  <div class="field is-horizontal">
-                    <div class="field-body">
-                      <div class="field has-addons">
-                        <p class="control">
-                          <a class="button is-static">
-                            united.vote/
-                          </a>
-                        </p>
-                        <div class="control has-icons-left is-expanded">
-                          <input name="username" class=${`input ${error ? 'is-danger' : ''}`} placeholder="username (min. 5 char)" />
-                          ${error
-                            ? ['<span class="icon is-small is-left"><i class="fa fa-warning"></i></span>']
-                            : ['<span class="icon is-small is-left"><i class="fa fa-user"></i></span>']
-                          }
-                          ${error ? [`<p class="help is-danger">${error}</p>`] : ''}
-                        </div>
+        <div class="container">
+          <div class="content">
+            <h2 class="subtitle">
+              Thank you for verifying
+            </h2>
+            <p class="is-size-7">* We will continue strengthening our verification system, and you may need to confirm another check in the future.</p>
+            <br />
+            <p>You can now create your own profile page, so that other people can easily proxy to you.</p>
+            <p>
+              <form method="POST" onsubmit=${this} action=${this}>
+                <label><strong>Pick a username:</strong></label>
+                <div class="field is-horizontal">
+                  <div class="field-body">
+                    <div class="field has-addons">
+                      <p class="control">
+                        <a class="button is-static">
+                          united.vote/
+                        </a>
+                      </p>
+                      <div class="control has-icons-left is-expanded">
+                        <input name="username" class=${`input ${error ? 'is-danger' : ''}`} placeholder="username (at least 5 characters)" />
+                        ${error
+                          ? ['<span class="icon is-small is-left"><i class="fa fa-warning"></i></span>']
+                          : ['<span class="icon is-small is-left"><i class="fa fa-user"></i></span>']
+                        }
+                        ${error ? [`<p class="help is-danger">${error}</p>`] : ''}
                       </div>
                     </div>
                   </div>
-                  <div class="field is-grouped is-grouped-right">
-                    <div class="control">
-                      <a class="button has-text-grey" href="/get_started?skip=t">Skip</a>
-                    </div>
-                    <div class="control">
-                      <button class="button is-primary" type="submit">Next</button>
-                    </div>
+                </div>
+                <div class="field is-grouped is-grouped-right">
+                  <div class="control">
+                    <a class="button has-text-grey" href="/get_started?skip=t">Skip</a>
                   </div>
-                  <p class="has-text-right has-text-grey">
-                    You can skip for now if you don&#39;t want a public profile page.
-                  </p>
-                </form>
-              <p>
-            </div>
+                  <div class="control">
+                    <button class="button is-primary" type="submit">Next</button>
+                  </div>
+                </div>
+                <p class="has-text-right has-text-grey">
+                  You can skip for now if you don&#39;t want a public profile page.
+                </p>
+              </form>
+            <p>
           </div>
         </div>
       </section>
