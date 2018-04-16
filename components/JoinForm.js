@@ -69,7 +69,7 @@ module.exports = class JoinForm extends Component {
 
         <style>.center-on-small-widths { display: flex; }</style>
         <div class="columns is-centered center-on-small-widths">
-          <div class="column is-narrow" style="max-width: 500px;">
+          <div class="column" style="max-width: 500px;">
             <form class="box has-text-centered" method="POST" onsubmit=${this} action=${this}>
               <div class="field">
                 <label for="email">Enter your email to get started:</label>
