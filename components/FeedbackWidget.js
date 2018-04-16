@@ -31,7 +31,7 @@ class FeedbackWidgetButton extends Component {
   render() {
     return this.html`
       <p class="field feedback-btn">
-        <a class="button is-info" onclick=${this}>
+        <a class="button is-info is-small" onclick=${this}>
           <span class="icon is-small">
             <i class="fa fa-comment"></i>
           </span>
