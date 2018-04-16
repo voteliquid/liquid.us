@@ -16,7 +16,6 @@ module.exports = class Footer extends Component {
         <div class="columns is-centered">
           <div class="column is-half section" style="padding: 0 3rem;">
             <img src="/assets/unitedvote_mark.svg" alt="united.vote" width="40" height="28">
-            <p class="is-size-7" style="margin: 3rem 0"><a href="/" class="has-text-black"><strong>United.vote</strong></a> is a non-partisan organization dedicated to creating smarter and more accountable governance, with liquid democracy.</p>
             <style>
               .quote-icon {
                 color: rgb(115, 115, 115);
@@ -36,12 +35,13 @@ module.exports = class Footer extends Component {
                 }
               }
             </style>
-            <div style="position: relative;">
+            <div style="margin: 3rem 0; position: relative;">
               <span class="quote-icon">“</span>
               <p class="title has-text-grey is-4 has-text-justified">${[randomQuote.text.replace(/\n/g, '<br />')]}</p>
               ${randomQuote.author && [`<p class="title is-5 has-text-grey has-text-right">— <em>${randomQuote.author}</em></p>`]}
               ${randomQuote.date && [`<p class="title is-6 has-text-right has-text-grey is-uppercase">${randomQuote.date}</p>`]}
             </div>
+            <p class="is-size-7"><a href="/" class="has-text-black"><strong>United.vote</strong></a> is a non-partisan organization dedicated to creating smarter and more accountable governance, with liquid democracy.</p>
           </div>
         </div>
         ${FeedbackWidget.for(this)}
