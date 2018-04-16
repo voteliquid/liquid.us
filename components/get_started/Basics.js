@@ -135,83 +135,81 @@ class GetStartedBasicsPage extends Component {
 
     return this.html`
       <section class="section">
-        <div class="columns is-centered">
-          <div class="column is-two-thirds">
-            <div class="content">
-              ${location.query.notification === 'proxy_wo_name' ? [`
-                <div class="notification is-info">You must set your first and last name before proxying.</div>
-              `] : []}
-              <h2 class="subtitle">Welcome.</h2>
-              <h3 class="subtitle is-5">
-                Help us locate your elected representatives:
-              </h3>
-              <form method="POST" onsubmit=${this}>
-                <div class="field">
-                  <label class="label">Your Name:</label>
-                  <div class="control has-icons-left">
-                    <input name="address[name]" autocomplete="off" class=${`input ${error.name && 'is-danger'}`} placeholder="John Doe" required value="${[user.first_name, user.last_name].filter(a => a).join(' ')}" />
-                    ${error.name
-                      ? [`<span class="icon is-small is-left"><i class="fa fa-warning"></i></span>`]
-                      : [`<span class="icon is-small is-left"><i class="fa fa-user"></i></span>`]
-                    }
-                    ${error.name && [`<p class="help is-danger">${error.message}</p>`]}
-                  </div>
-                </div>
-                <div class="field">
-                  <label class="label">Your Address:</label>
-                  <div class="control has-icons-left">
-                    <input class=${`input ${error.address && 'is-danger'}`} autocomplete="off" name="address[address]" id="address_autocomplete" required placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" />
-                    <input name="address[lat]" id="address_lat" type="hidden" />
-                    <input name="address[lon]" id="address_lon" type="hidden" />
-                    ${GoogleAddressAutocompleteScript.for(this)}
-                    ${error.address
-                      ? [`<span class="icon is-small is-left"><i class="fa fa-warning"></i></span>`]
-                      : [`<span class="icon is-small is-left"><i class="fa fa-map-marker"></i></span>`]
-                    }
-                    ${error.address && [`<p class="help is-danger">${error.message}</p>`]}
-                  </div>
-                </div>
-                <div class="field">
-                  <label class="label">Are you registered to vote at this address?</label>
-                  <div class="control">
-                    <div class="select">
-                      <select name="address[voter_status]" required>
-                        <option>Pick one</option>
-                        <option value="Registered" selected=${user.voter_status === 'Registered'}>Registered to vote</option>
-                        <option value="Eligible" selected=${user.voter_status === 'Eligible'}>Not registered to vote</option>
-                        <option value="Ineligible" selected=${user.voter_status === 'Ineligible'}>Not eligible to vote</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <div class="field">
-                  <div class="control">
-                    <button class="button is-primary" type="submit">Next</button>
-                  </div>
-                </div>
-                <p class="help is-small has-text-grey">All of your information is kept strictly private.</p>
-                <div class="expandable">
-                  <a onclick=${expand} href="#" class="is-size-7">Not in the US?</a>
-                  <p>As Americans, we're focused on our own democracy first, but we've heard many international requests to bring United to other countries.</p>
-                  <p>We want to make this much easier in the future.</p>
-                  <p>Write to us at <a href="mailto:international@united.vote" >international@united.vote</a> and tell us where you're from. We'd love to hear from you.</p>
-                  <p />
-                </div>
-                <style>
-                  .expandable { list-style: none; }
-                  .expandable > a::after {
-                    content: '➤';
-                    font-size: 70%;
-                    position: relative;
-                    left: 6px;
-                    bottom: 2px;
+        <div class="container">
+          <div class="content" style="max-width: 650px;">
+            ${location.query.notification === 'proxy_wo_name' ? [`
+              <div class="notification is-info">You must set your first and last name before proxying.</div>
+            `] : []}
+            <h2 class="subtitle">Welcome.</h2>
+            <h3 class="subtitle is-5">
+              Help us locate your elected representatives:
+            </h3>
+            <form method="POST" onsubmit=${this}>
+              <div class="field">
+                <label class="label">Your Name:</label>
+                <div class="control has-icons-left">
+                  <input name="address[name]" autocomplete="off" class=${`input ${error.name && 'is-danger'}`} placeholder="John Doe" required value="${[user.first_name, user.last_name].filter(a => a).join(' ')}" />
+                  ${error.name
+                    ? [`<span class="icon is-small is-left"><i class="fa fa-warning"></i></span>`]
+                    : [`<span class="icon is-small is-left"><i class="fa fa-user"></i></span>`]
                   }
-                  .expandable.is-expanded > a::after { content: '▼'; }
-                  .expandable p, .expandable div, .expandable hr { display: none; }
-                  .expandable.is-expanded p, .expandable.is-expanded div, .expandable.is-expanded hr { display: block; }
-                </style>
-              </form>
-            </div>
+                  ${error.name && [`<p class="help is-danger">${error.message}</p>`]}
+                </div>
+              </div>
+              <div class="field">
+                <label class="label">Your Address:</label>
+                <div class="control has-icons-left">
+                  <input class=${`input ${error.address && 'is-danger'}`} autocomplete="off" name="address[address]" id="address_autocomplete" required placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" />
+                  <input name="address[lat]" id="address_lat" type="hidden" />
+                  <input name="address[lon]" id="address_lon" type="hidden" />
+                  ${GoogleAddressAutocompleteScript.for(this)}
+                  ${error.address
+                    ? [`<span class="icon is-small is-left"><i class="fa fa-warning"></i></span>`]
+                    : [`<span class="icon is-small is-left"><i class="fa fa-map-marker"></i></span>`]
+                  }
+                  ${error.address && [`<p class="help is-danger">${error.message}</p>`]}
+                </div>
+              </div>
+              <div class="field">
+                <label class="label">Are you registered to vote at this address?</label>
+                <div class="control">
+                  <div class="select">
+                    <select name="address[voter_status]" required>
+                      <option>Pick one</option>
+                      <option value="Registered" selected=${user.voter_status === 'Registered'}>Registered to vote</option>
+                      <option value="Eligible" selected=${user.voter_status === 'Eligible'}>Not registered to vote</option>
+                      <option value="Ineligible" selected=${user.voter_status === 'Ineligible'}>Not eligible to vote</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="field">
+                <div class="control">
+                  <button class="button is-primary" type="submit">Next</button>
+                </div>
+              </div>
+              <p class="help is-small has-text-grey">All of your information is kept strictly private.</p>
+              <div class="expandable">
+                <a onclick=${expand} href="#" class="is-size-7">Not in the US?</a>
+                <p>As Americans, we're focused on our own democracy first, but we've heard many international requests to bring United to other countries.</p>
+                <p>We want to make this much easier in the future.</p>
+                <p>Write to us at <a href="mailto:international@united.vote" >international@united.vote</a> and tell us where you're from. We'd love to hear from you.</p>
+                <p />
+              </div>
+              <style>
+                .expandable { list-style: none; }
+                .expandable > a::after {
+                  content: '➤';
+                  font-size: 70%;
+                  position: relative;
+                  left: 6px;
+                  bottom: 2px;
+                }
+                .expandable.is-expanded > a::after { content: '▼'; }
+                .expandable p, .expandable div, .expandable hr { display: none; }
+                .expandable.is-expanded p, .expandable.is-expanded div, .expandable.is-expanded hr { display: block; }
+              </style>
+            </form>
           </div>
         </div>
       </section>
