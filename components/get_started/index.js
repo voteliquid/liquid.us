@@ -2,6 +2,12 @@ const Component = require('../Component')
 
 module.exports = class VerificationRouter extends Component {
   oninit() {
+    if (this.isServer) {
+      return this.redirect()
+    }
+  }
+
+  redirect() {
     const { user } = this.state
     const { redirect, query } = this.location
 
@@ -14,17 +20,18 @@ module.exports = class VerificationRouter extends Component {
     } else if (!user.voter_status) {
       return redirect(`/get_started/voter_status`)
     } else if (!user.cc_verified) {
+      console.log('verification router')
       return redirect(`/get_started/verification`)
     } else if (!user.username) {
       return redirect(`/get_started/profile`)
     }
 
-    this.finishOrSkip()
+    return this.finishOrSkip()
   }
 
   onpagechange(oldProps) {
     if (oldProps.url !== this.props.url) {
-      this.oninit()
+      this.redirect()
     }
   }
 
