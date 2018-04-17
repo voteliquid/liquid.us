@@ -155,7 +155,7 @@ class StripeForm extends Component {
       return { skipWarning: true }
     }
 
-    this.location.redirect('/get_started?skip=t')
+    this.location.redirect(303, '/get_started?skip=t')
     return { readyToPay: false, skipWarning: false }
   }
 
@@ -237,7 +237,7 @@ class StripeForm extends Component {
     .then(charge => {
       if (charge.stripe_charge_id && !charge.error_message) {
         this.setState({ loading_verification: false, error: false, user: { ...user, cc_verified: true } })
-        this.location.redirect('/get_started/profile')
+        this.location.redirect(303, '/get_started/profile')
       }
     })
     .catch((error) => {
@@ -549,7 +549,7 @@ class LinkToSkip extends Component {
       return { skipWarning: true }
     }
 
-    this.location.redirect('/get_started?skip=t')
+    this.location.redirect(303, '/get_started?skip=t')
     return { skipWarning: false }
   }
 

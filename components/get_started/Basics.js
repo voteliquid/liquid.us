@@ -100,7 +100,7 @@ class GetStartedBasicsPage extends Component {
       this.setState({ user: { ...user, voter_status, first_name, last_name, address: { address } } })
 
       if (!storage.get('proxying_user_id')) {
-        return redirect('/get_started/proxies')
+        return redirect(303, '/get_started/proxies')
       }
 
       return this.api('/delegations', {
@@ -115,11 +115,11 @@ class GetStartedBasicsPage extends Component {
       .then(() => {
         storage.set('proxied_user_id', storage.get('proxying_user_id'))
         storage.unset('proxying_user_id')
-        return redirect('/get_started/proxies')
+        return redirect(303, '/get_started/proxies')
       })
       .catch(error => {
         console.log(error)
-        return redirect('/get_started/proxies')
+        return redirect(303, '/get_started/proxies')
       })
     })
     .catch((api_error) => {

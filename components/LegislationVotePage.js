@@ -93,7 +93,7 @@ class LegislationVoteContent extends Component {
     })
     .then(() => {
       this.setState({ saving_vote: false })
-      return redirect(`/legislation/${selected_bill.short_id}`)
+      return redirect(303, `/legislation/${selected_bill.short_id}`)
     })
     .catch(error => {
       return { error: error.message, saving_vote: false }
