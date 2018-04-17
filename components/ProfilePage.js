@@ -5,7 +5,7 @@ const UserProfilePage = require('./UserProfilePage')
 
 module.exports = class ProfilePage extends Component {
   oninit() {
-    const { profiles = {} } = this.state
+    const { config, profiles = {} } = this.state
     const username = this.props.params.username.toLowerCase()
     const { path } = this.location
 
@@ -25,6 +25,12 @@ module.exports = class ProfilePage extends Component {
 
       if (user.twitter_username && !user.username) {
         user.name = user.twitter_displayname
+      }
+
+      if (this.isBrowser) {
+        let page_title = `${config.APP_NAME} ★ ${user.name}`
+        window.document.title = page_title
+        window.history.replaceState(window.history.state, page_title, document.location)
       }
 
       return this.setState({
