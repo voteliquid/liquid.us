@@ -32,7 +32,7 @@ module.exports = class ProxyRequests extends Component {
     return this.html`
       <section class="section">
       <div class="columns is-centered">
-        <div class="column is-5">
+        <div class="column is-half">
           <h2 class="title is-5">Proxy Requests</h2>
           <div class="content">
             <p>Your votes are private by default. Before someone can proxy to you, you have to allow them to see how you vote.</p>

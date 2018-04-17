@@ -16,7 +16,6 @@ module.exports = class Footer extends Component {
         <div class="columns is-centered">
           <div class="column is-half section" style="padding: 0 3rem;">
             <img src="/assets/unitedvote_mark.svg" alt="united.vote" width="40" height="28">
-            <p class="is-size-7" style="margin: 3rem 0"><a href="/" class="has-text-black"><strong>United.vote</strong></a> is a non-partisan organization dedicated to creating smarter and more accountable governance, with liquid democracy.</p>
             <style>
               .quote-icon {
                 color: rgb(115, 115, 115);
@@ -36,12 +35,13 @@ module.exports = class Footer extends Component {
                 }
               }
             </style>
-            <div style="position: relative;">
+            <div style="margin: 3rem 0; position: relative;">
               <span class="quote-icon">“</span>
               <p class="title has-text-grey is-4 has-text-justified">${[randomQuote.text.replace(/\n/g, '<br />')]}</p>
               ${randomQuote.author && [`<p class="title is-5 has-text-grey has-text-right">— <em>${randomQuote.author}</em></p>`]}
               ${randomQuote.date && [`<p class="title is-6 has-text-right has-text-grey is-uppercase">${randomQuote.date}</p>`]}
             </div>
+            <p class="is-size-7"><a href="/" class="has-text-black"><strong>United.vote</strong></a> is a non-partisan organization dedicated to creating smarter and more accountable governance, with liquid democracy.</p>
           </div>
         </div>
         ${FeedbackWidget.for(this)}
@@ -174,7 +174,7 @@ Every citizen has a right to participate personally, or through their representa
     date: 'August 2017',
   },
   {
-    text: 'The penalty we pay for not being involved in politics is being governed by people worse than ourselves.',
+    text: 'One of the penalties for refusing to participate in politics is that you end up being governed by your inferiors.',
     author: 'Plato',
     date: '380 BC',
   },
@@ -205,11 +205,6 @@ Every citizen has a right to participate personally, or through their representa
     text: 'There is nothing which I dread so much as a division of the republic into two great parties, each arranged under its leader, and concerting measures in opposition to each other. This, in my humble apprehension, is to be dreaded as the greatest political evil under our Constitution.',
     author: 'President John Adams',
     date: 'October 1780',
-  },
-  {
-    text: 'The best defense against usurpatory government is an assertive citizenry.',
-    author: 'William F. Buckley',
-    date: '1992',
   },
   {
     text:

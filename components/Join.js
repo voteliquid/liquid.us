@@ -13,7 +13,7 @@ module.exports = class Join extends Component {
         <div class="hero">
           <div class="hero-body">
             <h3 class="subtitle is-4 has-text-centered">Sign up in less than 5 minutes:</h3>
-            <div class="columns is-centered"><div class="column is-half"><div class="columns">
+            <div class="container is-centered"><div class="columns">
               <div class="column has-text-centered">
                 <h4 class="title is-4">
                   <span class="has-text-grey-light">&#9312;</span><br /><br />
@@ -38,7 +38,7 @@ module.exports = class Join extends Component {
                 </h4>
                 <p>Vote directly on bills to hold your elected reps accountable.</p>
               </div>
-            </div>
+            </div></div>
           </div>
         </div>
       </div>
