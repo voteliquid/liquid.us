@@ -174,7 +174,7 @@ Every citizen has a right to participate personally, or through their representa
     date: 'August 2017',
   },
   {
-    text: 'The penalty we pay for not being involved in politics is being governed by people worse than ourselves.',
+    text: 'One of the penalties for refusing to participate in politics is that you end up being governed by your inferiors.',
     author: 'Plato',
     date: '380 BC',
   },
