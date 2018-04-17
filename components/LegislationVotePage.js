@@ -3,10 +3,18 @@ const LoadingIndicator = require('./LoadingIndicator')
 
 module.exports = class LegislationVotePage extends Component {
   oninit() {
-    return this.fetchVote()
+    return this.fetchVote().then(() => this.setBrowserTitle())
   }
   onpagechange() {
-    this.fetchVote().then(newState => this.setState(newState))
+    this.fetchVote().then(() => this.setBrowserTitle())
+  }
+  setBrowserTitle() {
+    const { config, selected_bill } = this.state
+    if (this.isBrowser) {
+      let page_title = `${config.APP_NAME} ★ Vote on ${selected_bill.short_title}`
+      window.document.title = page_title
+      window.history.replaceState(window.history.state, page_title, document.location)
+    }
   }
   fetchVote() {
     const { selected_bill, user } = this.state
@@ -18,6 +26,7 @@ module.exports = class LegislationVotePage extends Component {
       .then(bills => {
         const bill = bills[0]
         if (bill) {
+          let page_title = `Vote on ${bill.display_title}`
           if (user) {
             return this.api(`/votes?user_id=eq.${user.id}&delegate_rank=eq.-1&order=updated_at.desc`).then(votes => {
               const last_vote_public = votes[0] && votes[0].public
@@ -28,15 +37,15 @@ module.exports = class LegislationVotePage extends Component {
                   body: JSON.stringify({ user_id: user.id, legislation_id: bill.id })
                 }).then((bill_vote_power) => {
                   bill.vote_power = bill_vote_power
-                  return { loading_legislation: false, page_title: bill.display_title, selected_bill: { ...selected_bill, ...bill }, last_vote_public }
+                  return this.setState({ loading_legislation: false, page_title, selected_bill: { ...selected_bill, ...bill }, last_vote_public })
                 })
               })
             })
           }
-          return { loading_legislation: false, page_title: bill.display_title, selected_bill: { ...selected_bill, ...bill } }
+          return this.setState({ loading_legislation: false, page_title, selected_bill: { ...selected_bill, ...bill } })
         }
         this.location.setStatus(404)
-        return { loading_legislation: false }
+        return this.setState({ loading_legislation: false })
       })
       .catch(error => ({ error, loading_legislation: false }))
   }

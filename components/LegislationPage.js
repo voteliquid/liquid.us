@@ -14,7 +14,7 @@ const ago_opts = {
 
 module.exports = class LegislationPage extends Component {
   oninit() {
-    const { user } = this.state
+    const { config, user } = this.state
     const { params } = this.props
 
     const fields = [
@@ -35,6 +35,13 @@ module.exports = class LegislationPage extends Component {
           return this.api(`/legislative_actions?select=*,references:legislative_references(*)&legislation_id=eq.${selected_bill.id}&order=occurred_at.desc`)
             .then(actions => {
               selected_bill.actions = actions
+
+              if (this.isBrowser) {
+                let page_title = `${config.APP_NAME} ★ ${selected_bill.short_title}`
+                window.document.title = page_title
+                window.history.replaceState(window.history.state, page_title, document.location)
+              }
+
               return {
                 loading_bill: false,
                 page_title: selected_bill.short_title,
@@ -250,7 +257,6 @@ class BillComments extends Component {
 
 class CommentsColumn extends Component {
   oninit() {
-    console.log('oninit')
     const { position } = this.props
     const { selected_bill } = this.state
 
