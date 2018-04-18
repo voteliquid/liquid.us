@@ -89,7 +89,7 @@ module.exports = class Home extends Component {
       <section class="hero is-dark is-bold is-fullheight">
         <div class="hero-body">
           <div class="container">
-            <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Right now, <span class="has-text-danger">a single person</span>, chosen from a limited ballot, serves as the representative in Congress for <span class="has-text-danger">a million of us</span>.</h2>
+            <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Right now, <span class="has-text-danger">a single person</span> chosen from a limited ballot, serves as the representative in Congress for <span class="has-text-danger">a million of us</span>.</h2>
             <br />
             <br />
             <br />
