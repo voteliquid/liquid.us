@@ -3,6 +3,18 @@ const routes = require('../../routes')
 
 module.exports = class PickUsernamePage extends Component {
   oninit() {
+    if (this.isServer) {
+      return this.redirectIfUnauthorized()
+    }
+  }
+
+  onpagechange(oldProps) {
+    if (this.props.url !== oldProps.url) {
+      return this.redirectIfUnauthorized()
+    }
+  }
+
+  redirectIfUnauthorized() {
     const { user } = this.state
     const { redirect } = this.location
 
