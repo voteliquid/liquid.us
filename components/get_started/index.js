@@ -20,7 +20,6 @@ module.exports = class VerificationRouter extends Component {
     } else if (!user.voter_status) {
       return redirect(`/get_started/voter_status`)
     } else if (!user.cc_verified) {
-      console.log('verification router')
       return redirect(`/get_started/verification`)
     } else if (!user.username) {
       return redirect(`/get_started/profile`)
