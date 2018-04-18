@@ -14,7 +14,7 @@ module.exports = class Footer extends Component {
     return this.html`
       <footer class="footer has-text-centered">
         <div class="columns is-centered">
-          <div class="column is-half section" style="padding: 0 3rem;">
+          <div class="column is-half section" style="padding: 1rem 3rem 0;">
             <img src="/assets/unitedvote_mark.svg" alt="united.vote" width="40" height="28">
             <style>
               .quote-icon {

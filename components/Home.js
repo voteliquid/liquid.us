@@ -250,6 +250,20 @@ module.exports = class Home extends Component {
           </div>
         </div>
       </section>
+
+      <section class="hero is-dark is-bold">
+        <div class="hero-body">
+          <div class="container">
+            <br />
+            <br />
+            <h3 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Want liquid democracy beyond Congress?</h3>
+            <br />
+            <br />
+            <h4 class="subtitle is-4 is-size-3-desktop is-size-5-mobile reveal"><a href="/new_legislatures" class="has-text-info has-text-weight-bold">Learn about</a> bringing <strong>United.vote</strong> to new legislatures.</h4>
+            <br />
+          </div>
+        </div>
+      </section>
     `
   }
 }
