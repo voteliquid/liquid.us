@@ -382,7 +382,7 @@ class CommentEndorseButton extends Component {
     })
   }
   render() {
-    const { endorsements } = this.props
+    const { endorsed, endorsements } = this.props
 
     return this.html`
       <form class="has-text-right" method="POST" onsubmit=${this} action=${this}>
@@ -394,13 +394,15 @@ class CommentEndorseButton extends Component {
             height: 1rem;
             text-decoration: none;
           }
-          .button.is-text:hover, .button.is-text:active {
+          .button.is-text:hover, .button.is-text:active, .button.is-text:focus {
             color: inherit;
             border: none;
             background: transparent;
+            box-shadow: none;
+            -webkit-box-shadow: none;
           }
         </style>
-          <button type="submit" class="button is-text">
+          <button type="submit" class=${`button is-text ${endorsed ? 'has-text-link' : ''}`}>
             <span class="icon is-small" style="margin-right: 0"><i class="fa fa-thumbs-o-up"></i></span>
             <span>${endorsements > 0 ? endorsements : ''}</span>
           </button>
