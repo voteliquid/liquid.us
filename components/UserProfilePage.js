@@ -3,11 +3,11 @@ const timeAgo = require('from-now')
 
 const ago_opts = {
   seconds: 's',
-  minutes: 'm',
+  minutes: 'min',
   hours: 'h',
   days: 'd',
   weeks: 'w',
-  months: 'm',
+  months: { 1: 'month', 2: 'months' },
   years: 'y',
 }
 
@@ -133,10 +133,12 @@ class VoteCard extends Component {
               <span><a href="${`/legislation/${short_id}`}"><strong>${type.toUpperCase()} ${number}</strong>. ${short_title}</a></span>
             </div>
             <div class="column is-one-quarter has-text-right">
-              <span class="icon"><i class="fa fa-thumbs-o-up"></i></span>
-              <span>${endorsements}</span>
-              <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
-              <span class="has-text-grey-light">${timeAgo(`${updated_at}Z`, ago_opts)}</span>
+              ${ endorsements > 0 ? [`
+                <span class="icon"><i class="fa fa-thumbs-o-up"></i></span>
+                <span>${endorsements}</span>
+                <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
+              `] : []}
+              <span class="has-text-grey-light">${timeAgo(`${updated_at}Z`, ago_opts)} ago</span>
             </div>
           </div>
         </div>
