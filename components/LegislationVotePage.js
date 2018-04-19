@@ -11,7 +11,7 @@ module.exports = class LegislationVotePage extends Component {
   setBrowserTitle() {
     const { config, selected_bill } = this.state
     if (this.isBrowser) {
-      let page_title = `${config.APP_NAME} ★ Vote on ${selected_bill.short_title}`
+      let page_title = `Vote on ${selected_bill.short_title} ★ ${config.APP_NAME}`
       window.document.title = page_title
       window.history.replaceState(window.history.state, page_title, document.location)
     }
