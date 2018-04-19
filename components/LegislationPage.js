@@ -67,12 +67,12 @@ module.exports = class LegislationPage extends Component {
     return this.api(`/legislative_actions?select=*,references:legislative_references(*)&legislation_id=eq.${selected_bill.id}&order=occurred_at.desc`)
   }
   fetchComments(selected_bill) {
-    return this.api(`/public_votes?legislation_id=eq.${selected_bill.id}&comment=not.eq.&comment=not.is.null`).then(comments => {
-      return {
-        yea_comments: comments.filter(({ position }) => position === 'yea'),
-        nay_comments: comments.filter(({ position }) => position === 'nay'),
-      }
-    })
+    return this.api(`/public_votes?legislation_id=eq.${selected_bill.id}&comment=not.eq.&comment=not.is.null`)
+    .then(comments => comments.sort((a, b) => a.endorsements < b.endorsements))
+    .then(comments => ({
+      yea_comments: comments.filter(({ position }) => position === 'yea'),
+      nay_comments: comments.filter(({ position }) => position === 'nay'),
+    }))
   }
   onpagechange(oldProps) {
     const { loading_bill, selected_bill } = this.state
