@@ -149,7 +149,7 @@ class LegislationVoteContent extends Component {
                   </label>
                 </div>
               </div>
-              <div class=${`field ${v.vote_position === 'abstain' ? 'is-hidden' : ''}`}>
+              <div class="field">
                 <label for="comment" class="label">Comment:</label>
                 <div class="control">
                   <textarea name="comment" autocomplete="off" class="textarea" placeholder="Why are you voting this way? Optional." value=${v.comment}></textarea>
