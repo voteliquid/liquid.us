@@ -37,7 +37,7 @@ module.exports = class LegislationPage extends Component {
               selected_bill.actions = actions
 
               if (this.isBrowser) {
-                let page_title = `${config.APP_NAME} ★ ${selected_bill.short_title}`
+                let page_title = `${selected_bill.short_title} ★ ${config.APP_NAME}`
                 window.document.title = page_title
                 window.history.replaceState(window.history.state, page_title, document.location)
               }
