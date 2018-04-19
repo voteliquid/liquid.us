@@ -80,8 +80,8 @@ class BillNotFoundPage extends Component {
       <section class="hero is-fullheight is-dark">
         <div class="hero-body">
           <div class="container has-text-centered">
-            <h1 class="title">${[this.location.path]} not found</h1>
-            <h2 class="subtitle">Maybe you mistyped the URL?</h2>
+            <h1 class="title">Can't find ${[this.location.path]}</h1>
+            <h2 class="subtitle">Maybe the URL is mistyped?</h2>
           </div>
         </div>
       </section>
