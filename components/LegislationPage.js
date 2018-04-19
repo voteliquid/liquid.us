@@ -4,11 +4,11 @@ const LoadingIndicator = require('./LoadingIndicator')
 
 const ago_opts = {
   seconds: 's',
-  minutes: 'm',
+  minutes: 'min',
   hours: 'h',
   days: 'd',
   weeks: 'w',
-  months: 'm',
+  months: 'month',
   years: 'y',
 }
 
@@ -328,7 +328,7 @@ class Comment extends Component {
                     `]
                   }
                   <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
-                  <span class="has-text-grey-light">${timeAgo(`${created_at}Z`, ago_opts)}</span>
+                  <span class="has-text-grey-light">${timeAgo(`${created_at}Z`, ago_opts)} ago</span>
                 </div>
             </div>
           </div>
