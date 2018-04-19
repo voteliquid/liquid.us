@@ -38,8 +38,8 @@ module.exports = class Footer extends Component {
             <div style="margin: 3rem 0; position: relative;">
               <span class="quote-icon">“</span>
               <p class="title has-text-grey is-4 has-text-justified">${[randomQuote.text.replace(/\n/g, '<br />')]}</p>
-              ${randomQuote.author && [`<p class="title is-5 has-text-grey has-text-right">— <em>${randomQuote.author}</em></p>`]}
-              ${randomQuote.date && [`<p class="title is-6 has-text-right has-text-grey is-uppercase">${randomQuote.date}</p>`]}
+              ${[randomQuote.author ? `<p class="title is-5 has-text-grey has-text-right">— <em>${randomQuote.author}</em></p>` : '']}
+              ${[randomQuote.date ? `<p class="title is-6 has-text-right has-text-grey is-uppercase">${randomQuote.date}</p>` : '']}
             </div>
             <p class="is-size-7"><a href="/" class="has-text-black"><strong>United.vote</strong></a> is a non-partisan organization dedicated to creating smarter and more accountable governance, with liquid democracy.</p>
           </div>
