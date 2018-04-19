@@ -20,13 +20,13 @@ module.exports = class Home extends Component {
 
       <section onconnected=${this} class="hero is-link is-bold is-fullheight subtract-toolbar">
         <div class="hero-body">
-          <div class="container">
-            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal">A new democracy for the modern world</h2>
+          <div class="container reveal">
+            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile delayed">A new democracy for the modern world</h2>
             <br />
             <br />
-            <h3 class="subtitle is-3 is-size-4-mobile delayed">Where everyone has a voice on every issue</h3>
-            <h4 class="subtitle is-3 is-size-4-mobile delayed">We can trust our representatives</h4>
-            <h4 class="subtitle is-3 is-size-4-mobile delayed">And if they lose our trust, we can <strong>replace them</strong> immediately.</h4>
+            <h3 class="subtitle is-3 is-size-4-mobile delayed1">Where everyone has a voice on every issue</h3>
+            <h4 class="subtitle is-3 is-size-4-mobile delayed1">We can trust our representatives</h4>
+            <h4 class="subtitle is-3 is-size-4-mobile delayed1">And if they lose our trust, we can <strong>replace them</strong> immediately.</h4>
             <br />
             <br />
             <div class="delayed2 has-text-centered-mobile">
@@ -50,9 +50,16 @@ module.exports = class Home extends Component {
             min-height: calc(100vh - 64px);
           }
           .delayed {
-            animation: delayed-animation 1.8s cubic-bezier(0.6, 0.2, 0.1, 1);
+            animation: delayed-animation 0.6s cubic-bezier(0.6, 0.2, 0.1, 1);
           }
           @keyframes delayed-animation {
+            0% { opacity: 0; transform: scale(0.9) translate(0, 20px); }
+            100% { opacity: 1; transform: scale(1) translate(0, 0); }
+          }
+          .delayed1 {
+            animation: delayed1-animation 1.8s cubic-bezier(0.6, 0.2, 0.1, 1);
+          }
+          @keyframes delayed1-animation {
             0% { opacity: 0; }
             55% { opacity: 0; transform: scale(0.9) translate(0, 20px); }
             100% { opacity: 1; transform: scale(1) translate(0, 0); }
