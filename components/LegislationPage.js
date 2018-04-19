@@ -306,12 +306,12 @@ class Comment extends Component {
                             </p>
                           </div>
                           <div class="media-content" style="align-self: center;">
-                            <a href="/${username}">${fullname} <span class="has-text-grey-light">@${username}</span></a>
+                            <a href="/${username}">${fullname}</a>
                           </div>
                         </div>
                     `]
                     : [`
-                      <a href="/${username}">${fullname} <span class="has-text-grey-light">@${username}</span></a>
+                      <a href="/${username}">${fullname}</a>
                     `]
                   : [`
                     <span class="has-text-grey-light">Anonymous</span>
