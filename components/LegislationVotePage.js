@@ -121,7 +121,7 @@ class LegislationVoteContent extends Component {
     const v = l.my_vote ? l.my_vote : {}
     const public_checked = v.hasOwnProperty('public') ? v.public : last_vote_public
     return this.html`
-      <section>
+      <section class="section">
         <div class="container">
           <nav class="breadcrumb is-left is-small" aria-label="breadcrumbs">
             <ul>
