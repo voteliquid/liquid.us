@@ -4,11 +4,11 @@ const LoadingIndicator = require('./LoadingIndicator')
 
 const ago_opts = {
   seconds: 's',
-  minutes: 'm',
+  minutes: 'min',
   hours: 'h',
   days: 'd',
   weeks: 'w',
-  months: 'm',
+  months: { 1: 'month', 2: 'months' },
   years: 'y',
 }
 
@@ -33,7 +33,7 @@ module.exports = class LegislationPage extends Component {
 
       if (selected_bill) {
         if (this.isBrowser) {
-          let page_title = `${config.APP_NAME} ★ ${selected_bill.short_title}`
+          let page_title = `${selected_bill.short_title} ★ ${config.APP_NAME}`
           window.document.title = page_title
           window.history.replaceState(window.history.state, page_title, document.location)
         }
@@ -99,8 +99,8 @@ class BillNotFoundPage extends Component {
       <section class="hero is-fullheight is-dark">
         <div class="hero-body">
           <div class="container has-text-centered">
-            <h1 class="title">${[this.location.path]} not found</h1>
-            <h2 class="subtitle">Maybe you mistyped the URL?</h2>
+            <h1 class="title">Can't find ${[this.location.path]}</h1>
+            <h2 class="subtitle">Maybe the URL is mistyped?</h2>
           </div>
         </div>
       </section>
@@ -117,7 +117,9 @@ class BillFoundPage extends Component {
         <div class="container">
           ${(l.vote_position && !user.cc_verified) ? [`
             <div class="notification is-info">
-              Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>. Help hold your reps accountable!
+              <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
+              <strong>Help hold your reps accountable!</strong><br />
+              Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
             </div>
           `] : ''}
           <div class="content">
@@ -143,10 +145,10 @@ class BillFoundPage extends Component {
                   <p><span class="has-text-weight-bold">${l.constituent_yeas} Yea and ${l.constituent_nays} Nay</span> votes from verified constituents in your district</p>
                 `]
                 : [`
-                  <p><span class="has-text-weight-semibold">Why vote?</span> We'll notify <a href="/legislators">your representative</a> and hold them accountable by using your vote to calculate their <a href="https://blog.united.vote/2017/12/08/give-your-rep-an-f-introducing-united-legislator-grades/">representation score</a>.</p>
+                  <p class="is-size-7">We'll notify <a href="/legislators">your representative</a> and hold them accountable by using your vote to calculate their <a href="https://blog.united.vote/2017/12/08/give-your-rep-an-f-introducing-united-legislator-grades/">representation score</a>.</p>
                   ${l.yeas + l.nays
                   ? [`
-                    <p>${l.yeas + l.nays} ${config.APP_NAME} constituents have voted on this bill. Join them and <a href="${`/legislation/${l.short_id}/vote`}">cast your vote</a>.</p>
+                    <p>${l.yeas + l.nays} people have voted on this bill. Join them.</p>
                   `]
                   : ''
                   }
@@ -200,13 +202,13 @@ class BillSummary extends Component {
           bottom: 0;
         }
       </style>
-      <div class=${`${expanded || !summary ? '' : 'summary'} is-size-7`}>
+      <div class=${`${expanded || !summary ? '' : 'summary'}`}>
         <h3 class="title has-text-weight-normal is-size-5">Summary</h3>
-        <div class="content is-size-7">
+        <div class="content">
           ${[summary || `<p>A summary is in progress.</p><p><a href="https://www.congress.gov/bill/${congress}th-congress/${chamber.toLowerCase()}-bill/${number}/text">Read full text of the bill at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
         </div>
         <div class="read-more"></div>
-        <a class="read-more-link" href="#" onclick=${this}>
+        <a class="read-more-link is-size-7" href="#" onclick=${this}>
           ${summary
             ? [`<span class="icon is-small"><i class="${`fa fa-${expanded ? 'minus' : 'plus'}`}"></i></span> ${expanded ? 'Show less' : 'Show more'}`]
             : ''}
@@ -315,12 +317,12 @@ class Comment extends Component {
                             </p>
                           </div>
                           <div class="media-content" style="align-self: center;">
-                            <a href="/${username}">${fullname} <span class="has-text-grey-light">@${username}</span></a>
+                            <a href="/${username}">${fullname}</a>
                           </div>
                         </div>
                     `]
                     : [`
-                      <a href="/${username}">${fullname} <span class="has-text-grey-light">@${username}</span></a>
+                      <a href="/${username}">${fullname}</a>
                     `]
                   : [`
                     <span class="has-text-grey-light">Anonymous</span>
@@ -331,13 +333,13 @@ class Comment extends Component {
                 <div class="level-item">
                   ${user
                     ? CommentEndorseButton.for(this, this.props, `endorsebtn-${id}`)
-                    : [`
-                      <span class="icon"><i class="fa fa-thumbs-o-up"></i></span>
-                      <span>${endorsements}</span>
-                    `]
+                    : endorsements > 0 ? [`
+                        <span class="icon"><i class="fa fa-thumbs-o-up"></i></span>
+                        <span>${endorsements}</span>
+                        <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
+                      `]: []
                   }
-                  <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
-                  <span class="has-text-grey-light">${timeAgo(`${created_at}Z`, ago_opts)}</span>
+                  <span class="has-text-grey-light">${timeAgo(`${created_at}Z`, ago_opts)} ago</span>
                 </div>
             </div>
           </div>
@@ -391,7 +393,7 @@ class CommentEndorseButton extends Component {
     })
   }
   render() {
-    const { endorsements } = this.props
+    const { endorsed, endorsements } = this.props
 
     return this.html`
       <form class="has-text-right" method="POST" onsubmit=${this} action=${this}>
@@ -403,17 +405,20 @@ class CommentEndorseButton extends Component {
             height: 1rem;
             text-decoration: none;
           }
-          .button.is-text:hover, .button.is-text:active {
+          .button.is-text:hover, .button.is-text:active, .button.is-text:focus {
             color: inherit;
             border: none;
             background: transparent;
+            box-shadow: none;
+            -webkit-box-shadow: none;
           }
         </style>
-          <button type="submit" class="button is-text">
-            <span class="icon is-small"><i class="fa fa-thumbs-o-up"></i></span>
-            <span>${endorsements}</span>
+          <button type="submit" class=${`button is-text ${endorsed ? 'has-text-link' : ''}`}>
+            <span class="icon is-small" style="margin-right: 0"><i class="fa fa-thumbs-o-up"></i></span>
+            <span>${endorsements > 0 ? endorsements : ''}</span>
           </button>
       </form>
+      <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
     `
   }
 }
