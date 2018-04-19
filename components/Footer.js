@@ -78,24 +78,25 @@ module.exports = class Footer extends Component {
             })
         });
       </script>
-      ${NODE_ENV === 'production' ? [`
-        <script src="https://cdn.ravenjs.com/3.20.1/raven.min.js" crossorigin="anonymous"></script>
-        <script>
-          Raven.config('https://613c962d6bfa43ba863bdd2b0c0ec907@sentry.io/254602', {
-            environment: "${NODE_ENV}"
-          }).install()
-        </script>
+      <div>
+        ${[NODE_ENV === 'production' ? `
+          <script src="https://cdn.ravenjs.com/3.20.1/raven.min.js" crossorigin="anonymous"></script>
+          <script>
+            Raven.config('https://613c962d6bfa43ba863bdd2b0c0ec907@sentry.io/254602', {
+              environment: "${NODE_ENV}"
+            }).install()
+          </script>
 
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-84279342-5"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
+          <script async src="https://www.googletagmanager.com/gtag/js?id=UA-84279342-5"></script>
+          <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
 
-          gtag('config', 'UA-84279342-5');
-        </script>
-      `] : ''}
+            gtag('config', 'UA-84279342-5');
+          </script>
+        ` : '']}
+      </div>
     `
   }
 }
