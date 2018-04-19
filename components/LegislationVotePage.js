@@ -101,9 +101,17 @@ class LegislationVoteContent extends Component {
   }
   onclick(event) {
     const { selected_bill } = this.state
-    selected_bill.my_vote = {
-      ...selected_bill.my_vote,
-      vote_position: event.target.checked ? event.target.value : ''
+
+    if (event.target.name === 'vote_position') {
+      selected_bill.my_vote = {
+        ...selected_bill.my_vote,
+        vote_position: event.target.checked ? event.target.value : ''
+      }
+    } else if (event.target.name === 'public') {
+      selected_bill.my_vote = {
+        ...selected_bill.my_vote,
+        public: event.target.checked
+      }
     }
 
     return { selected_bill }
@@ -153,17 +161,21 @@ class LegislationVoteContent extends Component {
                 <label for="comment" class="label">Comment:</label>
                 <div class="control">
                   <textarea name="comment" autocomplete="off" class="textarea" placeholder="Why are you voting this way? Optional." value=${v.comment}></textarea>
-                  <p class="is-size-7 has-text-grey">Vote comments will be published anonymously (your name will not be shown).</p>
                 </div>
               </div>
               <div class="field">
                 <div class="control">
                   <label class="checkbox">
-                    <input type="checkbox" name="public" value="true" checked=${public_checked ? 'checked' : ''} />
+                    <input onclick=${this} type="checkbox" name="public" value="true" checked=${public_checked ? 'checked' : ''} />
                     Public
                   </label>
                 </div>
-                <p class="is-size-7">If you choose "Public", your name will be published alongside your comment. It will also be listed on your profile.</p>
+                <p class="is-size-7 has-text-grey">
+                  ${ public_checked
+                    ? 'Your comment will be published with your name. It will also be listed on your profile.'
+                    : 'Your comment will be published anonymously (your name will not be shown).'
+                  }
+                </p>
               </div>
               <div class="field">
                 <div class="control">
