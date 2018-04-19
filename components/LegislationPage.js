@@ -14,7 +14,7 @@ const ago_opts = {
 
 module.exports = class LegislationPage extends Component {
   oninit() {
-    const { config, user } = this.state
+    const { bills = {}, config, user } = this.state
     const { params } = this.props
 
     const fields = [
@@ -28,38 +28,57 @@ module.exports = class LegislationPage extends Component {
 
     this.setState({ loading_bill: true })
 
-    return this.api(url)
-      .then((bills) => {
-        const selected_bill = bills[0]
-        if (selected_bill) {
-          return this.api(`/legislative_actions?select=*,references:legislative_references(*)&legislation_id=eq.${selected_bill.id}&order=occurred_at.desc`)
-            .then(actions => {
-              selected_bill.actions = actions
+    return this.api(url).then((bills) => {
+      const selected_bill = bills[0]
 
-              if (this.isBrowser) {
-                let page_title = `${config.APP_NAME} ★ ${selected_bill.short_title}`
-                window.document.title = page_title
-                window.history.replaceState(window.history.state, page_title, document.location)
-              }
-
-              return {
-                loading_bill: false,
-                page_title: selected_bill.short_title,
-                page_description: `Vote directly on bills in Congress. We'll notify your representatives and grade them for listening / ignoring their constituents.`,
-                selected_bill: { ...this.state.selected_bill, ...selected_bill },
-              }
-            })
+      if (selected_bill) {
+        if (this.isBrowser) {
+          let page_title = `${config.APP_NAME} ★ ${selected_bill.short_title}`
+          window.document.title = page_title
+          window.history.replaceState(window.history.state, page_title, document.location)
         }
-        this.location.setStatus(404)
-        return { loading_bill: false }
-      })
-      .catch((error) => {
-        this.location.setStatus(404)
-        return { error, loading_bill: false }
-      })
+
+        return this.fetchActions(selected_bill).then(actions => {
+          selected_bill.actions = actions
+
+          return this.fetchComments(selected_bill).then(({ yea_comments, nay_comments }) => {
+            selected_bill.yea_comments = yea_comments
+            selected_bill.nay_comments = nay_comments
+            return {
+              loading_bill: false,
+              page_title: selected_bill.short_title,
+              page_description: `Vote directly on bills in Congress. We'll notify your representatives and grade them for listening / ignoring their constituents.`,
+              selected_bill: { ...bills[selected_bill.short_id], ...selected_bill },
+              bills: { ...bills, [selected_bill.short_id]: selected_bill },
+            }
+          })
+        })
+      }
+
+      this.location.setStatus(404)
+      return { loading_bill: false }
+    })
+    .catch((error) => {
+      this.location.setStatus(404)
+      return { error, loading_bill: false }
+    })
   }
-  onpagechange() {
-    this.oninit().then((newState) => this.setState(newState))
+  fetchActions(selected_bill) {
+    return this.api(`/legislative_actions?select=*,references:legislative_references(*)&legislation_id=eq.${selected_bill.id}&order=occurred_at.desc`)
+  }
+  fetchComments(selected_bill) {
+    return this.api(`/public_votes?legislation_id=eq.${selected_bill.id}&comment=not.eq.&comment=not.is.null`).then(comments => {
+      return {
+        yea_comments: comments.filter(({ position }) => position === 'yea'),
+        nay_comments: comments.filter(({ position }) => position === 'nay'),
+      }
+    })
+  }
+  onpagechange(oldProps) {
+    const { loading_bill, selected_bill } = this.state
+    if (!loading_bill && selected_bill) {
+      this.oninit().then((newState) => this.setState(newState))
+    }
   }
   render() {
     const { loading_bill, selected_bill } = this.state
@@ -256,16 +275,6 @@ class BillComments extends Component {
 }
 
 class CommentsColumn extends Component {
-  oninit() {
-    const { position } = this.props
-    const { selected_bill } = this.state
-
-    if (selected_bill[`${position}_comments`]) return
-
-    return this.api(`/public_votes?legislation_id=eq.${selected_bill.id}&comment=not.eq.&comment=not.is.null&position=eq.${position}`).then(comments => {
-      return { selected_bill: { ...this.state.selected_bill, [`${position}_comments`]: comments } }
-    })
-  }
   render() {
     const { position } = this.props
     const { selected_bill } = this.state
