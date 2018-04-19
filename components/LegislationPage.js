@@ -98,7 +98,9 @@ class BillFoundPage extends Component {
         <div class="container">
           ${(l.vote_position && !user.cc_verified) ? [`
             <div class="notification is-info">
-              Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>. Help hold your reps accountable!
+              <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
+              <strong>Help hold your reps accountable!</strong><br />
+              Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
             </div>
           `] : ''}
           <div class="content">
