@@ -322,12 +322,12 @@ class Comment extends Component {
                 <div class="level-item">
                   ${user
                     ? CommentEndorseButton.for(this, this.props, `endorsebtn-${id}`)
-                    : [`
-                      <span class="icon"><i class="fa fa-thumbs-o-up"></i></span>
-                      <span>${endorsements}</span>
-                    `]
+                    : endorsements > 0 ? [`
+                        <span class="icon"><i class="fa fa-thumbs-o-up"></i></span>
+                        <span>${endorsements}</span>
+                        <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
+                      `]: []
                   }
-                  <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
                   <span class="has-text-grey-light">${timeAgo(`${created_at}Z`, ago_opts)} ago</span>
                 </div>
             </div>
@@ -401,10 +401,11 @@ class CommentEndorseButton extends Component {
           }
         </style>
           <button type="submit" class="button is-text">
-            <span class="icon is-small"><i class="fa fa-thumbs-o-up"></i></span>
-            <span>${endorsements}</span>
+            <span class="icon is-small" style="margin-right: 0"><i class="fa fa-thumbs-o-up"></i></span>
+            <span>${endorsements > 0 ? endorsements : ''}</span>
           </button>
       </form>
+      <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
     `
   }
 }
