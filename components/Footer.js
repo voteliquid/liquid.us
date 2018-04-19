@@ -149,7 +149,7 @@ Every citizen has a right to participate personally, or through their representa
     date: 'January 1961',
   },
   {
-    text: 'A government of laws, and not of men.',
+    text: 'A government of laws, not of men.',
     author: 'President John Adams',
     date: 'June 1780',
   },
