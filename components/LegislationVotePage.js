@@ -157,6 +157,19 @@ class LegislationVoteContent extends Component {
                     <input onclick=${this} type="radio" name="vote_position" value="abstain" checked=${v.vote_position === 'abstain' ? 'checked' : ''} />
                     Undecided
                   </label>
+                  <style>
+                    label.radio {
+                      border: 1px solid rgba(72, 128, 224, 0.5);
+                      padding: 9px 18px;
+                      border-radius: 55px;
+                    }
+                    @media (max-width: 375px) {
+                      label.radio {
+                        margin: 0 !important;
+                        padding: 9px 11px;
+                      }
+                    }
+                  </style>
                 </div>
               </div>
               <div class="field">
