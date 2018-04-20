@@ -123,6 +123,13 @@ class LegislationVoteContent extends Component {
     return this.html`
       <section class="section">
         <div class="container">
+          ${(v.id && !user.cc_verified) ? [`
+            <div class="notification is-info">
+            <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
+            <strong>Help hold your reps accountable!</strong><br />
+            Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
+            </div>
+          `] : ''}
           <nav class="breadcrumb is-left is-small" aria-label="breadcrumbs">
             <ul>
               <li><a href="/legislation">Legislation</a></li>
@@ -131,14 +138,9 @@ class LegislationVoteContent extends Component {
             </ul>
           </nav>
           <div class="content">
-            <h2>Vote on ${l.type} ${l.number}. ${l.short_title}</h2>
+            <h2>Vote on ${l.type} ${l.number} &mdash; ${l.short_title}</h2>
             ${l.vote_power > 1 ? [`<div class="notification"><span class="icon"><i class="fa fa-users"></i></span>You are casting a vote for <strong>${l.vote_power}</strong> people as their proxy. Consider including an explanation of your position.</div>`] : ''}
             <form method="POST" onsubmit=${this} action=${this}>
-              ${(v.id && !user.cc_verified) ? [`
-                <div class="notification is-info">
-                  Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>. Help hold your reps accountable!
-                </div>
-              `] : ''}
               ${error ? [`<div class="notification is-danger">${error}</div>`] : ''}
               <div class="field">
                 <label for="vote_position" class="label">Position:</label>
