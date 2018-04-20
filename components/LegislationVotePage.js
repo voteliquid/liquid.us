@@ -66,7 +66,7 @@ class LegislationVoteContent extends Component {
     const { storage } = this
 
     if (!form.vote_position) {
-      return { error: 'You must choose Yea, Nay, or Undecided below' }
+      return { error: 'You must choose a position.' }
     }
 
     if (!user) {
