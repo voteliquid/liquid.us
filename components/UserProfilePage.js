@@ -252,7 +252,7 @@ class YourProfileNotification extends Component {
             </div>
             <div class="column">
               <p>
-                <span class="icon"><i class="fa fa-comment"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
+                <span class="icon"><i class="fa fa-pencil-square-o"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
               </p>
               <p>
                 <span class="icon"><i class="fa fa-envelope"></i></span> <a onclick=${this}><strong>Reach out</strong></a> if you'd like to change your username or display name.
