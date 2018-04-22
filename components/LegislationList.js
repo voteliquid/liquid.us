@@ -65,6 +65,9 @@ module.exports = class LegislationList extends Component {
               border-color: transparent transparent transparent hsl(0, 0%, 100%) !important;
               left: -1px !important;
             }
+            .tooltip:hover .has-text-grey-lighter {
+              color: hsl(0, 0%, 75%) !important;
+            }
             .highlight-hover:hover {
               background: #f6f8fa;
             }
