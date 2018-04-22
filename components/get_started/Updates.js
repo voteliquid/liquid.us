@@ -41,7 +41,7 @@ module.exports = class GetStartedUpdatesPage extends Component {
               <h2 class="subtitle">Updates</h2>
               <form method="POST" onsubmit=${this} action=${this}>
                 <p>
-                  Would you like <strong>automatic update emails</strong> about what your legislators have been voting on, how much they’re listening to constituents, and general updates about United?
+                  Would you like to receive email updates about what your legislators have been voting on, how much they’re listening to constituents, and general updates about United?
                 </p>
                 <div class="field">
                   <div class="control">
