@@ -51,9 +51,10 @@ module.exports = class LegislationList extends Component {
           <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
           <style>
             .tooltip:hover::before {
-              background: hsl(0, 0%, 97%) !important;
-              box-shadow: 0px 2px 6px hsla(0, 0%, 0%, 0.25);
-              color: black;
+              background: hsl(0, 0%, 100%) !important;
+              box-shadow: 0px 4px 15px hsla(0, 0%, 0%, 0.15);
+              border: 1px solid hsl(0, 0%, 87%);
+              color: #333;
               font-size: 14px;
               max-height: 222px;
               text-align: left;
@@ -61,7 +62,8 @@ module.exports = class LegislationList extends Component {
               width: 400px;
             }
             .tooltip:hover::after {
-              border-color: transparent transparent transparent hsl(0, 0%, 87%) !important;
+              border-color: transparent transparent transparent hsl(0, 0%, 100%) !important;
+              left: -1px !important;
             }
             .highlight-hover:hover {
               background: #f6f8fa;
@@ -265,7 +267,7 @@ class SummaryTooltipButton extends Component {
           <br />
           <br />
           <span class="icon tooltip is-tooltip-left" data-tooltip="${summary}">
-            <i class="fa fa-lg fa-info-circle has-text-grey"></i>
+            <i class="fa fa-lg fa-info-circle has-text-grey-lighter"></i>
           </span>
         </a>
       `] : []}
