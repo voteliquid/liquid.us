@@ -51,7 +51,8 @@ module.exports = class LegislationList extends Component {
           <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
           <style>
             .tooltip:hover::before {
-              background: hsl(0, 0%, 92%) !important;
+              background: hsl(0, 0%, 97%) !important;
+              box-shadow: 0px 2px 6px hsla(0, 0%, 0%, 0.25);
               color: black;
               font-size: 14px;
               max-height: 222px;
@@ -60,7 +61,7 @@ module.exports = class LegislationList extends Component {
               width: 400px;
             }
             .tooltip:hover::after {
-              border-color: transparent transparent transparent hsl(0, 0%, 92%) !important;
+              border-color: transparent transparent transparent hsl(0, 0%, 87%) !important;
             }
             .highlight-hover:hover {
               background: #f6f8fa;
