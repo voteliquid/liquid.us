@@ -33,8 +33,8 @@ module.exports = class ChooseFirstProxyPage extends Component {
               <div class="${`field is-grouped ${proxies.length ? 'is-grouped-right' : ''}`}">
                 <div class="control">
                   ${proxies.length
-                    ? [`<a class="button is-primary" href="/get_started"><strong>Done</strong></a>`]
-                    : [`<a style="margin-top: 6rem; margin-left: 3rem;" class="button" href="/get_started?skip=true">Skip</a>`]
+                    ? [`<a class="button is-primary" href="/get_started/updates"><strong>Done</strong></a>`]
+                    : [`<a style="margin-top: 6rem; margin-left: 3rem;" class="button" href="/get_started/updates?skipped_proxies=true">Skip</a>`]
                   }
                 </div>
               </div>
