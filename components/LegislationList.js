@@ -29,7 +29,7 @@ module.exports = class LegislationList extends Component {
     const order = orders[query.order || 'upcoming']
     const fields = [
       'short_title', 'number', 'type', 'short_id', 'id', 'status', 'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
-      'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at',
+      'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at', 'summary'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays', 'constituent_abstains')
     const url = `/legislation_detail?select=${fields.join(',')}&${fts}order=${order}&limit=40`
@@ -51,10 +51,16 @@ module.exports = class LegislationList extends Component {
           <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
           <style>
             .tooltip:hover::before {
-              background: #000 !important;
+              background: hsl(0, 0%, 92%) !important;
+              color: black;
+              font-size: 14px;
+              max-height: 222px;
+              text-align: left;
+              white-space: normal;
+              width: 400px;
             }
             .tooltip:hover::after {
-              border-color: #000 transparent transparent transparent !important;
+              border-color: transparent transparent transparent hsl(0, 0%, 92%) !important;
             }
             .highlight-hover:hover {
               background: #f6f8fa;
@@ -139,8 +145,6 @@ class LegislationListRow extends Component {
     const s = this.props
     const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
 
-    const { abstains, nays, yeas } = s
-
     return this.html`
       <div class="card highlight-hover">
         <div class="card-content">
@@ -154,9 +158,10 @@ class LegislationListRow extends Component {
                   ? [`Introduced by&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                   : [`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                 }
-                <br />
-                <strong class="has-text-grey">Status:</strong> ${s.status}
-                <br />
+                ${ s.summary ? [`
+                  <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
+                `] : []}
+                <p><strong class="has-text-grey">Status:</strong> ${s.status}</p>
                 ${next_action_at && [`
                   <strong class="has-text-grey">Next action:</strong>
                   Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
@@ -169,14 +174,7 @@ class LegislationListRow extends Component {
             </div>
             <div class="column is-one-quarter has-text-right-tablet has-text-left-mobile">
               ${VoteButton.for(this, s, `votebutton-${s.id}`)}
-              <div class="is-hidden-mobile">
-                <br />
-              </div>
-              ${ yeas + nays + abstains > 5 ? [`
-                <span class="icon tooltip" data-tooltip="This bill amends the Bank Holding Company Act of 1956 to exempt from the Volcker Rule banks with total assets: (1) of $10 billion or less, and (2) comprised of 5% or less of trading assets and liabilities. (The Volcker Rule prohibits banking agencies from engaging in proprietary trading or entering into certain relationships with hedge funds and private-equity funds.)">
-                  <i class="fa fa-lg fa-info-circle has-text-info"></i>
-                </span>
-              `] : []}
+              ${SummaryTooltipButton.for(this, s, `summarybutton-${s.id}`)}
             </div>
           </div>
         </div>
@@ -243,6 +241,33 @@ class VoteTally extends Component {
     const { constituent_abstains, constituent_nays, constituent_yeas } = this.props
     return this.html`
       <span class="is-size-7 has-text-grey"><span class="has-text-weight-bold">Votes:</span> Yea: ${constituent_yeas}, Nay: ${constituent_nays}, Abstain: ${constituent_abstains}</span>
+    `
+  }
+}
+
+class SummaryTooltipButton extends Component {
+  render() {
+    const s = this.props
+
+    let summary = s.summary
+    if (summary) {
+      summary = summary
+                  .replace(/\<p\>\<b\>.*<\/b\>\<\/p\>/, '') // Remove title
+                  .replace(/\<\/?(p|ul|li)\>/g, '') // Remove <p> <ul> or <li> tags
+                  .replace(/\<\/?(b|strong)\>/g, '*') // Replace <b> tags with *
+                  .replace(/"/g, "&#34;") // Escape double quotes
+    }
+
+    return this.html`
+      ${ summary ? [`
+        <a href="${`/legislation/${s.short_id}`}" class="is-hidden-mobile">
+          <br />
+          <br />
+          <span class="icon tooltip is-tooltip-left" data-tooltip="${summary}">
+            <i class="fa fa-lg fa-info-circle has-text-grey"></i>
+          </span>
+        </a>
+      `] : []}
     `
   }
 }
