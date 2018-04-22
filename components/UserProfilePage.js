@@ -38,15 +38,9 @@ module.exports = class UserProfilePage extends Component {
                     <div class="media-left">
                       <div class="image is-128x128">
                         ${user && selected_profile.username && user.username === selected_profile.username
-                          ? [`<a href="https://gravatar.com" target="_blank"><img src=${this.avatarURL(selected_profile)} alt="avatar" class="avatar"></a>`]
-                          : [`<img src=${this.avatarURL(selected_profile)} alt="avatar" class="avatar square-img">`]
+                          ? [`<a href="https://gravatar.com" target="_blank"><img src=${this.avatarURL(selected_profile)} alt="avatar" class="round-avatar-img"></a>`]
+                          : [`<img src=${this.avatarURL(selected_profile)} alt="avatar" class="round-avatar-img">`]
                         }
-                        <style>
-                          .square-img {
-                            height: 100% !important;
-                            object-fit: cover;
-                          }
-                        </style>
                       </div>
                     </div>
                     <div class="media-content">

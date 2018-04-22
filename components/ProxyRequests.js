@@ -75,11 +75,12 @@ class RequestRow extends Component {
         <div class="media-left">
           <div class="image is-32x32">
             ${username || twitter_username
-            ? [`<a href="${username ? `/${username}` : `/twitter/${twitter_username}`}" target="_blank">
-                <img src=${this.avatarURL(this.props)} />
-              </a>`]
-            : [`
-              <img src=${this.avatarURL(this.props)} />
+            ? [`
+              <a href="${username ? `/${username}` : `/twitter/${twitter_username}`}" target="_blank">
+                <img src=${this.avatarURL(this.props)} class="round-avatar-img" />
+              </a>
+            `] : [`
+              <img src=${this.avatarURL(this.props)} class="round-avatar-img" />
             `]}
           </div>
         </div>

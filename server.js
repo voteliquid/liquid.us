@@ -80,6 +80,7 @@ function htmlHead({ page_description, page_title }) {
     <meta property="og:image" content="https://blog.united.vote/assets/icon-reduced-300.png" />
     <meta property="og:type" content="website" />
     ${responsiveTableStyle}
+    ${roundAvatarStyle}
   `
 }
 
@@ -144,6 +145,16 @@ const responsiveTableStyle = `
     .is-responsive td:empty {
       display: none;
     }
+  }
+  </style>
+`
+
+const roundAvatarStyle = `
+  <style>
+  .round-avatar-img {
+    border-radius: 50%;
+    height: 100% !important;
+    object-fit: cover;
   }
   </style>
 `

@@ -311,7 +311,7 @@ class Comment extends Component {
                           <div class="media-left">
                             <p class="image is-32x32">
                               <a href=${`/${username}`}>
-                                <img src=${avatarURL} alt="avatar" class="avatar" />
+                                <img src=${avatarURL} alt="avatar" class="round-avatar-img" />
                               </a>
                             </p>
                           </div>
