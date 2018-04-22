@@ -24,7 +24,6 @@ const config = {
   IMAGES_URL: process.env.IMAGES_URL,
   NODE_ENV: process.env.NODE_ENV,
   STRIPE_API_PUBLIC_KEY: process.env.STRIPE_API_PUBLIC_KEY,
-  WWW_DOMAIN: process.env.WWW_DOMAIN,
   WWW_URL: process.env.WWW_URL,
 }
 

@@ -25,7 +25,7 @@ module.exports = class CreditCardVerificationPage extends Component {
           ${error ? [`
             <div class="notification is-warning">
               <p>${error.message}</p>
-              <p>Please contact support@${this.state.config.WWW_DOMAIN} for assistance.</p>
+              <p>Please contact support@$united.vote for assistance.</p>
             </div>
           `] : ''}
           ${FormHandler.for(this)}

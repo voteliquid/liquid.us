@@ -96,14 +96,13 @@ class RepColumn extends Component {
 
 class RepCard extends Component {
   render() {
-    const { IMAGES_URL } = this.state.config
     const { rep } = this.props
     return this.html`
       <div class="media">
         <figure class="media-left">
           <p class="image is-96x96">
             <a href=${`/${rep.username}`}>
-              <img src=${`${IMAGES_URL}/${rep.picture_id}`}>
+              <img src=${this.avatarURL(rep)}>
             </a>
           </p>
         </figure>
