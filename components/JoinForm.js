@@ -8,7 +8,7 @@ module.exports = class JoinForm extends Component {
   }
   onclick(event) {
     event.preventDefault()
-    return { isFeedbackWindowVisible: !this.state.isFeedbackWindowVisible }
+    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
   }
   onsubmit(event, formData) {
     return SignIn.prototype.onsubmit.call(this, event, formData)
@@ -58,7 +58,7 @@ module.exports = class JoinForm extends Component {
           <div class="notification has-text-centered is-info">We could not automatically locate your representative. Join ${APP_NAME} to set your address.</div>
         `] : []}
         ${show_title !== false ? [`
-          <h2 class="title has-text-centered reveal">
+          <h2 class="title has-text-centered">
             ${signup_metrics && signup_metrics.length
               ? `Join ${signup_metrics[signup_metrics.length - 1].y} people for the future of democracy`
               : `Be a part of the future of democracy`
@@ -69,7 +69,7 @@ module.exports = class JoinForm extends Component {
 
         <style>.center-on-small-widths { display: flex; }</style>
         <div class="columns is-centered center-on-small-widths">
-          <div class="column is-narrow" style="max-width: 500px;">
+          <div class="column" style="max-width: 500px;">
             <form class="box has-text-centered" method="POST" onsubmit=${this} action=${this}>
               <div class="field">
                 <label for="email">Enter your email to get started:</label>

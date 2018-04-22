@@ -20,13 +20,13 @@ module.exports = class Home extends Component {
 
       <section onconnected=${this} class="hero is-link is-bold is-fullheight subtract-toolbar">
         <div class="hero-body">
-          <div class="container">
-            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal">A new democracy for the modern world</h2>
+          <div class="container reveal">
+            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile delayed">A new democracy for the modern world</h2>
             <br />
             <br />
-            <h3 class="subtitle is-3 is-size-4-mobile delayed">Where everyone has a voice on every issue</h3>
-            <h4 class="subtitle is-3 is-size-4-mobile delayed">We can trust our representatives</h4>
-            <h4 class="subtitle is-3 is-size-4-mobile delayed">And if they lose our trust, we can <strong>replace them</strong> immediately.</h4>
+            <h3 class="subtitle is-3 is-size-4-mobile delayed1">Where everyone has a voice on every issue</h3>
+            <h4 class="subtitle is-3 is-size-4-mobile delayed1">We can trust our representatives</h4>
+            <h4 class="subtitle is-3 is-size-4-mobile delayed1">And if they lose our trust, we can <strong>replace them</strong> immediately.</h4>
             <br />
             <br />
             <div class="delayed2 has-text-centered-mobile">
@@ -50,9 +50,16 @@ module.exports = class Home extends Component {
             min-height: calc(100vh - 64px);
           }
           .delayed {
-            animation: delayed-animation 1.8s cubic-bezier(0.6, 0.2, 0.1, 1);
+            animation: delayed-animation 0.6s cubic-bezier(0.6, 0.2, 0.1, 1);
           }
           @keyframes delayed-animation {
+            0% { opacity: 0; transform: scale(0.9) translate(0, 20px); }
+            100% { opacity: 1; transform: scale(1) translate(0, 0); }
+          }
+          .delayed1 {
+            animation: delayed1-animation 1.8s cubic-bezier(0.6, 0.2, 0.1, 1);
+          }
+          @keyframes delayed1-animation {
             0% { opacity: 0; }
             55% { opacity: 0; transform: scale(0.9) translate(0, 20px); }
             100% { opacity: 1; transform: scale(1) translate(0, 0); }
@@ -89,7 +96,7 @@ module.exports = class Home extends Component {
       <section class="hero is-dark is-bold is-fullheight">
         <div class="hero-body">
           <div class="container">
-            <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Right now, <span class="has-text-danger">a single person</span>, chosen from a limited ballot, serves as the representative in Congress for <span class="has-text-danger">a million of us</span>.</h2>
+            <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Right now, <span class="has-text-danger">a single person</span> chosen from a limited ballot, serves as the representative in Congress for <span class="has-text-danger">a million of us</span>.</h2>
             <br />
             <br />
             <br />
@@ -152,13 +159,21 @@ module.exports = class Home extends Component {
       </section>
 
       <section class="hero is-link is-bold is-fullheight">
+        <style>
+          .hero.is-bold a:hover > * {
+            text-decoration: underline;
+          }
+          .hero.is-bold a:hover .icon {
+            text-decoration: none;
+          }
+        </style>
         <div class="hero-body">
           <div class="container">
             <br />
             <br />
             <br />
             <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal" style="margin-bottom: 35px">Our plan for a better democracy:</h2>
-            <h4 class="subtitle is-4 is-size-4-desktop reveal">Without needing to change any laws first</h4>
+            <h4 class="subtitle is-4 is-size-4-desktop reveal">Without first needing to change any laws</h4>
             <br />
             <br />
             <br />
@@ -183,7 +198,7 @@ module.exports = class Home extends Component {
                 }
               </style>
               <br />
-              <h4 class="subtitle is-5 is-size-4-desktop"><strong><a href="/join">Join Now</a></strong> to help create a transparent accountability record, as we get liquid democracy off the ground.</h4>
+              <h4 class="subtitle is-5 is-size-4-desktop"><a href="/join"><span class="icon is-size-5"><i class="fa fa-star" style="position:relative;bottom: 2px;"></i></span> <strong>Join Now</strong></a> to help create a transparent accountability record, as we get liquid democracy off the ground.</h4>
             </div>
             <br />
             <br />
@@ -193,7 +208,7 @@ module.exports = class Home extends Component {
               <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">Phase 2 — Liquid Candidates</h3>
               <h4 class="subtitle is-5 is-size-4-desktop">Pledged to vote on everything as directed by their local liquid democracy.</h4>
               <h4 class="subtitle is-5 is-size-4-desktop">Voters can elect this upgraded representation, <em>when we're ready</em>, one seat at a time.</h4>
-              <h4 class="subtitle is-5 is-size-4-desktop"><span class="icon"><i class="fa fa-caret-right"></i></span> Meet the <a href="https://2018candidates.united.vote" target="_blank"><strong>2018 Liquid Candidates</strong></a>.</h4>
+              <h4 class="subtitle is-5 is-size-4-desktop"><a href="https://2018candidates.united.vote" target="_blank"><span class="icon"><i class="fa fa-caret-right"></i></span> <span>Meet the <strong>2018 Liquid Candidates</strong></span></a>.</h4>
             </div>
             <br />
             <br />
@@ -242,6 +257,20 @@ module.exports = class Home extends Component {
           </div>
         </div>
       </section>
+
+      <section class="hero is-dark is-bold">
+        <div class="hero-body">
+          <div class="container">
+            <br />
+            <br />
+            <h3 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Want liquid democracy beyond Congress?</h3>
+            <br />
+            <br />
+            <h4 class="subtitle is-4 is-size-3-desktop is-size-5-mobile reveal"><a href="/new_legislatures" class="has-text-info has-text-weight-bold">Learn about</a> bringing <strong>United.vote</strong> to new legislatures.</h4>
+            <br />
+          </div>
+        </div>
+      </section>
     `
   }
 }
@@ -249,7 +278,7 @@ module.exports = class Home extends Component {
 const JoinSection = class JoinSection extends Component {
   onclick(event) {
     event.preventDefault()
-    return { isFeedbackWindowVisible: !this.state.isFeedbackWindowVisible }
+    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
   }
 
   render() {

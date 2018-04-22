@@ -3,10 +3,18 @@ const LoadingIndicator = require('./LoadingIndicator')
 
 module.exports = class LegislationVotePage extends Component {
   oninit() {
-    return this.fetchVote()
+    return this.fetchVote().then(() => this.setBrowserTitle())
   }
   onpagechange() {
-    this.fetchVote().then(newState => this.setState(newState))
+    this.fetchVote().then(() => this.setBrowserTitle())
+  }
+  setBrowserTitle() {
+    const { config, selected_bill } = this.state
+    if (this.isBrowser) {
+      let page_title = `Vote on ${selected_bill.short_title} ★ ${config.APP_NAME}`
+      window.document.title = page_title
+      window.history.replaceState(window.history.state, page_title, document.location)
+    }
   }
   fetchVote() {
     const { selected_bill, user } = this.state
@@ -18,6 +26,7 @@ module.exports = class LegislationVotePage extends Component {
       .then(bills => {
         const bill = bills[0]
         if (bill) {
+          let page_title = `Vote on ${bill.display_title}`
           if (user) {
             return this.api(`/votes?user_id=eq.${user.id}&delegate_rank=eq.-1&order=updated_at.desc`).then(votes => {
               const last_vote_public = votes[0] && votes[0].public
@@ -28,15 +37,15 @@ module.exports = class LegislationVotePage extends Component {
                   body: JSON.stringify({ user_id: user.id, legislation_id: bill.id })
                 }).then((bill_vote_power) => {
                   bill.vote_power = bill_vote_power
-                  return { loading_legislation: false, page_title: bill.display_title, selected_bill: { ...selected_bill, ...bill }, last_vote_public }
+                  return this.setState({ loading_legislation: false, page_title, selected_bill: { ...selected_bill, ...bill }, last_vote_public })
                 })
               })
             })
           }
-          return { loading_legislation: false, page_title: bill.display_title, selected_bill: { ...selected_bill, ...bill } }
+          return this.setState({ loading_legislation: false, page_title, selected_bill: { ...selected_bill, ...bill } })
         }
         this.location.setStatus(404)
-        return { loading_legislation: false }
+        return this.setState({ loading_legislation: false })
       })
       .catch(error => ({ error, loading_legislation: false }))
   }
@@ -57,7 +66,7 @@ class LegislationVoteContent extends Component {
     const { storage } = this
 
     if (!form.vote_position) {
-      return { error: 'You must choose Yea, Nay, or No Opinion below' }
+      return { error: 'You must choose a position.' }
     }
 
     if (!user) {
@@ -84,7 +93,7 @@ class LegislationVoteContent extends Component {
     })
     .then(() => {
       this.setState({ saving_vote: false })
-      return redirect(`/legislation/${selected_bill.short_id}`)
+      return redirect(303, `/legislation/${selected_bill.short_id}`)
     })
     .catch(error => {
       return { error: error.message, saving_vote: false }
@@ -92,9 +101,17 @@ class LegislationVoteContent extends Component {
   }
   onclick(event) {
     const { selected_bill } = this.state
-    selected_bill.my_vote = {
-      ...selected_bill.my_vote,
-      vote_position: event.target.checked ? event.target.value : ''
+
+    if (event.target.name === 'vote_position') {
+      selected_bill.my_vote = {
+        ...selected_bill.my_vote,
+        vote_position: event.target.checked ? event.target.value : ''
+      }
+    } else if (event.target.name === 'public') {
+      selected_bill.my_vote = {
+        ...selected_bill.my_vote,
+        public: event.target.checked
+      }
     }
 
     return { selected_bill }
@@ -102,10 +119,17 @@ class LegislationVoteContent extends Component {
   render() {
     const { error, last_vote_public, saving_vote, selected_bill: l, user } = this.state
     const v = l.my_vote ? l.my_vote : {}
-    const public_checked = v.vote_position ? v.public : last_vote_public
+    const public_checked = v.hasOwnProperty('public') ? v.public : last_vote_public
     return this.html`
-      <section>
+      <section class="section">
         <div class="container">
+          ${(v.id && !user.cc_verified) ? [`
+            <div class="notification is-info">
+            <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
+            <strong>Help hold your reps accountable!</strong><br />
+            Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
+            </div>
+          `] : ''}
           <nav class="breadcrumb is-left is-small" aria-label="breadcrumbs">
             <ul>
               <li><a href="/legislation">Legislation</a></li>
@@ -114,14 +138,9 @@ class LegislationVoteContent extends Component {
             </ul>
           </nav>
           <div class="content">
-            <h2>Vote on ${l.type} ${l.number}. ${l.short_title}</h2>
+            <h2>Vote on ${l.type} ${l.number} &mdash; ${l.short_title}</h2>
             ${l.vote_power > 1 ? [`<div class="notification"><span class="icon"><i class="fa fa-users"></i></span>You are casting a vote for <strong>${l.vote_power}</strong> people as their proxy. Consider including an explanation of your position.</div>`] : ''}
             <form method="POST" onsubmit=${this} action=${this}>
-              ${(v.id && !user.cc_verified) ? [`
-                <div class="notification is-info">
-                  Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>. Help hold your reps accountable!
-                </div>
-              `] : ''}
               ${error ? [`<div class="notification is-danger">${error}</div>`] : ''}
               <div class="field">
                 <label for="vote_position" class="label">Position:</label>
@@ -138,23 +157,40 @@ class LegislationVoteContent extends Component {
                     <input onclick=${this} type="radio" name="vote_position" value="abstain" checked=${v.vote_position === 'abstain' ? 'checked' : ''} />
                     Undecided
                   </label>
+                  <style>
+                    label.radio {
+                      border: 1px solid rgba(72, 128, 224, 0.5);
+                      padding: 9px 18px;
+                      border-radius: 55px;
+                    }
+                    @media (max-width: 375px) {
+                      label.radio {
+                        margin: 0 !important;
+                        padding: 9px 11px;
+                      }
+                    }
+                  </style>
                 </div>
               </div>
-              <div class=${`field ${v.vote_position === 'abstain' ? 'is-hidden' : ''}`}>
+              <div class="field">
                 <label for="comment" class="label">Comment:</label>
                 <div class="control">
-                  <textarea name="comment" autocomplete="off" class="textarea" placeholder="Why are you voting this way? Optional." value=${v.comment}></textarea>
-                  <p class="is-size-7 has-text-grey">Vote comments will be published anonymously (your name will not be shown).</p>
+                  <textarea name="comment" autocomplete="off" class="textarea" placeholder="Why are you voting this way? (Optional)" value=${v.comment}></textarea>
                 </div>
               </div>
               <div class="field">
                 <div class="control">
                   <label class="checkbox">
-                    <input type="checkbox" name="public" value="true" checked=${public_checked ? 'checked' : ''} />
+                    <input onclick=${this} type="checkbox" name="public" value="true" checked=${public_checked ? 'checked' : ''} />
                     Public
                   </label>
                 </div>
-                <p class="is-size-7">If you choose "Public", your name will be published alongside your comment. It will also be listed on your profile.</p>
+                <p class="is-size-7 has-text-grey">
+                  ${ public_checked
+                    ? 'Your comment will be published with your name. It will also be listed on your profile.'
+                    : 'Your comment will be published anonymously (your name will not be shown).'
+                  }
+                </p>
               </div>
               <div class="field">
                 <div class="control">

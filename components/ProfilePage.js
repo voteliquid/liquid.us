@@ -5,7 +5,7 @@ const UserProfilePage = require('./UserProfilePage')
 
 module.exports = class ProfilePage extends Component {
   oninit() {
-    const { profiles = {} } = this.state
+    const { config, profiles = {} } = this.state
     const username = this.props.params.username.toLowerCase()
     const { path } = this.location
 
@@ -25,6 +25,12 @@ module.exports = class ProfilePage extends Component {
 
       if (user.twitter_username && !user.username) {
         user.name = user.twitter_displayname
+      }
+
+      if (this.isBrowser) {
+        let page_title = `${user.name} ★ ${config.APP_NAME}`
+        window.document.title = page_title
+        window.history.replaceState(window.history.state, page_title, document.location)
       }
 
       return this.setState({
@@ -64,7 +70,7 @@ module.exports = class ProfilePage extends Component {
     const { selected_profile } = this.state
 
     if (selected_profile && !selected_profile.elected_office_name) {
-      return this.api(`/public_votes?user_id=eq.${selected_profile.user_id}`).then(public_votes => {
+      return this.api(`/public_votes?user_id=eq.${selected_profile.user_id}&order=created_at.desc`).then(public_votes => {
         selected_profile.public_votes = public_votes
         this.setState({ selected_profile })
       })

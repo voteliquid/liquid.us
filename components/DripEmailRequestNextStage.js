@@ -40,7 +40,7 @@ module.exports = class RequestNextDripStage extends Component {
 
   onclick(event) {
     event.preventDefault()
-    return { isFeedbackWindowVisible: !this.state.isFeedbackWindowVisible }
+    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
   }
 
   render() {

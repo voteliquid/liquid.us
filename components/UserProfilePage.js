@@ -3,11 +3,11 @@ const timeAgo = require('from-now')
 
 const ago_opts = {
   seconds: 's',
-  minutes: 'm',
+  minutes: 'min',
   hours: 'h',
   days: 'd',
   weeks: 'w',
-  months: 'm',
+  months: { 1: 'month', 2: 'months' },
   years: 'y',
 }
 
@@ -38,15 +38,9 @@ module.exports = class UserProfilePage extends Component {
                     <div class="media-left">
                       <div class="image is-128x128">
                         ${user && selected_profile.username && user.username === selected_profile.username
-                          ? [`<a href="https://gravatar.com" target="_blank"><img src=${this.avatarURL(selected_profile)} alt="avatar" class="avatar"></a>`]
-                          : [`<img src=${this.avatarURL(selected_profile)} alt="avatar" class="avatar square-img">`]
+                          ? [`<a href="https://gravatar.com" target="_blank"><img src=${this.avatarURL(selected_profile)} alt="avatar" class="round-avatar-img"></a>`]
+                          : [`<img src=${this.avatarURL(selected_profile)} alt="avatar" class="round-avatar-img">`]
                         }
-                        <style>
-                          .square-img {
-                            height: 100% !important;
-                            object-fit: cover;
-                          }
-                        </style>
                       </div>
                     </div>
                     <div class="media-content">
@@ -133,10 +127,12 @@ class VoteCard extends Component {
               <span><a href="${`/legislation/${short_id}`}"><strong>${type.toUpperCase()} ${number}</strong>. ${short_title}</a></span>
             </div>
             <div class="column is-one-quarter has-text-right">
-              <span class="icon"><i class="fa fa-thumbs-o-up"></i></span>
-              <span>${endorsements}</span>
-              <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
-              <span class="has-text-grey-light">${timeAgo(`${updated_at}Z`, ago_opts)}</span>
+              ${ endorsements > 0 ? [`
+                <span class="icon"><i class="fa fa-thumbs-o-up"></i></span>
+                <span>${endorsements}</span>
+                <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
+              `] : []}
+              <span class="has-text-grey-light">${timeAgo(`${updated_at}Z`, ago_opts)} ago</span>
             </div>
           </div>
         </div>
@@ -229,7 +225,7 @@ class UnverifiedNotification extends Component {
 class YourProfileNotification extends Component {
   onclick(event) {
     event.preventDefault()
-    return { isFeedbackWindowVisible: !this.state.isFeedbackWindowVisible }
+    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
   }
   render() {
     const { config, selected_profile } = this.state
@@ -250,7 +246,7 @@ class YourProfileNotification extends Component {
             </div>
             <div class="column">
               <p>
-                <span class="icon"><i class="fa fa-comment"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
+                <span class="icon"><i class="fa fa-pencil-square-o"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
               </p>
               <p>
                 <span class="icon"><i class="fa fa-envelope"></i></span> <a onclick=${this}><strong>Reach out</strong></a> if you'd like to change your username or display name.

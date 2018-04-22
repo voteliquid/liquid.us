@@ -1,17 +1,17 @@
 const Component = require('./Component')
 const fetch = require('isomorphic-fetch')
 
-module.exports = class FeedbackWidget extends Component {
+module.exports = class ContactWidget extends Component {
   render() {
-    const { isFeedbackWindowVisible } = this.state
+    const { isContactWidgetVisible } = this.state
 
     return this.html`
-      ${isFeedbackWindowVisible
-        ? FeedbackWidgetForm.for(this)
-        : FeedbackWidgetButton.for(this)
+      ${isContactWidgetVisible
+        ? ContactWidgetForm.for(this)
+        : ContactWidgetButton.for(this)
       }
       <style>
-        .feedback-btn, .feedback-window {
+        .contact-btn, .contact-window {
           position: fixed;
           bottom: 0;
           right: 15px;
@@ -23,31 +23,31 @@ module.exports = class FeedbackWidget extends Component {
   }
 }
 
-class FeedbackWidgetButton extends Component {
+class ContactWidgetButton extends Component {
   onclick(event) {
     event.preventDefault()
-    return { isFeedbackWindowVisible: !this.state.isFeedbackWindowVisible }
+    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
   }
   render() {
     return this.html`
-      <p class="field feedback-btn">
-        <a class="button is-info" onclick=${this}>
+      <p class="field contact-btn">
+        <a class="button is-info is-small" onclick=${this}>
           <span class="icon is-small">
             <i class="fa fa-comment"></i>
           </span>
-          <span>Feedback</span>
+          <span>Contact</span>
         </a>
       </p>
     `
   }
 }
 
-class FeedbackWidgetForm extends Component {
+class ContactWidgetForm extends Component {
   onclick(event) {
     event.preventDefault()
     return {
-      feedbackSubmitted: false,
-      isFeedbackWindowVisible: !this.state.isFeedbackWindowVisible,
+      contactSubmitted: false,
+      isContactWidgetVisible: !this.state.isContactWidgetVisible,
     }
   }
   onsubmit(event, formData) {
@@ -69,26 +69,26 @@ class FeedbackWidgetForm extends Component {
         method: 'POST',
       })
 
-      return { feedbackSubmitted: true }
+      return { contactSubmitted: true }
     }
   }
   render() {
-    const { feedbackSubmitted, user } = this.state
+    const { contactSubmitted, user } = this.state
 
     return this.html`
-      <article class="message is-info feedback-window">
+      <article class="message is-info contact-window">
         <div class="message-header" onclick=${this}>
           <p>
             <span class="icon is-small">
               <i class="fa fa-comment"></i>
             </span>
-            <span>&nbsp;Feedback</span>
+            <span>&nbsp;Contact</span>
           </p>
           <button class="delete" aria-label="delete"></button>
         </div>
         <div class="message-body">
           <form method="POST" action="${this}" onsubmit=${this}>
-            ${feedbackSubmitted
+            ${contactSubmitted
               ? [`
                 <p class="title is-5 has-text-centered">Thank you</p>
               `] : [`
@@ -104,7 +104,7 @@ class FeedbackWidgetForm extends Component {
                 `]}
                 <div class="field">
                   <div class="control">
-                    <textarea class="textarea" name="message" placeholder="Your message"></textarea>
+                    <textarea class="textarea" name="message" placeholder="Comments? Questions?"></textarea>
                   </div>
                 </div>
                 <div class="field">
@@ -118,13 +118,13 @@ class FeedbackWidgetForm extends Component {
         </div>
       </article>
       <style>
-        .feedback-window {
+        .contact-window {
           width: 300px;
         }
-        .feedback-window .message-header {
+        .contact-window .message-header {
           cursor: pointer;
         }
-        .feedback-window textarea {
+        .contact-window textarea {
           height: 300px;
         }
       </style>

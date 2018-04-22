@@ -14,6 +14,7 @@ module.exports = {
   '/drip_emails/unsubscribe': route('Unsubscribe', () => import('./components/DripEmailUnsubscribe')),
   '/get_started': route('Get Started', () => import('./components/get_started')),
   '/get_started/basics': route('Get Started', () => import('./components/get_started/Basics')),
+  '/get_started/updates': route('Updates', () => import('./components/get_started/Updates')),
   '/get_started/proxies': route('Your First Proxy', () => import('./components/get_started/Proxies')),
   '/get_started/voter_status': route('Voter Status', () => import('./components/get_started/voter_status')),
   '/get_started/voter_status/eligible': route('Voter Status - Eligible', () => import('./components/get_started/voter_status/Eligible')),
@@ -22,6 +23,8 @@ module.exports = {
   '/get_started/profile': route('Create Profile', () => import('./components/get_started/Profile')),
   '/change_address': route('Change Address', () => import('./components/ChangeAddress')),
   '/legislators': route('Legislators', () => import('./components/Legislators')),
+  '/new_legislatures': route('New Legislatures', () => import('./components/NewLegislatures')),
+  '/twitter/:username': route('Profile', () => import('./components/ProfilePage')),
   '/:username': route('Profile', () => import('./components/ProfilePage')),
 }
 

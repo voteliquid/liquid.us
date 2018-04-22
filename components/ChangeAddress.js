@@ -60,7 +60,7 @@ module.exports = class ChangeAddressPage extends Component {
 
     return addressUpsert.then(() => {
       this.setState({ user: { ...user, address: { address } } })
-      this.location.redirect(this.location.query.from || '/legislators')
+      this.location.redirect(303, this.location.query.from || '/legislators')
     })
     .catch((api_error) => {
       return {

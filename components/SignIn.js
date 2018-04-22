@@ -60,11 +60,11 @@ module.exports = class SignIn extends Component {
             .then(() => {
               this.storage.set('proxied_user_id', proxying_user_id)
               this.storage.unset('proxying_user_id')
-              return this.location.redirect('/get_started')
+              return this.location.redirect(303, '/get_started')
             })
             .catch(error => {
               console.log(error)
-              return this.location.redirect('/get_started')
+              return this.location.redirect(303, '/get_started')
             })
           }
 
@@ -85,22 +85,22 @@ module.exports = class SignIn extends Component {
               this.storage.unset('vote_bill_id')
               this.storage.unset('vote_public')
               this.storage.unset('vote_comment')
-              return this.location.redirect('/get_started')
+              return this.location.redirect(303, '/get_started')
             })
             .catch(error => {
               console.log(error)
-              return this.location.redirect('/get_started')
+              return this.location.redirect(303, '/get_started')
             })
           }
 
-          return this.location.redirect('/get_started')
+          return this.location.redirect(303, '/get_started')
         })
       }
 
       this.storage.set('sign_in_email', email)
       this.storage.set('device_secret', device_secret)
 
-      return this.location.redirect('/sign_in/verify')
+      return this.location.redirect(303, '/sign_in/verify')
     })
     .catch((error) => {
       if (~error.message.indexOf('constraint "email')) {

@@ -22,8 +22,8 @@ const config = {
   ASSETS_URL: process.env.ASSETS_URL,
   GOOGLE_GEOCODER_KEY: process.env.GOOGLE_GEOCODER_KEY,
   IMAGES_URL: process.env.IMAGES_URL,
+  NODE_ENV: process.env.NODE_ENV,
   STRIPE_API_PUBLIC_KEY: process.env.STRIPE_API_PUBLIC_KEY,
-  WWW_DOMAIN: process.env.WWW_DOMAIN,
   WWW_URL: process.env.WWW_URL,
 }
 
@@ -48,7 +48,7 @@ server
   .listen(port)
 
 function htmlHead({ page_description, page_title }) {
-  const description = page_description || `We're creating a new democracy for the modern world.`
+  const description = page_description || `A new democracy for the modern world.`
   const title = page_title ? `${APP_NAME} ★ ${page_title}` : APP_NAME
 
   return `
@@ -80,6 +80,7 @@ function htmlHead({ page_description, page_title }) {
     <meta property="og:image" content="https://blog.united.vote/assets/icon-reduced-300.png" />
     <meta property="og:type" content="website" />
     ${responsiveTableStyle}
+    ${roundAvatarStyle}
   `
 }
 
@@ -144,6 +145,16 @@ const responsiveTableStyle = `
     .is-responsive td:empty {
       display: none;
     }
+  }
+  </style>
+`
+
+const roundAvatarStyle = `
+  <style>
+  .round-avatar-img {
+    border-radius: 50%;
+    height: 100% !important;
+    object-fit: cover;
   }
   </style>
 `

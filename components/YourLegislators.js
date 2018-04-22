@@ -60,11 +60,11 @@ module.exports = class YourLegislators extends Component {
     return this.html`
       <div class="YourLegislators">
         <h2 class="title is-5">Your Elected Congress Members</h2>
-        ${geoip && reps.length ? RepsList.for(this) : []}
         ${(reps_loaded && !reps.length) ? [`<div class="notification">We weren't able to detect your elected congress members using your location. <a href="/join">Join ${APP_NAME}</a> to set your address.</div>`] : []}
         <div class="columns">
           ${reps.map(rep => RepColumn.for(this, { rep }, `repcolumn-${rep.user_id}`))}
         </div>
+        ${geoip && reps.length ? AddAddressNotification.for(this) : []}
         ${user && user.address && [`
           <div class="has-text-right has-text-grey is-size-7">
             <br />
@@ -76,7 +76,7 @@ module.exports = class YourLegislators extends Component {
   }
 }
 
-class RepsList extends Component {
+class AddAddressNotification extends Component {
   render() {
     const { user } = this.state
     return this.html`
@@ -96,14 +96,13 @@ class RepColumn extends Component {
 
 class RepCard extends Component {
   render() {
-    const { IMAGES_URL } = this.state.config
     const { rep } = this.props
     return this.html`
       <div class="media">
         <figure class="media-left">
           <p class="image is-96x96">
             <a href=${`/${rep.username}`}>
-              <img src=${`${IMAGES_URL}/${rep.picture_id}`}>
+              <img src=${this.avatarURL(rep)}>
             </a>
           </p>
         </figure>

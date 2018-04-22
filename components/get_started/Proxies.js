@@ -19,24 +19,23 @@ module.exports = class ChooseFirstProxyPage extends Component {
     const { proxies = [] } = this.state
     return this.html`
       <section oninit=${this} class="section">
-        <div class="columns is-centered">
-          <div class="column is-two-thirds">
-            <div class="content">
-              <h2 class="subtitle">Who do you trust to vote for you when you choose not to?</h2>
-              <p class="is-size-6">None of us can cast an informed vote on every bill before Congress. Choosing proxies ensures your voice is heard on all legislation and lets you focus on areas that you care about.</p>
-              <p class="is-size-6">It's optional, and you can adjust your proxies at any time. They're private.</p>
-            </div>
-            <div class="columns">
-              <div class="column">${ProxySearch.for(this, { show_tabs: !!this.location.query.tab })}</div>
-              <div class="column">
-                ${proxies.length ? ProxiesTable.for(this, { show_help: false }) : []}
-                <div class="${`field is-grouped ${proxies.length ? 'is-grouped-right' : ''}`}">
-                  <div class="control">
-                    ${proxies.length
-                      ? [`<a class="button is-primary" href="/get_started"><strong>Done</strong></a>`]
-                      : [`<a style="margin-top: 2rem;" class="button" href="/get_started?skip=true">Skip</a>`]
-                    }
-                  </div>
+        <div class="container">
+          <div class="content">
+            <h2 class="subtitle">Who do you trust to represent your vote?</h2>
+            <p>None of us can cast an informed vote on every bill before Congress.</p>
+            <p>Choosing proxies ensures your voice is heard on all legislation and lets you focus on areas that you care about.</p>
+            <p class="is-size-7">You can adjust your proxies at any time.</p>
+          </div>
+          <div class="columns">
+            <div class="column">${ProxySearch.for(this)}</div>
+            <div class="column">
+              ${proxies.length ? ProxiesTable.for(this, { show_help: false }) : []}
+              <div class="${`field is-grouped ${proxies.length ? 'is-grouped-right' : ''}`}">
+                <div class="control">
+                  ${proxies.length
+                    ? [`<a class="button is-primary" href="/get_started/updates"><strong>Done</strong></a>`]
+                    : [`<a style="margin-top: 6rem; margin-left: 3rem;" class="button" href="/get_started/updates?skipped_proxies=true">Skip</a>`]
+                  }
                 </div>
               </div>
             </div>

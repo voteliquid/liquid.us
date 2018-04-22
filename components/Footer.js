@@ -1,5 +1,5 @@
 const Component = require('./Component')
-const FeedbackWidget = require('./FeedbackWidget')
+const ContactWidget = require('./ContactWidget')
 
 module.exports = class Footer extends Component {
   oninit() {
@@ -12,40 +12,39 @@ module.exports = class Footer extends Component {
     const { NODE_ENV } = config
 
     return this.html`
-      <footer class="footer">
-        <div class="section has-text-centered" style="padding-bottom: 0">
-            <div class="columns is-centered">
-              <div class="column is-half" style="position: relative;">
-                <span class="quote-icon">“</span>
-                <style>
-                  .quote-icon {
-                    color: rgb(115, 115, 115);
-                    opacity: 0.2;
-                    font-size: 80px;
-                    font-weight: 700;
-                    position: absolute;
-                    left: -29px;
-                    top: -33px;
-                  }
+      <footer class="footer has-text-centered">
+        <div class="columns is-centered">
+          <div class="column is-half section" style="padding: 1rem 3rem 0;">
+            <img src="/assets/unitedvote_mark.svg" alt="united.vote" width="40" height="28">
+            <style>
+              .quote-icon {
+                color: rgb(115, 115, 115);
+                opacity: 0.2;
+                font-size: 80px;
+                font-weight: 700;
+                position: absolute;
+                left: -40px;
+                top: -41px;
+              }
 
-                  @media (max-width: 768px) {
-                    .quote-icon {
-                      font-size: 71px;
-                      left: -9px;
-                      top: -38px;
-                    }
-                  }
-                </style>
-                <p class="title has-text-grey is-4 has-text-justified">${[randomQuote.text.replace(/\n/g, '<br />')]}</p>
-                ${randomQuote.author && [`<p class="title is-5 has-text-grey has-text-right">— <em>${randomQuote.author}</em></p>`]}
-                ${randomQuote.date && [`<p class="title is-6 has-text-right has-text-grey is-uppercase">${randomQuote.date}</p>`]}
-
-                <img src="/assets/unitedvote_mark.svg" alt="united.vote" width="40" height="28">
-              </div>
+              @media (max-width: 768px) {
+                .quote-icon {
+                  font-size: 71px;
+                  left: -21px;
+                  top: -51px;
+                }
+              }
+            </style>
+            <div style="margin: 3rem 0; position: relative;">
+              <span class="quote-icon">“</span>
+              <p class="title has-text-grey is-4 has-text-justified">${[randomQuote.text.replace(/\n/g, '<br />')]}</p>
+              ${[randomQuote.author ? `<p class="title is-5 has-text-grey has-text-right">— <em>${randomQuote.author}</em></p>` : '']}
+              ${[randomQuote.date ? `<p class="title is-6 has-text-right has-text-grey is-uppercase">${randomQuote.date}</p>` : '']}
             </div>
-            <p class="is-size-7"><strong><a href="/" class="has-text-black">United.vote</a></strong> is a non-partisan organization dedicated to creating smarter and more accountable governance, with liquid democracy.</p>
+            <p class="is-size-7"><a href="/" class="has-text-black"><strong>United.vote</strong></a> is a non-partisan organization dedicated to creating smarter and more accountable governance.</p>
+          </div>
         </div>
-        ${FeedbackWidget.for(this)}
+        ${ContactWidget.for(this)}
         <style>
           .footer {
             padding: 3rem 0rem 3.5rem;
@@ -79,24 +78,25 @@ module.exports = class Footer extends Component {
             })
         });
       </script>
-      ${NODE_ENV === 'production' ? [`
-        <script src="https://cdn.ravenjs.com/3.20.1/raven.min.js" crossorigin="anonymous"></script>
-        <script>
-          Raven.config('https://613c962d6bfa43ba863bdd2b0c0ec907@sentry.io/254602', {
-            environment: "${NODE_ENV}"
-          }).install()
-        </script>
+      <div>
+        ${[NODE_ENV === 'production' ? `
+          <script src="https://cdn.ravenjs.com/3.20.1/raven.min.js" crossorigin="anonymous"></script>
+          <script>
+            Raven.config('https://613c962d6bfa43ba863bdd2b0c0ec907@sentry.io/254602', {
+              environment: "${NODE_ENV}"
+            }).install()
+          </script>
 
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-84279342-5"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
+          <script async src="https://www.googletagmanager.com/gtag/js?id=UA-84279342-5"></script>
+          <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
 
-          gtag('config', 'UA-84279342-5');
-        </script>
-      `] : ''}
+            gtag('config', 'UA-84279342-5');
+          </script>
+        ` : '']}
+      </div>
     `
   }
 }
@@ -150,7 +150,7 @@ Every citizen has a right to participate personally, or through their representa
     date: 'January 1961',
   },
   {
-    text: 'A government of laws, and not of men.',
+    text: 'A government of laws, not of men.',
     author: 'President John Adams',
     date: 'June 1780',
   },
@@ -175,13 +175,9 @@ Every citizen has a right to participate personally, or through their representa
     date: 'August 2017',
   },
   {
-    text: 'The penalty we pay for not being involved in politics is being governed by people worse than ourselves.',
+    text: 'One of the penalties for refusing to participate in politics is that you end up being governed by your inferiors.',
     author: 'Plato',
     date: '380 BC',
-  },
-  {
-    text: 'Concentrated power is not rendered harmless by the good intentions of those who create it.',
-    author: 'Milton Friedman',
   },
   {
     text: 'Let us never forget that government is ourselves and not an alien power over us. The ultimate rulers of our democracy are not a President and Senators and Congressmen and Government officials but the voters of this country.',
@@ -210,11 +206,6 @@ Every citizen has a right to participate personally, or through their representa
     text: 'There is nothing which I dread so much as a division of the republic into two great parties, each arranged under its leader, and concerting measures in opposition to each other. This, in my humble apprehension, is to be dreaded as the greatest political evil under our Constitution.',
     author: 'President John Adams',
     date: 'October 1780',
-  },
-  {
-    text: 'The best defense against usurpatory government is an assertive citizenry.',
-    author: 'William F. Buckley',
-    date: '1992',
   },
   {
     text:

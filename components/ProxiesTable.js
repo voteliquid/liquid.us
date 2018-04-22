@@ -22,12 +22,6 @@ module.exports = class ProxiesTable extends Component {
       <table class="table is-fullwidth no-border">
         <tbody>
           ${proxies.map((d, idx) => ProxyListItem.for(this, { ...d, idx }, `proxylist-${d.id}`))}
-          <style>
-            .square-img {
-              height: 100% !important;
-              object-fit: cover;
-            }
-          </style>
         </tbody>
       </table>
     `
@@ -138,10 +132,10 @@ class ProxyListItem extends Component {
               <div class="image is-32x32">
                 ${username || twitter_username
                 ? [`<a href="${username ? `/${username}` : `/twitter/${twitter_username}`}" target="_blank">
-                    <img src=${this.avatarURL(this.props)} class="square-img" />
+                    <img src=${this.avatarURL(this.props)} class="round-avatar-img" />
                   </a>`]
                 : [`
-                  <img src=${this.avatarURL(this.props)} />
+                  <img src=${this.avatarURL(this.props)} class="round-avatar-img" />
                 `]}
               </div>
             </div>

@@ -48,7 +48,7 @@ module.exports = class VerifyOTP extends Component {
     })
     .then(({ device_secret }) => {
       this.storage.set('device_secret', device_secret)
-      return redirect('/sign_in/verify?notification=resent_code')
+      return redirect(303, '/sign_in/verify?notification=resent_code')
     })
     .catch(api_error => {
       console.log(api_error)
@@ -65,7 +65,7 @@ module.exports = class VerifyOTP extends Component {
     const device_secret = this.storage.get('device_secret')
 
     if (user && !query.totp) {
-      return redirect('/get_started')
+      return redirect(303, '/get_started')
     }
 
     const signin_body = {
@@ -111,11 +111,11 @@ module.exports = class VerifyOTP extends Component {
         .then(() => {
           this.storage.set('proxied_user_id', proxying_user_id)
           this.storage.unset('proxying_user_id')
-          return redirect('/get_started')
+          return redirect(303, '/get_started')
         })
         .catch(error => {
           console.log(error)
-          return redirect(`/get_started`)
+          return redirect(303, `/get_started`)
         })
       }
 
@@ -136,20 +136,20 @@ module.exports = class VerifyOTP extends Component {
           this.storage.unset('vote_bill_id')
           this.storage.unset('vote_public')
           this.storage.unset('vote_comment')
-          return redirect('/get_started')
+          return redirect(303, '/get_started')
         })
         .catch(error => {
           console.log(error)
-          return redirect('/get_started')
+          return redirect(303, '/get_started')
         })
       }
 
       if (redirect_to) {
         this.storage.unset('redirect_to')
-        return redirect(redirect_to)
+        return redirect(303, redirect_to)
       }
 
-      return redirect('/get_started')
+      return redirect(303, '/get_started')
     })
     .catch((api_error) => {
       if (~api_error.message.indexOf('expired')) return { error: 'Invalid or expired one-time sign in code.' }
