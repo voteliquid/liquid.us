@@ -278,7 +278,7 @@ module.exports = class Home extends Component {
 const JoinSection = class JoinSection extends Component {
   onclick(event) {
     event.preventDefault()
-    return { isFeedbackWindowVisible: !this.state.isFeedbackWindowVisible }
+    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
   }
 
   render() {

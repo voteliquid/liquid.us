@@ -1,5 +1,5 @@
 const Component = require('./Component')
-const FeedbackWidget = require('./FeedbackWidget')
+const ContactWidget = require('./ContactWidget')
 
 module.exports = class Footer extends Component {
   oninit() {
@@ -44,7 +44,7 @@ module.exports = class Footer extends Component {
             <p class="is-size-7"><a href="/" class="has-text-black"><strong>United.vote</strong></a> is a non-partisan organization dedicated to creating smarter and more accountable governance.</p>
           </div>
         </div>
-        ${FeedbackWidget.for(this)}
+        ${ContactWidget.for(this)}
         <style>
           .footer {
             padding: 3rem 0rem 3.5rem;

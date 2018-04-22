@@ -21,7 +21,7 @@ module.exports = class DripEmailUnsubscribePage extends Component {
 
   onclick(event) {
     event.preventDefault()
-    return { isFeedbackWindowVisible: !this.state.isFeedbackWindowVisible }
+    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
   }
 
   render() {

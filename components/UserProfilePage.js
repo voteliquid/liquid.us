@@ -231,7 +231,7 @@ class UnverifiedNotification extends Component {
 class YourProfileNotification extends Component {
   onclick(event) {
     event.preventDefault()
-    return { isFeedbackWindowVisible: !this.state.isFeedbackWindowVisible }
+    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
   }
   render() {
     const { config, selected_profile } = this.state

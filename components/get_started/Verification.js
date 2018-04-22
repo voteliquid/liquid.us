@@ -527,8 +527,7 @@ class ChooseInstantVerificationButton extends Component {
 class ContactButton extends Component {
   onclick(event) {
     event.preventDefault()
-
-    return { isFeedbackWindowVisible: !this.state.isFeedbackWindowVisible }
+    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
   }
 
   render() {

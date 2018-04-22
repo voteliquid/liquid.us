@@ -8,7 +8,7 @@ module.exports = class JoinForm extends Component {
   }
   onclick(event) {
     event.preventDefault()
-    return { isFeedbackWindowVisible: !this.state.isFeedbackWindowVisible }
+    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
   }
   onsubmit(event, formData) {
     return SignIn.prototype.onsubmit.call(this, event, formData)
