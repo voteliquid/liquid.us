@@ -204,7 +204,7 @@ class BillSummary extends Component {
       <div class=${`${expanded || !summary ? '' : 'summary'}`}>
         <h3 class="title has-text-weight-normal is-size-5">Summary</h3>
         <div class="content">
-          ${[summary || `<p>A summary is in progress.</p><p><a href="https://www.congress.gov/bill/${congress}th-congress/${chamber.toLowerCase()}-bill/${number}/text">Read full text of the bill at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
+          ${[summary || `<p>A summary is in progress.</p><p><a href="https://www.congress.gov/bill/${congress}th-congress/${chamber.toLowerCase()}-bill/${number}/text" target="_blank">Read full text of the bill at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
         </div>
         <div class="read-more"></div>
         <a class="read-more-link is-size-7" href="#" onclick=${this}>
