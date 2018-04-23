@@ -28,6 +28,7 @@
     prefer-destructuring: 0,
     quotes: 0,
     quote-props: 0,
+    react/sort-comp: 0,
 
 
     // Not worth enforcing
