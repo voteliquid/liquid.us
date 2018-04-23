@@ -29,7 +29,7 @@ module.exports = class LegislationList extends Component {
     const order = orders[query.order || 'upcoming']
     const fields = [
       'short_title', 'number', 'type', 'short_id', 'id', 'status', 'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
-      'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at',
+      'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at', 'summary'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays', 'constituent_abstains')
     const url = `/legislation_detail?select=${fields.join(',')}&${fts}order=${order}&limit=40`
@@ -49,8 +49,51 @@ module.exports = class LegislationList extends Component {
           ${SearchForm.for(this)}
           ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(o => LegislationListRow.for(this, o, `billitem-${o.id}`))}
           <style>
-            .highlight-hover:hover {
-              background: #f6f8fa;
+            .summary-tooltip {
+              position: relative;
+            }
+            .summary-tooltip .summary-tooltip-content {
+              display: none;
+              position: absolute;
+            }
+            .summary-tooltip .summary-tooltip-arrow {
+              display: none;
+              position: absolute;
+            }
+            .summary-tooltip:hover .summary-tooltip-content {
+              display: block;
+              background: hsl(0, 0%, 100%) !important;
+              box-shadow: 0px 4px 15px hsla(0, 0%, 0%, 0.15);
+              border: 1px solid hsl(0, 0%, 87%);
+              color: #333;
+              font-size: 14px;
+              overflow: hidden;
+              padding: .4rem .8rem;
+              text-align: left;
+              white-space: normal;
+              width: 400px;
+              z-index: 99999;
+              top: auto;
+              bottom: 50%;
+              left: auto;
+              right: 100%;
+              transform: translate(-0.5rem, 50%);
+            }
+            .summary-tooltip:hover .summary-tooltip-arrow {
+              border-color: transparent transparent transparent hsl(0, 0%, 87%) !important;
+              z-index: 99999;
+              position: absolute;
+              display: inline-block;
+              pointer-events: none;
+              border-style: solid;
+              border-width: .5rem;
+              opacity: 1;
+              margin-left: -.5rem;
+              margin-top: -.5rem;
+              top: 50%;
+              bottom: auto;
+              left: auto;
+              right: calc(100% - .5rem);
             }
           </style>
         </div>
@@ -145,9 +188,10 @@ class LegislationListRow extends Component {
                   ? [`Introduced by&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                   : [`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                 }
-                <br />
-                <strong class="has-text-grey">Status:</strong> ${s.status}
-                <br />
+                ${ s.summary ? [`
+                  <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
+                `] : []}
+                <p><strong class="has-text-grey">Status:</strong> ${s.status}</p>
                 ${next_action_at && [`
                   <strong class="has-text-grey">Next action:</strong>
                   Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
@@ -160,6 +204,7 @@ class LegislationListRow extends Component {
             </div>
             <div class="column is-one-quarter has-text-right-tablet has-text-left-mobile">
               ${VoteButton.for(this, s, `votebutton-${s.id}`)}
+              ${s.summary ? SummaryTooltipButton.for(this, s, `summarybutton-${s.id}`) : ''}
             </div>
           </div>
         </div>
@@ -226,6 +271,26 @@ class VoteTally extends Component {
     const { constituent_abstains, constituent_nays, constituent_yeas } = this.props
     return this.html`
       <span class="is-size-7 has-text-grey"><span class="has-text-weight-bold">Votes:</span> Yea: ${constituent_yeas}, Nay: ${constituent_nays}, Abstain: ${constituent_abstains}</span>
+    `
+  }
+}
+
+class SummaryTooltipButton extends Component {
+  render() {
+    const { short_id, summary } = this.props
+
+    const summary_truncated = summary.length > 500 ? `${summary.slice(0, 500)} ...` : summary
+
+    return this.html`
+      <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">
+        <br />
+        <br />
+        <span class="icon summary-tooltip">
+          <i class="fa fa-lg fa-info-circle has-text-grey-lighter"></i>
+          <div class="summary-tooltip-content">${[summary_truncated]}</div>
+          <div class="summary-tooltip-arrow"></div>
+        </span>
+      </a>
     `
   }
 }
