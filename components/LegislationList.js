@@ -205,7 +205,7 @@ class LegislationListRow extends Component {
                   ? [`Introduced by&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                   : [`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                 }
-                ${ s.summary ? [`
+                ${s.summary ? [`
                   <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
                 `] : []}
                 <p><strong class="has-text-grey">Status:</strong> ${s.status}</p>
