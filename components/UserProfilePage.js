@@ -127,7 +127,7 @@ class VoteCard extends Component {
               <span><a href="${`/legislation/${short_id}`}"><strong>${type.toUpperCase()} ${number}</strong>. ${short_title}</a></span>
             </div>
             <div class="column is-one-quarter has-text-right">
-              ${ endorsements > 0 ? [`
+              ${endorsements > 0 ? [`
                 <span class="icon"><i class="fa fa-thumbs-o-up"></i></span>
                 <span>${endorsements}</span>
                 <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>

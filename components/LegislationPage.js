@@ -33,7 +33,7 @@ module.exports = class LegislationPage extends Component {
 
       if (selected_bill) {
         if (this.isBrowser) {
-          let page_title = `${selected_bill.short_title} ★ ${config.APP_NAME}`
+          const page_title = `${selected_bill.short_title} ★ ${config.APP_NAME}`
           window.document.title = page_title
           window.history.replaceState(window.history.state, page_title, document.location)
         }
@@ -336,7 +336,7 @@ class Comment extends Component {
                         <span class="icon"><i class="fa fa-thumbs-o-up"></i></span>
                         <span>${endorsements}</span>
                         <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
-                      `]: []
+                      `] : []
                   }
                   <span class="has-text-grey-light">${timeAgo(`${created_at}Z`, ago_opts)} ago</span>
                 </div>
