@@ -41,13 +41,20 @@ module.exports = class LegislationList extends Component {
   render() {
     const { loading_legislation, legislation } = this.state
 
+    let filtered_legislation = legislation
+    if (filtered_legislation) {
+      if (this.state.hide_direct_votes) {
+        filtered_legislation = filtered_legislation.filter(l => l.delegate_rank > -1 && l.vote_position !== 'abstain')
+      }
+    }
+
     return this.html`
       <div class="section">
         <div class="container">
           <h2 class="title is-5">U.S. Congress</h2>
           ${FilterTabs.for(this)}
           ${SearchForm.for(this)}
-          ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(o => LegislationListRow.for(this, o, `billitem-${o.id}`))}
+          ${loading_legislation ? LoadingIndicator.for(this) : filtered_legislation.map(o => LegislationListRow.for(this, o, `billitem-${o.id}`))}
           <style>
             .highlight-hover:hover {
               background: #f6f8fa;
@@ -60,6 +67,15 @@ module.exports = class LegislationList extends Component {
 }
 
 class FilterTabs extends Component {
+  oninit() {
+    return { hide_direct_votes: !!Number(this.storage.get('hide_direct_votes')) }
+  }
+
+  onclick(event) {
+    this.storage.set(event.target.name, event.target.checked ? '1' : '0')
+    return { [event.target.name]: event.target.checked }
+  }
+
   render() {
     const { query } = this.location
 
@@ -77,6 +93,16 @@ class FilterTabs extends Component {
           <li class="${query.order === 'active' ? 'is-active' : ''}"><a href="${`/legislation?order=active&terms=${query.terms || ''}`}">Active</a></li>
         </ul>
       </div>
+
+      <div class="field is-pulled-right">
+        <div class="control">
+          <label class="checkbox has-text-grey">
+            <input type="checkbox" name="hide_direct_votes" onclick=${this} checked=${this.state.hide_direct_votes}>
+            Hide direct votes
+          </label>
+        </div>
+      </div>
+
       <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
       <br />
     `
