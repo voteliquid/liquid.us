@@ -59,6 +59,7 @@ module.exports = class LegislationList extends Component {
             .summary-tooltip .summary-tooltip-content {
               display: none;
               position: absolute;
+              max-height: 222px;
             }
             .summary-tooltip .summary-tooltip-arrow {
               display: none;
@@ -296,15 +297,13 @@ class SummaryTooltipButton extends Component {
   render() {
     const { short_id, summary } = this.props
 
-    const summary_truncated = summary.length > 500 ? `${summary.slice(0, 500)} ...` : summary
-
     return this.html`
       <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">
         <br />
         <br />
         <span class="icon summary-tooltip">
           <i class="fa fa-lg fa-info-circle has-text-grey-lighter"></i>
-          <div class="summary-tooltip-content">${[summary_truncated]}</div>
+          <div class="summary-tooltip-content">${[summary]}</div>
           <div class="summary-tooltip-arrow"></div>
         </span>
       </a>
