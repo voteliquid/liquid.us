@@ -16,7 +16,7 @@ module.exports = class LegislationList extends Component {
     const { user } = this.state
     const { query } = this.location
 
-    this.setState({ loading_legislation: true, legislation_query: query })
+    this.setState({ loading_legislation: true })
 
     const terms = query.terms && query.terms.replace(/[^\w\d ]/g, '').replace(/(hr|s) (\d+)/i, '$1$2').replace(/(\S)\s+(\S)/g, '$1 & $2')
     const fts = terms ? `tsv=fts(english).${encodeURIComponent(terms)}&` : ''
