@@ -16,7 +16,7 @@ module.exports = (htmlHead) => {
               <div class="hero-body has-text-centered">
                 <div class="container">
                   <a href="/">
-                    <img src=${`${ASSETS_URL}/unitedvote_mark.png`} alt="United.vote" width="64" height="64" />
+                    <img src=${`${ASSETS_URL}/unitedvote_mark.png`} alt="United.vote" width="45" height="45" />
                   </a>
                   <h1 class="title">We are experiencing technical difficulties</h1>
                   <h2 class="subtitle">Please contact <a href="mailto:support@united.vote">support@united.vote</a> if the problem persists</h2>
