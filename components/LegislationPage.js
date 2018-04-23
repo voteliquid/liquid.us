@@ -14,7 +14,7 @@ const ago_opts = {
 
 module.exports = class LegislationPage extends Component {
   oninit() {
-    const { bills = {}, config, user } = this.state
+    const { config, user } = this.state
     const { params } = this.props
 
     const fields = [
@@ -73,7 +73,7 @@ module.exports = class LegislationPage extends Component {
       nay_comments: comments.filter(({ position }) => position === 'nay'),
     }))
   }
-  onpagechange(oldProps) {
+  onpagechange() {
     const { loading_bill, selected_bill } = this.state
     if (!loading_bill && selected_bill) {
       this.oninit().then((newState) => this.setState(newState))
@@ -109,7 +109,7 @@ class BillNotFoundPage extends Component {
 
 class BillFoundPage extends Component {
   render() {
-    const { config, selected_bill: l, user } = this.state
+    const { selected_bill: l, user } = this.state
 
     return this.html`
       <section class="section">
