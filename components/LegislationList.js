@@ -26,13 +26,17 @@ module.exports = class LegislationList extends Component {
       new: 'introduced_at.desc',
       active: 'last_action_at.desc',
     }
+
     const order = orders[query.order || 'upcoming']
+
+    const hide_direct_votes = query.hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
+
     const fields = [
       'short_title', 'number', 'type', 'short_id', 'id', 'status', 'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
       'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at', 'summary'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays', 'constituent_abstains')
-    const url = `/legislation_detail?select=${fields.join(',')}&${fts}order=${order}&limit=40`
+    const url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes}&${fts}order=${order}&limit=40`
 
     return this.api(url)
       .then(legislation => ({ legislation, loading_legislation: false }))
@@ -41,20 +45,13 @@ module.exports = class LegislationList extends Component {
   render() {
     const { loading_legislation, legislation } = this.state
 
-    let filtered_legislation = legislation
-    if (filtered_legislation) {
-      if (this.state.hide_direct_votes) {
-        filtered_legislation = filtered_legislation.filter(l => l.delegate_rank > -1 && l.vote_position !== 'abstain')
-      }
-    }
-
     return this.html`
       <div class="section">
         <div class="container">
           <h2 class="title is-5">U.S. Congress</h2>
           ${FilterTabs.for(this)}
-          ${SearchForm.for(this)}
-          ${loading_legislation ? LoadingIndicator.for(this) : filtered_legislation.map(o => LegislationListRow.for(this, o, `billitem-${o.id}`))}
+          ${FilterForm.for(this)}
+          ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(o => LegislationListRow.for(this, o, `billitem-${o.id}`))}
           <style>
             .summary-tooltip {
               position: relative;
@@ -110,15 +107,6 @@ module.exports = class LegislationList extends Component {
 }
 
 class FilterTabs extends Component {
-  oninit() {
-    return { hide_direct_votes: !!Number(this.storage.get('hide_direct_votes')) }
-  }
-
-  onclick(event) {
-    this.storage.set(event.target.name, event.target.checked ? '1' : '0')
-    return { [event.target.name]: event.target.checked }
-  }
-
   render() {
     const { query } = this.location
 
@@ -137,36 +125,39 @@ class FilterTabs extends Component {
         </ul>
       </div>
 
-      <div class="field is-pulled-right">
-        <div class="control">
-          <label class="checkbox has-text-grey">
-            <input type="checkbox" name="hide_direct_votes" onclick=${this} checked=${this.state.hide_direct_votes}>
-            Hide direct votes
-          </label>
-        </div>
-      </div>
-
-      <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
-      <br />
+      <p class="is-pulled-left has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
     `
   }
 }
 
-class SearchForm extends Component {
+class FilterForm extends Component {
+  onclick() {
+    document.querySelector('.foobar').click()
+  }
   render() {
     const { loading_legislation } = this.state
     const { query } = this.location
     const terms = query.terms || ''
 
     return this.html`
-      <form method="GET" action="/legislation">
+      <form name="legislation_filters" method="GET" action="/legislation">
         <input name="order" type="hidden" value="${query.order || 'upcoming'}" />
+
+        <div class="field is-grouped is-grouped-right">
+          <div class="control">
+            <label onclick=${this} class="checkbox has-text-grey">
+              <input type="checkbox" name="hide_direct_votes" checked=${!!query.hide_direct_votes}>
+              Hide direct votes
+            </label>
+          </div>
+        </div>
+
         <div class="field has-addons">
           <div class="control is-expanded">
             <input class="input" type="text" name="terms" placeholder="Examples: hr3440, health care, dream act" value="${terms}" />
           </div>
           <div class="control">
-            <button class="button is-primary" type="submit">
+            <button class="foobar button is-primary" type="submit">
               <span class="icon"><i class="fa fa-search"></i></span>
               <span>Search</span>
             </button>
