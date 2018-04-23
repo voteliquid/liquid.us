@@ -48,28 +48,52 @@ module.exports = class LegislationList extends Component {
           ${FilterTabs.for(this)}
           ${SearchForm.for(this)}
           ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(o => LegislationListRow.for(this, o, `billitem-${o.id}`))}
-          <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
           <style>
-            .tooltip:hover::before {
+            .summary-tooltip {
+              position: relative;
+            }
+            .summary-tooltip .summary-tooltip-content {
+              display: none;
+              position: absolute;
+            }
+            .summary-tooltip .summary-tooltip-arrow {
+              display: none;
+              position: absolute;
+            }
+            .summary-tooltip:hover .summary-tooltip-content {
+              display: block;
               background: hsl(0, 0%, 100%) !important;
               box-shadow: 0px 4px 15px hsla(0, 0%, 0%, 0.15);
               border: 1px solid hsl(0, 0%, 87%);
               color: #333;
               font-size: 14px;
-              max-height: 222px;
+              overflow: hidden;
+              padding: .4rem .8rem;
               text-align: left;
               white-space: normal;
               width: 400px;
+              z-index: 99999;
+              top: auto;
+              bottom: 50%;
+              left: auto;
+              right: 100%;
+              transform: translate(-0.5rem, 50%);
             }
-            .tooltip:hover::after {
-              border-color: transparent transparent transparent hsl(0, 0%, 100%) !important;
-              left: -1px !important;
-            }
-            .tooltip:hover .has-text-grey-lighter {
-              color: hsl(0, 0%, 75%) !important;
-            }
-            .highlight-hover:hover {
-              background: #f6f8fa;
+            .summary-tooltip:hover .summary-tooltip-arrow {
+              border-color: transparent transparent transparent hsl(0, 0%, 87%) !important;
+              z-index: 99999;
+              position: absolute;
+              display: inline-block;
+              pointer-events: none;
+              border-style: solid;
+              border-width: .5rem;
+              opacity: 1;
+              margin-left: -.5rem;
+              margin-top: -.5rem;
+              top: 50%;
+              bottom: auto;
+              left: auto;
+              right: calc(100% - .5rem);
             }
           </style>
         </div>
@@ -254,18 +278,17 @@ class VoteTally extends Component {
 class SummaryTooltipButton extends Component {
   render() {
     const { short_id, summary } = this.props
-    const tooltip = summary
-      .replace(/\<p\>\<b\>.*<\/b\>\<\/p\>/, '') // Remove title
-      .replace(/\<\/?(p|ul|li)\>/g, '') // Remove <p> <ul> or <li> tags
-      .replace(/\<\/?(b|strong)\>/g, '*') // Replace <b> tags with *
-      .replace(/"/g, "&#34;") // Escape double quotes
+
+    const summary_truncated = summary.length > 500 ? `${summary.slice(0, 500)} ...` : summary
 
     return this.html`
       <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">
         <br />
         <br />
-        <span class="icon tooltip is-tooltip-left" data-tooltip="${tooltip}">
+        <span class="icon summary-tooltip">
           <i class="fa fa-lg fa-info-circle has-text-grey-lighter"></i>
+          <div class="summary-tooltip-content">${[summary_truncated]}</div>
+          <div class="summary-tooltip-arrow"></div>
         </span>
       </a>
     `
