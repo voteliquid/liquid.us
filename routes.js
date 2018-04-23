@@ -2,6 +2,8 @@ module.exports = {
   '/': route('Liquid Democracy for America', () => import('./components/Home')),
   '/join': route('Join', () => import('./components/Join')),
   '/legislation': route('Legislation for U.S. Congress', () => import('./components/LegislationList')),
+  '/legislation/new': route('New Legislation', () => import('./components/NewLegislationPage')),
+  '/legislation/new/yours': route('Your Proposed Legislation', () => import('./components/YourNewLegislationPage')),
   '/legislation/:short_id': route('Legislation', () => import('./components/LegislationPage')),
   '/legislation/:short_id/vote': route('Vote', () => import('./components/LegislationVotePage')),
   '/sign_in': route('Sign in', () => import('./components/SignIn')),
@@ -26,6 +28,7 @@ module.exports = {
   '/new_legislatures': route('New Legislatures', () => import('./components/NewLegislatures')),
   '/twitter/:username': route('Profile', () => import('./components/ProfilePage')),
   '/:username': route('Profile', () => import('./components/ProfilePage')),
+  '/:username/:proposalId': route('Proposed Legislation', () => import('./components/ProposedLegislationPage')),
 }
 
 function route(page_title, fn) {

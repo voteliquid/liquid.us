@@ -44,6 +44,7 @@ module.exports = class LegislationList extends Component {
     return this.html`
       <div class="section">
         <div class="container">
+          ${NewButton.for(this)}
           <h2 class="title is-5">U.S. Congress</h2>
           ${FilterTabs.for(this)}
           ${SearchForm.for(this)}
@@ -226,6 +227,17 @@ class VoteTally extends Component {
     const { constituent_abstains, constituent_nays, constituent_yeas } = this.props
     return this.html`
       <span class="is-size-7 has-text-grey"><span class="has-text-weight-bold">Votes:</span> Yea: ${constituent_yeas}, Nay: ${constituent_nays}, Abstain: ${constituent_abstains}</span>
+    `
+  }
+}
+
+class NewButton extends Component {
+  render() {
+    return this.html`
+      <a style="white-space: inherit; height: auto;" class='button is-primary is-pulled-right' href="/legislation/new">
+        <span class="icon" style="align-self: flex-start;"><i class='fa fa-file'></i></span>
+        <span class="has-text-weight-semibold">New</span>
+      </a>
     `
   }
 }
