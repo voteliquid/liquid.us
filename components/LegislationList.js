@@ -255,25 +255,22 @@ class SummaryTooltipButton extends Component {
   render() {
     const s = this.props
 
-    let summary = s.summary
-    if (summary) {
-      summary = summary
-                  .replace(/\<p\>\<b\>.*<\/b\>\<\/p\>/, '') // Remove title
-                  .replace(/\<\/?(p|ul|li)\>/g, '') // Remove <p> <ul> or <li> tags
-                  .replace(/\<\/?(b|strong)\>/g, '*') // Replace <b> tags with *
-                  .replace(/"/g, "&#34;") // Escape double quotes
-    }
+    if (!s.summary) { return this.html`` }
+
+    const summary = s.summary
+      .replace(/\<p\>\<b\>.*<\/b\>\<\/p\>/, '') // Remove title
+      .replace(/\<\/?(p|ul|li)\>/g, '') // Remove <p> <ul> or <li> tags
+      .replace(/\<\/?(b|strong)\>/g, '*') // Replace <b> tags with *
+      .replace(/"/g, "&#34;") // Escape double quotes
 
     return this.html`
-      ${ summary ? [`
-        <a href="${`/legislation/${s.short_id}`}" class="is-hidden-mobile">
-          <br />
-          <br />
-          <span class="icon tooltip is-tooltip-left" data-tooltip="${summary}">
-            <i class="fa fa-lg fa-info-circle has-text-grey-lighter"></i>
-          </span>
-        </a>
-      `] : []}
+      <a href="${`/legislation/${s.short_id}`}" class="is-hidden-mobile">
+        <br />
+        <br />
+        <span class="icon tooltip is-tooltip-left" data-tooltip="${summary}">
+          <i class="fa fa-lg fa-info-circle has-text-grey-lighter"></i>
+        </span>
+      </a>
     `
   }
 }
