@@ -5,6 +5,12 @@ module.exports = class GetStartedUpdatesPage extends Component {
     if (!this.state.user) return this.location.redirect('/sign_in')
   }
 
+  onpagechange(oldProps) {
+    if (oldProps.url !== this.props.url) {
+      return this.oninit()
+    }
+  }
+
   onsubmit(event, formData) {
     event.preventDefault()
 
@@ -35,27 +41,29 @@ module.exports = class GetStartedUpdatesPage extends Component {
               <h2 class="subtitle">Updates</h2>
               <form method="POST" onsubmit=${this} action=${this}>
                 <p>
-                  Would you like <strong>automatic update emails</strong> about what your legislators have been voting on, how much they’re listening to constituents, and general updates about United?
+                  Would you like to receive email updates about what your legislators have been voting on, how much they’re listening to constituents, and general updates about United?
                 </p>
-                <div class="control">
-                  <label class="radio">
-                    <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'daily'} value="daily">
-                    Daily
-                  </label>
-                  <label class="radio">
-                    <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'weekly'} value="weekly">
-                    Weekly
-                  </label>
-                  <label class="radio">
-                    <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'monthly'} value="monthly">
-                    Monthly
-                  </label>
-                  <label class="radio">
-                    <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'never'} value="never">
-                    Never
-                  </label>
+                <div class="field">
+                  <div class="control">
+                    <label class="radio">
+                      <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'daily'} value="daily">
+                      Daily
+                    </label>
+                    <label class="radio">
+                      <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'weekly'} value="weekly">
+                      Weekly
+                    </label>
+                    <label class="radio">
+                      <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'monthly'} value="monthly">
+                      Monthly
+                    </label>
+                    <label class="radio">
+                      <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'never'} value="never">
+                      Never
+                    </label>
+                  </div>
                 </div>
-                <div class="field is-pulled-right">
+                <div class="field">
                   <div class="control">
                     <button class="button is-primary" type="submit">Next</button>
                   </div>

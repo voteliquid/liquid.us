@@ -41,27 +41,29 @@ module.exports = class Settings extends Component {
             <div class="content">
               <form method="POST" onsubmit=${this} action=${this}>
                 <p>
-                  Would you like <strong>automatic update emails</strong> about what your legislators have been voting on, how much they’re listening to constituents, and general updates about United?
+                  Would you like to receive email updates about what your legislators have been voting on, how much they’re listening to constituents, and general updates about United?
                 </p>
-                <div class="control">
-                  <label class="radio">
-                    <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'daily'} value="daily" onclick=${this}>
-                    Daily
-                  </label>
-                  <label class="radio">
-                    <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'weekly'} value="weekly" onclick=${this}>
-                    Weekly
-                  </label>
-                  <label class="radio">
-                    <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'monthly'} value="monthly" onclick=${this}>
-                    Monthly
-                  </label>
-                  <label class="radio">
-                    <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'never'} value="never" onclick=${this}>
-                    Never
-                  </label>
+                <div class="field">
+                  <div class="control">
+                    <label class="radio">
+                      <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'daily'} value="daily" onclick=${this}>
+                      Daily
+                    </label>
+                    <label class="radio">
+                      <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'weekly'} value="weekly" onclick=${this}>
+                      Weekly
+                    </label>
+                    <label class="radio">
+                      <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'monthly'} value="monthly" onclick=${this}>
+                      Monthly
+                    </label>
+                    <label class="radio">
+                      <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'never'} value="never" onclick=${this}>
+                      Never
+                    </label>
+                  </div>
                 </div>
-                <div class="field is-pulled-right">
+                <div class="field">
                   <div class="control">
                     ${settings_unsaved
                       ? [`<button class="button is-primary" type="submit">Save</button>`]
