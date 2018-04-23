@@ -180,7 +180,7 @@ class LegislationListRow extends Component {
             </div>
             <div class="column is-one-quarter has-text-right-tablet has-text-left-mobile">
               ${VoteButton.for(this, s, `votebutton-${s.id}`)}
-              ${SummaryTooltipButton.for(this, s, `summarybutton-${s.id}`)}
+              ${s.summary ? SummaryTooltipButton.for(this, s, `summarybutton-${s.id}`) : ''}
             </div>
           </div>
         </div>
@@ -253,21 +253,18 @@ class VoteTally extends Component {
 
 class SummaryTooltipButton extends Component {
   render() {
-    const s = this.props
-
-    if (!s.summary) { return this.html`` }
-
-    const summary = s.summary
+    const { short_id, summary } = this.props
+    const tooltip = summary
       .replace(/\<p\>\<b\>.*<\/b\>\<\/p\>/, '') // Remove title
       .replace(/\<\/?(p|ul|li)\>/g, '') // Remove <p> <ul> or <li> tags
       .replace(/\<\/?(b|strong)\>/g, '*') // Replace <b> tags with *
       .replace(/"/g, "&#34;") // Escape double quotes
 
     return this.html`
-      <a href="${`/legislation/${s.short_id}`}" class="is-hidden-mobile">
+      <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">
         <br />
         <br />
-        <span class="icon tooltip is-tooltip-left" data-tooltip="${summary}">
+        <span class="icon tooltip is-tooltip-left" data-tooltip="${tooltip}">
           <i class="fa fa-lg fa-info-circle has-text-grey-lighter"></i>
         </span>
       </a>
