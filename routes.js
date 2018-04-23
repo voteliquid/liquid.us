@@ -1,5 +1,5 @@
 module.exports = {
-  '/': route('Liquid Democracy for America', () => import('./components/Home')),
+  '/': route(null, () => import('./components/Home')),
   '/join': route('Join', () => import('./components/Join')),
   '/legislation': route('Legislation for U.S. Congress', () => import('./components/LegislationList')),
   '/legislation/:short_id': route('Legislation', () => import('./components/LegislationPage')),

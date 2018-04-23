@@ -44,7 +44,7 @@ module.exports = class App extends Component {
           },
           pageTitle: ({ config, page_title }) => {
             const APP_NAME = config.APP_NAME
-            return page_title ? `${APP_NAME} ★ ${page_title}` : APP_NAME
+            return page_title ? `${page_title} ★ ${APP_NAME}` : `${APP_NAME} ★ Liquid Democracy for America`
           },
           routes,
         })}

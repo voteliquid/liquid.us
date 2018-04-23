@@ -49,7 +49,7 @@ server
 
 function htmlHead({ page_description, page_title }) {
   const description = page_description || `A new democracy for the modern world.`
-  const title = page_title ? `${APP_NAME} ★ ${page_title}` : APP_NAME
+  const title = page_title ? `${page_title} ★ ${APP_NAME}` : `${APP_NAME} ★ Liquid Democracy for America`
 
   return `
     <meta charset="utf-8">
