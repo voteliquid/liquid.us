@@ -84,20 +84,20 @@ module.exports = class LegislationList extends Component {
               transform: translate(-0.5rem, 50%);
             }
             .summary-tooltip:hover .summary-tooltip-arrow {
-              border-color: transparent transparent transparent hsl(0, 0%, 87%) !important;
+              border-color: transparent transparent transparent hsl(0, 0%, 100%) !important;
               z-index: 99999;
               position: absolute;
               display: inline-block;
               pointer-events: none;
               border-style: solid;
               border-width: .5rem;
-              opacity: 1;
               margin-left: -.5rem;
               margin-top: -.5rem;
               top: 50%;
-              bottom: auto;
-              left: auto;
-              right: calc(100% - .5rem);
+              left: -1px;
+            }
+            .summary-tooltip:hover .has-text-grey-lighter {
+              color: hsl(0, 0%, 75%) !important;
             }
           </style>
         </div>
