@@ -3,10 +3,12 @@ const LoadingIndicator = require('./LoadingIndicator')
 
 module.exports = class LegislationVotePage extends Component {
   oninit() {
-    return this.fetchVote().then(() => this.setBrowserTitle())
+    return this.fetchVote()
   }
-  onpagechange() {
-    this.fetchVote().then(() => this.setBrowserTitle())
+  onpagechange(oldProps) {
+    if (oldProps.url !== this.props.url) {
+      this.fetchVote()
+    }
   }
   setBrowserTitle() {
     const { config, selected_bill } = this.state
@@ -47,6 +49,7 @@ module.exports = class LegislationVotePage extends Component {
         this.location.setStatus(404)
         return this.setState({ loading_legislation: false })
       })
+      .then(() => this.setBrowserTitle())
       .catch(error => ({ error, loading_legislation: false }))
   }
   render() {
