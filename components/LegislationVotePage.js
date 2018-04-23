@@ -11,7 +11,7 @@ module.exports = class LegislationVotePage extends Component {
   setBrowserTitle() {
     const { config, selected_bill } = this.state
     if (this.isBrowser) {
-      let page_title = `Vote on ${selected_bill.short_title} ★ ${config.APP_NAME}`
+      const page_title = `Vote on ${selected_bill.short_title} ★ ${config.APP_NAME}`
       window.document.title = page_title
       window.history.replaceState(window.history.state, page_title, document.location)
     }
@@ -26,7 +26,7 @@ module.exports = class LegislationVotePage extends Component {
       .then(bills => {
         const bill = bills[0]
         if (bill) {
-          let page_title = `Vote on ${bill.display_title}`
+          const page_title = `Vote on ${bill.display_title}`
           if (user) {
             return this.api(`/votes?user_id=eq.${user.id}&delegate_rank=eq.-1&order=updated_at.desc`).then(votes => {
               const last_vote_public = votes[0] && votes[0].public
@@ -186,7 +186,7 @@ class LegislationVoteContent extends Component {
                   </label>
                 </div>
                 <p class="is-size-7 has-text-grey">
-                  ${ public_checked
+                  ${public_checked
                     ? 'Your comment will be published with your name. It will also be listed on your profile.'
                     : 'Your comment will be published anonymously (your name will not be shown).'
                   }

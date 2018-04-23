@@ -14,7 +14,7 @@ const ago_opts = {
 
 module.exports = class LegislationPage extends Component {
   oninit() {
-    const { bills = {}, config, user } = this.state
+    const { config, user } = this.state
     const { params } = this.props
 
     const fields = [
@@ -33,7 +33,7 @@ module.exports = class LegislationPage extends Component {
 
       if (selected_bill) {
         if (this.isBrowser) {
-          let page_title = `${selected_bill.short_title} ★ ${config.APP_NAME}`
+          const page_title = `${selected_bill.short_title} ★ ${config.APP_NAME}`
           window.document.title = page_title
           window.history.replaceState(window.history.state, page_title, document.location)
         }
@@ -73,7 +73,7 @@ module.exports = class LegislationPage extends Component {
       nay_comments: comments.filter(({ position }) => position === 'nay'),
     }))
   }
-  onpagechange(oldProps) {
+  onpagechange() {
     const { loading_bill, selected_bill } = this.state
     if (!loading_bill && selected_bill) {
       this.oninit().then((newState) => this.setState(newState))
@@ -109,7 +109,7 @@ class BillNotFoundPage extends Component {
 
 class BillFoundPage extends Component {
   render() {
-    const { config, selected_bill: l, user } = this.state
+    const { selected_bill: l, user } = this.state
 
     return this.html`
       <section class="section">
@@ -336,7 +336,7 @@ class Comment extends Component {
                         <span class="icon"><i class="fa fa-thumbs-o-up"></i></span>
                         <span>${endorsements}</span>
                         <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
-                      `]: []
+                      `] : []
                   }
                   <span class="has-text-grey-light">${timeAgo(`${created_at}Z`, ago_opts)} ago</span>
                 </div>

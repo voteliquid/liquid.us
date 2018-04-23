@@ -394,7 +394,7 @@ function expand(event, state) {
   return state
 }
 
-let stripe;
+let stripe
 let cardNumber // stripe card number element
 
 function initStripeForm() {
@@ -423,13 +423,13 @@ function initStripeForm() {
     cardNumber.addEventListener('change', (eventTwo) => {
       const displayError = document.getElementById('card-errors')
       if (eventTwo.error) {
-        displayError.textContent = eventTwo.error.message;
+        displayError.textContent = eventTwo.error.message
         displayError.className = 'notification is-warning'
       } else {
         displayError.className = ''
-        displayError.textContent = '';
+        displayError.textContent = ''
       }
-    });
+    })
   }, 1)
 }
 
