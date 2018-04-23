@@ -143,37 +143,43 @@ class LegislationVoteContent extends Component {
             <form method="POST" onsubmit=${this} action=${this}>
               ${error ? [`<div class="notification is-danger">${error}</div>`] : ''}
               <div class="field">
-                <label for="vote_position" class="label">Position:</label>
+                <label for="vote_position" class="label has-text-grey">Position:</label>
                 <div class="control">
-                  <label class="radio">
-                    <input onclick=${this} type="radio" name="vote_position" value="yea" checked=${v.vote_position === 'yea' ? 'checked' : ''} />
-                    Yea
-                  </label>
-                  <label class="radio">
-                    <input onclick=${this} type="radio" name="vote_position" value="nay" checked=${v.vote_position === 'nay' ? 'checked' : ''} />
-                    Nay
-                  </label>
-                  <label class="radio">
-                    <input onclick=${this} type="radio" name="vote_position" value="abstain" checked=${v.vote_position === 'abstain' ? 'checked' : ''} />
-                    Undecided
-                  </label>
+                  <div class="button narrow-on-mobile">
+                    <label class="radio">
+                      <input onclick=${this} type="radio" name="vote_position" value="yea" checked=${v.vote_position === 'yea' ? 'checked' : ''} />
+                      Yea
+                    </label>
+                  </div>
+                  <div class="button narrow-on-mobile">
+                    <label class="radio">
+                      <input onclick=${this} type="radio" name="vote_position" value="nay" checked=${v.vote_position === 'nay' ? 'checked' : ''} />
+                      Nay
+                    </label>
+                  </div>
+                  <div class="button narrow-on-mobile">
+                    <label class="radio">
+                      <input onclick=${this} type="radio" name="vote_position" value="abstain" checked=${v.vote_position === 'abstain' ? 'checked' : ''} />
+                      Undecided
+                    </label>
+                  </div>
                   <style>
                     label.radio {
-                      border: 1px solid rgba(72, 128, 224, 0.5);
-                      padding: 9px 18px;
-                      border-radius: 55px;
+                      padding: 0px 18px;
                     }
-                    @media (max-width: 375px) {
+                    @media (max-width: 440px) {
+                      .narrow-on-mobile {
+                        padding: 0px 10px;
+                      }
                       label.radio {
-                        margin: 0 !important;
-                        padding: 9px 11px;
+                        padding: 0px;
                       }
                     }
                   </style>
                 </div>
               </div>
               <div class="field">
-                <label for="comment" class="label">Comment:</label>
+                <label for="comment" class="label has-text-grey">Comment:</label>
                 <div class="control">
                   <textarea name="comment" autocomplete="off" class="textarea" placeholder="Why are you voting this way? (Optional)" value=${v.comment}></textarea>
                 </div>
