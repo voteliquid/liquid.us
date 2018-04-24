@@ -352,7 +352,7 @@ class Comment extends Component {
                         <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
                       `] : []
                   }
-                  <span class="has-text-grey-light">${timeAgo(`${created_at}Z`, ago_opts)} ago</span>
+                  <a class="has-text-grey-light" href="${`${this.location.url}/votes/${id}`}">${timeAgo(`${created_at}Z`, ago_opts)} ago</a>
                 </div>
             </div>
           </div>

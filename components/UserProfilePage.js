@@ -114,7 +114,7 @@ module.exports = class UserProfilePage extends Component {
 
 class VoteCard extends Component {
   render() {
-    const { comment, endorsements, position, updated_at, short_id, type, number, short_title } = this.props
+    const { comment, endorsements, id, position, updated_at, short_id, type, number, short_title } = this.props
     const { selected_profile } = this.state
 
     return this.html`
@@ -132,7 +132,7 @@ class VoteCard extends Component {
                 <span>${endorsements}</span>
                 <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
               `] : []}
-              <span class="has-text-grey-light">${timeAgo(`${updated_at}Z`, ago_opts)} ago</span>
+              <a class="has-text-grey-light" href="${`/legislation/${short_id}/votes/${id}`}">${timeAgo(`${updated_at}Z`, ago_opts)} ago</a>
             </div>
           </div>
         </div>
