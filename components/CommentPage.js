@@ -74,7 +74,7 @@ module.exports = class CommentPage extends Component {
     return this.html`<div>${
       loading_bill
         ? LoadingIndicator.for(this)
-        : selected_bill
+        : selected_bill && selected_bill.comment
           ? BillFoundPage.for(this)
           : BillNotFoundPage.for(this)
     }</div>`
