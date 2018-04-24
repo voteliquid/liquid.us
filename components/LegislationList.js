@@ -31,6 +31,8 @@ module.exports = class LegislationList extends Component {
 
     const hide_direct_votes = query.hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
 
+    this.storage.set('hide_direct_votes', hide_direct_votes)
+
     const fields = [
       'short_title', 'number', 'type', 'short_id', 'id', 'status', 'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
       'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at', 'summary'
@@ -132,13 +134,19 @@ class FilterTabs extends Component {
 }
 
 class FilterForm extends Component {
-  onclick() {
-    document.querySelector('.foobar').click()
+  onclick(event) {
+    const btn = document.querySelector('.filter-submit')
+    if (btn.disabled) {
+      event.preventDefault()
+    } else {
+      btn.click()
+    }
   }
   render() {
     const { loading_legislation } = this.state
     const { query } = this.location
     const terms = query.terms || ''
+    const hide_direct_votes = this.storage.get('hide_direct_votes') || query.hide_direct_votes
 
     return this.html`
       <form name="legislation_filters" method="GET" action="/legislation">
@@ -147,7 +155,7 @@ class FilterForm extends Component {
         <div class="field is-grouped is-grouped-right">
           <div class="control">
             <label onclick=${this} class="checkbox has-text-grey">
-              <input type="checkbox" name="hide_direct_votes" checked=${!!query.hide_direct_votes}>
+              <input type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
               Hide direct votes
             </label>
           </div>
@@ -158,7 +166,7 @@ class FilterForm extends Component {
             <input class="input" type="text" name="terms" placeholder="Examples: hr3440, health care, dream act" value="${terms}" />
           </div>
           <div class="control">
-            <button class="foobar button is-primary" type="submit">
+            <button class="filter-submit button is-primary" disabled=${!!loading_legislation} type="submit">
               <span class="icon"><i class="fa fa-search"></i></span>
               <span>Search</span>
             </button>
