@@ -152,7 +152,7 @@ class FilterForm extends Component {
     const { loading_legislation, user } = this.state
     const { query } = this.location
     const terms = query.terms || ''
-    const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
+    const hide_direct_votes = query.hide_direct_votes
 
     return this.html`
       <form name="legislation_filters" method="GET" action="/legislation">
