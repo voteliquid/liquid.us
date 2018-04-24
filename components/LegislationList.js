@@ -149,10 +149,10 @@ class FilterForm extends Component {
     }
   }
   render() {
-    const { loading_legislation } = this.state
+    const { loading_legislation, user } = this.state
     const { query } = this.location
     const terms = query.terms || ''
-    const hide_direct_votes = query.hide_direct_votes
+    const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
 
     return this.html`
       <form name="legislation_filters" method="GET" action="/legislation">
@@ -170,7 +170,7 @@ class FilterForm extends Component {
           </div>
         </div>
 
-        <div class="field is-grouped is-grouped-right">
+        <div class=${`field is-grouped is-grouped-right ${user ? '' : 'is-hidden'}`}>
           <div class="control">
             <label class="checkbox has-text-grey">
               <input onclick=${this} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
