@@ -194,7 +194,7 @@ class Comment extends Component {
             </div>
           </div>
         </div>
-        <div class="card-content">${[this.linkifyUrls(comment)]}</div>
+        <div class="card-content">${ comment ? [this.linkifyUrls(comment)] : ['<em>No comment</em>']}</div>
       </div>
       <br />
     `
