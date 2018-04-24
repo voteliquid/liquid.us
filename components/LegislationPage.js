@@ -310,7 +310,7 @@ class Comment extends Component {
   render() {
     const { comment, created_at, endorsements, fullname, id, username } = this.props
     const { user } = this.state
-    const avatarURL = this.avatarURL(comment)
+    const avatarURL = this.avatarURL(this.props)
 
     return this.html`
       <div class="card is-small">
