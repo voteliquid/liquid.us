@@ -19,7 +19,7 @@ module.exports = class LegislationList extends Component {
     this.setState({ loading_legislation: true })
 
     const terms = query.terms && query.terms.replace(/[^\w\d ]/g, '').replace(/(hr|s) (\d+)/i, '$1$2').replace(/(\S)\s+(\S)/g, '$1 & $2')
-    const fts = terms ? `tsv=fts(english).${encodeURIComponent(terms)}&` : ''
+    const fts = terms ? `tsv=fts(simple).${encodeURIComponent(terms)}&` : ''
 
     const orders = {
       upcoming: 'next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
