@@ -31,8 +31,6 @@ module.exports = class LegislationList extends Component {
 
     const hide_direct_votes = query.hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
 
-    this.storage.set('hide_direct_votes', hide_direct_votes)
-
     const fields = [
       'short_title', 'number', 'type', 'short_id', 'id', 'status', 'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
       'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at', 'summary'
@@ -110,6 +108,13 @@ module.exports = class LegislationList extends Component {
 }
 
 class FilterTabs extends Component {
+  makeQuery(order) {
+    const query = this.location.query
+    const newQuery = Object.assign({}, query, { order, terms: query.terms || '' })
+    return Object.keys(newQuery).map(key => {
+      return `${key}=${newQuery[key]}`
+    }).join('&')
+  }
   render() {
     const { query } = this.location
 
@@ -122,13 +127,14 @@ class FilterTabs extends Component {
     return this.html`
       <div class="tabs">
         <ul>
-          <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?order=upcoming&terms=${query.terms || ''}`}">Upcoming</a></li>
-          <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?order=new&terms=${query.terms || ''}`}">New</a></li>
-          <li class="${query.order === 'active' ? 'is-active' : ''}"><a href="${`/legislation?order=active&terms=${query.terms || ''}`}">Active</a></li>
+          <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('upcoming')}`}">Upcoming</a></li>
+          <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('new')}`}">New</a></li>
+          <li class="${query.order === 'active' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('active')}`}">Active</a></li>
         </ul>
       </div>
-
-      <p class="is-pulled-left has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
+      <div class="content">
+        <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
+      </div>
     `
   }
 }
@@ -146,20 +152,11 @@ class FilterForm extends Component {
     const { loading_legislation } = this.state
     const { query } = this.location
     const terms = query.terms || ''
-    const hide_direct_votes = this.storage.get('hide_direct_votes') || query.hide_direct_votes
+    const hide_direct_votes = query.hide_direct_votes
 
     return this.html`
       <form name="legislation_filters" method="GET" action="/legislation">
         <input name="order" type="hidden" value="${query.order || 'upcoming'}" />
-
-        <div class="field is-grouped is-grouped-right">
-          <div class="control">
-            <label onclick=${this} class="checkbox has-text-grey">
-              <input type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
-              Hide direct votes
-            </label>
-          </div>
-        </div>
 
         <div class="field has-addons">
           <div class="control is-expanded">
@@ -172,8 +169,16 @@ class FilterForm extends Component {
             </button>
           </div>
         </div>
+
+        <div class="field is-grouped is-grouped-right">
+          <div class="control">
+            <label class="checkbox has-text-grey">
+              <input onclick=${this} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
+              Hide direct votes
+            </label>
+          </div>
+        </div>
       </form>
-      <br />
       <div class="field">${!loading_legislation && terms ? SearchResultsMessage.for(this) : ''}</div>
     `
   }
