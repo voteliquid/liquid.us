@@ -111,7 +111,7 @@ class BillFoundPage extends Component {
             </ul>
           </nav>
           <div class="content">
-            <h2>${l.type} ${l.number} &mdash; ${l.short_title}</h2>
+            <h2><a href=${`/legislation/${l.short_id}`} class="has-text-dark">${l.type} ${l.number} &mdash; ${l.short_title}</a></h2>
           </div>
           <p class="is-size-7 has-text-grey">
             ${l.sponsor_username
@@ -146,7 +146,7 @@ class Comment extends Component {
   render() {
     const { comment, created_at, endorsements, fullname, id, position, username } = this.props
     const { user } = this.state
-    const avatarURL = this.avatarURL(comment)
+    const avatarURL = this.avatarURL(this.props)
 
     return this.html`
       <div class="card is-small">
@@ -189,7 +189,7 @@ class Comment extends Component {
                         <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
                       `] : []
                   }
-                  <a class="has-text-grey-light" href="${`votes/${id}`}">${timeAgo(`${created_at}Z`, ago_opts)} ago</a>
+                  <span class="has-text-grey-light">${timeAgo(`${created_at}Z`, ago_opts)} ago</span>
                 </div>
             </div>
           </div>
