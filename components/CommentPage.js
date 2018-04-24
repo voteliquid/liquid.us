@@ -12,6 +12,15 @@ const ago_opts = {
   years: 'y',
 }
 
+function escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+ }
+
 module.exports = class CommentPage extends Component {
   oninit() {
     const { config, user } = this.state
@@ -32,18 +41,20 @@ module.exports = class CommentPage extends Component {
       const selected_bill = bills[0]
 
       if (selected_bill) {
-        if (this.isBrowser) {
-          const page_title = `${selected_bill.short_title} ★ ${config.APP_NAME}`
-          window.document.title = page_title
-          window.history.replaceState(window.history.state, page_title, document.location)
-        }
-
         return this.fetchComments(selected_bill).then(({ comment }) => {
           selected_bill.comment = comment
+
+          const page_title = `${comment.fullname}'s vote on ${selected_bill.short_title}`
+          if (this.isBrowser) {
+            const page_title_with_appname = `${page_title} ★ ${config.APP_NAME}`
+            window.document.title = page_title_with_appname
+            window.history.replaceState(window.history.state, page_title_with_appname, document.location)
+          }
+
           return {
             loading_bill: false,
-            page_title: selected_bill.short_title,
-            page_description: `Vote directly on bills in Congress. We'll notify your representatives and grade them for listening / ignoring their constituents.`,
+            page_title,
+            page_description: escapeHtml(comment.comment),
             selected_bill: { ...bills[selected_bill.short_id], ...selected_bill },
             bills: { ...bills, [selected_bill.short_id]: selected_bill },
           }
