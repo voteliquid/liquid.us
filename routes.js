@@ -4,6 +4,7 @@ module.exports = {
   '/legislation': route('Legislation for U.S. Congress', () => import('./components/LegislationList')),
   '/legislation/:short_id': route('Legislation', () => import('./components/LegislationPage')),
   '/legislation/:short_id/vote': route('Vote', () => import('./components/LegislationVotePage')),
+  '/legislation/:short_id/votes/:comment_id': route('Bill Comment', () => import('./components/CommentPage')),
   '/sign_in': route('Sign in', () => import('./components/SignIn')),
   '/sign_in/verify': route('Sign in', () => import('./components/VerifyOTP')),
   '/sign_out': route('Sign out', () => import('./components/SignOut')),
