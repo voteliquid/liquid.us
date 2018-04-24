@@ -67,7 +67,7 @@ module.exports = class ProxyRequests extends Component {
 
 class RequestRow extends Component {
   render() {
-    const { approved, id, first_name, last_name, username, twitter_username } = this.props
+    const { approved, id, first_name, last_name, is_verified, username, twitter_username } = this.props
 
     return this.html`
       <div class="field is-grouped">
@@ -89,9 +89,10 @@ class RequestRow extends Component {
           ? [`<a href="${username ? `/${username}` : `/twitter/${twitter_username}`}" target="_blank">
               <span>${first_name} ${last_name}</span>
               <span class="has-text-grey is-size-7">@${username || twitter_username}</span>
+              ${!is_verified ? `<span class="tag">Unverified</span>` : ''}
             </a>`]
           : [`
-            <span>${first_name} ${last_name}</span>
+            <span>${first_name} ${last_name} <span class="tag">Unverified</span></span>
           `]}
         </div>
         <div class="media-right">
