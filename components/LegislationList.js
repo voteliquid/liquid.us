@@ -29,14 +29,15 @@ module.exports = class LegislationList extends Component {
 
     const order = orders[query.order || 'upcoming']
 
-    const hide_direct_votes = query.hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
+    const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
+    const hide_direct_votes_query = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
 
     const fields = [
       'short_title', 'number', 'type', 'short_id', 'id', 'status', 'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
       'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at', 'summary'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays', 'constituent_abstains')
-    const url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes}&${fts}order=${order}&limit=40`
+    const url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes_query}&${fts}order=${order}&limit=40`
 
     return this.api(url)
       .then(legislation => ({ legislation, loading_legislation: false }))
@@ -145,6 +146,11 @@ class FilterForm extends Component {
     if (btn.disabled) {
       event.preventDefault()
     } else {
+      if (event.target && event.target.checked) {
+        this.storage.set('hide_direct_votes', 'on')
+      } else {
+        this.storage.unset('hide_direct_votes')
+      }
       btn.click()
     }
   }
@@ -152,7 +158,7 @@ class FilterForm extends Component {
     const { loading_legislation, user } = this.state
     const { query } = this.location
     const terms = query.terms || ''
-    const hide_direct_votes = query.hide_direct_votes
+    const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
 
     return this.html`
       <form name="legislation_filters" method="GET" action="/legislation">
