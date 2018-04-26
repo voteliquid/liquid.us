@@ -39,16 +39,16 @@ module.exports = class LegislationVotePage extends Component {
                   body: JSON.stringify({ user_id: user.id, legislation_id: bill.id })
                 }).then((bill_vote_power) => {
                   bill.vote_power = bill_vote_power
-                  return this.setState({ loading_legislation: false, page_title, selected_bill: { ...selected_bill, ...bill }, last_vote_public })
+                  return this.setState({ page_title, selected_bill: { ...selected_bill, ...bill }, last_vote_public })
                 })
               })
             })
           }
-          return this.setState({ loading_legislation: false, page_title, selected_bill: { ...selected_bill, ...bill } })
+          return this.setState({ page_title, selected_bill: { ...selected_bill, ...bill } })
         }
         this.location.setStatus(404)
-        return this.setState({ loading_legislation: false })
       })
+      .then(() => this.setState({ legislation_query: false, loading_legislation: false }))
       .then(() => this.setBrowserTitle())
       .catch(error => ({ error, loading_legislation: false }))
   }

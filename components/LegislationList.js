@@ -7,14 +7,18 @@ module.exports = class LegislationList extends Component {
       return this.fetchLegislation()
     }
   }
-  onpagechange() {
-    this.fetchLegislation().then((newState) => this.setState(newState))
+  onpagechange(oldProps) {
+    if (oldProps.url !== this.props.url) {
+      Promise.resolve(this.fetchLegislation()).then((newState) => this.setState(newState))
+    }
   }
   fetchLegislation(event) {
     if (event) event.preventDefault()
 
-    const { user } = this.state
-    const { query } = this.location
+    const { legislation_query, user } = this.state
+    const { query, url } = this.location
+
+    if (url === legislation_query) return
 
     this.setState({ loading_legislation: true })
 
@@ -40,10 +44,10 @@ module.exports = class LegislationList extends Component {
       'summary', 'legislature_name'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays', 'constituent_abstains')
-    const url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes_query}&${fts}order=${order}&limit=40`
+    const api_url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes_query}&${fts}order=${order}&limit=40`
 
-    return this.api(url)
-      .then(legislation => ({ legislation, loading_legislation: false }))
+    return this.api(api_url)
+      .then(legislation => ({ legislation_query: url, legislation, loading_legislation: false }))
       .catch(error => ({ error, loading_legislation: false }))
   }
   render() {
