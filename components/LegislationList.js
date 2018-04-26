@@ -33,8 +33,11 @@ module.exports = class LegislationList extends Component {
     const hide_direct_votes_query = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
 
     const fields = [
-      'short_title', 'number', 'type', 'short_id', 'id', 'status', 'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
-      'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at', 'summary'
+      'short_title', 'number', 'type', 'short_id', 'id', 'status',
+      'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
+      'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas',
+      'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at',
+      'summary', 'legislature_name'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays', 'constituent_abstains')
     const url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes_query}&${fts}order=${order}&limit=40`
@@ -49,7 +52,7 @@ module.exports = class LegislationList extends Component {
     return this.html`
       <div class="section">
         <div class="container">
-          <h2 class="title is-5">U.S. Congress</h2>
+          <h2 class="title is-5">Legislation</h2>
           ${FilterTabs.for(this)}
           ${FilterForm.for(this)}
           ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(o => LegislationListRow.for(this, o, `billitem-${o.id}`))}
@@ -209,8 +212,10 @@ class SearchResultsMessage extends Component {
 
 class LegislationListRow extends Component {
   render() {
+    const { reps = [] } = this.state
     const s = this.props
     const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
+    const show_legislature = reps.some(({ office_short_name }) => office_short_name === 'CA')
 
     return this.html`
       <div class="card highlight-hover">
@@ -219,6 +224,10 @@ class LegislationListRow extends Component {
             <div class="column">
               <h3><a href="${`/legislation/${s.short_id}`}">${s.short_title}</a></h3>
               <div class="is-size-7 has-text-grey">
+                ${show_legislature ? [`
+                  <strong class="has-text-grey">${s.legislature_name}</strong>
+                  &mdash;
+                `] : ''}
                 <strong class="has-text-grey">${s.type} ${s.number}</strong>
                 &mdash;
                 ${s.sponsor_first_name

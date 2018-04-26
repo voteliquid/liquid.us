@@ -2,6 +2,7 @@ const { Router } = require('hyperloop')
 const Component = require('./Component')
 const Footer = require('./Footer')
 const LoadingIndicator = require('./LoadingIndicator')
+const YourLegislators = require('./YourLegislators')
 const NavBar = require('./NavBar')
 const NotFound = require('./NotFound')
 const routes = require('../routes')
@@ -11,16 +12,20 @@ module.exports = class App extends Component {
     const { user } = this.state
     const jwt = this.storage.get('jwt')
     const user_id = this.storage.get('user_id')
+    let promise = Promise.resolve()
 
     if (!user && jwt) {
-      return this.api(`/users?select=id,email,first_name,last_name,username,cc_verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`)
-      .then(users => ({ user: { ...users[0], address: users[0].address[0] } }))
+      promise = this.api(`/users?select=id,email,first_name,last_name,username,cc_verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`).then(users => this.setState({ user: { ...users[0], address: users[0].address[0] } }))
+    }
+
+    return promise
+      .then(() => Promise.resolve(YourLegislators.prototype.fetchElectedLegislators.call(this)))
+      .then(newState => this.setState(newState))
       .catch((error) => {
         console.log(error)
         this.storage.unset('jwt')
         return { user: false }
       })
-    }
   }
   render() {
     return this.html`

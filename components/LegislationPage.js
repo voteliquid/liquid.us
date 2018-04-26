@@ -21,7 +21,7 @@ module.exports = class LegislationPage extends Component {
       'short_title', 'number', 'type', 'short_id', 'id', 'committee',
       'sponsor_username', 'sponsor_first_name', 'sponsor_last_name', 'status',
       'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays',
-      'abstains', 'summary', 'number', 'congress', 'chamber'
+      'abstains', 'summary', 'number', 'congress', 'chamber', 'legislature_name'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays')
     const url = `/legislation_detail?select=${fields.join(',')}&short_id=eq.${params.short_id}`
@@ -109,7 +109,8 @@ class BillNotFoundPage extends Component {
 
 class BillFoundPage extends Component {
   render() {
-    const { selected_bill: l, user } = this.state
+    const { selected_bill: l, reps, user } = this.state
+    const show_legislature = reps.some(({ office_short_name }) => office_short_name === 'CA')
 
     return this.html`
       <section class="section">
@@ -121,6 +122,7 @@ class BillFoundPage extends Component {
               Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
             </div>
           `] : ''}
+          ${[show_legislature ? `<h4 class="has-text-grey is-paddingless is-margin-less">${l.legislature_name}</h4>` : '']}
           <div class="content">
             <h2>${l.type} ${l.number} &mdash; ${l.short_title}</h2>
           </div>
