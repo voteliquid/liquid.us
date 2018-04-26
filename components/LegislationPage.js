@@ -137,7 +137,6 @@ class BillFoundPage extends Component {
             <div class="columns">
               <div class="column">${BillSummary.for(this)}</div>
               <div class="column">
-                <h3 class="title has-text-weight-normal is-size-5">Vote</h3>
                 <p>${VoteButton.for(this, l, `votebutton-${l.id}`)}</p>
                 ${l.vote_position
                 ? [`
@@ -202,7 +201,6 @@ class BillSummary extends Component {
         }
       </style>
       <div class=${`${expanded || !summary ? '' : 'summary'}`}>
-        <h3 class="title has-text-weight-normal is-size-5">Summary</h3>
         <div class="content">
           ${[summary || `<p>A summary is in progress.</p><p><a href="https://www.congress.gov/bill/${congress}th-congress/${chamber.toLowerCase()}-bill/${number}/text" target="_blank">Read full text of the bill at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
         </div>
@@ -261,13 +259,9 @@ class BillComments extends Component {
     return this.html`
       <div class="columns">
         <div class="column">
-          <h3 class="is-size-5">Comments in favor</h3>
-          <br />
           ${CommentsColumn.for(this, { position: 'yea' }, 'comments-yea')}
         </div>
         <div class="column">
-          <h3 class="is-size-5">Comments against</h3>
-          <br />
           ${CommentsColumn.for(this, { position: 'nay' }, 'comments-nay')}
         </div>
       </div>
@@ -285,7 +279,7 @@ class CommentsColumn extends Component {
       <div>
         ${comments.length
           ? comments.map(c => Comment.for(this, c, `comment-${c.id}`))
-          : [`<p class="has-text-grey is-size-7">No comments ${position === 'yea' ? 'in favor' : 'against'}.</p>`]
+          : [`<p class="has-text-grey-light">No comments ${position === 'yea' ? 'in favor' : 'against'}. Vote on the bill to leave a comment.</p>`]
         }
       </div>
     `
@@ -308,7 +302,7 @@ class Comment extends Component {
     })
   }
   render() {
-    const { comment, created_at, endorsements, fullname, id, username } = this.props
+    const { comment, created_at, endorsements, fullname, id, position, username } = this.props
     const { user } = this.state
     const avatarURL = this.avatarURL(this.props)
 
@@ -331,6 +325,7 @@ class Comment extends Component {
                           </div>
                           <div class="media-content" style="align-self: center;">
                             <a href="/${username}">${fullname}</a>
+                            <span class="has-text-grey-light">${position === 'yea' ? 'in favor' : 'against'}</span>
                           </div>
                         </div>
                     `]
@@ -352,7 +347,7 @@ class Comment extends Component {
                         <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
                       `] : []
                   }
-                  <a class="has-text-grey-light" href="${`${this.location.url}/votes/${id}`}">${timeAgo(`${created_at}Z`, ago_opts)} ago</a>
+                  <a class="has-text-grey-light" href="${`${this.location.url}/votes/${id}`}">${timeAgo(`${created_at}Z`, ago_opts).replace(' ', '')} ago</a>
                 </div>
             </div>
           </div>
