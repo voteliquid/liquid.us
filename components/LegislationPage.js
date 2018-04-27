@@ -109,8 +109,7 @@ class BillNotFoundPage extends Component {
 
 class BillFoundPage extends Component {
   render() {
-    const { selected_bill: l, reps, user } = this.state
-    const show_legislature = reps.some(({ office_short_name }) => office_short_name === 'CA')
+    const { selected_bill: l, user } = this.state
 
     return this.html`
       <section class="section">
@@ -122,7 +121,7 @@ class BillFoundPage extends Component {
               Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
             </div>
           `] : ''}
-          ${[show_legislature ? `<h4 class="has-text-grey is-paddingless is-margin-less">${l.legislature_name}</h4>` : '']}
+          <h4 class="has-text-grey is-paddingless is-margin-less">${l.legislature_name}</h4>
           <div class="content">
             <h2>${l.type} ${l.number} &mdash; ${l.short_title}</h2>
           </div>

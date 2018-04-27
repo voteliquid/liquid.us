@@ -23,7 +23,7 @@ module.exports = class LegislationList extends Component {
     this.setState({ loading_legislation: true })
 
     const terms = query.terms && query.terms.replace(/[^\w\d ]/g, '').replace(/(hr|s) (\d+)/i, '$1$2').replace(/(\S)\s+(\S)/g, '$1 & $2')
-    const fts = terms ? `tsv=fts(simple).${encodeURIComponent(terms)}&` : ''
+    const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
 
     const orders = {
       upcoming: 'next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
@@ -36,6 +36,8 @@ module.exports = class LegislationList extends Component {
     const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
     const hide_direct_votes_query = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
 
+    const legislature = query.legislature ? `&legislature_id=eq.${query.legislature}` : ''
+
     const fields = [
       'short_title', 'number', 'type', 'short_id', 'id', 'status',
       'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
@@ -44,22 +46,28 @@ module.exports = class LegislationList extends Component {
       'summary', 'legislature_name'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays', 'constituent_abstains')
-    const api_url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes_query}&${fts}order=${order}&limit=40`
+    const api_url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&order=${order}&limit=40`
+    console.log(api_url)
 
     return this.api(api_url)
       .then(legislation => ({ legislation_query: url, legislation, loading_legislation: false }))
       .catch(error => ({ error, loading_legislation: false }))
   }
   render() {
-    const { loading_legislation, legislation } = this.state
+    const { loading_legislation, legislation, reps } = this.state
+    const legislature_by_id = reps.reduce((b, a) => {
+      b[a.legislature_id] = { id: a.legislature_id, name: a.legislature_name }
+      return b
+    }, {})
+    const legislatures = Object.keys(legislature_by_id).map(id => legislature_by_id[id])
 
     return this.html`
       <div class="section">
         <div class="container">
           <h2 class="title is-5">Legislation</h2>
           ${FilterTabs.for(this)}
-          ${FilterForm.for(this)}
-          ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(o => LegislationListRow.for(this, o, `billitem-${o.id}`))}
+          ${FilterForm.for(this, { legislatures })}
+          ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(bill => LegislationListRow.for(this, { bill, legislatures }, `billitem-${bill.id}`))}
           <style>
             .summary-tooltip {
               position: relative;
@@ -148,6 +156,9 @@ class FilterTabs extends Component {
 }
 
 class FilterForm extends Component {
+  autosubmit() {
+    document.querySelector('.filter-submit').click()
+  }
   onclick(event) {
     const btn = document.querySelector('.filter-submit')
     if (btn.disabled) {
@@ -162,6 +173,7 @@ class FilterForm extends Component {
     }
   }
   render() {
+    const { legislatures } = this.props
     const { loading_legislation, user } = this.state
     const { query } = this.location
     const terms = query.terms || ''
@@ -172,6 +184,14 @@ class FilterForm extends Component {
         <input name="order" type="hidden" value="${query.order || 'upcoming'}" />
 
         <div class="field has-addons">
+          <div class=${`control ${legislatures.length > 1 ? '' : 'is-hidden'}`}>
+            <div class="select">
+              <select autocomplete="off" name="legislature" onchange=${this.autosubmit}>
+                <option>All</option>
+                ${legislatures.map(({ id, name }) => `<option ${query.legislature === id ? 'selected="selected"' : ''} value="${id}">${name}</option>`)}
+              </select>
+            </div>
+          </div>
           <div class="control is-expanded">
             <input class="input" type="text" name="terms" placeholder="Examples: hr3440, health care, dream act" value="${terms}" />
           </div>
@@ -216,10 +236,8 @@ class SearchResultsMessage extends Component {
 
 class LegislationListRow extends Component {
   render() {
-    const { reps = [] } = this.state
-    const s = this.props
+    const { bill: s, legislatures } = this.props
     const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
-    const show_legislature = reps.some(({ office_short_name }) => office_short_name === 'CA')
 
     return this.html`
       <div class="card highlight-hover">
@@ -228,7 +246,7 @@ class LegislationListRow extends Component {
             <div class="column">
               <h3><a href="${`/legislation/${s.short_id}`}">${s.short_title}</a></h3>
               <div class="is-size-7 has-text-grey">
-                ${show_legislature ? [`
+                ${legislatures > 1 ? [`
                   <strong class="has-text-grey">${s.legislature_name}</strong>
                   &mdash;
                 `] : ''}

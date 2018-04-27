@@ -135,7 +135,7 @@ class LegislationVoteContent extends Component {
           `] : ''}
           <nav class="breadcrumb is-left is-small" aria-label="breadcrumbs">
             <ul>
-              <li><a href="/legislation">Legislation</a></li>
+              <li><a href="/legislation">${l.legislature_name}</a></li>
               <li><a href=${`/legislation/${l.short_id}`}>${l.type} ${l.number}</a></li>
               <li class="is-active"><a href="#" aria-current="page">Vote</a></li>
             </ul>
