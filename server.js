@@ -74,6 +74,16 @@ function htmlHead({ page_description, page_title }) {
       .hyperloop_router {
         min-height: 50vh;
       }
+
+      .section .breadcrumb {
+        margin-top: -3rem;
+        margin-bottom: 3rem;
+      }
+
+      .section .breadcrumb:not(:last-child) {
+        margin-top: -3rem;
+        margin-bottom: 3rem;
+      }
     </style>
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${description}" />

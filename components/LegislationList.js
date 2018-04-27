@@ -47,7 +47,6 @@ module.exports = class LegislationList extends Component {
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays', 'constituent_abstains')
     const api_url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&order=${order}&limit=40`
-    console.log(api_url)
 
     return this.api(api_url)
       .then(legislation => ({ legislation_query: url, legislation, loading_legislation: false }))
@@ -64,7 +63,12 @@ module.exports = class LegislationList extends Component {
     return this.html`
       <div class="section">
         <div class="container">
-          <h2 class="title is-5">Legislation</h2>
+          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
+            <ul>
+              <li><a class="has-text-grey" href="/">Home</a></li>
+              <li class="is-active"><a class="has-text-grey" href="/legislation" aria-current="page">Legislation</a></li>
+            </ul>
+          </nav>
           ${FilterTabs.for(this)}
           ${FilterForm.for(this, { legislatures })}
           ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(bill => LegislationListRow.for(this, { bill, legislatures }, `billitem-${bill.id}`))}

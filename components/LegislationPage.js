@@ -109,11 +109,18 @@ class BillNotFoundPage extends Component {
 
 class BillFoundPage extends Component {
   render() {
-    const { selected_bill: l, user } = this.state
+    const { legislation_query, selected_bill: l, user } = this.state
 
     return this.html`
       <section class="section">
         <div class="container">
+          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
+            <ul>
+              <li><a class="has-text-grey" href="/">Home</a></li>
+              <li><a class="has-text-grey" href="${legislation_query || '/legislation'}">Legislation</a></li>
+              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${l.type} ${l.number}</a></li>
+            </ul>
+          </nav>
           ${(l.vote_position && !user.cc_verified) ? [`
             <div class="notification is-info">
               <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
