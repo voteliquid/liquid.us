@@ -54,11 +54,9 @@ module.exports = class LegislationList extends Component {
   }
   render() {
     const { loading_legislation, legislation, reps } = this.state
-    const legislature_by_id = reps.reduce((b, a) => {
-      b[a.legislature_id] = { id: a.legislature_id, name: a.legislature_name }
-      return b
-    }, {})
-    const legislatures = Object.keys(legislature_by_id).map(id => legislature_by_id[id])
+    const legislature_by_name = reps.reduce((b, { legislature_name, legislature_short_name }) =>
+      (b[legislature_short_name] = { name: legislature_name, short_name: legislature_short_name }) && b, {})
+    const legislatures = Object.keys(legislature_by_name).map(name => legislature_by_name[name])
 
     return this.html`
       <div class="section">
@@ -192,7 +190,10 @@ class FilterForm extends Component {
             <div class="select">
               <select autocomplete="off" name="legislature" onchange=${this.autosubmit}>
                 <option>All</option>
-                ${legislatures.map(({ id, name }) => `<option ${query.legislature === id ? 'selected="selected"' : ''} value="${id}">${name}</option>`)}
+                ${legislatures.map(({ name, short_name }) =>
+                  `<option ${query.legislature === short_name ? 'selected="selected"' : ''} value="${short_name}">
+                    ${name}
+                  </option>`)}
               </select>
             </div>
           </div>
