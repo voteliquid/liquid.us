@@ -64,7 +64,7 @@ module.exports = class LegislationPage extends Component {
     })
   }
   fetchActions(selected_bill) {
-    return this.api(`/legislative_actions?select=*,references:legislative_references(*)&legislation_id=eq.${selected_bill.id}&order=occurred_at.desc`)
+    return this.api(`/legislative_actions?legislation_id=eq.${selected_bill.id}&order=occurred_at.desc`)
   }
   fetchComments(selected_bill) {
     return this.api(`/public_votes?legislation_id=eq.${selected_bill.id}&comment=not.eq.&comment=not.is.null&order=endorsements.desc.nullslast`)
