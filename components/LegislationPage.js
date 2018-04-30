@@ -129,16 +129,16 @@ class BillFoundPage extends Component {
             </div>
           `] : ''}
           <h4 class="has-text-grey is-paddingless is-margin-less">${l.legislature_name}</h4>
-          <div class="content">
-            <h2>${l.type} ${l.number} &mdash; ${l.short_title}</h2>
-          </div>
-          ${StatusTracker.for(this)}
+          <h2 class="title has-text-weight-normal is-size-4" style="margin-bottom: .5rem;">${l.type} ${l.number} &mdash; ${l.short_title}</h2>
+          ${l.legislature_name === 'U.S. Congress' ? StatusTracker.for(this) : ''}
           <p class="is-size-7 has-text-grey">
             ${l.sponsor_username
               ? [`Introduced by <a href=${`/${l.sponsor_username}`}>${l.sponsor_first_name} ${l.sponsor_last_name}</a> on ${(new Date(l.introduced_at)).toLocaleDateString()} &bullet; Last action on ${new Date(l.last_action_at).toLocaleDateString()}`]
               : [`Introduced on ${(new Date(l.introduced_at)).toLocaleDateString()} &bullet; last action on ${new Date(l.last_action_at).toLocaleDateString()}`]
             }
-            &bullet; <a href=${`https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber.toLowerCase()}-bill/${l.number}`} target="_blank">Bill details at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>
+            ${[l.legislature_name === 'U.S. Congress'
+                ? `&bullet; <a href=${`https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber.toLowerCase()}-bill/${l.number}`} target="_blank">Bill details at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`
+                : '']}
           </p>
           <hr />
           <div class="content">
@@ -501,7 +501,6 @@ class StatusTracker extends Component {
         list-style: none;
         display: inline-block;
         margin-left: 1rem;
-        margin-top: -.5rem;
         margin-bottom: .5rem;
       }
       .status_tracker .step {
