@@ -36,7 +36,10 @@ module.exports = class LegislationList extends Component {
     const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
     const hide_direct_votes_query = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
 
-    const legislature = query.legislature ? `&legislature_id=eq.${query.legislature}` : ''
+    let legislature = (query.legislature && query.legislature !== 'All') ? `&legislature_name=eq.${query.legislature}` : ''
+    if (!query.order || query.order === 'upcoming') {
+      legislature = '&legislature_name=eq.U.S. Congress'
+    }
 
     const fields = [
       'short_title', 'number', 'type', 'short_id', 'id', 'status',
@@ -54,9 +57,9 @@ module.exports = class LegislationList extends Component {
   }
   render() {
     const { loading_legislation, legislation, reps } = this.state
-    const legislature_by_name = reps.reduce((b, { legislature_name, legislature_short_name }) =>
-      (b[legislature_short_name] = { name: legislature_name, short_name: legislature_short_name }) && b, {})
-    const legislatures = Object.keys(legislature_by_name).map(name => legislature_by_name[name])
+    const legislatures = reps.some(({ office_short_name }) => office_short_name.slice(0, 2) === 'CA')
+      ? ['U.S. Congress', 'CA Congress']
+      : ['U.S. Congress']
 
     return this.html`
       <div class="section">
@@ -186,12 +189,12 @@ class FilterForm extends Component {
         <input name="order" type="hidden" value="${query.order || 'upcoming'}" />
 
         <div class="field has-addons">
-          <div class=${`control ${legislatures.length > 1 ? '' : 'is-hidden'}`}>
+          <div class=${`control ${legislatures.length > 1 && query.order && query.order !== 'upcoming' ? '' : 'is-hidden'}`}>
             <div class="select">
               <select autocomplete="off" name="legislature" onchange=${this.autosubmit}>
-                <option>All</option>
-                ${legislatures.map(({ name, short_name }) =>
-                  `<option ${query.legislature === short_name ? 'selected="selected"' : ''} value="${short_name}">
+                <option value="All" selected=${!query.legislature || query.legislature === 'All'}>All</option>
+                ${legislatures.map(name =>
+                  `<option ${query.legislature === name ? 'selected="selected"' : ''} value="${name}">
                     ${name}
                   </option>`)}
               </select>
