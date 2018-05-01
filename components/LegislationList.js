@@ -26,7 +26,7 @@ module.exports = class LegislationList extends Component {
     const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
 
     const orders = {
-      upcoming: 'next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
+      upcoming: 'legislature_name.desc,next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
       new: 'introduced_at.desc',
       active: 'last_action_at.desc',
     }
@@ -36,10 +36,7 @@ module.exports = class LegislationList extends Component {
     const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
     const hide_direct_votes_query = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
 
-    let legislature = (query.legislature && query.legislature !== 'All') ? `&legislature_name=eq.${query.legislature}` : ''
-    if (!query.order || query.order === 'upcoming') {
-      legislature = '&legislature_name=eq.U.S. Congress'
-    }
+    const legislature = (query.legislature && query.legislature !== 'All') ? `&legislature_name=eq.${query.legislature}` : ''
 
     const fields = [
       'short_title', 'number', 'type', 'short_id', 'id', 'status',
@@ -189,7 +186,7 @@ class FilterForm extends Component {
         <input name="order" type="hidden" value="${query.order || 'upcoming'}" />
 
         <div class="field has-addons">
-          <div class=${`control ${legislatures.length > 1 && query.order && query.order !== 'upcoming' ? '' : 'is-hidden'}`}>
+          <div class=${`control ${legislatures.length > 1 ? '' : 'is-hidden'}`}>
             <div class="select">
               <select autocomplete="off" name="legislature" onchange=${this.autosubmit}>
                 <option value="All" selected=${!query.legislature || query.legislature === 'All'}>All</option>
