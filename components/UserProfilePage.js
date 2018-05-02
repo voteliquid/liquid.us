@@ -19,93 +19,90 @@ module.exports = class UserProfilePage extends Component {
     return this.html`
       <section class="section">
         <div class="container">
-          <div class="columns">
-            <div class="column is-one-quarters">
-              ${user && !user.cc_verified ?
-                UnverifiedNotification.for(this) : []
-              }
-              ${user && selected_profile.username && user.username === selected_profile.username ?
-                YourProfileNotification.for(this) : []
-              }
-              ${proxied_name ? [`
-                <div class="notification is-info">
-                  Your proxy to ${proxied_name} has been saved.
-                </div>
-              `] : []}
-              <div class="columns is-variable is-7">
-                <div class="column is-one-third">
-                  <div class="media">
-                    <div class="media-left">
-                      <div class="image is-128x128">
-                        ${user && selected_profile.username && user.username === selected_profile.username
-                          ? [`<a href="https://gravatar.com" target="_blank"><img src=${this.avatarURL(selected_profile)} alt="avatar" class="round-avatar-img"></a>`]
-                          : [`<img src=${this.avatarURL(selected_profile)} alt="avatar" class="round-avatar-img">`]
-                        }
-                      </div>
-                    </div>
-                    <div class="media-content">
-                      <h1 class="title is-3">${selected_profile.name}</h1>
-                      ${selected_profile.username ? [`<h2 class="subtitle is-5 has-text-grey-light">@${selected_profile.username}</h2>`] : ''}
-                      <h3 class="subtitle is-6"><span class="icon"><i class="fa fa-users"></i></span>Represents ${selected_profile.max_vote_power || 0} ${selected_profile.max_vote_power === 1 ? 'person' : 'people'}</h3>
-                    </div>
+          ${user && !user.cc_verified ?
+            UnverifiedNotification.for(this) : []
+          }
+          ${user && selected_profile.username && user.username === selected_profile.username ?
+            YourProfileNotification.for(this) : []
+          }
+          ${proxied_name ? [`
+            <div class="notification is-info">
+              Your proxy to ${proxied_name} has been saved.
+            </div>
+          `] : []}
+          <div class="columns is-variable is-9">
+            <div class="column is-one-third">
+              <div class="columns is-mobile">
+                <div class="column is-one-quarter-mobile">
+                  <div class="image is-square">
+                    ${user && selected_profile.username && user.username === selected_profile.username
+                      ? [`<a href="https://gravatar.com" target="_blank"><img src=${this.avatarURL(selected_profile)} alt="avatar" class="round-avatar-img"></a>`]
+                      : [`<img src=${this.avatarURL(selected_profile)} alt="avatar" class="round-avatar-img">`]
+                    }
                   </div>
-                  <br />
-                  ${user && selected_profile.username && user.username === selected_profile.username
-                    ? [`
-                      <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
-                      <style>
-                        .tooltip:hover::before {
-                          background: #000 !important;
-                        }
-                        .tooltip:hover::after {
-                          border-color: #000 transparent transparent transparent !important;
-                        }
-                        .fix-bulma-centered-text {
-                          display: inline-block; /* https://github.com/jgthms/bulma/issues/913 */
-                        }
-                      </style>
-                      <button disabled class="button is-info is-outlined is-fullwidth is-medium tooltip fix-bulma-centered-text" data-tooltip="You can't proxy to yourself">
-                        <span class="icon is-small"><i class="fa fa-handshake-o"></i></span>
-                        <span>Proxy</span>
-                      </button>
-                      `]
-                    : ProxyButton.for(this)
-                  }
-                  ${public_votes && public_votes.length && !user ? [`
-                    <div class="content is-size-7 has-text-left">
-                      <br />
-                      <p><strong>United.vote</strong> lets you vote on any bill before Congress, but most of us won't have time to do that.</p>
-                      <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
-                   </div>
-                 `] : []}
                 </div>
                 <div class="column">
-                    <div class="content">
-                      ${public_votes && public_votes.length ?
-                        ['<h3>Public Votes</h3>']
-                        : [`
-                          <h3><strong>United.vote</strong> lets you pick anyone to represent you.</h3>
-                          <p>You can vote on any bill before Congress, but most of us won't have time to do that.</p>
-                          <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
-                          ${!selected_profile.username ? `
-                            <p>They haven't joined United yet, and will be sent <a href="https://twitter.com/united_notifs" target="_blank"><strong>a tweet</strong></a> for each new request.<br />
-                              When ${selected_profile.first_name} signs up, they will immediately represent their proxiers.</p>
-                          ` : []}
-                          <p><a target="_blank" href="https://blog.united.vote/2017/11/06/announcing-united-vote/"><strong>Learn more about how we're building a democracy we can trust</strong>.</a></p>
-                          ${!selected_profile.username ?
-                            `<hr />
-                            Are you ${selected_profile.name}? <a target="_blank" href="mailto:support@united.vote?subject=Claiming+twitter/${selected_profile.twitter_username}&body=I will send twitter.com/united_vote a DM from @${selected_profile.twitter_username}"><strong>Claim this profile</strong></a>.
-                            <br />` : []
-                          }
-                        `]}
-                      </h3>
-                    </div>
-                    ${public_votes && public_votes.length
-                    ? public_votes.map(public_vote => VoteCard.for(this, public_vote, `vote-card-${public_vote.id}`))
-                    : ''}
-                  </div>
+                  <h1 class="title is-3">${selected_profile.name}</h1>
+                  ${selected_profile.username ? [`<h2 class="subtitle is-5 has-text-grey-light">@${selected_profile.username}</h2>`] : ''}
+                  <h3 class="subtitle is-6"><span class="icon"><i class="fa fa-users"></i></span>Represents ${selected_profile.max_vote_power || 0} ${selected_profile.max_vote_power === 1 ? 'person' : 'people'}</h3>
+                </div>
               </div>
+              <br />
+              ${user && selected_profile.username && user.username === selected_profile.username
+                ? [`
+                  <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
+                  <style>
+                    .tooltip:hover::before {
+                      background: #000 !important;
+                    }
+                    .tooltip:hover::after {
+                      border-color: #000 transparent transparent transparent !important;
+                    }
+                    .fix-bulma-centered-text {
+                      display: inline-block; /* https://github.com/jgthms/bulma/issues/913 */
+                    }
+                  </style>
+                  <button disabled class="button is-info is-outlined is-fullwidth is-medium tooltip fix-bulma-centered-text" data-tooltip="You can't proxy to yourself">
+                    <span class="icon is-small"><i class="fa fa-handshake-o"></i></span>
+                    <span>Proxy</span>
+                  </button>
+                  `]
+                : ProxyButton.for(this)
+              }
+              ${public_votes && public_votes.length && !user ? [`
+                <div class="content is-size-7 has-text-left">
+                  <br />
+                  <p><strong>United.vote</strong> lets you vote on any bill before Congress, but most of us won't have time to do that.</p>
+                  <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
+               </div>
+             `] : []}
             </div>
+            <div class="column">
+                <div class="content">
+                  ${public_votes && public_votes.length ?
+                    ['<h3>Public Votes</h3>']
+                    : [`
+                      <h3><strong>United.vote</strong> lets you pick anyone to represent you.</h3>
+                      <p>You can vote on any bill before Congress, but most of us won't have time to do that.</p>
+                      <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
+                      ${!selected_profile.username ? `
+                        <p>They haven't joined United yet, and will be sent <a href="https://twitter.com/united_notifs" target="_blank"><strong>a tweet</strong></a> for each new request.<br />
+                          When ${selected_profile.first_name} signs up, they will immediately represent their proxiers.</p>
+                      ` : []}
+                      <p><a target="_blank" href="https://blog.united.vote/2017/11/06/announcing-united-vote/"><strong>Learn more about how we're building a democracy we can trust</strong>.</a></p>
+                      ${!selected_profile.username ?
+                        `<hr />
+                        Are you ${selected_profile.name}? <a target="_blank" href="mailto:support@united.vote?subject=Claiming+twitter/${selected_profile.twitter_username}&body=I will send twitter.com/united_vote a DM from @${selected_profile.twitter_username}"><strong>Claim this profile</strong></a>.
+                        <br />` : []
+                      }
+                    `]}
+                  </h3>
+                </div>
+                ${public_votes && public_votes.length
+                ? public_votes.map(public_vote => VoteCard.for(this, public_vote, `vote-card-${public_vote.id}`))
+                : ''}
+              </div>
+          </div>
         </div>
       </section>
     `
