@@ -20,6 +20,7 @@ const config = {
   API_URL: process.env.API_URL,
   APP_NAME: process.env.APP_NAME,
   ASSETS_URL: process.env.ASSETS_URL,
+  FEATURE_CA_LEGISLATION: !!process.env.FEATURE_CA_LEGISLATION,
   GOOGLE_GEOCODER_KEY: process.env.GOOGLE_GEOCODER_KEY,
   IMAGES_URL: process.env.IMAGES_URL,
   NODE_ENV: process.env.NODE_ENV,

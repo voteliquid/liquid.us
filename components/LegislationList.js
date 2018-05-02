@@ -15,7 +15,7 @@ module.exports = class LegislationList extends Component {
   fetchLegislation(event) {
     if (event) event.preventDefault()
 
-    const { legislation_query, reps, user } = this.state
+    const { config, legislation_query, reps, user } = this.state
     const { query, url } = this.location
 
     if (url === legislation_query) return
@@ -37,7 +37,7 @@ module.exports = class LegislationList extends Component {
     const hide_direct_votes_query = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
 
     let legislature = (query.legislature && query.legislature !== 'All') ? `&legislature_name=eq.${query.legislature}` : ''
-    const has_ca_legislator = reps.some(({ office_short_name }) => office_short_name.slice(0, 2) === 'CA')
+    const has_ca_legislator = config.FEATURE_CA_LEGISLATION && reps.some(({ office_short_name }) => office_short_name.slice(0, 2) === 'CA')
     if (!has_ca_legislator) {
       legislature = '&legislature_name=eq.U.S. Congress'
     }
@@ -57,8 +57,8 @@ module.exports = class LegislationList extends Component {
       .catch(error => ({ error, loading_legislation: false }))
   }
   render() {
-    const { loading_legislation, legislation, reps } = this.state
-    const legislatures = reps.some(({ office_short_name }) => office_short_name.slice(0, 2) === 'CA')
+    const { config, loading_legislation, legislation, reps } = this.state
+    const legislatures = config.FEATURE_CA_LEGISLATION && reps.some(({ office_short_name }) => office_short_name.slice(0, 2) === 'CA')
       ? ['U.S. Congress', 'CA Congress']
       : ['U.S. Congress']
 
