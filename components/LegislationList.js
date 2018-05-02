@@ -15,7 +15,7 @@ module.exports = class LegislationList extends Component {
   fetchLegislation(event) {
     if (event) event.preventDefault()
 
-    const { legislation_query, user } = this.state
+    const { legislation_query, reps, user } = this.state
     const { query, url } = this.location
 
     if (url === legislation_query) return
@@ -36,7 +36,11 @@ module.exports = class LegislationList extends Component {
     const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
     const hide_direct_votes_query = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
 
-    const legislature = (query.legislature && query.legislature !== 'All') ? `&legislature_name=eq.${query.legislature}` : ''
+    let legislature = (query.legislature && query.legislature !== 'All') ? `&legislature_name=eq.${query.legislature}` : ''
+    const has_ca_legislator = reps.some(({ office_short_name }) => office_short_name.slice(0, 2) === 'CA')
+    if (!has_ca_legislator) {
+      legislature = '&legislature_name=eq.U.S. Congress'
+    }
 
     const fields = [
       'short_title', 'number', 'type', 'short_id', 'id', 'status',
@@ -251,7 +255,7 @@ class LegislationListRow extends Component {
             <div class="column">
               <h3><a href="${`/legislation/${s.short_id}`}">${s.short_title}</a></h3>
               <div class="is-size-7 has-text-grey">
-                ${legislatures > 1 ? [`
+                ${legislatures.length > 1 ? [`
                   <strong class="has-text-grey">${s.legislature_name}</strong>
                   &mdash;
                 `] : ''}
