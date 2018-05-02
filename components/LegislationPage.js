@@ -8,7 +8,7 @@ const ago_opts = {
   hours: 'h',
   days: 'd',
   weeks: 'w',
-  months: { 1: 'month', 2: 'months' },
+  months: 'mo',
   years: 'y',
 }
 
