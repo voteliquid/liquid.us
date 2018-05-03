@@ -78,33 +78,76 @@ module.exports = class UserProfilePage extends Component {
              `] : []}
             </div>
             <div class="column">
-                <div class="content">
-                  ${public_votes && public_votes.length ?
-                    ['<h3>Public Votes</h3>']
-                    : [`
-                      <h3><strong>United.vote</strong> lets you pick anyone to represent you.</h3>
-                      <p>You can vote on any bill before Congress, but most of us won't have time to do that.</p>
-                      <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
-                      ${!selected_profile.username ? `
-                        <p>They haven't joined United yet, and will be sent <a href="https://twitter.com/united_notifs" target="_blank"><strong>a tweet</strong></a> for each new request.<br />
-                          When ${selected_profile.first_name} signs up, they will immediately represent their proxiers.</p>
-                      ` : []}
-                      <p><a target="_blank" href="https://blog.united.vote/2017/11/06/announcing-united-vote/"><strong>Learn more about how we're building a democracy we can trust</strong>.</a></p>
-                      ${!selected_profile.username ?
-                        `<hr />
-                        Are you ${selected_profile.name}? <a target="_blank" href="mailto:support@united.vote?subject=Claiming+twitter/${selected_profile.twitter_username}&body=I will send twitter.com/united_vote a DM from @${selected_profile.twitter_username}"><strong>Claim this profile</strong></a>.
-                        <br />` : []
-                      }
-                    `]}
-                  </h3>
-                </div>
-                ${public_votes && public_votes.length
-                ? public_votes.map(public_vote => VoteCard.for(this, public_vote, `vote-card-${public_vote.id}`))
-                : ''}
-              </div>
+              ${(!selected_profile.about && !public_votes.length)
+                ? EmptyProfileExplainer.for(this) : ''}
+              ${selected_profile.about
+                ? AboutUser.for(this) : ''}
+              ${public_votes.length
+                ? PublicVotes.for(this) : ''}
+              ${!selected_profile.username
+                ? GhostProfileMessage.for(this) : ''}
+            </div>
           </div>
         </div>
       </section>
+    `
+  }
+}
+
+class GhostProfileMessage extends Component {
+  render() {
+    const { selected_profile } = this.state
+    return this.html`
+      <div class="content">
+        <p>
+          Are you ${selected_profile.name}? <a target="_blank" href="${`mailto:support@united.vote?subject=Claiming+twitter/${selected_profile.twitter_username}&body=I will send twitter.com/united_vote a DM from @${selected_profile.twitter_username}`}"><strong>Claim this profile</strong></a>.
+        </p>
+      </div>
+    `
+  }
+}
+
+class EmptyProfileExplainer extends Component {
+  render() {
+    const { selected_profile } = this.state
+    return this.html`
+      <div class="content">
+        <h3><strong>United.vote</strong> lets you pick anyone to represent you.</h3>
+        <p>You can vote on any bill before Congress, but most of us won't have time to do that.</p>
+        <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
+        ${[!selected_profile.username ? `
+          <p>They haven't joined United yet, and will be sent <a href="https://twitter.com/united_notifs" target="_blank"><strong>a tweet</strong></a> for each new request.<br />
+            When ${selected_profile.first_name} signs up, they will immediately represent their proxiers.</p>
+        ` : '']}
+        <p><a target="_blank" href="https://blog.united.vote/2017/11/06/announcing-united-vote/"><strong>Learn more about how we're building a democracy we can trust</strong>.</a></p>
+      </div>
+    `
+  }
+}
+
+class AboutUser extends Component {
+  render() {
+    const { selected_profile } = this.state
+    const { about = '' } = selected_profile
+    return this.html`
+      <div class="content">
+        <h3>About</h3>
+        <p>${about}</p>
+      </div>
+    `
+  }
+}
+
+class PublicVotes extends Component {
+  render() {
+    const { selected_profile } = this.state
+    const { public_votes } = selected_profile
+
+    return this.html`
+      <div class="content">
+        <h3>Public Votes</h3>
+      </div>
+      ${public_votes.map(public_vote => VoteCard.for(this, public_vote, `vote-card-${public_vote.id}`))}
     `
   }
 }
