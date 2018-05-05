@@ -11,7 +11,7 @@ module.exports = class YourLegislators extends Component {
     const { config, reps, user } = this.state
     const { NODE_ENV } = config
 
-    if (reps) return
+    if (reps && reps.length) return
 
     const address = user && user.address
 
