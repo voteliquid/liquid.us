@@ -15,6 +15,9 @@ module.exports = class NavBarAnon extends Component {
         <a class="navbar-link" href="${username_url}">${user.first_name || 'You'}</a>
         <div class="navbar-dropdown is-right">
           <a class=${`navbar-item ${current_path === username_url ? 'is-active' : ''}`} href=${username_url}>Profile</a>
+          ${[user.username
+            ? `<a class=${`navbar-item ${current_path === '/edit_profile' ? 'is-active' : ''}`} href="/edit_profile">Edit Profile</a>`
+            : '']}
           <a class=${`navbar-item ${current_path === '/proxies/requests' ? 'is-active' : ''}`} href="/proxies/requests">Proxy Requests</a>
           ${[
             !user.cc_verified

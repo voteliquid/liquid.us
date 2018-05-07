@@ -128,12 +128,38 @@ class EmptyProfileExplainer extends Component {
 class AboutUser extends Component {
   render() {
     const { selected_profile } = this.state
-    const { about = '' } = selected_profile
+    const { about, intro_video_url } = selected_profile
+    const video_match = (intro_video_url || '').match(/(http:|https:|)\/\/(player.|www.)?(vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/)
+    let video_src = ''
+    if (video_match) {
+      if (video_match[3].slice(0, 5) === 'youtu') {
+        video_src = `https://www.youtube.com/embed/${video_match[6]}`
+      } else {
+        video_src = `https://player.vimeo.com/video/${video_match[6]}`
+      }
+    }
     return this.html`
-      <div class="content">
-        <h3>About</h3>
-        <p>${about}</p>
-      </div>
+      ${[video_src
+        ? `<div class="responsive-video-wrapper">
+            <iframe width="560" height="315" src="${video_src}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          </div>
+          <br />
+          <style>
+            .responsive-video-wrapper {
+              position: relative;
+              padding-bottom: 56.25%; /* 16:9 */
+              height: 0;
+            }
+            .responsive-video-wrapper iframe {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+            }
+          </style>`
+        : '']}
+      ${[about ? `<div class="content"><p>${about}</p></div>` : '']}
     `
   }
 }
@@ -263,10 +289,6 @@ class UnverifiedNotification extends Component {
 }
 
 class YourProfileNotification extends Component {
-  onclick(event) {
-    event.preventDefault()
-    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
-  }
   render() {
     const { config, selected_profile } = this.state
     const { WWW_URL } = config
@@ -274,24 +296,18 @@ class YourProfileNotification extends Component {
     return this.html`
       <div class="notification">
         <h4 class="title is-5">This is your profile page.</h4>
-        <div class="content">
-          <div class="columns">
-            <div class="column">
-              <p>
-                <span class="icon"><i class="fa fa-users"></i></span> Share the URL <strong><a href="${`${WWW_URL}/${selected_profile.username}`}">united.vote/${selected_profile.username}</a></strong> with others to easily proxy to you.
-              </p>
-              <p>
-                <span class="icon"><i class="fa fa-camera"></i></span> Change your photo by signing in to <a href="https://www.gravatar.com"><strong>Gravatar</strong></a> with your same email.
-              </p>
-            </div>
-            <div class="column">
-              <p>
-                <span class="icon"><i class="fa fa-pencil-square-o"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
-              </p>
-              <p>
-                <span class="icon"><i class="fa fa-envelope"></i></span> <a onclick=${this}><strong>Reach out</strong></a> if you'd like to change your username or display name.
-              </p>
-            </div>
+        <div class="columns is-multiline">
+          <div class="column is-half">
+            <span class="icon"><i class="fa fa-users"></i></span> Share the URL <strong><a href="${`${WWW_URL}/${selected_profile.username}`}">united.vote/${selected_profile.username}</a></strong> with others to easily proxy to you.
+          </div>
+          <div class="column is-half">
+            <span class="icon"><i class="fa fa-camera"></i></span> Change your photo by signing in to <a href="https://www.gravatar.com"><strong>Gravatar</strong></a> with your same email.
+          </div>
+          <div class="column is-half">
+            <span class="icon"><i class="fa fa-pencil-square-o"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
+          </div>
+          <div class="column is-half">
+            <span class="icon"><i class="fa fa-user-circle-o"></i></span> Add an intro video and bio using the <a href="/edit_profile"><strong>Edit Profile</strong></a> page.
           </div>
         </div>
       </div>
