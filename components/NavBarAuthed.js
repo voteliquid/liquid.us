@@ -12,7 +12,7 @@ module.exports = class NavBarAnon extends Component {
       <a class=${`navbar-item ${current_path.slice(0, 12) === '/legislators' ? 'is-active' : ''}`} href="/legislators">Congress Members</a>
       <a class=${`navbar-item ${current_path.slice(0, 8) === '/proxies' ? 'is-active' : ''}`} href="/proxies">Your Proxies</a>
       <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link" href="${username_url}">${user.first_name}</a>
+        <a class="navbar-link" href="${username_url}">${user.first_name || 'You'}</a>
         <div class="navbar-dropdown is-right">
           <a class=${`navbar-item ${current_path === username_url ? 'is-active' : ''}`} href=${username_url}>Profile</a>
           <a class=${`navbar-item ${current_path === '/proxies/requests' ? 'is-active' : ''}`} href="/proxies/requests">Proxy Requests</a>
