@@ -11,7 +11,7 @@ module.exports = class YourLegislators extends Component {
     const { config, reps, user } = this.state
     const { NODE_ENV } = config
 
-    if (reps) return
+    if (reps && reps.length) return
 
     const address = user && user.address
 
@@ -60,11 +60,11 @@ module.exports = class YourLegislators extends Component {
     return this.html`
       <div class="YourLegislators">
         <h2 class="title is-5">Your Elected Congress Members</h2>
-        ${(reps_loaded && !reps.length) ? [`<div class="notification">We weren't able to detect your elected congress members using your location. <a href="/join">Join ${APP_NAME}</a> to set your address.</div>`] : []}
+        ${(reps_loaded && (!reps || !reps.length)) ? [`<div class="notification">We weren't able to detect your elected congress members using your location. <a href="/join">Join ${APP_NAME}</a> to set your address.</div>`] : []}
         <div class="columns">
           ${reps.map(rep => RepColumn.for(this, { rep }, `repcolumn-${rep.user_id}`))}
         </div>
-        ${geoip && reps.length ? AddAddressNotification.for(this) : []}
+        ${geoip && reps && reps.length ? AddAddressNotification.for(this) : []}
         ${user && user.address && [`
           <div class="has-text-right has-text-grey is-size-7">
             <br />
