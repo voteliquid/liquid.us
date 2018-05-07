@@ -75,6 +75,9 @@ module.exports = class LegislationList extends Component {
           ${FilterForm.for(this, { legislatures })}
           ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(bill => LegislationListRow.for(this, { bill, legislatures }, `billitem-${bill.id}`))}
           <style>
+            .highlight-hover:hover {
+              background: #f6f8fa;
+            }
             .summary-tooltip {
               position: relative;
             }
