@@ -309,7 +309,7 @@ class Comment extends Component {
     })
   }
   render() {
-    const { comment, created_at, endorsements, fullname, id, position, username } = this.props
+    const { comment, updated_at, endorsements, fullname, id, position, username } = this.props
     const { user } = this.state
     const avatarURL = this.avatarURL(this.props)
 
@@ -354,7 +354,7 @@ class Comment extends Component {
                         <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
                       `] : []
                   }
-                  <a class="has-text-grey-light" href="${`${this.location.url}/votes/${id}`}">${timeAgo(`${created_at}Z`, ago_opts).replace(' ', '')} ago</a>
+                  <a class="has-text-grey-light" href="${`${this.location.url}/votes/${id}`}">${timeAgo(`${updated_at}Z`, ago_opts).replace(' ', '')} ago</a>
                 </div>
             </div>
           </div>
