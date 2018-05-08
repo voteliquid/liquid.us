@@ -2,13 +2,13 @@ const Component = require('./Component')
 const timeAgo = require('from-now')
 
 const ago_opts = {
-  seconds: 's',
-  minutes: 'min',
-  hours: 'h',
-  days: 'd',
-  weeks: 'w',
-  months: { 1: 'month', 2: 'months' },
-  years: 'y',
+  seconds: 's ago',
+  minutes: 'min ago',
+  hours: 'h ago',
+  days: 'd ago',
+  weeks: 'w ago',
+  months: 'mo ago',
+  years: 'y ago',
 }
 
 module.exports = class UserProfilePage extends Component {
@@ -129,7 +129,7 @@ class VoteCard extends Component {
                 <span>${endorsements}</span>
                 <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
               `] : []}
-              <a class="has-text-grey-light" href="${`/legislation/${short_id}/votes/${id}`}">${timeAgo(`${updated_at}Z`, ago_opts)} ago</a>
+              <a class="has-text-grey-light" href="${`/legislation/${short_id}/votes/${id}`}">${timeAgo(`${updated_at}Z`, ago_opts)}</a>
             </div>
           </div>
         </div>

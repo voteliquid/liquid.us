@@ -3,13 +3,13 @@ const timeAgo = require('from-now')
 const LoadingIndicator = require('./LoadingIndicator')
 
 const ago_opts = {
-  seconds: 's',
-  minutes: 'min',
-  hours: 'h',
-  days: 'd',
-  weeks: 'w',
-  months: 'mo',
-  years: 'y',
+  seconds: 's ago',
+  minutes: 'min ago',
+  hours: 'h ago',
+  days: 'd ago',
+  weeks: 'w ago',
+  months: 'mo ago',
+  years: 'y ago',
 }
 
 module.exports = class LegislationPage extends Component {
@@ -354,7 +354,7 @@ class Comment extends Component {
                         <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
                       `] : []
                   }
-                  <a class="has-text-grey-light" href="${`${this.location.url}/votes/${id}`}">${timeAgo(`${updated_at}Z`, ago_opts).replace(' ', '')} ago</a>
+                  <a class="has-text-grey-light" href="${`${this.location.url}/votes/${id}`}">${timeAgo(`${updated_at}Z`, ago_opts).replace(' ', '')}</a>
                 </div>
             </div>
           </div>
