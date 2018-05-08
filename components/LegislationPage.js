@@ -110,6 +110,10 @@ class BillNotFoundPage extends Component {
 class BillFoundPage extends Component {
   render() {
     const { legislation_query, selected_bill: l, user } = this.state
+    const bill_details_url = l.legislature_name === 'U.S. Congress'
+      ? `https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber.toLowerCase()}-bill/${l.number}`
+      : `https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=${l.congress}0${l.type}${l.number}`
+    const bill_details_name = l.legislature_name === 'U.S. Congress' ? 'congress.gov' : 'leginfo.legislature.ca.gov'
 
     return this.html`
       <section class="section">
@@ -136,9 +140,7 @@ class BillFoundPage extends Component {
               ? [`Introduced by <a href=${`/${l.sponsor_username}`}>${l.sponsor_first_name} ${l.sponsor_last_name}</a> on ${(new Date(l.introduced_at)).toLocaleDateString()} &bullet; Last action on ${new Date(l.last_action_at).toLocaleDateString()}`]
               : [`Introduced on ${(new Date(l.introduced_at)).toLocaleDateString()} &bullet; last action on ${new Date(l.last_action_at).toLocaleDateString()}`]
             }
-            ${[l.legislature_name === 'U.S. Congress'
-                ? `&bullet; <a href=${`https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber.toLowerCase()}-bill/${l.number}`} target="_blank">Bill details at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`
-                : '']}
+            &bullet; <a href=${bill_details_url} target="_blank">Bill details at ${bill_details_name} <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>
           </p>
           <hr />
           <div class="content">
