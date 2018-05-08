@@ -197,10 +197,8 @@ class FilterForm extends Component {
             <div class="select">
               <select autocomplete="off" name="legislature" onchange=${this.autosubmit}>
                 <option value="All" selected=${!query.legislature || query.legislature === 'All'}>All</option>
-                ${legislatures.map(name =>
-                  `<option ${query.legislature === name ? 'selected="selected"' : ''} value="${name}">
-                    ${name}
-                  </option>`)}
+                <option value="U.S. Congress" selected=${query.legislature === 'U.S. Congress'}>U.S. Congress</option>
+                <option value="CA Congress" selected=${query.legislature === 'CA Congress'}>CA Congress</option>
               </select>
             </div>
           </div>
