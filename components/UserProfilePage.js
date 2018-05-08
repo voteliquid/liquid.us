@@ -126,18 +126,23 @@ class EmptyProfileExplainer extends Component {
 }
 
 class AboutUser extends Component {
-  render() {
-    const { selected_profile } = this.state
-    const { about, intro_video_url } = selected_profile
+  videoIframeSrc() {
+    const { intro_video_url } = this.state.selected_profile
     const video_match = (intro_video_url || '').match(/(http:|https:|)\/\/(player.|www.)?(vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/)
-    let video_src = ''
+    let src = ''
     if (video_match) {
       if (video_match[3].slice(0, 5) === 'youtu') {
-        video_src = `https://www.youtube.com/embed/${video_match[6]}`
+        src = `https://www.youtube.com/embed/${video_match[6]}`
       } else {
-        video_src = `https://player.vimeo.com/video/${video_match[6]}`
+        src = `https://player.vimeo.com/video/${video_match[6]}`
       }
     }
+    return src
+  }
+  render() {
+    const about_text = this.linkifyUrls(this.state.selected_profile.about || '')
+    const video_src = this.videoIframeSrc()
+
     return this.html`
       ${[video_src
         ? `<div class="responsive-video-wrapper">
@@ -159,7 +164,8 @@ class AboutUser extends Component {
             }
           </style>`
         : '']}
-      ${[about ? `<div class="content"><p>${about}</p></div>` : '']}
+      ${[about_text ? `<div class="content"><p class="is-size-5">${about_text}</p></div>` : '']}
+      <br />
     `
   }
 }
@@ -170,9 +176,6 @@ class PublicVotes extends Component {
     const { public_votes } = selected_profile
 
     return this.html`
-      <div class="content">
-        <h3>Public Votes</h3>
-      </div>
       ${public_votes.map(public_vote => VoteCard.for(this, public_vote, `vote-card-${public_vote.id}`))}
     `
   }

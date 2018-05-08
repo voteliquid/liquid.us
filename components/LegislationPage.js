@@ -292,20 +292,6 @@ class CommentsColumn extends Component {
 }
 
 class Comment extends Component {
-  linkifyUrls(text) {
-    this.htmlTagsToReplace = this.htmlTagsToReplace || {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;'
-    }
-    this.htmlRegex = this.htmlRegex || /[&<>]/g
-    this.urlRegex = this.urlRegex || /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/ig
-    return text.replace(this.htmlRegex, (char) => {
-      return this.htmlTagsToReplace[char] || char
-    }).replace(this.urlRegex, (url) => {
-      return `<a href="${url}">${url}</a>`
-    })
-  }
   render() {
     const { comment, created_at, endorsements, fullname, id, position, username } = this.props
     const { user } = this.state

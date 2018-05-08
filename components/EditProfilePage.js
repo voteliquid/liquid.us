@@ -19,6 +19,17 @@ module.exports = class EditProfilePage extends Component {
 }
 
 class EditProfile extends Component {
+  onkeyup(event) {
+    if (event.target.tagName === 'TEXTAREA') {
+      this.setState({ editing_form: true, about_length: event.target.value.length })
+    } else {
+      this.setState({ editing_form: true })
+    }
+  }
+  onclick(event) {
+    if (event) event.preventDefault()
+    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
+  }
   onsubmit(event, formData) {
     if (event) event.preventDefault()
 
@@ -34,7 +45,7 @@ class EditProfile extends Component {
         intro_video_url: intro_video_url || null,
       }),
     })
-    .then(() => this.setState({ error: null, loading_edit_profile: false }))
+    .then(() => this.setState({ editing_form: false, error: null, loading_edit_profile: false }))
     .catch(error => {
       if (~error.message.indexOf('users_intro_video_url_check')) {
         this.setState({ loading_edit_profile: false, error: 'Invalid intro video URL. Enter the share URL (example: https://youtu.be/XMrRrzYXav8)' })
@@ -44,56 +55,39 @@ class EditProfile extends Component {
     })
   }
   render() {
-    const { config, error, loading_edit_profile, user } = this.state
+    const { config, editing_form, error, loading_edit_profile, user } = this.state
     const { about = '', intro_video_url = '' } = user
+    const about_length = typeof this.state.about_length === 'number' ? this.state.about_length : about.length
+    const remaining_chars = 1024 - about_length
     return this.html`
       <section class="section">
         <div class="container">
-          <div class="columns">
-            <div class="column">
-              <h1 class="title">Edit Profile</h1>
-            </div>
-            <div class="column has-text-right has-text-left-mobile">
-              <p><span class="icon"><i class="fa fa-users"></i></span> View your profile: <strong><a href="${`${config.WWW_URL}/${user.username}`}">united.vote/${user.username}</a></strong></p>
-            </div>
-          </div>
-          <br />
+          <h1 class="title">Edit Profile</h1>
           <form action=${this} method="POST" onsubmit=${this}>
             <div class="field">
               <label class="label">Intro Video</label>
               <div class="control">
-                <input class="${`input ${error && ~error.indexOf('video') ? 'is-danger' : ''}`}" name="intro_video_url" type="text" placeholder="https://youtu.be/XMrRrzYXav8" value="${intro_video_url}" />
+                <input onkeyup=${this} class="${`input ${error && ~error.indexOf('video') ? 'is-danger' : ''}`}" name="intro_video_url" type="text" placeholder="https://youtu.be/XMrRrzYXav8" value="${intro_video_url}" />
                 ${[error && ~error.indexOf('video') ? `<p class="help is-danger">${error}</p>` : '<p class="help">YouTube or Vimeo share URL</p>']}
               </div>
             </div>
             <div class="field">
               <label class="label">Intro text</label>
               <div class="control">
-                <input class="${`input ${error && ~error.indexOf('about') ? 'is-danger' : ''}`}" name="about" type="text" placeholder="A short introduction" value="${about}" />
+                <textarea onkeyup=${this} class="${`textarea ${error && ~error.indexOf('bio') ? 'is-danger' : ''}`}" name="about" placeholder="A short introduction" value="${about}"></textarea>
+                ${[error && ~error.indexOf('bio') ? `<p class="help is-danger">Your introduction is too long. Introductions cannot be longer than 1024 characters.</p>` : '']}
+                <p class="help">A short introduction or bio. Characters remaining: ${remaining_chars > 0 ? remaining_chars : 0}</p>
               </div>
             </div>
-            <button class="${`button is-primary ${loading_edit_profile ? 'is-loading' : ''}`}" disabled=${loading_edit_profile} type="submit">Save</button>
+            <button class="${`button is-primary ${loading_edit_profile ? 'is-loading' : ''}`}" disabled=${!editing_form || loading_edit_profile} type="submit">${editing_form ? 'Save' : 'Saved'}</button>
           </form>
           <br />
-          <p class="is-size-7">
-            <span class="icon"><i class="fa fa-envelope"></i></span> <a onclick=${this}>Reach out</a> if you'd like to change your username or display name.
+          <p>View your profile at <strong><a href="${`${config.WWW_URL}/${user.username}`}">united.vote/${user.username}</a></strong></p>
+          <p class="has-text-grey">
+            <a onclick=${this}>Reach out</a> if you'd like to change your username or display name.
           </p>
         </div>
       </section>
-    `
-  }
-}
-
-class EditOtherFieldsNotification extends Component {
-  onclick(event) {
-    if (event) event.preventDefault()
-    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
-  }
-  render() {
-    return this.html`
-      <br />
-      <p class="has-text-grey">
-      </p>
     `
   }
 }
