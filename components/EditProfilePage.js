@@ -56,7 +56,8 @@ class EditProfile extends Component {
   }
   render() {
     const { config, editing_form, error, loading_edit_profile, user } = this.state
-    const { about = '', intro_video_url = '' } = user
+    const about = user.about || ''
+    const intro_video_url = user.intro_video_url || ''
     const about_length = typeof this.state.about_length === 'number' ? this.state.about_length : about.length
     const remaining_chars = 1024 - about_length
     return this.html`
