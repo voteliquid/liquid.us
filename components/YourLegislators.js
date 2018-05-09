@@ -20,7 +20,7 @@ module.exports = class YourLegislators extends Component {
         method: 'POST',
         body: JSON.stringify({ user_id: user.id }),
       })
-      .then(reps => ({ reps, reps_loaded: true }))
+      .then(reps => ({ reps: reps || [], reps_loaded: true }))
     }
 
     let ip = this.location.ip || ''
