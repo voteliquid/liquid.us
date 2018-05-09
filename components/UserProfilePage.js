@@ -310,7 +310,7 @@ class YourProfileNotification extends Component {
             <span class="icon"><i class="fa fa-pencil-square-o"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
           </div>
           <div class="column is-half">
-            <span class="icon"><i class="fa fa-user-circle-o"></i></span> Add an intro video and bio using the <a href="/edit_profile"><strong>Edit Profile</strong></a> page.
+            <span class="icon"><i class="fa fa-user-circle-o"></i></span> <a href="/edit_profile"><strong>Edit Profile</strong></a> to add an intro video or bio to your page.
           </div>
         </div>
       </div>
