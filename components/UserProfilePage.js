@@ -78,33 +78,105 @@ module.exports = class UserProfilePage extends Component {
              `] : []}
             </div>
             <div class="column">
-                <div class="content">
-                  ${public_votes && public_votes.length ?
-                    ['<h3>Public Votes</h3>']
-                    : [`
-                      <h3><strong>United.vote</strong> lets you pick anyone to represent you.</h3>
-                      <p>You can vote on any bill before Congress, but most of us won't have time to do that.</p>
-                      <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
-                      ${!selected_profile.username ? `
-                        <p>They haven't joined United yet, and will be sent <a href="https://twitter.com/united_notifs" target="_blank"><strong>a tweet</strong></a> for each new request.<br />
-                          When ${selected_profile.first_name} signs up, they will immediately represent their proxiers.</p>
-                      ` : []}
-                      <p><a target="_blank" href="https://blog.united.vote/2017/11/06/announcing-united-vote/"><strong>Learn more about how we're building a democracy we can trust</strong>.</a></p>
-                      ${!selected_profile.username ?
-                        `<hr />
-                        Are you ${selected_profile.name}? <a target="_blank" href="mailto:support@united.vote?subject=Claiming+twitter/${selected_profile.twitter_username}&body=I will send twitter.com/united_vote a DM from @${selected_profile.twitter_username}"><strong>Claim this profile</strong></a>.
-                        <br />` : []
-                      }
-                    `]}
-                  </h3>
-                </div>
-                ${public_votes && public_votes.length
-                ? public_votes.map(public_vote => VoteCard.for(this, public_vote, `vote-card-${public_vote.id}`))
-                : ''}
-              </div>
+              ${(!selected_profile.about && !public_votes.length)
+                ? EmptyProfileExplainer.for(this) : ''}
+              ${selected_profile.about
+                ? AboutUser.for(this) : ''}
+              ${public_votes.length
+                ? PublicVotes.for(this) : ''}
+              ${!selected_profile.username
+                ? GhostProfileMessage.for(this) : ''}
+            </div>
           </div>
         </div>
       </section>
+    `
+  }
+}
+
+class GhostProfileMessage extends Component {
+  render() {
+    const { selected_profile } = this.state
+    return this.html`
+      <div class="content">
+        <p>
+          Are you ${selected_profile.name}? <a target="_blank" href="${`mailto:support@united.vote?subject=Claiming+twitter/${selected_profile.twitter_username}&body=I will send twitter.com/united_vote a DM from @${selected_profile.twitter_username}`}"><strong>Claim this profile</strong></a>.
+        </p>
+      </div>
+    `
+  }
+}
+
+class EmptyProfileExplainer extends Component {
+  render() {
+    const { selected_profile } = this.state
+    return this.html`
+      <div class="content">
+        <h3><strong>United.vote</strong> lets you pick anyone to represent you.</h3>
+        <p>You can vote on any bill before Congress, but most of us won't have time to do that.</p>
+        <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
+        ${[!selected_profile.username ? `
+          <p>They haven't joined United yet, and will be sent <a href="https://twitter.com/united_notifs" target="_blank"><strong>a tweet</strong></a> for each new request.<br />
+            When ${selected_profile.first_name} signs up, they will immediately represent their proxiers.</p>
+        ` : '']}
+        <p><a target="_blank" href="https://blog.united.vote/2017/11/06/announcing-united-vote/"><strong>Learn more about how we're building a democracy we can trust</strong>.</a></p>
+      </div>
+    `
+  }
+}
+
+class AboutUser extends Component {
+  videoIframeSrc() {
+    const { intro_video_url } = this.state.selected_profile
+    const video_match = (intro_video_url || '').match(/(http:|https:|)\/\/(player.|www.)?(vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/)
+    let src = ''
+    if (video_match) {
+      if (video_match[3].slice(0, 5) === 'youtu') {
+        src = `https://www.youtube.com/embed/${video_match[6]}`
+      } else {
+        src = `https://player.vimeo.com/video/${video_match[6]}`
+      }
+    }
+    return src
+  }
+  render() {
+    const about_text = this.linkifyUrls(this.state.selected_profile.about || '')
+    const video_src = this.videoIframeSrc()
+
+    return this.html`
+      ${[video_src
+        ? `<div class="responsive-video-wrapper">
+            <iframe width="560" height="315" src="${video_src}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          </div>
+          <br />
+          <style>
+            .responsive-video-wrapper {
+              position: relative;
+              padding-bottom: 56.25%; /* 16:9 */
+              height: 0;
+            }
+            .responsive-video-wrapper iframe {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+            }
+          </style>`
+        : '']}
+      ${[about_text ? `<div class="content"><p class="is-size-5">${about_text}</p></div>` : '']}
+      <br />
+    `
+  }
+}
+
+class PublicVotes extends Component {
+  render() {
+    const { selected_profile } = this.state
+    const { public_votes } = selected_profile
+
+    return this.html`
+      ${public_votes.map(public_vote => VoteCard.for(this, public_vote, `vote-card-${public_vote.id}`))}
     `
   }
 }
@@ -220,10 +292,6 @@ class UnverifiedNotification extends Component {
 }
 
 class YourProfileNotification extends Component {
-  onclick(event) {
-    event.preventDefault()
-    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
-  }
   render() {
     const { config, selected_profile } = this.state
     const { WWW_URL } = config
@@ -231,24 +299,18 @@ class YourProfileNotification extends Component {
     return this.html`
       <div class="notification">
         <h4 class="title is-5">This is your profile page.</h4>
-        <div class="content">
-          <div class="columns">
-            <div class="column">
-              <p>
-                <span class="icon"><i class="fa fa-users"></i></span> Share the URL <strong><a href="${`${WWW_URL}/${selected_profile.username}`}">united.vote/${selected_profile.username}</a></strong> with others to easily proxy to you.
-              </p>
-              <p>
-                <span class="icon"><i class="fa fa-camera"></i></span> Change your photo by signing in to <a href="https://www.gravatar.com"><strong>Gravatar</strong></a> with your same email.
-              </p>
-            </div>
-            <div class="column">
-              <p>
-                <span class="icon"><i class="fa fa-pencil-square-o"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
-              </p>
-              <p>
-                <span class="icon"><i class="fa fa-envelope"></i></span> <a onclick=${this}><strong>Reach out</strong></a> if you'd like to change your username or display name.
-              </p>
-            </div>
+        <div class="columns is-multiline">
+          <div class="column is-half">
+            <span class="icon"><i class="fa fa-users"></i></span> Share the URL <strong><a href="${`${WWW_URL}/${selected_profile.username}`}">united.vote/${selected_profile.username}</a></strong> with others to easily proxy to you.
+          </div>
+          <div class="column is-half">
+            <span class="icon"><i class="fa fa-camera"></i></span> Change your photo by signing in to <a href="https://www.gravatar.com"><strong>Gravatar</strong></a> with your same email.
+          </div>
+          <div class="column is-half">
+            <span class="icon"><i class="fa fa-pencil-square-o"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
+          </div>
+          <div class="column is-half">
+            <span class="icon"><i class="fa fa-user-circle-o"></i></span> <a href="/edit_profile"><strong>Edit Profile</strong></a> to add an intro video or bio to your page.
           </div>
         </div>
       </div>
