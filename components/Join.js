@@ -2,6 +2,16 @@ const Component = require('./Component')
 const JoinForm = require('./JoinForm')
 
 module.exports = class Join extends Component {
+  oninit() {
+    if (this.state.user) {
+      return this.location.redirect('/')
+    }
+  }
+  onpagechange(oldProps) {
+    if (oldProps.url !== this.props.url && this.state.user) {
+      return this.location.redirect('/')
+    }
+  }
   render() {
     return this.html`
       <div>
