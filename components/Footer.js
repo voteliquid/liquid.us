@@ -363,4 +363,9 @@ It is rather for us to be here dedicated to the great task remaining before usâ€
     author: 'Dr. Martin Luther King, Jr.',
     date: 'May 1957',
   },
+  {
+    text: 'By uniting we stand, by dividing we fall!',
+    author: 'Founding Father John Dickinson',
+    date: 'July 1768',
+  },
 ]
