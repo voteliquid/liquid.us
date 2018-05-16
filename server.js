@@ -86,8 +86,8 @@ function htmlHead({ page_description, page_title }) {
         margin-bottom: 3rem;
       }
     </style>
-    <meta property="og:title" content="${title}" />
-    <meta property="og:description" content="${description}" />
+    <meta property="og:title" content="${title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
+    <meta property="og:description" content="${description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
     <meta property="og:image" content="https://blog.united.vote/assets/icon-reduced-300.png" />
     <meta property="og:type" content="website" />
     ${responsiveTableStyle}
