@@ -1,15 +1,5 @@
 const Component = require('./Component')
-const timeAgo = require('from-now')
-
-const ago_opts = {
-  seconds: 's ago',
-  minutes: 'min ago',
-  hours: 'h ago',
-  days: 'd ago',
-  weeks: 'w ago',
-  months: 'mo ago',
-  years: 'y ago',
-}
+const Comment = require('./Comment')
 
 module.exports = class UserProfilePage extends Component {
   render() {
@@ -176,38 +166,7 @@ class PublicVotes extends Component {
     const { public_votes } = selected_profile
 
     return this.html`
-      ${public_votes.map(public_vote => VoteCard.for(this, public_vote, `vote-card-${public_vote.id}`))}
-    `
-  }
-}
-
-class VoteCard extends Component {
-  render() {
-    const { comment, endorsements, id, position, updated_at, short_id, type, number, short_title } = this.props
-    const { selected_profile } = this.state
-
-    return this.html`
-      <div class="card is-small">
-        <div style="box-shadow: 0 1px 2px rgba(10,10,10,.1); padding: .75rem;">
-          <div class="columns is-multiline">
-            <div class="column">
-              <span>${selected_profile.first_name} voted <strong>${position}</strong> on </span>
-              <br />
-              <span><a href="${`/legislation/${short_id}`}"><strong>${type.toUpperCase()} ${number}</strong>. ${short_title}</a></span>
-            </div>
-            <div class="column is-one-quarter has-text-right">
-              ${endorsements > 0 ? [`
-                <span class="icon"><i class="fa fa-thumbs-o-up"></i></span>
-                <span>${endorsements}</span>
-                <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
-              `] : []}
-              <a class="has-text-grey-light" href="${`/legislation/${short_id}/votes/${id}`}">${timeAgo(`${updated_at}Z`, ago_opts)}</a>
-            </div>
-          </div>
-        </div>
-        ${comment && [`<div class="card-content">${comment}</div>`]}
-      </div>
-      <br />
+      ${public_votes.map(public_vote => Comment.for(this, { show_bill: true, ...public_vote, endorsements: false }, `vote-card-${public_vote.id}`))}
     `
   }
 }
