@@ -15,7 +15,7 @@ module.exports = class CreditCardVerificationPage extends Component {
           <div class="content">
             <h2 class="subtitle">Verify your identity</h2>
             <p>We need to know whether you're a Russian troll or American citizen. Moreover, the elected representative who will receive your votes and comments needs to know if you're really their constituent.</p>
-            <p>A quick $1 fee lets us confirm you are who say you are and helps fund United.</p>
+            <p>A quick credit or debit card verification lets us confirm you are who say you are and helps fund United. You will not be charged but we will initiate a temporary authorization hold of $1 to ensure your credit or debit card is valid.</p>
             <p>This also lets you create your own profile page, so you can start representing other people and increase your voting power.</p>
           </div>
 
@@ -25,7 +25,7 @@ module.exports = class CreditCardVerificationPage extends Component {
           ${error ? [`
             <div class="notification is-warning">
               <p>${error.message}</p>
-              <p>Please contact support@$united.vote for assistance.</p>
+              <p>Please contact support@united.vote for assistance.</p>
             </div>
           `] : ''}
           ${FormHandler.for(this)}
@@ -44,9 +44,9 @@ module.exports = class CreditCardVerificationPage extends Component {
             <hr />
             <p />
 
-            <p class="title is-4"><a name="verification" href="#verification">Why use credit cards?</a></p>
+            <p class="title is-4"><a name="verification" href="#verification">Why use credit/debit cards?</a></p>
             <p>We've researched other options. Many are promising, and we'd like to include more in the future.</p>
-            <p>For now, this $1 verification charge, inspired by the US Postal Service's <a href="https://www.usps.com/manage/forward.htm" target="_blank">online verification system</a>, offers the best combination of speed, convenience, &amp; accuracy.</p>
+            <p>For now, this $1 authorization hold, inspired by the US Postal Service's <a href="https://www.usps.com/manage/forward.htm" target="_blank">online verification system</a>, offers the best combination of speed, convenience, &amp; accuracy.</p>
             <p>This lets us get <strong><a href="https://blog.united.vote/2016/09/21/what-is-liquid-democracy/" target="_blank">liquid democracy</a></strong> into the hands of many American voters, while exploring other options.</p>
             <hr />
             <p />
@@ -103,7 +103,7 @@ class SideBySideOptions extends Component {
           <div class="notification" style="border-top: 3px solid #209cee;">
             <div class="content">
               <h3 class="title is-4">Instant Verification</h3>
-              <p><strong>$1 charge to a credit/debit card in your name</strong></p>
+              <p><strong>A credit/debit card in your name</strong></p>
               <p>
                 <img src="/assets/clock.png" style="width:25px; height:25px; margin-right:5px; position:relative; top:5px;">
                 Takes seconds
@@ -160,7 +160,7 @@ class StripeForm extends Component {
     event.preventDefault()
 
     const { user } = this.state
-    const amount = Math.floor((this.state.custom || 1) * 100)
+    const amount = Math.floor((this.state.custom || 0) * 100)
 
     this.setState({ loading_verification: true })
 
@@ -225,14 +225,14 @@ class StripeForm extends Component {
         return Promise.reject(error)
       }
 
-      if (!charge.stripe_charge_id) {
+      if (!charge.stripe_card_fingerprint) {
         setTimeout(() => this.checkChargeStatus(), 1500)
       }
 
       return charge
     })
     .then(charge => {
-      if (charge.stripe_charge_id && !charge.error_message) {
+      if (charge.stripe_card_fingerprint && !charge.error_message) {
         this.setState({ loading_verification: false, error: false, user: { ...user, cc_verified: true } })
         this.location.redirect(303, '/get_started/profile')
       }
@@ -336,7 +336,7 @@ class StripeForm extends Component {
         ${BillingAddressForm.for(this)}
         <div class="is-grouped is-pulled-right has-text-right">
           <a class="button" onclick=${this}>${this.state.skipWarning ? 'Confirm s' : 'S'}kip</a>
-          <button class=${`button is-primary ${this.state.loading_verification ? 'is-loading' : ''}`} disabled=${this.state.loading_verification}><strong>Charge $${this.state.custom || 1}</strong></button>
+          <button class=${`button is-primary ${this.state.loading_verification ? 'is-loading' : ''}`} disabled=${this.state.loading_verification}><strong>${this.state.custom ? `Charge $${this.state.custom || 1}` : 'Verify'}</strong></button>
           ${this.state.skipWarning
             ? [`<p class="is-size-7">Are you sure? Your votes can't be counted until you verify.</p>`]
             : []
@@ -460,7 +460,7 @@ class GiftLink extends Component {
 
     if (/^[0-9]*$/.test(target.value) && Number(target.value) >= 0) {
       target.className = 'input'
-      state.custom = Number(target.value) + 1
+      state.custom = Number(target.value)
     } else {
       target.className = 'input is-danger'
     }
@@ -472,7 +472,7 @@ class GiftLink extends Component {
     return this.html`
       <br />
       <div class="expandable">
-        <a onclick=${expand} href="#"><span class="icon is-small"><i class="fa fa-gift"></i></span> Can I give more as a gift?</a>
+        <a onclick=${expand} href="#"><span class="icon is-small"><i class="fa fa-gift"></i></span> Can I donate?</a>
         <p>Yes, we'd be very grateful:</p>
         <div class="field">
           <div class="control has-icons-left">
