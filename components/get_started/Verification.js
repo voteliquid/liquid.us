@@ -14,9 +14,8 @@ module.exports = class CreditCardVerificationPage extends Component {
           }
           <div class="content">
             <h2 class="subtitle">Verify your identity</h2>
-            <p>We need to know whether you're a Russian troll or American citizen. Moreover, the elected representative who will receive your votes and comments needs to know if you're really their constituent.</p>
-            <p>A quick credit or debit card verification lets us confirm you are who say you are and helps fund United. You will not be charged but we will initiate a temporary authorization hold of $1 to ensure your credit or debit card is valid.</p>
-            <p>This also lets you create your own profile page, so you can start representing other people and increase your voting power.</p>
+            <p>Prove you are who you say you are with a debit or credit card in your name.</p>
+            <p>United is completely free to use for your first year. You can decide whether to stay verified for $1/year after that.</p>
           </div>
 
           <br />
@@ -31,48 +30,16 @@ module.exports = class CreditCardVerificationPage extends Component {
           ${FormHandler.for(this)}
 
           <br />
-          <h5 class="title is-5">FAQ</h5>
           <div class="content">
-            <style>
-              .title.is-4 a {
-                color: #363636;
-              }
-            </style>
-            <p class="title is-4"><a name="secure" href="#secure">Is my information secure?</a></p>
+            <h6 class="title is-5"><a name="secure" class="has-text-dark" href="#secure">Is my information secure?</a></h6>
             <p>Yes.</p>
             <p>We adhere to the strict <strong>Payment Card Industry Data Security Standard</strong>, and never get direct access to your card data.</p>
             <hr />
-            <p />
 
-            <p class="title is-4"><a name="verification" href="#verification">Why use credit/debit cards?</a></p>
+            <h6 class="title is-5"><a name="verification" class="has-text-dark" href="#verification">Why use credit/debit cards?</a></h6>
             <p>We've researched other options. Many are promising, and we'd like to include more in the future.</p>
-            <p>For now, this $1 authorization hold, inspired by the US Postal Service's <a href="https://www.usps.com/manage/forward.htm" target="_blank">online verification system</a>, offers the best combination of speed, convenience, &amp; accuracy.</p>
+            <p>For now, this $1 authorization hold, offers the best combination of speed, convenience, &amp; accuracy.</p>
             <p>This lets us get <strong><a href="https://blog.united.vote/2016/09/21/what-is-liquid-democracy/" target="_blank">liquid democracy</a></strong> into the hands of many American voters, while exploring other options.</p>
-            <hr />
-            <p />
-
-            <p class="title is-4"><a name="free" href="#free">Shouldn't voting be free?</a></p>
-            <p>We're big believers in making sure everyone has a meaningful voice. That's why we're working on this.</p>
-            <p>But the reality is digital verification is a big, complex problem. <strong>United.vote</strong> is a small, independent organization with limited funding.</p>
-            <p>We're optimistic that liquid democracy could be publicly funded in the future, but this isn't feasible yet.</p>
-            <p>We hope that $1 to get started — less than the cost of a bag of chips — is still <strong>affordable</strong> enough for widespread participation.</p>
-            <p>The cost of taxpayer funded elections works out to about $2 per person per election. That's just to <a href="https://www.electioncenter.org/EPC/Cost_of_Elections_8.pdf" target="_blank">collect and count the votes</a>.</p>
-            <p>We can bring these costs down for everyone, and provide a much easier and more powerful democratic process.</p>
-            <hr />
-            <p />
-
-            <p class="title is-4"><a name="refund" href="#refund">Is this refundable?</a></p>
-            <p>No, it's important that the charge not be refundable, to discourage creating fake accounts.</p>
-            <hr />
-            <p />
-
-            <p class="title is-4"><a name="money" href="#money">Where does my money go?</a></p>
-            <p>It directly supports <strong>United.vote</strong>'s costs to make liquid democracy practical for our real governments.</p>
-            <p>Sadly, most new online services don't have a sustainable funding model and are forced to shut down.</p>
-            <p>We're focused on making liquid democracy a practical long-term reality, and registered as a Delaware <a href="https://en.wikipedia.org/wiki/Public-benefit_corporation" target="_blank">Public Benefit Corporation</a>.</p>
-            <p />
-
-            <p />
             <hr />
             <br />
             <p>Please reach out with any other questions or issues: <a href="mailto:support@united.vote"><strong>support@united.vote</strong></a>.</p>
