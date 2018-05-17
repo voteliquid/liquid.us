@@ -98,4 +98,10 @@ module.exports = class Component extends hyperloop.Component {
       return `<a href="${url}">${url}</a>`
     }).replace(/\n/g, '<br />')
   }
+  possessive(str) {
+    if (typeof str === 'string' && str[str.length - 1] === 's') {
+      return `${str}'`
+    }
+    return `${str}'s`
+  }
 }

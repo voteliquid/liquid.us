@@ -1,16 +1,6 @@
 const Component = require('./Component')
-const timeAgo = require('from-now')
+const Comment = require('./Comment')
 const LoadingIndicator = require('./LoadingIndicator')
-
-const ago_opts = {
-  seconds: 's ago',
-  minutes: 'min ago',
-  hours: 'h ago',
-  days: 'd ago',
-  weeks: 'w ago',
-  months: 'mo ago',
-  years: 'y ago',
-}
 
 module.exports = class LegislationPage extends Component {
   oninit() {
@@ -18,7 +8,7 @@ module.exports = class LegislationPage extends Component {
     const { params } = this.props
 
     const fields = [
-      'short_title', 'number', 'type', 'short_id', 'id', 'committee',
+      'short_title', 'number', 'type', 'short_id', 'id',
       'sponsor_username', 'sponsor_first_name', 'sponsor_last_name', 'status',
       'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays',
       'abstains', 'summary', 'number', 'congress', 'chamber', 'legislature_name'
@@ -283,143 +273,10 @@ class CommentsColumn extends Component {
     const comments = selected_bill[`${position}_comments`] || []
 
     return this.html`
-      <div>
-        ${comments.length
-          ? comments.map(c => Comment.for(this, c, `comment-${c.id}`))
-          : [`<p class="has-text-grey-light">No comments ${position === 'yea' ? 'in favor' : 'against'}. Vote on the bill to leave a comment.</p>`]
-        }
-      </div>
-    `
-  }
-}
-
-class Comment extends Component {
-  render() {
-    const { comment, updated_at, endorsements, fullname, id, position, username } = this.props
-    const { user } = this.state
-    const avatarURL = this.avatarURL(this.props)
-
-    return this.html`
-      <div class="card is-small">
-          <div style="box-shadow: 0 1px 2px rgba(10,10,10,.1); padding: .75rem;">
-            <div class="level">
-              <div class="level-left">
-                <div class="level-item">
-                  ${username
-                  ? avatarURL
-                    ? [`
-                        <div class="media">
-                          <div class="media-left">
-                            <p class="image is-32x32">
-                              <a href=${`/${username}`}>
-                                <img src=${avatarURL} alt="avatar" class="round-avatar-img" />
-                              </a>
-                            </p>
-                          </div>
-                          <div class="media-content" style="align-self: center;">
-                            <a href="/${username}">${fullname}</a>
-                            <span class="has-text-grey-light">${position === 'yea' ? 'in favor' : 'against'}</span>
-                          </div>
-                        </div>
-                    `]
-                    : [`
-                      <a href="/${username}">${fullname}</a>
-                    `]
-                  : [`
-                    <span class="has-text-grey-light">Anonymous</span>
-                  `]}
-                </div>
-              </div>
-              <div class="level-right">
-                <div class="level-item">
-                  ${user
-                    ? CommentEndorseButton.for(this, this.props, `endorsebtn-${id}`)
-                    : endorsements > 0 ? [`
-                        <span class="icon"><i class="fa fa-thumbs-o-up"></i></span>
-                        <span>${endorsements}</span>
-                        <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
-                      `] : []
-                  }
-                  <a class="has-text-grey-light" href="${`${this.location.url}/votes/${id}`}">${timeAgo(`${updated_at}Z`, ago_opts).replace(' ', '')}</a>
-                </div>
-            </div>
-          </div>
-        </div>
-        <div class="card-content">${[this.linkifyUrls(comment)]}</div>
-      </div>
-      <br />
-    `
-  }
-}
-
-class CommentEndorseButton extends Component {
-  onsubmit(event) {
-    event.preventDefault()
-
-    const { endorsed, legislation_id, position, id } = this.props
-    const { selected_bill, user } = this.state
-
-    if (endorsed) {
-      return this.api(`/comment_endorsements?user_id=eq.${user.id}&legislation_id=eq.${legislation_id}&vote_id=eq.${id}`, {
-        method: 'DELETE',
-      }).then(() => {
-        selected_bill[`${position}_comments`] = selected_bill[`${position}_comments`].map(comment => {
-          if (comment.id === id) {
-            comment.endorsements -= 1
-            comment.endorsed = false
-          }
-          return comment
-        })
-        return { selected_bill }
-      })
-    }
-
-    return this.api('/comment_endorsements', {
-      headers: { Prefer: 'return=representation' },
-      method: 'POST',
-      body: JSON.stringify({
-        vote_id: id,
-        user_id: user.id,
-        legislation_id,
-      })
-    }).then(() => {
-      selected_bill[`${position}_comments`] = selected_bill[`${position}_comments`].map(comment => {
-        if (comment.id === id) {
-          comment.endorsements += 1
-          comment.endorsed = true
-        }
-        return comment
-      })
-      return { selected_bill }
-    })
-  }
-  render() {
-    const { endorsed, endorsements } = this.props
-
-    return this.html`
-      <form class="has-text-right" method="POST" onsubmit=${this} action=${this}>
-        <style>
-          .button.is-text {
-            padding: 0!important;
-            border: none;
-            color: inherit;
-            height: 1rem;
-            text-decoration: none;
-          }
-          .button.is-text:hover, .button.is-text:active, .button.is-text:focus {
-            color: inherit;
-            border: none;
-            background: transparent;
-            box-shadow: none;
-            -webkit-box-shadow: none;
-          }
-        </style>
-          <button type="submit" class=${`button is-text ${endorsed ? 'has-text-link' : ''}`}>
-            <span class="icon is-small" style="margin-right: 0"><i class="fa fa-thumbs-o-up"></i></span>
-            <span>${endorsements > 0 ? endorsements : ''}</span>
-          </button>
-      </form>
-      <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
+      ${comments.length
+        ? comments.map(c => Comment.for(this, c, `comment-${c.id}`))
+        : [`<p class="has-text-grey-light">No comments ${position === 'yea' ? 'in favor' : 'against'}. Vote on the bill to leave a comment.</p>`]
+      }
     `
   }
 }
