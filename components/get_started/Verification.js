@@ -14,8 +14,9 @@ module.exports = class CreditCardVerificationPage extends Component {
           }
           <div class="content">
             <h2 class="subtitle">Verify your identity</h2>
-            <p>Prove you are who you say you are with a debit or credit card in your name.</p>
-            <p>United is completely free to use for your first year. You can decide whether to stay verified for $1/year after that.</p>
+            <p>We need to know whether you're a Russian troll or American citizen. Moreover, the elected representative who will receive your votes and comments needs to know if you're really their constituent.</p>
+            <p>A quick credit or debit card verification lets us confirm you are who say you are. You will not be charged but we will initiate a temporary authorization hold of $1 to ensure your credit or debit card is valid.</p>
+            <p>This also lets you create your own profile page, so you can start representing other people and increase your voting power.</p>
           </div>
 
           <br />
@@ -38,7 +39,7 @@ module.exports = class CreditCardVerificationPage extends Component {
 
             <h6 class="title is-5"><a name="verification" class="has-text-dark" href="#verification">Why use credit/debit cards?</a></h6>
             <p>We've researched other options. Many are promising, and we'd like to include more in the future.</p>
-            <p>For now, this $1 authorization hold, offers the best combination of speed, convenience, &amp; accuracy.</p>
+            <p>For now, this $1 authorization hold, inspired by the US Postal Service's <a href="https://www.usps.com/manage/forward.htm" target="_blank">online verification system</a>, offers the best combination of speed, convenience, &amp; accuracy.</p>
             <p>This lets us get <strong><a href="https://blog.united.vote/2016/09/21/what-is-liquid-democracy/" target="_blank">liquid democracy</a></strong> into the hands of many American voters, while exploring other options.</p>
             <hr />
             <br />
@@ -74,10 +75,6 @@ class SideBySideOptions extends Component {
               <p>
                 <img src="/assets/clock.png" style="width:25px; height:25px; margin-right:5px; position:relative; top:5px;">
                 Takes seconds
-              </p>
-              <p>
-                <img src="/assets/sustainability.png" style="width:25px; height:21px; margin-left:2px; margin-right:4px; position:relative; top:5px;">
-                Helps cover our costs
               </p>
               <p>
                 <img src="/assets/lock.png" style="width:18px; height:22px; margin-left:7px; margin-right:7px; position:relative; top:5px;">
