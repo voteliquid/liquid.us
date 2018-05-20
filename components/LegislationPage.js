@@ -104,6 +104,10 @@ class BillFoundPage extends Component {
       ? `https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber.toLowerCase()}-bill/${l.number}`
       : `https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=${l.congress}0${l.type}${l.number}`
     const bill_details_name = l.legislature_name === 'U.S. Congress' ? 'congress.gov' : 'leginfo.legislature.ca.gov'
+    const own_comment = user && l.yea_comments.concat(l.nay_comments).reduce((b, a) => {
+      if (a.user_id === user.id) return a
+      return b
+    }, false)
 
     return this.html`
       <section class="section">
@@ -151,6 +155,7 @@ class BillFoundPage extends Component {
               </div>
             </div>
           </div>
+          ${own_comment ? Comment.for(this, own_comment, `own-comment-${own_comment.id}`) : ''}
           <hr />
           ${BillComments.for(this)}
         </div>
