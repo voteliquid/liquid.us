@@ -11,6 +11,7 @@ const errorHandler = require('./middleware/error_handler')
 const geoip = require('./middleware/geoip')
 const redirects = require('./middleware/redirects')
 const twitterUsernameSearch = require('./middleware/twitter_username_search')
+const Component = require('./components/Component.js')
 
 const port = PORT || WWW_PORT
 
@@ -48,9 +49,11 @@ server
   .use(errorHandler(htmlHead))
   .listen(port)
 
-function htmlHead({ page_description, page_title }) {
+function htmlHead(state) {
+  const { page_description, page_title, selected_profile } = state
   const description = page_description || `A new democracy for the modern world.`
   const title = page_title ? `${page_title} ★ ${APP_NAME}` : `${APP_NAME} ★ Liquid Democracy for America`
+  const profile_image_url = selected_profile ? Component.prototype.avatarURL.call({ state }, selected_profile) : ''
 
   return `
     <meta charset="utf-8">
@@ -88,7 +91,7 @@ function htmlHead({ page_description, page_title }) {
     </style>
     <meta property="og:title" content="${title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
     <meta property="og:description" content="${description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
-    <meta property="og:image" content="https://blog.united.vote/assets/icon-reduced-300.png" />
+    <meta property="og:image" content="${profile_image_url || 'https://blog.united.vote/assets/icon-reduced-300.png'}" />
     <meta property="og:type" content="website" />
     ${responsiveTableStyle}
     ${roundAvatarStyle}
