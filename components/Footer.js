@@ -36,7 +36,7 @@ module.exports = class Footer extends Component {
               ${[randomQuote.author ? `<p class="title is-5 has-text-grey has-text-right">— <em>${randomQuote.author}</em></p>` : '']}
               ${[randomQuote.date ? `<p class="title is-6 has-text-right has-text-grey is-uppercase">${randomQuote.date}</p>` : '']}
             </div>
-            <p class="is-size-7"><a href="/" class="has-text-black"><strong>United.vote</strong></a> is a non-partisan organization dedicated to creating smarter and more accountable governance.</p>
+            <p class="is-size-7"><a href="/" class="has-text-black"><strong>United.vote</strong></a> is a nonpartisan organization dedicated to creating smarter and more accountable democracy.</p>
           </div>
         </div>
         ${ContactWidget.for(this)}
