@@ -19,7 +19,7 @@ module.exports = class Comment extends Component {
             ${show_bill && selected_profile
               ? [`
                   <span>
-                    ${selected_profile.first_name} voted <strong>${position}</strong>${proxy_vote_count > 1 ? ` on behalf of ${proxy_vote_count} people` : ''}
+                    ${selected_profile.first_name} voted <strong>${position}</strong>${proxy_vote_count ? ` on behalf of ${proxy_vote_count} ${proxy_vote_count === 1 ? 'person' : 'people'}` : ''}
                     <br />
                     <a href="${`/legislation/${short_id}`}"><strong>${type.toUpperCase()} ${number}</strong>. ${short_title}</a>
                   </span>
@@ -37,7 +37,7 @@ module.exports = class Comment extends Component {
                     </div>
                     <div class="media-content">
                       ${username ? `<a href="/${username}">${fullname}</a>` : 'Anonymous'}
-                      <span>voted <strong>${position}</strong>${proxy_vote_count > 1 ? ` on behalf of ${proxy_vote_count} people` : ''}</span>
+                      <span>voted <strong>${position}</strong>${proxy_vote_count ? ` on behalf of ${proxy_vote_count} ${proxy_vote_count === 1 ? 'person' : 'people'}` : ''}</span>
                     </div>
                   </div>
                 `]}
