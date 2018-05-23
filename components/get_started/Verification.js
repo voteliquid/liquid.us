@@ -32,6 +32,12 @@ module.exports = class CreditCardVerificationPage extends Component {
 
           <br />
           <div class="content">
+            <h6 class="title is-5"><a name="why" class="has-text-dark" href="#why">Why should I verify?</a></h6>
+            <p>This quick verification step creates the foundation for a trustworthy online space, and allows us to hold elected representatives accountable for actually listening to their constituents.</p>
+            <p>We ask for name & address, and check against registered voter rolls, but this isn't enough. Unfortunately, it would be too easy to impersonate someone else, and create multiple accounts.</p>
+            <p>That's what this step prevents. Using a valid debit or credit card, in your name, with a confirmed billing address, gives much stronger proof that people really are who they say they are.</p>
+            <hr />
+
             <h6 class="title is-5"><a name="secure" class="has-text-dark" href="#secure">Is my information secure?</a></h6>
             <p>Yes.</p>
             <p>We adhere to the strict <strong>Payment Card Industry Data Security Standard</strong>, and never get direct access to your card data.</p>
