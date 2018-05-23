@@ -25,7 +25,8 @@ module.exports = {
   '/get_started/profile': route('Create Profile', () => import('./components/get_started/Profile')),
   '/change_address': route('Change Address', () => import('./components/ChangeAddress')),
   '/legislators': route('Legislators', () => import('./components/Legislators')),
-  '/new_legislatures': route('New Legislatures', () => import('./components/NewLegislatures')),
+  '/faq': route('FAQ', () => import('./components/FAQ')),
+  '/faq/:slug': route('FAQ', () => import('./components/FAQ')),
   '/twitter/:username': route('Profile', () => import('./components/ProfilePage')),
   '/:username': route('Profile', () => import('./components/ProfilePage')),
 }
