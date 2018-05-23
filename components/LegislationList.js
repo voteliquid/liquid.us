@@ -15,7 +15,7 @@ module.exports = class LegislationList extends Component {
   fetchLegislation(event) {
     if (event) event.preventDefault()
 
-    const { config, legislation_query, reps, user } = this.state
+    const { legislation_query, user } = this.state
     const { query, url } = this.location
 
     if (url === legislation_query) return
@@ -36,11 +36,7 @@ module.exports = class LegislationList extends Component {
     const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
     const hide_direct_votes_query = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
 
-    let legislature = (query.legislature && query.legislature !== 'All') ? `&legislature_name=eq.${query.legislature}` : ''
-    const has_ca_legislator = config.FEATURE_CA_LEGISLATION && reps.some(({ office_short_name }) => office_short_name.slice(0, 2) === 'CA')
-    if (!has_ca_legislator) {
-      legislature = '&legislature_name=eq.U.S. Congress'
-    }
+    const legislature = `&legislature_name=eq.${query.legislature || 'U.S. Congress'}`
 
     const fields = [
       'short_title', 'number', 'type', 'short_id', 'id', 'status',
@@ -59,7 +55,7 @@ module.exports = class LegislationList extends Component {
   render() {
     const { config, loading_legislation, legislation, reps } = this.state
     const legislatures = config.FEATURE_CA_LEGISLATION && reps.some(({ office_short_name }) => office_short_name.slice(0, 2) === 'CA')
-      ? ['U.S. Congress', 'CA Congress']
+      ? ['U.S. Congress', 'California']
       : ['U.S. Congress']
 
     return this.html`
@@ -196,9 +192,8 @@ class FilterForm extends Component {
           <div class=${`control ${legislatures.length > 1 ? '' : 'is-hidden'}`}>
             <div class="select">
               <select autocomplete="off" name="legislature" onchange=${this.autosubmit}>
-                <option value="All" selected=${!query.legislature || query.legislature === 'All'}>All</option>
-                <option value="U.S. Congress" selected=${query.legislature === 'U.S. Congress'}>U.S. Congress</option>
-                <option value="CA Congress" selected=${query.legislature === 'CA Congress'}>CA Congress</option>
+                <option value="U.S. Congress" selected=${!query.legislature || query.legislature === 'U.S. Congress'}>U.S. Congress</option>
+                <option value="California" selected=${query.legislature === 'California'}>California</option>
               </select>
             </div>
           </div>
