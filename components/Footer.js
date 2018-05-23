@@ -30,7 +30,7 @@ module.exports = class Footer extends Component {
                 }
               }
             </style>
-            <div style="margin: 3rem 0; position: relative;">
+            <div style="margin: 4rem 0; position: relative;">
               <span class="quote-icon">“</span>
               <p class="title has-text-grey is-4 has-text-justified">${[randomQuote.text.replace(/\n/g, '<br />')]}</p>
               ${[randomQuote.author ? `<p class="title is-5 has-text-grey has-text-right">— <em>${randomQuote.author}</em></p>` : '']}

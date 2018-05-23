@@ -54,13 +54,12 @@ module.exports = class YourLegislators extends Component {
     })
   }
   render() {
-    const { config, geoip, reps = [], reps_loaded, user } = this.state
-    const { APP_NAME } = config
+    const { geoip, reps = [], reps_loaded, user } = this.state
 
     return this.html`
       <div class="YourLegislators">
         <h2 class="title is-5">Your Elected Congress Members</h2>
-        ${(reps_loaded && (!reps || !reps.length)) ? [`<div class="notification">We weren't able to detect your elected congress members using your location. <a href="/join">Join ${APP_NAME}</a> to set your address.</div>`] : []}
+        ${(reps_loaded && (!reps || !reps.length)) ? [`<div class="notification">We weren't able to detect your elected congress members using your location. <a href="/join">Join to set your address</a>.</div>`] : []}
         <div class="columns">
           ${reps.map(rep => RepColumn.for(this, { rep }, `repcolumn-${rep.user_id}`))}
         </div>
@@ -140,11 +139,10 @@ class RepCard extends Component {
 
 class AnonAddressNotification extends Component {
   render() {
-    const { config, geoip } = this.state
-    const { APP_NAME } = config
+    const { geoip } = this.state
     return this.html`
       <div class="notification">
-        We selected your reps by guessing your location in <strong>${geoip.city}, ${geoip.region_code}.</strong> But this is only right about half the time. <strong><a href="/join">Join ${APP_NAME}</a></strong> to set your address.
+        We selected your reps by guessing your location in <strong>${geoip.city}, ${geoip.region_code}.</strong> But this is only right about half the time. <strong><a href="/join">Set your address</a></strong>.
       </div>
     `
   }

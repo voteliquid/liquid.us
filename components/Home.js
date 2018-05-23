@@ -33,7 +33,7 @@ module.exports = class Home extends Component {
               ${!user ? [`
                 <a class="button is-link is-inverted is-medium" href="/join">
                   <span class="icon"><i class="fa fa-star"></i></span>
-                  <span><strong>Create your account</strong></span>
+                  <span><strong>Create your account <em>— free</em></strong></span>
                 </a>
               `] : ''}
             </div>
@@ -96,7 +96,7 @@ module.exports = class Home extends Component {
       <section class="hero is-dark is-bold is-fullheight">
         <div class="hero-body">
           <div class="container">
-            <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Right now, <span class="has-text-danger">a single person</span> chosen from a limited ballot, serves as the representative in Congress for <span class="has-text-danger">a million of us</span>.</h2>
+            <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Right now, <span class="has-text-danger">a single person</span> chosen from a limited ballot, serves as the only representative for <span class="has-text-danger">a million of us</span>.</h2>
             <br />
             <br />
             <br />
@@ -116,7 +116,7 @@ module.exports = class Home extends Component {
             <br />
             <br />
             <br />
-            <h3 class="subtitle is-4 is-size-3-desktop reveal">A more like-minded politician?</h3>
+            <h3 class="subtitle is-4 is-size-3-desktop reveal">A more trustworthy politician?</h3>
             <br />
             <br />
             <br />
@@ -145,7 +145,7 @@ module.exports = class Home extends Component {
             <br />
             <br />
             <br />
-            <h2 class="subtitle is-3 is-size-4-mobile reveal"><strong style="font-weight: 500">United.vote</strong> makes a new kind of democracy possible:</h2>
+            <h2 class="subtitle is-3 is-size-4-mobile reveal"><strong style="font-weight: 500">United</strong> makes a new kind of democracy possible:</h2>
             <br />
             <br />
             <br />
@@ -178,12 +178,12 @@ module.exports = class Home extends Component {
             <br />
             <br />
             <div class="reveal">
-              <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">Phase 1 - Liquid Scorecards</h3>
-              <h4 class="subtitle is-5 is-size-4-desktop">Politicians are automatically graded for how much they follow their constituents' liquid votes.</h4>
+              <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">Phase 1 - United Scorecards</h3>
+              <h4 class="subtitle is-5 is-size-4-desktop">Politicians are <em>automatically graded</em> for how much they follow their constituents' votes.</h4>
               ${YourLegislators.for(this)}
               <style>
                 .YourLegislators {
-                  border: 1px solid white;
+                  border: 1px solid hsla(0, 0%, 100%, 0.5);
                   padding: 25px;
                   border-radius: 6px;
                 }
@@ -198,8 +198,10 @@ module.exports = class Home extends Component {
                 }
               </style>
               <br />
-              <h4 class="subtitle is-5 is-size-4-desktop"><a href="/join"><span class="icon is-size-5"><i class="fa fa-star" style="position:relative;bottom: 2px;"></i></span> <strong>Join Now</strong></a> to help create a transparent accountability record, as we get liquid democracy off the ground.</h4>
+              <br />
+              <h4 class="subtitle is-5 is-size-4-desktop"><a href="/join"><span class="icon is-size-5"><i class="fa fa-caret-right" style="position:relative;bottom: 2px;"></i></span> <strong>Join Now</strong></a> to help create a transparent accountability record, and build the liquid democracy movement.</h4>
             </div>
+            <br />
             <br />
             <br />
             <br />
@@ -208,7 +210,7 @@ module.exports = class Home extends Component {
               <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">Phase 2 — Liquid Candidates</h3>
               <h4 class="subtitle is-5 is-size-4-desktop">Pledged to vote on everything as directed by their local liquid democracy.</h4>
               <h4 class="subtitle is-5 is-size-4-desktop">Voters can elect this upgraded representation, <em>when we're ready</em>, one seat at a time.</h4>
-              <h4 class="subtitle is-5 is-size-4-desktop"><a href="https://2018candidates.united.vote" target="_blank"><span class="icon"><i class="fa fa-caret-right"></i></span> <span>Meet the <strong>2018 Liquid Candidates</strong></span></a>.</h4>
+              <h4 class="subtitle is-5 is-size-4-desktop"><a href="https://2018.united.vote" target="_blank"><span class="icon"><i class="fa fa-star"></i></span>&nbsp; <span>Meet the <strong>2018 Liquid Candidates</strong></span></a>.</h4>
             </div>
             <br />
             <br />
@@ -266,7 +268,7 @@ module.exports = class Home extends Component {
             <h3 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Want liquid democracy beyond Congress?</h3>
             <br />
             <br />
-            <h4 class="subtitle is-4 is-size-3-desktop is-size-5-mobile reveal"><a href="/new_legislatures" class="has-text-info has-text-weight-bold">Learn about</a> bringing <strong>United.vote</strong> to new legislatures.</h4>
+            <h4 class="subtitle is-4 is-size-3-desktop is-size-5-mobile reveal"><a href="/new_legislatures" class="has-text-info has-text-weight-bold">Learn about</a> bringing <strong>United</strong> to new legislatures.</h4>
             <br />
           </div>
         </div>
