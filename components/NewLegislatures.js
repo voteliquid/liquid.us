@@ -11,7 +11,7 @@ module.exports = class NewLegislatures extends Component {
         <div class="container">
           <h1 class="title is-3">Liquid democracy can create better governance everywhere, not just in US Congress.</h1>
           <div class="content">
-            <p>We'd love to make <a href="/"><strong>United.vote</strong></a> available for more legislatures.</p>
+            <p>We'd love to make <a href="/"><strong>United</strong></a> available for more legislatures.</p>
             <h3 class="title is-4">To add new public legislatures, we need:</h3>
 
             <div class="control">

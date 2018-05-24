@@ -24,7 +24,7 @@ class AnonProxies extends Component {
           <h3 class="title">Who do you trust to represent you in Congress?</h3>
           <div class="content">
             <p>
-              United.vote lets you pick <strong>anyone</strong> to represent you. For any bill that you don't vote on directly, your personal proxy gets an additional vote. You can change at anytime, and you can always override them and vote directly on bills.
+              United lets you pick <strong>anyone</strong> to represent you. For any bill that you don't vote on directly, your personal proxy gets an additional vote. You can change at anytime, and you can always override them and vote directly on bills.
             </p>
             <p>
               This ensures that your values are still represented even when you don't have the time to look into all the issues. It's essential to building a democracy we can trust.
