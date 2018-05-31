@@ -33,7 +33,7 @@ module.exports = class Home extends Component {
               ${!user ? [`
                 <a class="button is-link is-inverted is-medium" href="/join">
                   <span class="icon"><i class="fa fa-star"></i></span>
-                  <span><strong>Create your account <em>— free</em></strong></span>
+                  <span><strong>Create your free account</strong></span>
                 </a>
               `] : ''}
             </div>
