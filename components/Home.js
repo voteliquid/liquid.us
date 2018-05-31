@@ -21,7 +21,7 @@ module.exports = class Home extends Component {
       <section onconnected=${this} class="hero is-link is-bold is-fullheight subtract-toolbar">
         <div class="hero-body">
           <div class="container reveal">
-            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile delayed">A new democracy for the modern world</h2>
+            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile delayed">Healthier democracy for the modern world</h2>
             <br />
             <br />
             <h3 class="subtitle is-3 is-size-4-mobile delayed1">Where everyone has a voice on every issue</h3>
