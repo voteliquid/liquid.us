@@ -11,7 +11,7 @@ module.exports = class VerificationRouter extends Component {
     const { user } = this.state
     const { redirect, query } = this.location
 
-    if (!user) return redirect('/sign_in')
+    if (!user) return redirect('/join')
 
     if (query.skip) return this.finishOrSkip()
 

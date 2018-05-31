@@ -84,4 +84,24 @@ module.exports = class Component extends hyperloop.Component {
     if (picture_id) return `${IMAGES_URL}/${picture_id}`
     return `https://www.gravatar.com/avatar/${gravatar_hash}?d=mm&s=200`
   }
+  linkifyUrls(text) {
+    this.htmlTagsToReplace = this.htmlTagsToReplace || {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;'
+    }
+    this.htmlRegex = this.htmlRegex || /[&<>]/g
+    this.urlRegex = this.urlRegex || /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/ig
+    return text.replace(this.htmlRegex, (char) => {
+      return this.htmlTagsToReplace[char] || char
+    }).replace(this.urlRegex, (url) => {
+      return `<a href="${url}">${url}</a>`
+    }).replace(/\n/g, '<br />')
+  }
+  possessive(str) {
+    if (typeof str === 'string' && str[str.length - 1] === 's') {
+      return `${str}'`
+    }
+    return `${str}'s`
+  }
 }

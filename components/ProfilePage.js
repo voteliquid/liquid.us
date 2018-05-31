@@ -28,14 +28,14 @@ module.exports = class ProfilePage extends Component {
       }
 
       if (this.isBrowser) {
-        let page_title = `${user.name} ★ ${config.APP_NAME}`
+        const page_title = `${user.name} ★ ${config.APP_NAME}`
         window.document.title = page_title
         window.history.replaceState(window.history.state, page_title, document.location)
       }
 
       return this.setState({
         page_title: user.name,
-        page_description: `Empower ${user.first_name} to represent you in Congress, anytime you don't vote yourself.`,
+        page_description: `Empower ${user.first_name} to represent you in our legislatures.`,
         profiles,
         selected_profile: { ...user, votes: [], public_votes: [] },
       })

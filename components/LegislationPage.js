@@ -1,27 +1,17 @@
 const Component = require('./Component')
-const timeAgo = require('from-now')
+const Comment = require('./Comment')
 const LoadingIndicator = require('./LoadingIndicator')
-
-const ago_opts = {
-  seconds: 's',
-  minutes: 'min',
-  hours: 'h',
-  days: 'd',
-  weeks: 'w',
-  months: { 1: 'month', 2: 'months' },
-  years: 'y',
-}
 
 module.exports = class LegislationPage extends Component {
   oninit() {
-    const { bills = {}, config, user } = this.state
+    const { config, user } = this.state
     const { params } = this.props
 
     const fields = [
-      'short_title', 'number', 'type', 'short_id', 'id', 'committee',
+      'short_title', 'number', 'type', 'short_id', 'id',
       'sponsor_username', 'sponsor_first_name', 'sponsor_last_name', 'status',
       'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays',
-      'abstains', 'summary', 'number', 'congress', 'chamber'
+      'abstains', 'summary', 'number', 'congress', 'chamber', 'legislature_name'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays')
     const url = `/legislation_detail?select=${fields.join(',')}&short_id=eq.${params.short_id}`
@@ -33,7 +23,7 @@ module.exports = class LegislationPage extends Component {
 
       if (selected_bill) {
         if (this.isBrowser) {
-          let page_title = `${selected_bill.short_title} ★ ${config.APP_NAME}`
+          const page_title = `${selected_bill.short_title} ★ ${config.APP_NAME}`
           window.document.title = page_title
           window.history.replaceState(window.history.state, page_title, document.location)
         }
@@ -64,7 +54,7 @@ module.exports = class LegislationPage extends Component {
     })
   }
   fetchActions(selected_bill) {
-    return this.api(`/legislative_actions?select=*,references:legislative_references(*)&legislation_id=eq.${selected_bill.id}&order=occurred_at.desc`)
+    return this.api(`/legislative_actions?legislation_id=eq.${selected_bill.id}&order=occurred_at.desc`)
   }
   fetchComments(selected_bill) {
     return this.api(`/public_votes?legislation_id=eq.${selected_bill.id}&comment=not.eq.&comment=not.is.null&order=endorsements.desc.nullslast`)
@@ -73,7 +63,7 @@ module.exports = class LegislationPage extends Component {
       nay_comments: comments.filter(({ position }) => position === 'nay'),
     }))
   }
-  onpagechange(oldProps) {
+  onpagechange() {
     const { loading_bill, selected_bill } = this.state
     if (!loading_bill && selected_bill) {
       this.oninit().then((newState) => this.setState(newState))
@@ -109,11 +99,26 @@ class BillNotFoundPage extends Component {
 
 class BillFoundPage extends Component {
   render() {
-    const { config, selected_bill: l, user } = this.state
+    const { legislation_query, selected_bill: l, user } = this.state
+    const bill_details_url = l.legislature_name === 'U.S. Congress'
+      ? `https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber.toLowerCase()}-bill/${l.number}`
+      : `https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=${l.congress}0${l.type}${l.number}`
+    const bill_details_name = l.legislature_name === 'U.S. Congress' ? 'congress.gov' : 'leginfo.legislature.ca.gov'
+    const own_comment = user && l.yea_comments.concat(l.nay_comments).reduce((b, a) => {
+      if (a.user_id === user.id) return a
+      return b
+    }, false)
 
     return this.html`
       <section class="section">
         <div class="container">
+          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
+            <ul>
+              <li><a class="has-text-grey" href="/">Home</a></li>
+              <li><a class="has-text-grey" href="${legislation_query || '/legislation'}">Legislation</a></li>
+              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${l.type} ${l.number}</a></li>
+            </ul>
+          </nav>
           ${(l.vote_position && !user.cc_verified) ? [`
             <div class="notification is-info">
               <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
@@ -121,40 +126,36 @@ class BillFoundPage extends Component {
               Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
             </div>
           `] : ''}
-          <div class="content">
-            <h2>${l.type} ${l.number} &mdash; ${l.short_title}</h2>
-          </div>
-          ${StatusTracker.for(this)}
+          <h4 class="has-text-grey is-paddingless is-margin-less">${l.legislature_name}</h4>
+          <h2 class="title has-text-weight-normal is-size-4" style="margin-bottom: .5rem;">${l.type} ${l.number} &mdash; ${l.short_title}</h2>
+          ${l.legislature_name === 'U.S. Congress' ? StatusTracker.for(this) : ''}
           <p class="is-size-7 has-text-grey">
             ${l.sponsor_username
               ? [`Introduced by <a href=${`/${l.sponsor_username}`}>${l.sponsor_first_name} ${l.sponsor_last_name}</a> on ${(new Date(l.introduced_at)).toLocaleDateString()} &bullet; Last action on ${new Date(l.last_action_at).toLocaleDateString()}`]
               : [`Introduced on ${(new Date(l.introduced_at)).toLocaleDateString()} &bullet; last action on ${new Date(l.last_action_at).toLocaleDateString()}`]
             }
-            &bullet; <a href=${`https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber.toLowerCase()}-bill/${l.number}`} target="_blank">Bill details at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>
+            &bullet; <a href=${bill_details_url} target="_blank">Bill details at ${bill_details_name} <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>
           </p>
           <hr />
           <div class="content">
             <div class="columns">
               <div class="column">${BillSummary.for(this)}</div>
               <div class="column">
-                <h3 class="title has-text-weight-normal is-size-5">Vote</h3>
                 <p>${VoteButton.for(this, l, `votebutton-${l.id}`)}</p>
                 ${l.vote_position
                 ? [`
                   <p><span class="has-text-weight-bold">${l.constituent_yeas} Yea and ${l.constituent_nays} Nay</span> votes from verified constituents in your district</p>
                 `]
                 : [`
-                  <p class="is-size-7">We'll notify <a href="/legislators">your representative</a> and hold them accountable by using your vote to calculate their <a href="https://blog.united.vote/2017/12/08/give-your-rep-an-f-introducing-united-legislator-grades/">representation score</a>.</p>
                   ${l.yeas + l.nays
-                  ? [`
-                    <p>${l.yeas + l.nays} people have voted on this bill. Join them.</p>
-                  `]
-                  : ''
-                  }
+                    ? `<p>${l.yeas + l.nays} people have voted on this bill. Join them.</p>`
+                    : ''}
+                  <p class="is-size-7">We'll notify <a href="/legislators">your representative</a> and hold them accountable by using your vote to calculate their <a href="https://blog.united.vote/2017/12/08/give-your-rep-an-f-introducing-united-legislator-grades/">representation score</a>.</p>
                 `]}
               </div>
             </div>
           </div>
+          ${own_comment ? Comment.for(this, own_comment, `own-comment-${own_comment.id}`) : ''}
           <hr />
           ${BillComments.for(this)}
         </div>
@@ -202,9 +203,8 @@ class BillSummary extends Component {
         }
       </style>
       <div class=${`${expanded || !summary ? '' : 'summary'}`}>
-        <h3 class="title has-text-weight-normal is-size-5">Summary</h3>
         <div class="content">
-          ${[summary || `<p>A summary is in progress.</p><p><a href="https://www.congress.gov/bill/${congress}th-congress/${chamber.toLowerCase()}-bill/${number}/text">Read full text of the bill at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
+          ${[summary ? summary.replace(/\n/g, '<br />') : `<p>A summary is in progress.</p><p><a href="https://www.congress.gov/bill/${congress}th-congress/${chamber.toLowerCase()}-bill/${number}/text" target="_blank">Read full text of the bill at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
         </div>
         <div class="read-more"></div>
         <a class="read-more-link is-size-7" href="#" onclick=${this}>
@@ -261,13 +261,9 @@ class BillComments extends Component {
     return this.html`
       <div class="columns">
         <div class="column">
-          <h3 class="is-size-5">Comments in favor</h3>
-          <br />
           ${CommentsColumn.for(this, { position: 'yea' }, 'comments-yea')}
         </div>
         <div class="column">
-          <h3 class="is-size-5">Comments against</h3>
-          <br />
           ${CommentsColumn.for(this, { position: 'nay' }, 'comments-nay')}
         </div>
       </div>
@@ -282,142 +278,10 @@ class CommentsColumn extends Component {
     const comments = selected_bill[`${position}_comments`] || []
 
     return this.html`
-      <div>
-        ${comments.length
-          ? comments.map(c => Comment.for(this, c, `comment-${c.id}`))
-          : [`<p class="has-text-grey is-size-7">No comments ${position === 'yea' ? 'in favor' : 'against'}.</p>`]
-        }
-      </div>
-    `
-  }
-}
-
-class Comment extends Component {
-  render() {
-    const { comment, created_at, endorsements, fullname, id, username } = this.props
-    const { user } = this.state
-    const avatarURL = this.avatarURL(comment)
-
-    return this.html`
-      <div class="card is-small">
-          <div style="box-shadow: 0 1px 2px rgba(10,10,10,.1); padding: .75rem;">
-            <div class="level">
-              <div class="level-left">
-                <div class="level-item">
-                  ${username
-                  ? avatarURL
-                    ? [`
-                        <div class="media">
-                          <div class="media-left">
-                            <p class="image is-32x32">
-                              <a href=${`/${username}`}>
-                                <img src=${avatarURL} alt="avatar" class="round-avatar-img" />
-                              </a>
-                            </p>
-                          </div>
-                          <div class="media-content" style="align-self: center;">
-                            <a href="/${username}">${fullname}</a>
-                          </div>
-                        </div>
-                    `]
-                    : [`
-                      <a href="/${username}">${fullname}</a>
-                    `]
-                  : [`
-                    <span class="has-text-grey-light">Anonymous</span>
-                  `]}
-                </div>
-              </div>
-              <div class="level-right">
-                <div class="level-item">
-                  ${user
-                    ? CommentEndorseButton.for(this, this.props, `endorsebtn-${id}`)
-                    : endorsements > 0 ? [`
-                        <span class="icon"><i class="fa fa-thumbs-o-up"></i></span>
-                        <span>${endorsements}</span>
-                        <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
-                      `]: []
-                  }
-                  <span class="has-text-grey-light">${timeAgo(`${created_at}Z`, ago_opts)} ago</span>
-                </div>
-            </div>
-          </div>
-        </div>
-        <div class="card-content">${comment}</div>
-      </div>
-      <br />
-    `
-  }
-}
-
-class CommentEndorseButton extends Component {
-  onsubmit(event) {
-    event.preventDefault()
-
-    const { endorsed, legislation_id, position, id } = this.props
-    const { selected_bill, user } = this.state
-
-    if (endorsed) {
-      return this.api(`/comment_endorsements?user_id=eq.${user.id}&legislation_id=eq.${legislation_id}&vote_id=eq.${id}`, {
-        method: 'DELETE',
-      }).then(() => {
-        selected_bill[`${position}_comments`] = selected_bill[`${position}_comments`].map(comment => {
-          if (comment.id === id) {
-            comment.endorsements -= 1
-            comment.endorsed = false
-          }
-          return comment
-        })
-        return { selected_bill }
-      })
-    }
-
-    return this.api('/comment_endorsements', {
-      headers: { Prefer: 'return=representation' },
-      method: 'POST',
-      body: JSON.stringify({
-        vote_id: id,
-        user_id: user.id,
-        legislation_id,
-      })
-    }).then(() => {
-      selected_bill[`${position}_comments`] = selected_bill[`${position}_comments`].map(comment => {
-        if (comment.id === id) {
-          comment.endorsements += 1
-          comment.endorsed = true
-        }
-        return comment
-      })
-      return { selected_bill }
-    })
-  }
-  render() {
-    const { endorsed, endorsements } = this.props
-
-    return this.html`
-      <form class="has-text-right" method="POST" onsubmit=${this} action=${this}>
-        <style>
-          .button.is-text {
-            padding: 0!important;
-            border: none;
-            color: inherit;
-            height: 1rem;
-            text-decoration: none;
-          }
-          .button.is-text:hover, .button.is-text:active, .button.is-text:focus {
-            color: inherit;
-            border: none;
-            background: transparent;
-            box-shadow: none;
-            -webkit-box-shadow: none;
-          }
-        </style>
-          <button type="submit" class=${`button is-text ${endorsed ? 'has-text-link' : ''}`}>
-            <span class="icon is-small" style="margin-right: 0"><i class="fa fa-thumbs-o-up"></i></span>
-            <span>${endorsements > 0 ? endorsements : ''}</span>
-          </button>
-      </form>
-      <span class="has-text-grey-light">&nbsp;&bullet;&nbsp;</span>
+      ${comments.length
+        ? comments.map(c => Comment.for(this, c, `comment-${c.id}`))
+        : [`<p class="has-text-grey-light">No comments ${position === 'yea' ? 'in favor' : 'against'}. Vote on the bill to leave a comment.</p>`]
+      }
     `
   }
 }
@@ -487,7 +351,6 @@ class StatusTracker extends Component {
         list-style: none;
         display: inline-block;
         margin-left: 1rem;
-        margin-top: -.5rem;
         margin-bottom: .5rem;
       }
       .status_tracker .step {

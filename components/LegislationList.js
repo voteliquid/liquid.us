@@ -7,51 +7,120 @@ module.exports = class LegislationList extends Component {
       return this.fetchLegislation()
     }
   }
-  onpagechange() {
-    this.fetchLegislation().then((newState) => this.setState(newState))
+  onpagechange(oldProps) {
+    if (oldProps.url !== this.props.url) {
+      Promise.resolve(this.fetchLegislation()).then((newState) => this.setState(newState))
+    }
   }
   fetchLegislation(event) {
     if (event) event.preventDefault()
 
-    const { user } = this.state
-    const { query } = this.location
+    const { legislation_query, user } = this.state
+    const { query, url } = this.location
 
-    this.setState({ loading_legislation: true, legislation_query: query })
+    if (url === legislation_query) return
+
+    this.setState({ loading_legislation: true })
 
     const terms = query.terms && query.terms.replace(/[^\w\d ]/g, '').replace(/(hr|s) (\d+)/i, '$1$2').replace(/(\S)\s+(\S)/g, '$1 & $2')
-    const fts = terms ? `tsv=fts(english).${encodeURIComponent(terms)}&` : ''
+    const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
 
     const orders = {
-      upcoming: 'next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
+      upcoming: 'legislature_name.desc,next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
       new: 'introduced_at.desc',
       active: 'last_action_at.desc',
     }
+
     const order = orders[query.order || 'upcoming']
+
+    const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
+    const hide_direct_votes_query = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
+
+    const legislature = `&legislature_name=eq.${query.legislature || 'U.S. Congress'}`
+
     const fields = [
-      'short_title', 'number', 'type', 'short_id', 'id', 'status', 'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
-      'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at',
+      'short_title', 'number', 'type', 'short_id', 'id', 'status',
+      'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
+      'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas',
+      'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at',
+      'summary', 'legislature_name'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays', 'constituent_abstains')
-    const url = `/legislation_detail?select=${fields.join(',')}&${fts}order=${order}&limit=40`
+    const api_url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&order=${order}&limit=40`
 
-    return this.api(url)
-      .then(legislation => ({ legislation, loading_legislation: false }))
+    return this.api(api_url)
+      .then(legislation => ({ legislation_query: url, legislation, loading_legislation: false }))
       .catch(error => ({ error, loading_legislation: false }))
   }
   render() {
-    const { loading_legislation, legislation } = this.state
+    const { config, loading_legislation, legislation, reps } = this.state
+    const legislatures = config.FEATURE_CA_LEGISLATION && reps.some(({ office_short_name }) => office_short_name.slice(0, 2) === 'CA')
+      ? ['U.S. Congress', 'California']
+      : ['U.S. Congress']
 
     return this.html`
       <div class="section">
         <div class="container">
           ${NewButton.for(this)}
-          <h2 class="title is-5">U.S. Congress</h2>
+          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
+            <ul>
+              <li><a class="has-text-grey" href="/">Home</a></li>
+              <li class="is-active"><a class="has-text-grey" href="/legislation" aria-current="page">Legislation</a></li>
+            </ul>
+          </nav>
           ${FilterTabs.for(this)}
-          ${SearchForm.for(this)}
-          ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(o => LegislationListRow.for(this, o, `billitem-${o.id}`))}
+          ${FilterForm.for(this, { legislatures })}
+          ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(bill => LegislationListRow.for(this, { bill, legislatures }, `billitem-${bill.id}`))}
           <style>
             .highlight-hover:hover {
               background: #f6f8fa;
+            }
+            .summary-tooltip {
+              position: relative;
+            }
+            .summary-tooltip .summary-tooltip-content {
+              display: none;
+              position: absolute;
+              max-height: 222px;
+            }
+            .summary-tooltip .summary-tooltip-arrow {
+              display: none;
+              position: absolute;
+            }
+            .summary-tooltip:hover .summary-tooltip-content {
+              display: block;
+              background: hsl(0, 0%, 100%) !important;
+              box-shadow: 0px 4px 15px hsla(0, 0%, 0%, 0.15);
+              border: 1px solid hsl(0, 0%, 87%);
+              color: #333;
+              font-size: 14px;
+              overflow: hidden;
+              padding: .4rem .8rem;
+              text-align: left;
+              white-space: normal;
+              width: 400px;
+              z-index: 99999;
+              top: auto;
+              bottom: 50%;
+              left: auto;
+              right: 100%;
+              transform: translate(-0.5rem, 50%);
+            }
+            .summary-tooltip:hover .summary-tooltip-arrow {
+              border-color: transparent transparent transparent hsl(0, 0%, 100%) !important;
+              z-index: 99999;
+              position: absolute;
+              display: inline-block;
+              pointer-events: none;
+              border-style: solid;
+              border-width: .5rem;
+              margin-left: -.5rem;
+              margin-top: -.5rem;
+              top: 50%;
+              left: -1px;
+            }
+            .summary-tooltip:hover .has-text-grey-lighter {
+              color: hsl(0, 0%, 75%) !important;
             }
           </style>
         </div>
@@ -61,6 +130,13 @@ module.exports = class LegislationList extends Component {
 }
 
 class FilterTabs extends Component {
+  makeQuery(order) {
+    const query = this.location.query
+    const newQuery = Object.assign({}, query, { order, terms: query.terms || '' })
+    return Object.keys(newQuery).map(key => {
+      return `${key}=${newQuery[key]}`
+    }).join('&')
+  }
   render() {
     const { query } = this.location
 
@@ -73,39 +149,75 @@ class FilterTabs extends Component {
     return this.html`
       <div class="tabs">
         <ul>
-          <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?order=upcoming&terms=${query.terms || ''}`}">Upcoming</a></li>
-          <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?order=new&terms=${query.terms || ''}`}">New</a></li>
-          <li class="${query.order === 'active' ? 'is-active' : ''}"><a href="${`/legislation?order=active&terms=${query.terms || ''}`}">Active</a></li>
+          <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('upcoming')}`}">Upcoming</a></li>
+          <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('new')}`}">New</a></li>
+          <li class="${query.order === 'active' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('active')}`}">Active</a></li>
         </ul>
       </div>
-      <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
-      <br />
+      <div class="content">
+        <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
+      </div>
     `
   }
 }
 
-class SearchForm extends Component {
+class FilterForm extends Component {
+  autosubmit() {
+    document.querySelector('.filter-submit').click()
+  }
+  onclick(event) {
+    const btn = document.querySelector('.filter-submit')
+    if (btn.disabled) {
+      event.preventDefault()
+    } else {
+      if (event.target && event.target.checked) {
+        this.storage.set('hide_direct_votes', 'on')
+      } else {
+        this.storage.unset('hide_direct_votes')
+      }
+      btn.click()
+    }
+  }
   render() {
-    const { loading_legislation } = this.state
+    const { legislatures } = this.props
+    const { loading_legislation, user } = this.state
     const { query } = this.location
     const terms = query.terms || ''
+    const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
 
     return this.html`
-      <form method="GET" action="/legislation">
+      <form name="legislation_filters" method="GET" action="/legislation">
         <input name="order" type="hidden" value="${query.order || 'upcoming'}" />
+
         <div class="field has-addons">
+          <div class=${`control ${legislatures.length > 1 ? '' : 'is-hidden'}`}>
+            <div class="select">
+              <select autocomplete="off" name="legislature" onchange=${this.autosubmit}>
+                <option value="U.S. Congress" selected=${!query.legislature || query.legislature === 'U.S. Congress'}>U.S. Congress</option>
+                <option value="California" selected=${query.legislature === 'California'}>California</option>
+              </select>
+            </div>
+          </div>
           <div class="control is-expanded">
             <input class="input" type="text" name="terms" placeholder="Examples: hr3440, health care, dream act" value="${terms}" />
           </div>
           <div class="control">
-            <button class="button is-primary" type="submit">
+            <button class="filter-submit button is-primary" disabled=${!!loading_legislation} type="submit">
               <span class="icon"><i class="fa fa-search"></i></span>
               <span>Search</span>
             </button>
           </div>
         </div>
+
+        <div class=${`field is-grouped is-grouped-right ${user ? '' : 'is-hidden'}`}>
+          <div class="control">
+            <label class="checkbox has-text-grey">
+              <input onclick=${this} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
+              Hide direct votes
+            </label>
+          </div>
+        </div>
       </form>
-      <br />
       <div class="field">${!loading_legislation && terms ? SearchResultsMessage.for(this) : ''}</div>
     `
   }
@@ -130,7 +242,7 @@ class SearchResultsMessage extends Component {
 
 class LegislationListRow extends Component {
   render() {
-    const s = this.props
+    const { bill: s, legislatures } = this.props
     const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
 
     return this.html`
@@ -140,15 +252,20 @@ class LegislationListRow extends Component {
             <div class="column">
               <h3><a href="${`/legislation/${s.short_id}`}">${s.short_title}</a></h3>
               <div class="is-size-7 has-text-grey">
+                ${legislatures.length > 1 ? [`
+                  <strong class="has-text-grey">${s.legislature_name}</strong>
+                  &mdash;
+                `] : ''}
                 <strong class="has-text-grey">${s.type} ${s.number}</strong>
                 &mdash;
                 ${s.sponsor_first_name
                   ? [`Introduced by&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                   : [`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                 }
-                <br />
-                <strong class="has-text-grey">Status:</strong> ${s.status}
-                <br />
+                ${s.summary ? [`
+                  <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
+                `] : []}
+                <p><strong class="has-text-grey">Status:</strong> ${s.status}</p>
                 ${next_action_at && [`
                   <strong class="has-text-grey">Next action:</strong>
                   Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
@@ -161,6 +278,7 @@ class LegislationListRow extends Component {
             </div>
             <div class="column is-one-quarter has-text-right-tablet has-text-left-mobile">
               ${VoteButton.for(this, s, `votebutton-${s.id}`)}
+              ${s.summary ? SummaryTooltipButton.for(this, s, `summarybutton-${s.id}`) : ''}
             </div>
           </div>
         </div>
@@ -237,6 +355,24 @@ class NewButton extends Component {
       <a style="white-space: inherit; height: auto;" class='button is-primary is-pulled-right' href="/legislation/new">
         <span class="icon" style="align-self: flex-start;"><i class='fa fa-file'></i></span>
         <span class="has-text-weight-semibold">New</span>
+      </a>
+    `
+  }
+}
+
+class SummaryTooltipButton extends Component {
+  render() {
+    const { short_id, summary } = this.props
+
+    return this.html`
+      <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">
+        <br />
+        <br />
+        <span class="icon summary-tooltip">
+          <i class="fa fa-lg fa-info-circle has-text-grey-lighter"></i>
+          <div class="summary-tooltip-content">${[summary]}</div>
+          <div class="summary-tooltip-arrow"></div>
+        </span>
       </a>
     `
   }

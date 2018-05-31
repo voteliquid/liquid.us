@@ -1,6 +1,7 @@
 const Component = require('../Component')
 const fetch = require('isomorphic-fetch')
 const GoogleAddressAutocompleteScript = require('../GoogleAddressAutocompleteScript')
+const YourLegislators = require('../YourLegislators')
 
 module.exports = class PageOrRedirect extends Component {
   oninit() {
@@ -97,8 +98,11 @@ class GetStartedBasicsPage extends Component {
       }),
     }))
     .then(() => {
-      this.setState({ user: { ...user, voter_status, first_name, last_name, address: { address } } })
+      this.setState({ reps: [], user: { ...user, voter_status, first_name, last_name, address: { address } } })
 
+      return Promise.resolve(YourLegislators.prototype.fetchElectedLegislators.call(this)).then(newState => this.setState(newState))
+    })
+    .then(() => {
       if (!storage.get('proxying_user_id')) {
         return redirect(303, '/get_started/proxies')
       }

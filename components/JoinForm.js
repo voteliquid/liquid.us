@@ -60,8 +60,8 @@ module.exports = class JoinForm extends Component {
         ${show_title !== false ? [`
           <h2 class="title has-text-centered">
             ${signup_metrics && signup_metrics.length
-              ? `Join ${signup_metrics[signup_metrics.length - 1].y} people for the future of democracy`
-              : `Be a part of the future of democracy`
+              ? `Join ${signup_metrics[signup_metrics.length - 1].y} people for healthier democracy`
+              : `Join for healthier democracy`
             }
           </h2>
           <br />

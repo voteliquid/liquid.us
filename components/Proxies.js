@@ -1,4 +1,5 @@
 const Component = require('./Component')
+const LoadingIndicator = require('./LoadingIndicator')
 const ProxySearch = require('./ProxySearch')
 const ProxiesTable = require('./ProxiesTable')
 const JoinForm = require('./JoinForm')
@@ -23,7 +24,7 @@ class AnonProxies extends Component {
           <h3 class="title">Who do you trust to represent you in Congress?</h3>
           <div class="content">
             <p>
-              United.vote lets you pick <strong>anyone</strong> to represent you. For any bill that you don't vote on directly, your personal proxy gets an additional vote. You can change at anytime, and you can always override them and vote directly on bills.
+              United lets you pick <strong>anyone</strong> to represent you. For any bill that you don't vote on directly, your personal proxy gets an additional vote. You can change at anytime, and you can always override them and vote directly on bills.
             </p>
             <p>
               This ensures that your values are still represented even when you don't have the time to look into all the issues. It's essential to building a democracy we can trust.
@@ -51,12 +52,14 @@ class AuthedProxies extends Component {
 
   fetchProxies() {
     const { user } = this.state
+    this.setState({ loading_proxies: true })
     return this.api(`/delegations_detailed?from_id=eq.${user.id}&order=delegate_rank.asc`)
-      .then(proxies => this.setState({ proxies })).catch(() => this.setState({ proxies: [] }))
+      .then(proxies => this.setState({ loading_proxies: false, proxies }))
+      .catch(() => this.setState({ loading_proxies: false, proxies: [] }))
   }
 
   render() {
-    const { proxies = [], user } = this.state
+    const { loading_proxies, proxies = [], user } = this.state
 
     return this.html`
       <div onconnected=${this}>
@@ -82,21 +85,25 @@ class AuthedProxies extends Component {
               <p>The highest ranked gets your extra vote. If your 1st choice doesn't vote, it goes to your 2nd, then 3rd, and on.</p>
               <br />
             `] : []}
-            ${proxies.length ? ProxiesTable.for(this, { show_help: false }) : [`
-              <div class="content">
-                <p>
-                  You don't have any proxies yet.
-                </p>
-                <p>
-                  ${this.state.config.APP_NAME} lets you pick <strong>anyone</strong> to
-                  represent you. You can change at anytime, and you can always
-                  override them and vote directly on bills.
-                </p>
-                <p>
-                  For any item that you don't vote on, one of your proxies get an additional vote. This ensures that your values are still represented, even when you don't have the time to look into all the issues.
-                </p>
-              </div>
-            `]}
+            ${loading_proxies
+              ? LoadingIndicator.for(this)
+              : proxies.length
+                ? ProxiesTable.for(this, { show_help: false })
+                : [`
+                  <div class="content">
+                    <p>
+                      You don't have any proxies yet.
+                    </p>
+                    <p>
+                      ${this.state.config.APP_NAME} lets you pick <strong>anyone</strong> to
+                      represent you. You can change at anytime, and you can always
+                      override them and vote directly on bills.
+                    </p>
+                    <p>
+                      For any item that you don't vote on, one of your proxies get an additional vote. This ensures that your values are still represented, even when you don't have the time to look into all the issues.
+                    </p>
+                  </div>
+                `]}
           </div>
         </div>
       </div>

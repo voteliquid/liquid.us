@@ -15,7 +15,7 @@ module.exports = class LoadingIndicator extends Component {
           display: block;
           overflow: auto;
           position: relative;
-          margin: 5rem auto 1rem;
+          margin: 1rem auto 1rem;
           font-size: 10px;
           position: relative;
           text-indent: -9999em;

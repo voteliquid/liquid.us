@@ -58,6 +58,11 @@ module.exports = class ProxyRequests extends Component {
             : [`<p>None</p>`]
           }
           <br />
+          <style>
+            .tag.warning-o {
+              border: 2px solid #ffdd57;
+            }
+          </style>
         </div>
       </div>
       </section>
@@ -67,7 +72,7 @@ module.exports = class ProxyRequests extends Component {
 
 class RequestRow extends Component {
   render() {
-    const { approved, id, first_name, last_name, username, twitter_username } = this.props
+    const { approved, id, first_name, last_name, is_verified, username, twitter_username } = this.props
 
     return this.html`
       <div class="field is-grouped">
@@ -85,14 +90,15 @@ class RequestRow extends Component {
           </div>
         </div>
         <div class="media-content">
-          ${username || twitter_username
-          ? [`<a href="${username ? `/${username}` : `/twitter/${twitter_username}`}" target="_blank">
+          ${username
+          ? [`<a href="${`/${username}`}" target="_blank">
               <span>${first_name} ${last_name}</span>
-              <span class="has-text-grey is-size-7">@${username || twitter_username}</span>
+              <span class="has-text-grey is-size-7">@${username}</span>
             </a>`]
           : [`
             <span>${first_name} ${last_name}</span>
           `]}
+          ${!is_verified ? [`<span class="tag warning-o">Unverified</span>`] : ''}
         </div>
         <div class="media-right">
           ${approved !== true ? [ApproveBtn.for(this, this.props, `approvebtn-${id}`)] : []}

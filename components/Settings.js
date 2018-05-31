@@ -1,12 +1,24 @@
 const Component = require('./Component')
 
-module.exports = class Settings extends Component {
+module.exports = class SettingsPage extends Component {
   oninit() {
     if (!this.state.user) {
       this.storage.set('redirect_to', '/settings')
       return this.location.redirect('/sign_in')
     }
   }
+  onpagechange(oldProps) {
+    if (oldProps.url !== this.props.url && !this.state.user) {
+      this.storage.set('redirect_to', '/settings')
+      return this.location.redirect('/sign_in')
+    }
+  }
+  render() {
+    return this.html`${this.state.user ? Settings.for(this) : ''}`
+  }
+}
+
+class Settings extends Component {
   onclick(event) {
     const selected = event.target.value
     const saved = this.state.user.update_emails_preference

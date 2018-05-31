@@ -60,6 +60,13 @@ module.exports = class LegislatorProfilePage extends Component {
     return this.html`
       <section class="section">
         <div class="container">
+          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
+            <ul>
+              <li><a class="has-text-grey" href="/">Home</a></li>
+              <li><a class="has-text-grey" href="/legislators">Congress Members</a></li>
+              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${selected_profile.first_name} ${selected_profile.last_name}</a></li>
+            </ul>
+          </nav>
           ${isMyRep && !user ? [`
             <div class="notification is-dark has-text-centered">
               This looks like one of your reps. <a href="/join"><strong>Join United</strong></a> to begin holding them accountable.
