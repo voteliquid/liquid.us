@@ -35,7 +35,7 @@ class AnonProxies extends Component {
     return this.html`
       <div class="columns is-variable is-6">
         <div class="column">
-          <h3 class="title">Who do you trust to represent you in Congress?</h3>
+          <h3 class="title">Who do you trust to represent you?</h3>
           <div class="content">
             <p>
               United lets you pick <strong>anyone</strong> to represent you.
