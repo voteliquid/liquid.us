@@ -35,7 +35,7 @@ class ContactWidgetButton extends Component {
           <span class="icon is-small">
             <i class="fa fa-comment"></i>
           </span>
-          <span>Contact</span>
+          <span>Help</span>
         </a>
       </p>
     `
@@ -104,7 +104,7 @@ class ContactWidgetForm extends Component {
                 `]}
                 <div class="field">
                   <div class="control">
-                    <textarea class="textarea" name="message" placeholder="Comments? Questions?"></textarea>
+                    <textarea class="textarea" name="message" placeholder="Please share your questions or comments."></textarea>
                   </div>
                 </div>
                 <div class="field">
