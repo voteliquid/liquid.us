@@ -18,6 +18,9 @@ module.exports = class ContactWidget extends Component {
           margin-bottom: 0 !important;
           z-index: 99;
         }
+        .contact-window {
+          border: 1px solid #deeaf2;
+        }
       </style>
     `
   }
