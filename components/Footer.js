@@ -34,7 +34,7 @@ module.exports = class Footer extends Component {
         <div class="columns is-centered">
           <div class="column is-half section is-clearfix" style="padding: 3rem 3rem 0;">
             <img src="/assets/unitedvote_mark.svg" alt="united.vote" width="40" height="28">
-            <p class="is-size-7" style="margin-top: 3rem;"><a href="/" class="has-text-black"><strong>United</strong></a> makes democracy smarter, and offers real accountability.</p>
+            <p class="is-size-7" style="margin-top: 3rem;"><a href="/" class="has-text-black"><strong>United</strong></a> makes democracy smarter and more accountable.</p>
             <br />
             <div style="margin: 6rem 0 3rem; position: relative;">
               <span class="quote-icon default-cursor">“</span>
