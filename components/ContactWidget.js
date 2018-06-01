@@ -18,6 +18,9 @@ module.exports = class ContactWidget extends Component {
           margin-bottom: 0 !important;
           z-index: 99;
         }
+        .contact-window {
+          border: 1px solid #deeaf2;
+        }
       </style>
     `
   }
@@ -35,7 +38,7 @@ class ContactWidgetButton extends Component {
           <span class="icon is-small">
             <i class="fa fa-comment"></i>
           </span>
-          <span>Contact</span>
+          <span>Help</span>
         </a>
       </p>
     `
@@ -104,7 +107,7 @@ class ContactWidgetForm extends Component {
                 `]}
                 <div class="field">
                   <div class="control">
-                    <textarea class="textarea" name="message" placeholder="Comments? Questions?"></textarea>
+                    <textarea class="textarea" name="message" placeholder="Please share your questions or comments."></textarea>
                   </div>
                 </div>
                 <div class="field">
