@@ -93,7 +93,7 @@ function htmlHead(state) {
     </style>
     <meta property="og:title" content="${title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
     <meta property="og:description" content="${description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
-    <meta property="og:image" content="${profile_image_url || 'https://blog.united.vote/assets/icon-reduced-300.png'}" />
+    <meta property="og:image" content="${profile_image_url || 'https://blog.united.vote/assets/twitter_large.png'}" />
     <meta property="og:type" content="website" />
     ${responsiveTableStyle}
     ${roundAvatarStyle}
