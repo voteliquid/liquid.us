@@ -21,7 +21,7 @@ module.exports = class Home extends Component {
       <section onconnected=${this} class="hero is-link is-bold is-fullheight subtract-toolbar">
         <div class="hero-body">
           <div class="container reveal">
-            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile delayed">A new democracy for the modern world</h2>
+            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile delayed">Healthier democracy for the modern world</h2>
             <br />
             <br />
             <h3 class="subtitle is-3 is-size-4-mobile delayed1">Where everyone has a voice on every issue</h3>
@@ -33,7 +33,7 @@ module.exports = class Home extends Component {
               ${!user ? [`
                 <a class="button is-link is-inverted is-medium" href="/join">
                   <span class="icon"><i class="fa fa-star"></i></span>
-                  <span><strong>Create your account <em>— free</em></strong></span>
+                  <span><strong>Create your free account</strong></span>
                 </a>
               `] : ''}
             </div>
@@ -145,7 +145,7 @@ module.exports = class Home extends Component {
             <br />
             <br />
             <br />
-            <h2 class="subtitle is-3 is-size-4-mobile reveal"><strong style="font-weight: 500">United</strong> makes a new kind of democracy possible:</h2>
+            <h2 class="subtitle is-3 is-size-4-mobile reveal">United makes a new kind of democracy possible:</h2>
             <br />
             <br />
             <br />
@@ -172,7 +172,7 @@ module.exports = class Home extends Component {
             <br />
             <br />
             <br />
-            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal" style="margin-bottom: 35px">Our plan for a better democracy:</h2>
+            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal" style="margin-bottom: 35px">How we reach a healthier democracy:</h2>
             <h4 class="subtitle is-4 is-size-4-desktop reveal">Without first needing to change any laws</h4>
             <br />
             <br />
@@ -199,7 +199,7 @@ module.exports = class Home extends Component {
               </style>
               <br />
               <br />
-              <h4 class="subtitle is-5 is-size-4-desktop"><a href="/join"><span class="icon is-size-5"><i class="fa fa-caret-right" style="position:relative;bottom: 2px;"></i></span> <strong>Join Now</strong></a> to help create a transparent accountability record, and build the liquid democracy movement.</h4>
+              <h4 class="subtitle is-5 is-size-4-desktop"><a href="/join"><span class="icon is-size-5"><i class="fa fa-caret-right" style="position:relative;bottom: 2px;"></i></span> <strong>Join Now</strong></a> to help create a transparent accountability record.</h4>
             </div>
             <br />
             <br />

@@ -62,7 +62,7 @@ module.exports = class UserProfilePage extends Component {
               ${public_votes && public_votes.length && !user ? [`
                 <div class="content is-size-7 has-text-left">
                   <br />
-                  <p><strong>United.vote</strong> lets you vote on any bill before Congress, but most of us won't have time to do that.</p>
+                  <p><strong>United.vote</strong> lets you vote on any legislative bill, but most of us won't have time to do that.</p>
                   <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
                </div>
              `] : []}
@@ -103,7 +103,7 @@ class EmptyProfileExplainer extends Component {
     return this.html`
       <div class="content">
         <h3><strong>United.vote</strong> lets you pick anyone to represent you.</h3>
-        <p>You can vote on any bill before Congress, but most of us won't have time to do that.</p>
+        <p>You can vote on any legislative bill, but most of us won't have time to do that.</p>
         <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
         ${[!selected_profile.username ? `
           <p>They haven't joined United yet, and will be sent <a href="https://twitter.com/united_notifs" target="_blank"><strong>a tweet</strong></a> for each new request.<br />

@@ -22,7 +22,7 @@ module.exports = class ChooseFirstProxyPage extends Component {
         <div class="container">
           <div class="content">
             <h2 class="subtitle">Who do you trust to represent your vote?</h2>
-            <p>None of us can cast an informed vote on every bill before Congress.</p>
+            <p>None of us can cast an informed vote on every bill.</p>
             <p>Choosing proxies ensures your voice is heard on all legislation and lets you focus on areas that you care about.</p>
             <p class="is-size-7">You can adjust your proxies at any time.</p>
           </div>

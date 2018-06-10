@@ -71,6 +71,8 @@ module.exports = class JoinForm extends Component {
         <div class="columns is-centered center-on-small-widths">
           <div class="column" style="max-width: 500px;">
             <form class="box has-text-centered" method="POST" onsubmit=${this} action=${this}>
+              <input name="phone_user_id" type="hidden" value="${this.location.query.sms || ''}" />
+
               <div class="field">
                 <label for="email">Enter your email to get started:</label>
               </div>

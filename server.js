@@ -9,6 +9,7 @@ const serveStatic = require('serve-static')
 
 const errorHandler = require('./middleware/error_handler')
 const geoip = require('./middleware/geoip')
+const eztextingWebhook = require('./middleware/eztexting_webhook')
 const redirects = require('./middleware/redirects')
 const twitterUsernameSearch = require('./middleware/twitter_username_search')
 const Component = require('./components/Component.js')
@@ -41,6 +42,7 @@ server
   .use('/assets', serveStatic(path.join(__dirname, 'public'))) // TODO serve using CDN in production
   .get('/rpc/healthcheck', (req, res) => res.status(200).end())
   .get('/rpc/geoip', geoip)
+  .get('/rpc/eztexting_webhook', eztextingWebhook)
   .post('/rpc/twitter_username_search', bodyParser.json(), twitterUsernameSearch)
   .use(hyperloop.server(require.resolve('./components/App.js'), {
     htmlHead,
@@ -91,7 +93,7 @@ function htmlHead(state) {
     </style>
     <meta property="og:title" content="${title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
     <meta property="og:description" content="${description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
-    <meta property="og:image" content="${profile_image_url || 'https://blog.united.vote/assets/icon-reduced-300.png'}" />
+    <meta property="og:image" content="${profile_image_url || 'https://blog.united.vote/assets/twitter_large.png'}" />
     <meta property="og:type" content="website" />
     ${responsiveTableStyle}
     ${roundAvatarStyle}

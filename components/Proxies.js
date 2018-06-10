@@ -17,17 +17,32 @@ module.exports = class ProxiesPage extends Component {
 }
 
 class AnonProxies extends Component {
+  oninit() {
+    this.setBrowserTitle()
+  }
+  onpagechange() {
+    this.setBrowserTitle()
+  }
+  setBrowserTitle() {
+    if (this.isBrowser) {
+      const page_title = `Pick your Proxies ★ United`
+      window.document.title = page_title
+      window.history.replaceState(window.history.state, page_title, document.location)
+    }
+  }
+
   render() {
     return this.html`
       <div class="columns is-variable is-6">
         <div class="column">
-          <h3 class="title">Who do you trust to represent you in Congress?</h3>
+          <h3 class="title">Who do you trust to represent you?</h3>
           <div class="content">
             <p>
-              United lets you pick <strong>anyone</strong> to represent you. For any bill that you don't vote on directly, your personal proxy gets an additional vote. You can change at anytime, and you can always override them and vote directly on bills.
-            </p>
-            <p>
-              This ensures that your values are still represented even when you don't have the time to look into all the issues. It's essential to building a democracy we can trust.
+              United lets you pick <strong>anyone</strong> to represent you.
+            </p><p>
+              For any bill that you don't vote on directly, your personal proxy gets your extra vote. You can always override or replace them.
+            </p><p>
+              This ensures your values are always represented, even when you don't have time to look into all the issues.
             </p>
           </div>
         </div>

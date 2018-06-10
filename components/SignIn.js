@@ -22,13 +22,14 @@ module.exports = class SignIn extends Component {
   onsubmit(event, formData) {
     event.preventDefault()
 
+    const phone_user_id = formData.phone_user_id || null
     const email = formData.email.toLowerCase().trim()
     const proxying_user_id = this.storage.get('proxying_user_id')
     const vote_position = this.storage.get('vote_position')
 
     return this.api(`/rpc/request_email_totp`, {
       method: 'POST',
-      body: JSON.stringify({ email, device_desc: 'TODO' }),
+      body: JSON.stringify({ email, phone_user_id, device_desc: this.location.userAgent || 'Unknown', signup_channel: 'united.vote' }),
     })
     .then(({ device_secret, jwt, refresh_token, user_id }) => {
       const oneYearFromNow = new Date(Date.now() + (365 * 24 * 60 * 60 * 1000))
