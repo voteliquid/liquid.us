@@ -1,6 +1,6 @@
 const Component = require('./Component')
 
-module.exports = class YourNewLegislationPage extends Component {
+module.exports = class YourProposedLegislationPage extends Component {
   oninit() {
     if (!this.state.user) {
       this.location.redirect('/sign_in')
@@ -12,8 +12,16 @@ module.exports = class YourNewLegislationPage extends Component {
   }
 
   fetchYourProposedLegislation() {
-    return this.api(`/new_legislation?author_id=eq.${this.state.user.id}`)
-    .then(yourLegislation => ({ yourLegislation }))
+    return new Promise((resolve) => {
+      const bill = {
+        id: 'testid',
+        title: 'The Liquid Democracy Act of 2018',
+        description: 'Liquid Democracy is the law!',
+        public: false,
+        created_at: '2018-04-01T10:33:03Z',
+      }
+      setTimeout(() => resolve({ yourLegislation: [bill] }), 1000)
+    })
   }
 
   render() {
@@ -22,7 +30,7 @@ module.exports = class YourNewLegislationPage extends Component {
     return this.html`
       <section class="section">
         <div class="container">
-          ${NewButton.for(this)}
+          ${ProposeButton.for(this)}
           <h2 class="title is-5">Your Proposed Legislation</h2>
           ${yourLegislation.map((p, idx) => ProposedLegislationItem.for(this, p, `proposed-${idx}`))}
         </div>
@@ -39,18 +47,17 @@ module.exports = class YourNewLegislationPage extends Component {
 class ProposedLegislationItem extends Component {
   render() {
     const s = this.props
-    const { user } = this.state
     return this.html`
       <div class="card highlight-hover">
         <div class="card-content">
           <div class="columns">
             <div class="column">
               ${!s.public ?
-                [`<a href="${`/${user.username}/${s.id}`}" class="button is-small is-danger is-outlined is-pulled-right">Unpublished</a>`]
+                [`<a href="${`/legislation/proposed/${s.id}`}" class="button is-small is-danger is-outlined is-pulled-right">Unpublished</a>`]
               : []}
-              <h3><a href="${`/${user.username}/${s.id}`}">${s.title}</a></h3>
+              <h3><a href="${`/legislation/proposed/${s.id}`}">${s.title}</a></h3>
               <div class="is-size-7 has-text-grey">
-                Created by <a href=${`/${user.username}`}>${user.first_name} ${user.last_name}</a> on ${(new Date(s.created_at)).toLocaleDateString()}
+                Created on ${(new Date(s.created_at)).toLocaleDateString()}
               </div>
               <br />
               <div>${s.description}</div>
@@ -62,12 +69,12 @@ class ProposedLegislationItem extends Component {
   }
 }
 
-class NewButton extends Component {
+class ProposeButton extends Component {
   render() {
     return this.html`
-      <a style="white-space: inherit; height: auto;" class='button is-primary is-pulled-right is-small is-outlined' href="/legislation/new">
+      <a style="white-space: inherit; height: auto;" class='button is-primary is-pulled-right is-small is-outlined' href="/legislation/propose">
         <span class="icon" style="align-self: flex-start;"><i class='fa fa-file-o'></i></span>
-        <span class="has-text-weight-semibold">New</span>
+        <span class="has-text-weight-semibold">Propose Another Bill</span>
       </a>
     `
   }

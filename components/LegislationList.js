@@ -61,7 +61,7 @@ module.exports = class LegislationList extends Component {
     return this.html`
       <div class="section">
         <div class="container">
-          ${NewButton.for(this)}
+          ${ProposeButton.for(this)}
           <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
             <ul>
               <li><a class="has-text-grey" href="/">Home</a></li>
@@ -150,7 +150,7 @@ class FilterTabs extends Component {
       <div class="tabs">
         <ul>
           <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('upcoming')}`}">Upcoming</a></li>
-          <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('new')}`}">New</a></li>
+          <li class="${query.order === 'proposed' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('proposed')}`}">Proposed</a></li>
           <li class="${query.order === 'active' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('active')}`}">Active</a></li>
         </ul>
       </div>
@@ -349,12 +349,12 @@ class VoteTally extends Component {
   }
 }
 
-class NewButton extends Component {
+class ProposeButton extends Component {
   render() {
     return this.html`
-      <a style="white-space: inherit; height: auto;" class='button is-primary is-pulled-right' href="/legislation/new">
+      <a style="white-space: inherit; height: auto;" class='button is-primary is-pulled-right' href="/legislation/propose">
         <span class="icon" style="align-self: flex-start;"><i class='fa fa-file'></i></span>
-        <span class="has-text-weight-semibold">New</span>
+        <span class="has-text-weight-semibold">Propose</span>
       </a>
     `
   }

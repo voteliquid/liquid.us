@@ -12,44 +12,37 @@ module.exports = class ProposedLegislationPage extends Component {
   }
 
   fetchLegislation() {
-    const { params } = this.props
-
-    return this.api(`/new_legislation?id=eq.${params.proposalId}`)
-    .then(([proposedLegislation]) => ({ proposedLegislation }))
+    return new Promise((resolve) => {
+      const proposedLegislation = {
+        id: 'testid',
+        title: 'The Liquid Democracy Act of 2018',
+        description: 'Liquid Democracy is the law!',
+        public: false,
+        created_at: '2018-04-01T10:33:03Z',
+      }
+      setTimeout(() => resolve({ proposedLegislation }), 1000)
+    })
   }
 
   render() {
     const { proposedLegislation = {}, user } = this.state
-
     const s = proposedLegislation
+    const author_fullname = user.last_name ? `${user.first_name} ${user.last_name}` : 'Anonymous'
+    const created_at = new Date(s.created_at).toLocaleDateString()
 
     return this.html`
       <section class="section">
         <div class="container">
-          <h2 class="title is-5">Your Proposed Legislation</h2>
-          <div class="card highlight-hover">
-            <div class="card-content">
-              <div class="columns">
-                <div class="column">
-                  ${!s.public ?
-                    [`<a href="${`/${user.username}/${s.id}`}" class="button is-small is-danger is-outlined is-pulled-right">Unpublished</a>`]
-                  : []}
-                  <h3><a href="${`/${user.username}/${s.id}`}">${s.title}</a></h3>
-                  <div class="is-size-7 has-text-grey">
-                    Created by <a href=${`/${user.username}`}>${user.first_name} ${user.last_name}</a> on ${(new Date(s.created_at)).toLocaleDateString()}
-                  </div>
-                  <br />
-                  <div>${s.description}</div>
-                </div>
-              </div>
+          <div class="content">
+            <h2 class="title is-5">${s.title}</h2>
+            <div class="is-size-7 has-text-grey">
+              ${[user.username
+                ? `Created by <a href=${`/${user.username}`}>${author_fullname}</a> on ${created_at}`
+                : `Created by Anonymous on ${created_at}`]}
             </div>
+            <p>${s.description}</p>
           </div>
         </div>
-        <style>
-          .highlight-hover:hover {
-            background: #f6f8fa;
-          }
-        </style>
       </section>
     `
   }
