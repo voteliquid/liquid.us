@@ -61,13 +61,13 @@ module.exports = class LegislationList extends Component {
     return this.html`
       <div class="section">
         <div class="container">
-          ${ProposeButton.for(this)}
-          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
+          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs" style="margin-bottom: 1rem;">
             <ul>
               <li><a class="has-text-grey" href="/">Home</a></li>
               <li class="is-active"><a class="has-text-grey" href="/legislation" aria-current="page">Legislation</a></li>
             </ul>
           </nav>
+          <div class="has-text-right has-text-left-mobile">${ProposeButton.for(this)}</div>
           ${FilterTabs.for(this)}
           ${FilterForm.for(this, { legislatures })}
           ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(bill => LegislationListRow.for(this, { bill, legislatures }, `billitem-${bill.id}`))}
@@ -352,8 +352,8 @@ class VoteTally extends Component {
 class ProposeButton extends Component {
   render() {
     return this.html`
-      <a style="white-space: inherit; height: auto;" class='button is-primary is-pulled-right' href="/legislation/propose">
-        <span class="icon" style="align-self: flex-start;"><i class='fa fa-file'></i></span>
+      <a class="button is-primary" href="/legislation/propose">
+        <span class="icon"><i class="fa fa-file"></i></span>
         <span class="has-text-weight-semibold">Propose</span>
       </a>
     `
