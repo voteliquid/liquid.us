@@ -28,7 +28,7 @@ module.exports = class LegislationVotePage extends Component {
       .then(bills => {
         const bill = bills[0]
         if (bill) {
-          const page_title = `Vote on ${bill.display_title}`
+          const page_title = `Vote on ${bill.short_title}`
           if (user) {
             return this.api(`/votes?user_id=eq.${user.id}&delegate_rank=eq.-1&order=updated_at.desc`).then(votes => {
               const last_vote_public = votes[0] && votes[0].public
