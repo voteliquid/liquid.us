@@ -1,3 +1,7 @@
+const engineStrict = require('engine-strict')
+
+engineStrict.check()
+
 const { APP_NAME, ASSETS_URL, PORT, WWW_PORT } = process.env
 const bodyParser = require('body-parser')
 const compression = require('compression')
