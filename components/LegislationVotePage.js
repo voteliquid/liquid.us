@@ -13,7 +13,7 @@ module.exports = class LegislationVotePage extends Component {
   setBrowserTitle() {
     const { config, selected_bill } = this.state
     if (this.isBrowser) {
-      const page_title = `Vote on ${selected_bill.short_title} ★ ${config.APP_NAME}`
+      const page_title = `Vote on ${selected_bill.title} ★ ${config.APP_NAME}`
       window.document.title = page_title
       window.history.replaceState(window.history.state, page_title, document.location)
     }
@@ -28,7 +28,7 @@ module.exports = class LegislationVotePage extends Component {
       .then(bills => {
         const bill = bills[0]
         if (bill) {
-          const page_title = `Vote on ${bill.display_title}`
+          const page_title = `Vote on ${bill.title}`
           if (user) {
             return this.api(`/votes?user_id=eq.${user.id}&delegate_rank=eq.-1&order=updated_at.desc`).then(votes => {
               const last_vote_public = votes[0] && votes[0].public
@@ -144,7 +144,7 @@ class LegislationVoteContent extends Component {
             </div>
           `] : ''}
           <div class="content">
-            <h2>Vote on ${l.type} ${l.number} &mdash; ${l.short_title}</h2>
+            <h2>Vote on ${l.type} ${l.number} &mdash; ${l.title}</h2>
             ${l.vote_power > 1 ? [`<div class="notification"><span class="icon"><i class="fa fa-users"></i></span>You are casting a vote for <strong>${l.vote_power}</strong> people as their proxy. Consider including an explanation of your position.</div>`] : ''}
             <form method="POST" onsubmit=${this} action=${this}>
               ${error ? [`<div class="notification is-danger">${error}</div>`] : ''}
