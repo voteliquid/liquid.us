@@ -8,9 +8,10 @@ module.exports = class Comment extends Component {
     const avatarURL = this.avatarURL(this.props)
     const comment_url = `/legislation/${short_id}/votes/${id}`
     const share_url = `${config.WWW_URL}/legislation/${short_id}/votes/${id}`
-    const email_share_body = `${user && user.id === user_id ? `I'm` : `${fullname} is`} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number} ${short_title}. See why: ${share_url}`
-    const email_share_subject = `${user && user.id === user_id ? `I'm` : `${fullname} is`} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number} ${short_title}.`
-    const twitter_share_text = `${user && user.id === user_id ? `I'm` : `${fullname} is`} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number}. See why: ${share_url}`
+    const subject = fullname ? `${fullname} is` : 'People are'
+    const email_share_body = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number} ${short_title}. See why: ${share_url}`
+    const email_share_subject = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number} ${short_title}.`
+    const twitter_share_text = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number}. See why: ${share_url}`
 
     return this.html`
       <div class="box" style="margin-bottom: 1.5rem;">
