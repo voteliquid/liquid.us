@@ -87,7 +87,7 @@ class BillFoundPage extends Component {
   render() {
     const { legislation_query, selected_bill: l, user } = this.state
     const bill_details_url = l.legislature_name === 'U.S. Congress'
-      ? `https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber.toLowerCase()}-bill/${l.number}`
+      ? `https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber === 'Lower' ? 'house' : 'senate'}-bill/${l.number}`
       : `https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=${l.congress}0${l.type}${l.number}`
     const bill_details_name = l.legislature_name === 'U.S. Congress' ? 'congress.gov' : 'leginfo.legislature.ca.gov'
     const own_comment = user && l.yea_comments.concat(l.nay_comments).reduce((b, a) => {
@@ -190,7 +190,7 @@ class BillSummary extends Component {
       </style>
       <div class=${`${expanded || !summary ? '' : 'summary'}`}>
         <div class="content">
-          ${[summary ? summary.replace(/\n/g, '<br />') : `<p>A summary is in progress.</p><p><a href="https://www.congress.gov/bill/${congress}th-congress/${chamber.toLowerCase()}-bill/${number}/text" target="_blank">Read full text of the bill at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
+          ${[summary ? summary.replace(/\n/g, '<br />') : `<p>A summary is in progress.</p><p><a href="https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text" target="_blank">Read full text of the bill at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
         </div>
         <div class="read-more"></div>
         <a class="read-more-link is-size-7" href="#" onclick=${this}>
