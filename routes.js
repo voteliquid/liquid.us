@@ -5,7 +5,6 @@ module.exports = {
   '/legislation': route('Legislation for U.S. Congress', () => import('./components/LegislationList')),
   '/legislation/propose': route('Propose New Legislation', () => import('./components/ProposeLegislationPage')),
   '/legislation/proposed/yours': route('Your Proposed Legislation', () => import('./components/YourProposedLegislationPage')),
-  '/legislation/proposed/:id': route('Proposed Legislation', () => import('./components/ProposedLegislationPage')),
   '/legislation/:short_id': route('Legislation', () => import('./components/LegislationPage')),
   '/legislation/:short_id/vote': route('Vote', () => import('./components/LegislationVotePage')),
   '/legislation/:short_id/votes/:comment_id': route('Bill Comment', () => import('./components/CommentPage')),

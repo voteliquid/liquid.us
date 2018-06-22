@@ -11,17 +11,15 @@ module.exports = class YourProposedLegislationPage extends Component {
     }
   }
 
+  onpagechange(oldProps) {
+    if (this.props.url !== oldProps.url) {
+      return this.fetchYourProposedLegislation()
+    }
+  }
+
   fetchYourProposedLegislation() {
-    return new Promise((resolve) => {
-      const bill = {
-        id: 'testid',
-        title: 'The Liquid Democracy Act of 2018',
-        description: 'Liquid Democracy is the law!',
-        public: false,
-        created_at: '2018-04-01T10:33:03Z',
-      }
-      setTimeout(() => resolve({ yourLegislation: [bill] }), 1000)
-    })
+    return this.api(`/legislation?author_id=eq.${this.state.user.id}`)
+      .then(yourLegislation => this.setState({ yourLegislation }))
   }
 
   render() {
@@ -53,9 +51,9 @@ class ProposedLegislationItem extends Component {
           <div class="columns">
             <div class="column">
               ${!s.public ?
-                [`<a href="${`/legislation/proposed/${s.id}`}" class="button is-small is-danger is-outlined is-pulled-right">Unpublished</a>`]
+                [`<a href="${`/legislation/${s.short_id}`}" class="button is-small is-danger is-outlined is-pulled-right">Unpublished</a>`]
               : []}
-              <h3><a href="${`/legislation/proposed/${s.id}`}">${s.title}</a></h3>
+              <h3><a href="${`/legislation/${s.short_id}`}">${s.title}</a></h3>
               <div class="is-size-7 has-text-grey">
                 Created on ${(new Date(s.created_at)).toLocaleDateString()}
               </div>

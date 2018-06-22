@@ -129,7 +129,7 @@ class LegislationVoteContent extends Component {
           <ul>
             <li><a class="has-text-grey" href="/">Home</a></li>
             <li><a class="has-text-grey" href="${legislation_query || '/legislation'}">Legislation</a></li>
-            <li><a class="has-text-grey" href="${`/legislation/${l.short_id}`}">${l.type} ${l.number}</a></li>
+            <li><a class="has-text-grey" href="${`/legislation/${l.short_id}`}">${l.introduced_at ? `${l.type} ${l.number}` : 'Bill Details'}</a></li>
             <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Vote</a></li>
           </ul>
         </nav>
@@ -144,7 +144,7 @@ class LegislationVoteContent extends Component {
             </div>
           `] : ''}
           <div class="content">
-            <h2>Vote on ${l.type} ${l.number} &mdash; ${l.title}</h2>
+            <h2>Vote on ${l.introduced_at ? `${l.type} ${l.number} &mdash; ${l.title}` : l.title}</h2>
             ${l.vote_power > 1 ? [`<div class="notification"><span class="icon"><i class="fa fa-users"></i></span>You are casting a vote for <strong>${l.vote_power}</strong> people as their proxy. Consider including an explanation of your position.</div>`] : ''}
             <form method="POST" onsubmit=${this} action=${this}>
               ${error ? [`<div class="notification is-danger">${error}</div>`] : ''}

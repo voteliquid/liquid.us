@@ -43,10 +43,10 @@ module.exports = class LegislationList extends Component {
       'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
       'introduced_at', 'last_action_at', 'yeas',
       'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at',
-      'summary', 'legislature_name'
+      'summary', 'legislature_name', 'published'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays', 'constituent_abstains')
-    const api_url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&order=${order}&limit=40`
+    const api_url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&introduced_at=not.is.null&published=is.true&order=${order}&limit=40`
 
     return this.api(api_url)
       .then(legislation => ({ legislation_query: url, legislation, loading_legislation: false }))
@@ -150,7 +150,7 @@ class FilterTabs extends Component {
       <div class="tabs">
         <ul>
           <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('upcoming')}`}">Upcoming</a></li>
-          <li class="${query.order === 'proposed' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('proposed')}`}">Proposed</a></li>
+          <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('new')}`}">New</a></li>
           <li class="${query.order === 'active' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('active')}`}">Active</a></li>
         </ul>
       </div>
@@ -354,7 +354,7 @@ class ProposeButton extends Component {
     return this.html`
       <a class="button is-primary" href="/legislation/propose">
         <span class="icon"><i class="fa fa-file"></i></span>
-        <span class="has-text-weight-semibold">Propose</span>
+        <span class="has-text-weight-semibold">Propose Legislation</span>
       </a>
     `
   }
