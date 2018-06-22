@@ -39,9 +39,9 @@ module.exports = class LegislationList extends Component {
     const legislature = `&legislature_name=eq.${query.legislature || 'U.S. Congress'}`
 
     const fields = [
-      'short_title', 'number', 'type', 'short_id', 'id', 'status',
+      'title', 'number', 'type', 'short_id', 'id', 'status',
       'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
-      'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas',
+      'introduced_at', 'last_action_at', 'yeas',
       'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at',
       'summary', 'legislature_name'
     ]
@@ -250,7 +250,7 @@ class LegislationListRow extends Component {
         <div class="card-content">
           <div class="columns">
             <div class="column">
-              <h3><a href="${`/legislation/${s.short_id}`}">${s.short_title}</a></h3>
+              <h3><a href="${`/legislation/${s.short_id}`}">${s.title}</a></h3>
               <div class="is-size-7 has-text-grey">
                 ${legislatures.length > 1 ? [`
                   <strong class="has-text-grey">${s.legislature_name}</strong>

@@ -3,14 +3,15 @@ const timeAgo = require('timeago.js')
 
 module.exports = class Comment extends Component {
   render() {
-    const { comment, updated_at, endorsements, fullname, id, number, proxy_vote_count, position, show_bill, short_id, short_title, type, username, user_id } = this.props
+    const { comment, updated_at, endorsements, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id } = this.props
     const { config, selected_profile, user } = this.state
     const avatarURL = this.avatarURL(this.props)
     const comment_url = `/legislation/${short_id}/votes/${id}`
     const share_url = `${config.WWW_URL}/legislation/${short_id}/votes/${id}`
-    const email_share_body = `${user && user.id === user_id ? `I'm` : `${fullname} is`} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number} ${short_title}. See why: ${share_url}`
-    const email_share_subject = `${user && user.id === user_id ? `I'm` : `${fullname} is`} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number} ${short_title}.`
-    const twitter_share_text = `${user && user.id === user_id ? `I'm` : `${fullname} is`} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number}. See why: ${share_url}`
+    const subject = fullname ? `${fullname} is` : 'People are'
+    const email_share_body = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number} ${title}. See why: ${share_url}`
+    const email_share_subject = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number} ${title}.`
+    const twitter_share_text = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number}. See why: ${share_url}`
 
     return this.html`
       <div class="box" style="margin-bottom: 1.5rem;">
@@ -21,7 +22,7 @@ module.exports = class Comment extends Component {
                   <span>
                     ${selected_profile.first_name} voted <strong>${position}</strong>${proxy_vote_count ? ` on behalf of ${proxy_vote_count} ${proxy_vote_count === 1 ? 'person' : 'people'}` : ''}
                     <br />
-                    <a href="${`/legislation/${short_id}`}"><strong>${type.toUpperCase()} ${number}</strong>. ${short_title}</a>
+                    <a href="${`/legislation/${short_id}`}"><strong>${type.toUpperCase()} ${number}</strong>. ${title}</a>
                   </span>
                 `]
               : [`

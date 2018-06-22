@@ -1,10 +1,29 @@
+const fs = require('fs')
+const path = require('path')
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'))
+const checkEngineVersion = require('check-node-version')
+
+checkEngineVersion({
+  node: packageJson.engines.node,
+  npm: packageJson.engines.npm,
+}, (error, result) => {
+  if (error) throw error
+
+  if (!result.versions.node.isSatisfied) {
+    throw new Error(`Invalid node version. Found: ${result.versions.node.version} / Wanted: ${result.versions.npm.wanted}`)
+  }
+
+  if (!result.versions.npm.isSatisfied) {
+    throw new Error(`Invalid npm version. Found: ${result.versions.npm.version} / Wanted: ${result.versions.npm.wanted}`)
+  }
+})
+
 const { APP_NAME, ASSETS_URL, PORT, WWW_PORT } = process.env
 const bodyParser = require('body-parser')
 const compression = require('compression')
 const cors = require('cors')
 const express = require('express')
 const hyperloop = require('hyperloop')
-const path = require('path')
 const serveStatic = require('serve-static')
 
 const errorHandler = require('./middleware/error_handler')
