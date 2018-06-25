@@ -63,7 +63,7 @@ module.exports = class LegislationList extends Component {
         <div class="container">
           <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs" style="margin-bottom: 1rem;">
             <ul>
-              <li><a class="has-text-grey" href="/">Home</a></li>
+              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
               <li class="is-active"><a class="has-text-grey" href="/legislation" aria-current="page">Legislation</a></li>
             </ul>
           </nav>
@@ -202,7 +202,7 @@ class FilterForm extends Component {
             <input class="input" type="text" name="terms" placeholder="Examples: hr3440, health care, dream act" value="${terms}" />
           </div>
           <div class="control">
-            <button class="filter-submit button is-primary" disabled=${!!loading_legislation} type="submit">
+            <button class="filter-submit button" disabled=${!!loading_legislation} type="submit">
               <span class="icon"><i class="fa fa-search"></i></span>
               <span>Search</span>
             </button>

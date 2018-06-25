@@ -21,15 +21,17 @@ module.exports = class BillTitle extends Component {
     const bill_id = l.introduced_at ? `${l.type} ${l.number}` : l.title
 
     return this.html`
-      <h4 class="has-text-grey is-paddingless is-margin-less">${l.legislature_name}</h4>
-      <h2 class="title has-text-weight-normal is-size-4" style="margin-bottom: .5rem;">${[l.introduced_at ? `${bill_id} &mdash; ${l.title}` : l.title]}</h2>
+      <h2 class="title has-text-weight-normal is-4 is-marginless">${[l.introduced_at ? `${bill_id} &mdash; ${l.title}` : l.title]}</h2>
       ${l.legislature_name === 'U.S. Congress' && l.introduced_at ? StatusTracker.for(this) : ''}
       <p class="is-size-7 has-text-grey">
+        ${l.introduced_at ? l.legislature_name : `Proposed for ${l.legislature_name}`} &bullet;
         ${[l.sponsor_username
           ? `Introduced by <a href=${`/${l.sponsor_username}`}>${l.sponsor_first_name} ${l.sponsor_last_name}</a> on ${(new Date(l.introduced_at)).toLocaleDateString()} &bullet; Last action on ${new Date(l.last_action_at).toLocaleDateString()}`
           : l.introduced_at
             ? `Introduced on ${(new Date(l.introduced_at)).toLocaleDateString()} &bullet; last action on ${new Date(l.last_action_at).toLocaleDateString()}`
-            : `Proposed on ${(new Date(l.created_at)).toLocaleDateString()}`
+            : l.author_username
+              ? `Authored by <a href="/${l.author_username}">${l.author_first_name} ${l.author_last_name}</a> on ${(new Date(l.created_at)).toLocaleDateString()}`
+              : `Authored anonymously on ${(new Date(l.created_at)).toLocaleDateString()}`
         ]}
         ${bill_details_url ? [`&bullet; <a href=${bill_details_url} target="_blank">Bill details at ${bill_details_name} <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`] : ''}
       </p>

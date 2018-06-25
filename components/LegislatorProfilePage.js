@@ -53,7 +53,7 @@ module.exports = class LegislatorProfilePage extends Component {
     })
   }
   render() {
-    const { proxied_name, selected_profile, user, reps } = this.state
+    const { config, proxied_name, selected_profile, user, reps } = this.state
     const { proxied } = selected_profile
     const isMyRep = reps && reps.some(rep => rep.username === selected_profile.username)
 
@@ -62,7 +62,7 @@ module.exports = class LegislatorProfilePage extends Component {
         <div class="container">
           <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
             <ul>
-              <li><a class="has-text-grey" href="/">Home</a></li>
+              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
               <li><a class="has-text-grey" href="/legislators">Congress Members</a></li>
               <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${selected_profile.first_name} ${selected_profile.last_name}</a></li>
             </ul>

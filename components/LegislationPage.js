@@ -86,7 +86,7 @@ class BillNotFoundPage extends Component {
 
 class BillFoundPage extends Component {
   render() {
-    const { legislation_query, selected_bill: l, user } = this.state
+    const { config, legislation_query, selected_bill: l, user } = this.state
 
     const own_comment = user && l.yea_comments.concat(l.nay_comments).reduce((b, a) => {
       if (a.user_id === user.id) return a
@@ -100,11 +100,17 @@ class BillFoundPage extends Component {
         <div class="container">
           <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
             <ul>
-              <li><a class="has-text-grey" href="/">Home</a></li>
+              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
               <li><a class="has-text-grey" href="${legislation_query || '/legislation'}">Legislation</a></li>
               <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${bill_id}</a></li>
             </ul>
           </nav>
+          ${(user && l.author_id === user.id && !l.published) ? [`
+            <div class="notification">
+              <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
+              Your proposed legislation is unpublished. You can <a href="/legislation/${l.short_id}/edit">edit</a> it before publishing. To publish and make it public, go to the <a href="/legislation/${l.short_id}/edit">edit page</a>.
+            </div>
+          `] : ''}
           ${(l.vote_position && !user.cc_verified) ? [`
             <div class="notification is-info">
               <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
@@ -112,6 +118,16 @@ class BillFoundPage extends Component {
               Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
             </div>
           `] : ''}
+          ${user && l.author_id === user.id && !l.published
+            ? [`
+                <div class="is-pulled-right">
+                  <a href="${`/legislation/${l.short_id}/edit`}" class="button is-small">
+                    <span class="icon is-small"><i class="fa fa-pencil"></i></span><span>Edit</span>
+                  </a>
+                  <a href="${`/legislation/${l.short_id}/edit`}" class="button is-small is-danger is-outlined">Unpublished</a>
+                </div>
+              `]
+            : ''}
           ${BillTitle.for(this)}
           <hr />
           <div class="content">

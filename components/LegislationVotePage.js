@@ -120,14 +120,14 @@ class LegislationVoteContent extends Component {
     return { selected_bill }
   }
   render() {
-    const { error, last_vote_public, legislation_query, saving_vote, selected_bill: l, user } = this.state
+    const { config, error, last_vote_public, legislation_query, saving_vote, selected_bill: l, user } = this.state
     const v = l.my_vote ? l.my_vote : {}
     const public_checked = v.hasOwnProperty('public') ? v.public : last_vote_public
     return this.html`
       <div class="container">
         <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
           <ul>
-            <li><a class="has-text-grey" href="/">Home</a></li>
+            <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
             <li><a class="has-text-grey" href="${legislation_query || '/legislation'}">Legislation</a></li>
             <li><a class="has-text-grey" href="${`/legislation/${l.short_id}`}">${l.introduced_at ? `${l.type} ${l.number}` : 'Bill Details'}</a></li>
             <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Vote</a></li>
@@ -143,8 +143,7 @@ class LegislationVoteContent extends Component {
             Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
             </div>
           `] : ''}
-          <div class="content">
-            <h2>Vote on ${l.introduced_at ? `${l.type} ${l.number} &mdash; ${l.title}` : l.title}</h2>
+            <h2 class="title is-4 has-text-weight-normal">Vote on ${[l.introduced_at ? `${l.type} ${l.number} &mdash; ${l.title}` : l.title]}</h2>
             ${l.vote_power > 1 ? [`<div class="notification"><span class="icon"><i class="fa fa-users"></i></span>You are casting a vote for <strong>${l.vote_power}</strong> people as their proxy. Consider including an explanation of your position.</div>`] : ''}
             <form method="POST" onsubmit=${this} action=${this}>
               ${error ? [`<div class="notification is-danger">${error}</div>`] : ''}
@@ -213,8 +212,6 @@ class LegislationVoteContent extends Component {
                 </div>
               </div>
             </form>
-            <br />
-          </div>
         </div>
       </section>
     `
