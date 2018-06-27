@@ -78,10 +78,9 @@ module.exports = class Component extends hyperloop.Component {
       return res.json()
     })
   }
-  avatarURL({ gravatar_hash, picture_id, twitter_avatar, twitter_username }) {
-    const { IMAGES_URL } = this.state.config
+  avatarURL({ gravatar_hash, bioguide_id, twitter_avatar, twitter_username }) {
     if (twitter_avatar) return `https://avatars.io/twitter/${twitter_username}`
-    if (picture_id) return `${IMAGES_URL}/${picture_id}`
+    if (bioguide_id) return `https://theunitedstates.io/images/congress/225x275/${bioguide_id}.jpg`
     return `https://www.gravatar.com/avatar/${gravatar_hash}?d=mm&s=200`
   }
   linkifyUrls(text) {
