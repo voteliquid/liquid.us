@@ -1,7 +1,9 @@
 const BillTitle = require('./BillTitle')
 const Component = require('./Component')
 const Comment = require('./Comment')
+const EditButtons = require('./EditLegislationButtons')
 const LoadingIndicator = require('./LoadingIndicator')
+const ShareLegislationButtons = require('./ShareLegislationButtons')
 
 module.exports = class LegislationPage extends Component {
   oninit() {
@@ -108,7 +110,7 @@ class BillFoundPage extends Component {
           ${(user && l.author_id === user.id && !l.published) ? [`
             <div class="notification">
               <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
-              Your proposed legislation is unpublished, so only you can see it. <a href="/legislation/${l.short_id}/edit">Edit</a> to make changes or publish.
+              Your proposed legislation is unpublished. Only you can see it. Go to <a href="/${user.username}/legislation">Your Proposed Legislation</a> to make changes or publish it.
             </div>
           `] : ''}
           ${(l.vote_position && !user.cc_verified) ? [`
@@ -118,17 +120,14 @@ class BillFoundPage extends Component {
               Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
             </div>
           `] : ''}
-          ${user && l.author_id === user.id && !l.published
-            ? [`
-                <div class="is-pulled-right">
-                  <a href="${`/legislation/${l.short_id}/edit`}" class="button is-small">
-                    <span class="icon is-small"><i class="fa fa-pencil"></i></span><span>Edit</span>
-                  </a>
-                  <a href="${`/legislation/${l.short_id}/edit`}" class="button is-small is-danger is-outlined">Unpublished</a>
-                </div>
-              `]
-            : ''}
-          ${BillTitle.for(this)}
+          <div class="columns">
+            <div class="column is-two-thirds">
+              ${BillTitle.for(this)}
+            </div>
+            <div class="column is-one-third is-right">
+              ${user && l.author_id === user.id && !l.published ? EditButtons.for(this, l) : ShareLegislationButtons.for(this, l)}
+            </div>
+          </div>
           <hr />
           <div class="content">
             <div class="columns">

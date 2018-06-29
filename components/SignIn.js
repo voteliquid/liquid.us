@@ -118,6 +118,11 @@ module.exports = class SignIn extends Component {
     return this.html`
       <section class="section">
         <div class="container has-text-centered">
+          ${this.location.query.notification === 'propose-legislation' ? [`
+            <div class="notification has-text-centered is-info">
+              You must sign in before proposing legislation.
+            </div>
+          `] : []}
           ${proxying_user_id && req_proxy_profile ? [`
             <div class="notification has-text-centered is-info">
               Sign in to proxy to ${req_proxy_profile.first_name} ${req_proxy_profile.last_name}.

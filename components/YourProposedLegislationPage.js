@@ -1,31 +1,22 @@
 const Component = require('./Component')
 const LoadingIndicator = require('./LoadingIndicator')
+const EditButtons = require('./EditLegislationButtons')
 
 module.exports = class YourProposedLegislationPage extends Component {
   oninit() {
-    if (!this.state.user) {
-      this.location.redirect('/sign_in')
-    }
-
-    if (!this.state.yourLegislation) {
-      return this.fetchYourProposedLegislation()
-    }
+    if (!this.state.user) return this.location.redirect('/sign_in')
+    return this.fetchYourProposedLegislation()
   }
-
   onpagechange(oldProps) {
-    if (this.props.url !== oldProps.url) {
-      return this.fetchYourProposedLegislation()
-    }
+    if (this.props.url !== oldProps.url) this.oninit()
   }
-
   fetchYourProposedLegislation() {
     this.setState({ loading: true })
-    return this.api(`/legislation_detail?author_id=eq.${this.state.user.id}`)
+    return this.api(`/legislation_detail?author_id=eq.${this.state.user.id}&order=created_at.desc`)
       .then(yourLegislation => this.setState({ loading: false, yourLegislation }))
   }
-
   render() {
-    const { config, loading, yourLegislation = [] } = this.state
+    const { config, loading, yourLegislation = [], user } = this.state
 
     return this.html`
       <section class="section">
@@ -33,8 +24,8 @@ module.exports = class YourProposedLegislationPage extends Component {
           <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
             <ul>
               <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-              <li><a class="has-text-grey" href="/legislation">Legislation</a></li>
-              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Yours</a></li>
+              <li><a class="has-text-grey" href="${`/${user.username}`}">${user.first_name} ${user.last_name}</a></li>
+              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Proposed Legislation</a></li>
             </ul>
           </nav>
           ${ProposeButton.for(this)}
@@ -57,29 +48,22 @@ module.exports = class YourProposedLegislationPage extends Component {
 
 class ProposedLegislationItem extends Component {
   render() {
-    const s = this.props
+    const { user } = this.state
+    const l = this.props
     return this.html`
       <div class="card highlight-hover">
         <div class="card-content">
           <div class="columns">
             <div class="column">
-              <h3><a href="${`/legislation/${s.short_id}`}">${s.title}</a></h3>
+              <h3>${l.published ? '' : ['<span class="tag is-warning">Draft</span>&nbsp;']}<a href="${`/${user.username}/legislation/${l.short_id}`}">${l.title}</a></h3>
               <p class="is-size-7 has-text-grey">
-                Proposed for ${s.legislature_name} &bullet; ${s.author_username
-              ? [`Authored by <a href="/${s.author_username}">${s.author_first_name} ${s.author_last_name}</a> on ${(new Date(s.created_at)).toLocaleDateString()}`]
-              : `Authored anonymously on ${(new Date(s.created_at)).toLocaleDateString()}`}
+                Proposed for ${l.legislature_name} &bullet; ${l.author_username
+              ? [`Authored by <a href="/${l.author_username}">${l.author_first_name} ${l.author_last_name}</a> on ${(new Date(l.created_at)).toLocaleDateString()}`]
+              : `Authored anonymously on ${(new Date(l.created_at)).toLocaleDateString()}`}
               </p>
             </div>
             <div class="column has-text-right has-text-left-mobile">
-              ${[!s.published
-                ? `
-                  <a href="${`/legislation/${s.short_id}/edit`}" class="button is-small">
-                    <span class="icon is-small"><i class="fa fa-pencil"></i></span><span>Edit</span>
-                  </a>
-                  <a href="${`/legislation/${s.short_id}/edit`}" class="button is-small is-danger is-outlined">Unpublished</a>
-                `
-                : `<a href="${`/legislation/${s.short_id}`}" class="button is-small is-success is-outlined">Published</a>`
-              ]}
+              ${!l.published ? EditButtons.for(this, l) : ''}
             </div>
           </div>
         </div>

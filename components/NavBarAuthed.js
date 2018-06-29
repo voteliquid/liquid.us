@@ -24,7 +24,9 @@ module.exports = class NavBarAnon extends Component {
             ? `<a class=${`navbar-item ${current_path === '/edit_profile' ? 'is-active' : ''}`} href="/edit_profile">Edit Profile</a>`
             : '']}
           <a class=${`navbar-item ${current_path === '/proxies/requests' ? 'is-active' : ''}`} href="/proxies/requests">Proxy Requests</a>
-          <a class=${`navbar-item ${current_path === '/legislation/proposed/yours' ? 'is-active' : ''}`} href="/legislation/proposed/yours">Your Proposed Legislation</a>
+          ${[user.username
+            ? `<a class=${`navbar-item ${current_path === `/${user.username}/legislation` ? 'is-active' : ''}`} href="/${user.username}/legislation">Your Proposed Legislation</a>`
+            : ``]}
           <a class=${`navbar-item ${current_path === '/settings' ? 'is-active' : ''}`} href="/settings">Settings</a>
           <a class=${`navbar-item ${current_path === '/sign_out' ? 'is-active' : ''}`} href=${`${WWW_URL}/sign_out`}>Sign out</a>
         </div>
