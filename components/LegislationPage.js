@@ -4,17 +4,10 @@ const LoadingIndicator = require('./LoadingIndicator')
 
 module.exports = class LegislationPage extends Component {
   oninit() {
-    const { config, user } = this.state
+    const { config } = this.state
     const { params } = this.props
 
-    const fields = [
-      'short_title', 'number', 'type', 'short_id', 'id',
-      'sponsor_username', 'sponsor_first_name', 'sponsor_last_name', 'status',
-      'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays',
-      'abstains', 'summary', 'number', 'congress', 'chamber', 'legislature_name'
-    ]
-    if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays')
-    const url = `/legislation_detail?select=${fields.join(',')}&short_id=eq.${params.short_id}`
+    const url = `/legislation_detail?short_id=eq.${params.short_id}`
 
     this.setState({ loading_bill: true })
 
@@ -23,25 +16,21 @@ module.exports = class LegislationPage extends Component {
 
       if (selected_bill) {
         if (this.isBrowser) {
-          const page_title = `${selected_bill.short_title} ★ ${config.APP_NAME}`
+          const page_title = `${selected_bill.title} ★ ${config.APP_NAME}`
           window.document.title = page_title
           window.history.replaceState(window.history.state, page_title, document.location)
         }
 
-        return this.fetchActions(selected_bill).then(actions => {
-          selected_bill.actions = actions
-
-          return this.fetchComments(selected_bill).then(({ yea_comments, nay_comments }) => {
-            selected_bill.yea_comments = yea_comments
-            selected_bill.nay_comments = nay_comments
-            return {
-              loading_bill: false,
-              page_title: selected_bill.short_title,
-              page_description: `Vote directly on legislative bills. We'll notify your representatives and grade them for how well they listen to their constituents.`,
-              selected_bill: { ...bills[selected_bill.short_id], ...selected_bill },
-              bills: { ...bills, [selected_bill.short_id]: selected_bill },
-            }
-          })
+        return this.fetchComments(selected_bill).then(({ yea_comments, nay_comments }) => {
+          selected_bill.yea_comments = yea_comments
+          selected_bill.nay_comments = nay_comments
+          return {
+            loading_bill: false,
+            page_title: selected_bill.title,
+            page_description: `Vote directly on legislative bills. We'll notify your representatives and grade them for how well they listen to their constituents.`,
+            selected_bill: { ...bills[selected_bill.short_id], ...selected_bill },
+            bills: { ...bills, [selected_bill.short_id]: selected_bill },
+          }
         })
       }
 
@@ -52,9 +41,6 @@ module.exports = class LegislationPage extends Component {
       this.location.setStatus(404)
       return { error, loading_bill: false }
     })
-  }
-  fetchActions(selected_bill) {
-    return this.api(`/legislative_actions?legislation_id=eq.${selected_bill.id}&order=occurred_at.desc`)
   }
   fetchComments(selected_bill) {
     return this.api(`/public_votes?legislation_id=eq.${selected_bill.id}&comment=not.eq.&comment=not.is.null&order=endorsements.desc.nullslast`)
@@ -101,7 +87,7 @@ class BillFoundPage extends Component {
   render() {
     const { legislation_query, selected_bill: l, user } = this.state
     const bill_details_url = l.legislature_name === 'U.S. Congress'
-      ? `https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber.toLowerCase()}-bill/${l.number}`
+      ? `https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber === 'Lower' ? 'house' : 'senate'}-bill/${l.number}`
       : `https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=${l.congress}0${l.type}${l.number}`
     const bill_details_name = l.legislature_name === 'U.S. Congress' ? 'congress.gov' : 'leginfo.legislature.ca.gov'
     const own_comment = user && l.yea_comments.concat(l.nay_comments).reduce((b, a) => {
@@ -127,7 +113,7 @@ class BillFoundPage extends Component {
             </div>
           `] : ''}
           <h4 class="has-text-grey is-paddingless is-margin-less">${l.legislature_name}</h4>
-          <h2 class="title has-text-weight-normal is-size-4" style="margin-bottom: .5rem;">${l.type} ${l.number} &mdash; ${l.short_title}</h2>
+          <h2 class="title has-text-weight-normal is-size-4" style="margin-bottom: .5rem;">${l.type} ${l.number} &mdash; ${l.title}</h2>
           ${l.legislature_name === 'U.S. Congress' ? StatusTracker.for(this) : ''}
           <p class="is-size-7 has-text-grey">
             ${l.sponsor_username
@@ -204,7 +190,7 @@ class BillSummary extends Component {
       </style>
       <div class=${`${expanded || !summary ? '' : 'summary'}`}>
         <div class="content">
-          ${[summary ? summary.replace(/\n/g, '<br />') : `<p>A summary is in progress.</p><p><a href="https://www.congress.gov/bill/${congress}th-congress/${chamber.toLowerCase()}-bill/${number}/text" target="_blank">Read full text of the bill at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
+          ${[summary ? summary.replace(/\n/g, '<br />') : `<p>A summary is in progress.</p><p><a href="https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text" target="_blank">Read full text of the bill at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
         </div>
         <div class="read-more"></div>
         <a class="read-more-link is-size-7" href="#" onclick=${this}>
@@ -288,63 +274,19 @@ class CommentsColumn extends Component {
 
 class StatusTracker extends Component {
   render() {
-    const { selected_bill } = this.state
-    const filtered = [].concat(selected_bill.actions).reverse().sort((a, b) => {
-      const acode = Number(a.action_code)
-      const bcode = Number(b.action_code)
-      if (acode > bcode) return 1
-      if (acode < bcode) return -1
-      return 0
-    }).map(action => {
-      const code = Number(action.action_code)
-      if (code === 8000) return 'Passed House'
-      if (code === 17000) return 'Passed Senate'
-      if (code === 9000) return 'Failed House'
-      if (code === 18000) return 'Failed Senate'
-      if (code >= 19500 && code <= 24000) return 'Resolving Differences'
-      if (code === 28000 || code === 29000) return 'To President'
-      if (code >= 30000 && code <= 35000) return 'Veto Actions'
-      if (code === 36000 || code === 41000) return 'Enacted'
-      return null
-    })
-    .filter(action => !!action)
-    .reduce((b, a) => {
-      if (b[b.length - 1].step !== a) {
-        b.push({ selected: true, step: a })
-      }
-      return b
-    }, [{ selected: true, step: 'Introduced' }])
-    const chambers_passed = filtered.reduce((b, a) => {
-      if (a.step === 'Passed House') return { house: true, senate: b.senate }
-      if (a.step === 'Passed Senate') return { house: b.house, senate: true }
-      return b
-    }, { house: false, senate: false })
-    if (filtered[filtered.length - 1].step === 'Introduced') {
-      filtered.push({ step: selected_bill.origin_chamber === 'House' ? 'Passed Senate' : 'Passed House' })
-      filtered.push({ step: selected_bill.origin_chamber === 'House' ? 'Passed House' : 'Passed Senate' })
-      filtered.push({ step: 'Resolving Differences' })
-    } else if ((filtered[filtered.length - 1].step.slice(7) === 'House' || filtered[filtered.length - 1].step.slice(7) === 'Senate')) {
-      if (chambers_passed.house && chambers_passed.senate) {
-        filtered.push({ step: 'Resolving Differences' })
-      } else {
-        if (chambers_passed.house) {
-          filtered.push({ step: 'Pass Senate' })
-        } else if (chambers_passed.senate) {
-          filtered.push({ step: 'Pass House' })
-        } else if (selected_bill.origin_chamber === 'House') {
-          filtered.push({ step: 'Passed Senate' }, { step: 'Passed House' })
-        } else {
-          filtered.push({ step: 'Passed House' }, { step: 'Passed Senate' })
-        }
-        filtered.push({ step: 'Resolving Differences' })
-      }
+    const { selected_bill: l } = this.state
+    const steps = [{ step: 'Introduced', fulfilled: !!l.introduced_at }]
+
+    if (l.chamber === 'Upper') {
+      steps.push({ step: 'Passed Senate', fulfilled: !!l.passed_upper_at })
+      steps.push({ step: 'Passed House', fulfilled: !!l.passed_lower_at })
+    } else {
+      steps.push({ step: 'Passed House', fulfilled: !!l.passed_lower_at })
+      steps.push({ step: 'Passed Senate', fulfilled: !!l.passed_upper_at })
     }
-    if (filtered[filtered.length - 1].step === 'Resolving Differences') {
-      filtered.push({ step: 'To President' })
-    }
-    if (filtered[filtered.length - 1].step === 'To President') {
-      filtered.push({ step: 'Enacted' })
-    }
+
+    steps.push({ step: 'Enacted', fulfilled: !!l.enacted_at })
+
     return this.html`
       <style>
       .status_tracker {
@@ -418,7 +360,9 @@ class StatusTracker extends Component {
       }
       </style>
       <div class="is-size-7 status_tracker">
-        ${[filtered.map(a => `<div class="${`step ${a.selected ? 'fulfilled' : 'has-text-grey'}`}"><div class="step_label"><span class="icon"><i class="fa ${a.selected ? 'fa-check-circle-o' : 'fa-circle-o'}"></i></span>${a.step}</div></div>`).join('')]}
+        ${steps.map(({ fulfilled, step }) => `
+          <div class="${`step ${fulfilled ? 'fulfilled' : 'has-text-grey'}`}"><div class="step_label"><span class="icon"><i class="fa ${fulfilled ? 'fa-check-circle-o' : 'fa-circle-o'}"></i></span>${step}</div></div>
+        `)}
       </div>
     `
   }

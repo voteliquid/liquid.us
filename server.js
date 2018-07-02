@@ -1,10 +1,29 @@
+const fs = require('fs')
+const path = require('path')
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'))
+const checkEngineVersion = require('check-node-version')
+
+checkEngineVersion({
+  node: packageJson.engines.node,
+  npm: packageJson.engines.npm,
+}, (error, result) => {
+  if (error) throw error
+
+  if (!result.versions.node.isSatisfied) {
+    throw new Error(`Invalid node version. Found: ${result.versions.node.version} / Wanted: ${result.versions.npm.wanted}`)
+  }
+
+  if (!result.versions.npm.isSatisfied) {
+    throw new Error(`Invalid npm version. Found: ${result.versions.npm.version} / Wanted: ${result.versions.npm.wanted}`)
+  }
+})
+
 const { APP_NAME, ASSETS_URL, PORT, WWW_PORT } = process.env
 const bodyParser = require('body-parser')
 const compression = require('compression')
 const cors = require('cors')
 const express = require('express')
 const hyperloop = require('hyperloop')
-const path = require('path')
 const serveStatic = require('serve-static')
 
 const errorHandler = require('./middleware/error_handler')
@@ -22,9 +41,7 @@ const config = {
   API_URL: process.env.API_URL,
   APP_NAME: process.env.APP_NAME,
   ASSETS_URL: process.env.ASSETS_URL,
-  FEATURE_CA_LEGISLATION: !!process.env.FEATURE_CA_LEGISLATION,
   GOOGLE_GEOCODER_KEY: process.env.GOOGLE_GEOCODER_KEY,
-  IMAGES_URL: process.env.IMAGES_URL,
   NODE_ENV: process.env.NODE_ENV,
   STRIPE_API_PUBLIC_KEY: process.env.STRIPE_API_PUBLIC_KEY,
   WWW_URL: process.env.WWW_URL,

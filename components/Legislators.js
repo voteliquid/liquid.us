@@ -53,10 +53,10 @@ class LegislatorsPageContent extends Component {
       </div>
       <div class="columns">
         <div class="column">
-          ${CongressMembers.for(this, { legislators: legislators.filter(l => l.elected_office_chamber === 'House') }, `house-members-table`)}
+          ${CongressMembers.for(this, { legislators: legislators.filter(l => l.elected_office_chamber === 'Lower') }, `house-members-table`)}
         </div>
         <div class="column">
-          ${CongressMembers.for(this, { legislators: legislators.filter(l => l.elected_office_chamber === 'Senate') }, `senate-members-table`)}
+          ${CongressMembers.for(this, { legislators: legislators.filter(l => l.elected_office_chamber === 'Upper') }, `senate-members-table`)}
         </div>
       </div>
     `

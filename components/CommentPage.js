@@ -17,9 +17,9 @@ module.exports = class CommentPage extends Component {
     const { params } = this.props
 
     const fields = [
-      'short_title', 'number', 'type', 'short_id', 'id',
+      'title', 'number', 'type', 'short_id', 'id',
       'sponsor_username', 'sponsor_first_name', 'sponsor_last_name', 'status',
-      'sponsor_username_lower', 'introduced_at', 'last_action_at', 'yeas', 'nays',
+      'introduced_at', 'last_action_at', 'yeas', 'nays',
       'abstains', 'number', 'congress', 'chamber', 'legislature_name'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays')
@@ -34,7 +34,7 @@ module.exports = class CommentPage extends Component {
         return this.fetchComments(selected_bill).then(comment => {
           selected_bill.comment = comment
 
-          const page_title = `${this.possessive(comment.fullname || 'Anonymous')} vote on ${selected_bill.short_title}`
+          const page_title = `${this.possessive(comment.fullname || 'Anonymous')} vote on ${selected_bill.title}`
           if (this.isBrowser) {
             const page_title_with_appname = `${page_title} ★ ${config.APP_NAME}`
             window.document.title = page_title_with_appname
@@ -118,7 +118,7 @@ class BillFoundPage extends Component {
             </ul>
           </nav>
           <h4 class="has-text-grey is-paddingless is-margin-less">${l.legislature_name}</h4>
-          <h2 class="title has-text-weight-normal is-size-4" style="margin-bottom: .5rem;">${l.type} ${l.number} &mdash; ${l.short_title}</h2>
+          <h2 class="title has-text-weight-normal is-size-4" style="margin-bottom: .5rem;">${l.type} ${l.number} &mdash; ${l.title}</h2>
           <p class="is-size-7 has-text-grey">
             ${l.sponsor_username
               ? [`Introduced by <a href=${`/${l.sponsor_username}`}>${l.sponsor_first_name} ${l.sponsor_last_name}</a> on ${(new Date(l.introduced_at)).toLocaleDateString()} &bullet; Last action on ${new Date(l.last_action_at).toLocaleDateString()}`]

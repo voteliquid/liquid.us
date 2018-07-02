@@ -218,7 +218,7 @@ class LatestVotesTableRow extends Component {
         </td>
         <td>
           <a href=${`/legislation/${vote.legislation_short_id}`}>
-            ${vote.legislation_short_title}
+            ${vote.legislation_title}
           </a>
         </td>
         <td class="has-text-centered"><span class="responsive-label">${selected_profile.name} voted </span>${vote.legislator_position}</td>
