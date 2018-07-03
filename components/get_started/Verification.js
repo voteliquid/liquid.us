@@ -25,7 +25,7 @@ module.exports = class CreditCardVerificationPage extends Component {
           ${error ? [`
             <div class="notification is-warning">
               <p>${error.message}</p>
-              <p>Please contact support@united.vote for assistance.</p>
+              <p>Please contact support@united.vote if you need assistance.</p>
             </div>
           `] : ''}
           ${FormHandler.for(this)}
@@ -180,6 +180,19 @@ class StripeForm extends Component {
     .then(() => {
       this.checkChargeStatus()
     })
+    .catch((error) => this.handleError(error))
+  }
+
+  handleError(error) {
+    if (error.message === 'unique_violation') error.message = error.details
+    if (~error.message.indexOf('stripe_charges_card_unique')) {
+      error = new Error('This card has already been used to verify.')
+    }
+
+    this.setState({
+      loading_verification: false,
+      error,
+    })
   }
 
   checkChargeStatus() {
@@ -207,17 +220,7 @@ class StripeForm extends Component {
         this.location.redirect(303, '/get_started/profile')
       }
     })
-    .catch((error) => {
-      if (error.message === 'unique_violation') error.message = error.details
-      if (~error.message.indexOf('stripe_charges_card_unique')) {
-        error = new Error('This card has already been used to verify.')
-      }
-
-      this.setState({
-        loading_verification: false,
-        error,
-      })
-    })
+    .catch((error) => this.handleError(error))
   }
 
   render() {
