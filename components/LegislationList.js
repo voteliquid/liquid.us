@@ -53,7 +53,7 @@ module.exports = class LegislationList extends Component {
       .catch(error => ({ error, loading_legislation: false }))
   }
   render() {
-    const { loading_legislation, legislation, reps } = this.state
+    const { config, loading_legislation, legislation, reps } = this.state
     const legislatures = reps.some(({ office_short_name }) => office_short_name.slice(0, 2) === 'CA')
       ? ['U.S. Congress', 'California']
       : ['U.S. Congress']

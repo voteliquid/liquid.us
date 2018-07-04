@@ -21,6 +21,8 @@ class GetStartedBasicsPage extends Component {
   onsubmit(event, formData) {
     if (event) event.preventDefault()
 
+    this.setState({ loading: true })
+
     const { GOOGLE_GEOCODER_KEY } = this.state.config
     const { address, lat, lon, voter_status } = formData.address
 
@@ -49,11 +51,11 @@ class GetStartedBasicsPage extends Component {
               lon: location.lng,
             })
           }
-          return { error: { address: true, message: 'There was a problem processing your address. Please contact support@united.vote and let us know.' } }
+          return { loading: false, error: { address: true, message: 'There was a problem processing your address. Please contact support@united.vote and let us know.' } }
         })
         .catch(error => {
           console.log(error)
-          return { error: { address: true, message: 'There was a problem processing your address. Please contact support@united.vote and let us know.' } }
+          return { loading: false, error: { address: true, message: 'There was a problem processing your address. Please contact support@united.vote and let us know.' } }
         })
     }
 
@@ -128,13 +130,14 @@ class GetStartedBasicsPage extends Component {
     })
     .catch((api_error) => {
       return {
-        error: (~api_error.message.indexOf('constraint "email')) ? 'Invalid email address' : api_error.message,
+        error: (~api_error.message.indexOf('constraint "email')) ? 'Invalid email address' : (api_error.details || api_error.message),
+        loading: false,
       }
     })
   }
 
   render() {
-    const { error = {}, user } = this.state
+    const { error = {}, loading, user } = this.state
     const { location } = this
 
     return this.html`
@@ -143,6 +146,9 @@ class GetStartedBasicsPage extends Component {
           <div class="content" style="max-width: 650px;">
             ${location.query.notification === 'proxy_wo_name' ? [`
               <div class="notification is-info">You must set your first and last name before proxying.</div>
+            `] : []}
+            ${error && typeof error === 'string' ? [`
+              <div class="notification is-warning">${error}</div>
             `] : []}
             <h2 class="subtitle">Welcome.</h2>
             <h3 class="subtitle is-5">
@@ -189,7 +195,7 @@ class GetStartedBasicsPage extends Component {
               </div>
               <div class="field">
                 <div class="control">
-                  <button class="button is-primary" type="submit">Next</button>
+                  <button class="${`button is-primary ${loading ? 'is-loading' : ''}`}" disabled=${!!loading} type="submit">Next</button>
                 </div>
               </div>
               <p class="help is-small has-text-grey">All of your information is kept strictly private.</p>

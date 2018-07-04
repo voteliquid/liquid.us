@@ -30,6 +30,7 @@ module.exports = {
   '/change_address': route('Change Address', () => import('./components/ChangeAddress')),
   '/legislators': route('Legislators', () => import('./components/Legislators')),
   '/new_legislatures': route('New Legislatures', () => import('./components/NewLegislatures')),
+  '/advocacy': route('Advocacy', () => import('./components/Advocacy')),
   '/twitter/:username': route('Profile', () => import('./components/ProfilePage')),
   '/:username': route('Profile', () => import('./components/ProfilePage')),
 }

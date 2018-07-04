@@ -3,8 +3,8 @@ const Comment = require('./Comment')
 
 module.exports = class UserProfilePage extends Component {
   render() {
-    const { config, proxied_name, selected_profile, user } = this.state
-    const { public_votes } = selected_profile
+    const { config, proxied_name, selected_profile: p, user } = this.state
+    const { public_votes } = p
 
     return this.html`
       <section class="section">
@@ -13,13 +13,13 @@ module.exports = class UserProfilePage extends Component {
             <ul>
               <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
               <li><a class="has-text-grey" href="/proxies">Proxies</a></li>
-              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${selected_profile.name}</a></li>
+              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${p.name}</a></li>
             </ul>
           </nav>
           ${user && !user.cc_verified ?
             UnverifiedNotification.for(this) : []
           }
-          ${user && selected_profile.username && user.username === selected_profile.username ?
+          ${user && p.username && user.username === p.username ?
             YourProfileNotification.for(this) : []
           }
           ${proxied_name ? [`
@@ -30,22 +30,21 @@ module.exports = class UserProfilePage extends Component {
           <div class="columns is-variable is-9">
             <div class="column is-one-third">
               <div class="columns is-mobile">
-                <div class="column is-one-quarter-mobile">
+                <div class="column is-one-third is-one-quarter-mobile">
                   <div class="image is-square">
-                    ${user && selected_profile.username && user.username === selected_profile.username
-                      ? [`<a href="https://gravatar.com" target="_blank"><img src=${this.avatarURL(selected_profile)} alt="avatar" class="round-avatar-img"></a>`]
-                      : [`<img src=${this.avatarURL(selected_profile)} alt="avatar" class="round-avatar-img">`]
+                    ${user && p.username && user.username === p.username
+                      ? [`<a href="https://gravatar.com" target="_blank"><img src=${this.avatarURL(p)} alt="avatar" class="round-avatar-img"></a>`]
+                      : [`<img src=${this.avatarURL(p)} alt="avatar" class="round-avatar-img">`]
                     }
                   </div>
                 </div>
                 <div class="column">
-                  <h1 class="title is-3">${selected_profile.name}</h1>
-                  ${selected_profile.username ? [`<h2 class="subtitle is-5 has-text-grey-light">@${selected_profile.username}</h2>`] : ''}
-                  <h3 class="subtitle is-6"><span class="icon"><i class="fa fa-users"></i></span>Represents ${selected_profile.max_vote_power || 0} ${selected_profile.max_vote_power === 1 ? 'person' : 'people'}</h3>
+                  <h1 class="title is-3">${p.name}</h1>
+                  ${p.username ? [`<h2 class="subtitle is-5 has-text-grey-light">@${p.username}</h2>`] : ''}
                 </div>
               </div>
-              <br />
-              ${user && selected_profile.username && user.username === selected_profile.username
+              <h3 class="subtitle is-6"><span class="icon"><i class="fa fa-users"></i></span> Represents ${p.direct_proxy_count} ${p.direct_proxy_count === 1 ? 'person' : 'people'} directly, and ${p.max_vote_power || 0} ${p.max_vote_power === 1 ? 'person' : 'people'} indirectly.</h3>
+              ${user && p.username && user.username === p.username
                 ? [`
                   <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
                   <style>
@@ -70,18 +69,18 @@ module.exports = class UserProfilePage extends Component {
                 <div class="content is-size-7 has-text-left">
                   <br />
                   <p><strong>United.vote</strong> lets you vote on any legislative bill, but most of us won't have time to do that.</p>
-                  <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
+                  <p>Proxy to ${p.first_name} to vote for you whenever you don't vote directly yourself.</p>
                </div>
              `] : []}
             </div>
             <div class="column">
-              ${(!selected_profile.about && !public_votes.length)
+              ${(!p.about && !public_votes.length)
                 ? EmptyProfileExplainer.for(this) : ''}
-              ${selected_profile.about
+              ${p.about
                 ? AboutUser.for(this) : ''}
               ${public_votes.length
                 ? PublicVotes.for(this) : ''}
-              ${!selected_profile.username
+              ${!p.username
                 ? GhostProfileMessage.for(this) : ''}
             </div>
           </div>
