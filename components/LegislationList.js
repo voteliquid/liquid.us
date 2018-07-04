@@ -43,17 +43,17 @@ module.exports = class LegislationList extends Component {
       'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
       'introduced_at', 'last_action_at', 'yeas',
       'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at',
-      'summary', 'legislature_name'
+      'summary', 'legislature_name', 'published'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays', 'constituent_abstains')
-    const api_url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&order=${order}&limit=40`
+    const api_url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&introduced_at=not.is.null&published=is.true&order=${order}&limit=40`
 
     return this.api(api_url)
       .then(legislation => ({ legislation_query: url, legislation, loading_legislation: false }))
       .catch(error => ({ error, loading_legislation: false }))
   }
   render() {
-    const { loading_legislation, legislation, reps } = this.state
+    const { config, loading_legislation, legislation, reps } = this.state
     const legislatures = reps.some(({ office_short_name }) => office_short_name.slice(0, 2) === 'CA')
       ? ['U.S. Congress', 'California']
       : ['U.S. Congress']
@@ -61,9 +61,9 @@ module.exports = class LegislationList extends Component {
     return this.html`
       <div class="section">
         <div class="container">
-          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
+          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs" style="margin-bottom: 1rem;">
             <ul>
-              <li><a class="has-text-grey" href="/">Home</a></li>
+              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
               <li class="is-active"><a class="has-text-grey" href="/legislation" aria-current="page">Legislation</a></li>
             </ul>
           </nav>
@@ -201,7 +201,7 @@ class FilterForm extends Component {
             <input class="input" type="text" name="terms" placeholder="Examples: hr3440, health care, dream act" value="${terms}" />
           </div>
           <div class="control">
-            <button class="filter-submit button is-primary" disabled=${!!loading_legislation} type="submit">
+            <button class="filter-submit button" disabled=${!!loading_legislation} type="submit">
               <span class="icon"><i class="fa fa-search"></i></span>
               <span>Search</span>
             </button>
