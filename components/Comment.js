@@ -3,7 +3,7 @@ const timeAgo = require('timeago.js')
 
 module.exports = class Comment extends Component {
   render() {
-    const { comment, updated_at, endorsements, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id } = this.props
+    const { comment, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id } = this.props
     const { config, selected_profile, user } = this.state
     const avatarURL = this.avatarURL(this.props)
     const comment_url = `/legislation/${short_id}/votes/${id}`
@@ -50,13 +50,6 @@ module.exports = class Comment extends Component {
         <div class="columns is-gapless is-multiline is-size-7 has-text-grey-light">
           <div class="column is-one-third">
             <a class="has-text-grey-light" href="${comment_url}">${timeAgo().format(`${updated_at}Z`)}</a>
-            ${endorsements !== false && user
-              ? CommentEndorseButton.for(this, this.props, `endorsebtn-${id}`)
-              : endorsements > 0 ? [`
-                  <span>&nbsp;</span>
-                  <span class="icon is-small" style="height: 1em; width: 1.5em;"><i class="fa fa-thumbs-o-up"></i></span>
-                  <span>${endorsements}</span>
-                `] : []}
           </div>
           <div class="column is-two-thirds has-text-right has-text-left-mobile">
             <span>Share ${user && user.id === user_id ? 'your' : 'this'} comment:</span>
@@ -66,88 +59,6 @@ module.exports = class Comment extends Component {
           </div>
         </div>
       </div>
-    `
-  }
-}
-
-class CommentEndorseButton extends Component {
-  onsubmit(event) {
-    event.preventDefault()
-
-    const { endorsed, legislation_id, position, id } = this.props
-    const { selected_bill, user } = this.state
-
-    if (endorsed) {
-      return this.api(`/comment_endorsements?user_id=eq.${user.id}&legislation_id=eq.${legislation_id}&vote_id=eq.${id}`, {
-        method: 'DELETE',
-      }).then(() => {
-        if (selected_bill.comment) {
-          selected_bill.comment.endorsements -= 1
-          selected_bill.comment.endorsed = false
-        } else {
-          selected_bill[`${position}_comments`] = selected_bill[`${position}_comments`].map(comment => {
-            if (comment.id === id) {
-              comment.endorsements -= 1
-              comment.endorsed = false
-            }
-            return comment
-          })
-        }
-        return { selected_bill }
-      })
-    }
-
-    return this.api('/comment_endorsements', {
-      headers: { Prefer: 'return=representation' },
-      method: 'POST',
-      body: JSON.stringify({
-        vote_id: id,
-        user_id: user.id,
-        legislation_id,
-      })
-    }).then(() => {
-      if (selected_bill.comment) {
-        selected_bill.comment.endorsements += 1
-        selected_bill.comment.endorsed = true
-      } else {
-        selected_bill[`${position}_comments`] = selected_bill[`${position}_comments`].map(comment => {
-          if (comment.id === id) {
-            comment.endorsements += 1
-            comment.endorsed = true
-          }
-          return comment
-        })
-      }
-      return { selected_bill }
-    })
-  }
-  render() {
-    const { endorsed, endorsements } = this.props
-
-    return this.html`
-      <span>&nbsp;</span>
-      <form class="is-inline has-text-right" method="POST" onsubmit=${this} action=${this}>
-        <style>
-          .endorse.button.is-text {
-            padding: 0!important;
-            border: none;
-            color: inherit;
-            height: 1em;
-            text-decoration: none;
-          }
-          .endorse.button.is-text:hover, .button.is-text:active, .button.is-text:focus {
-            color: inherit;
-            border: none;
-            background: transparent;
-            box-shadow: none;
-            -webkit-box-shadow: none;
-          }
-        </style>
-        <button type="submit" class=${`endorse button is-text ${endorsed ? 'has-text-link' : ''}`}>
-          <span class="icon is-small" style="height: 1em; width: 1.5em;"><i class="fa fa-thumbs-o-up"></i></span>
-          <span>${endorsements > 0 ? endorsements : ''}</span>
-        </button>
-      </form>
     `
   }
 }

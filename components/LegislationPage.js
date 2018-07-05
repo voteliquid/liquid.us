@@ -46,7 +46,7 @@ module.exports = class LegislationPage extends Component {
     })
   }
   fetchComments(selected_bill) {
-    return this.api(`/public_votes?legislation_id=eq.${selected_bill.id}&comment=not.eq.&comment=not.is.null&order=endorsements.desc.nullslast`)
+    return this.api(`/public_votes?legislation_id=eq.${selected_bill.id}&comment=not.eq.&comment=not.is.null&order=proxy_vote_count.desc.nullslast,created_at.desc`)
     .then(comments => ({
       yea_comments: comments.filter(({ position }) => position === 'yea'),
       nay_comments: comments.filter(({ position }) => position === 'nay'),

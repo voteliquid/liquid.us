@@ -113,7 +113,7 @@ module.exports = class LegislatorProfilePage extends Component {
                   </p>
                   ${selected_profile.score_grade ?
                     [`
-                      <p class="is-size-6 has-text-grey">${ordinalSuffix(selected_profile.score_percentile)} percentile among ${selected_profile.elected_office_chamber} ${selected_profile.party_affiliation}s</p>
+                      <p class="is-size-6 has-text-grey">${ordinalSuffix(selected_profile.score_percentile)} percentile among ${selected_profile.elected_office_chamber === 'Lower' ? 'House' : 'Senate'} ${selected_profile.party_affiliation}s</p>
                       <p class="is-size-7 has-text-grey">Graded on how often ${selected_profile.first_name} votes the same way as verified constituents in ${selected_profile.elected_office_short_name}</p>
                     `] : [`
                       <p>Need more constituent votes to calculate a grade.<p>
