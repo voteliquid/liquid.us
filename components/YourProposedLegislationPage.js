@@ -4,7 +4,13 @@ const EditButtons = require('./EditLegislationButtons')
 
 module.exports = class YourProposedLegislationPage extends Component {
   oninit() {
-    if (!this.state.user) return this.location.redirect('/sign_in')
+    const { user } = this.state
+    const { params } = this.props
+    const { redirect } = this.location
+    const usernameMatchesUser = user && params.username.toLowerCase() === user.username.toLowerCase()
+
+    if (!user) return redirect('/sign_in')
+    if (!usernameMatchesUser) return redirect(`/${user.username}/legislation`)
     return this.fetchYourProposedLegislation()
   }
   onpagechange(oldProps) {
@@ -16,32 +22,51 @@ module.exports = class YourProposedLegislationPage extends Component {
       .then(yourLegislation => this.setState({ loading: false, yourLegislation }))
   }
   render() {
-    const { config, loading, yourLegislation = [], user } = this.state
+    const { user } = this.state
+    const { params } = this.props
 
     return this.html`
       <section class="section">
         <div class="container">
-          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
-            <ul>
-              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-              <li><a class="has-text-grey" href="${`/${user.username}`}">${user.first_name} ${user.last_name}</a></li>
-              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Proposed Legislation</a></li>
-            </ul>
-          </nav>
-          ${ProposeButton.for(this)}
-          <h2 class="title is-5">Your Proposed Legislation</h2>
-          ${loading
-            ? LoadingIndicator.for(this)
-            : yourLegislation.length
-              ? yourLegislation.map((p, idx) => ProposedLegislationItem.for(this, p, `proposed-${idx}`))
-              : ['<p>You have not proposed any legislation yet.</p>']}
+          ${params.username.toLowerCase() === user.username.toLowerCase() ? YourProposedLegislationList.for(this) : ForbiddenProfileMsg.for(this)}
         </div>
-        <style>
-          .highlight-hover:hover {
-            background: #f6f8fa;
-          }
-        </style>
       </section>
+    `
+  }
+}
+
+class ForbiddenProfileMsg extends Component {
+  render() {
+    const { user } = this.state
+    return this.html`
+      <p class="notification">You can only view <a href="${`/${user.username}/legislation`}">your own proposed legislation</a>.</p>
+    `
+  }
+}
+
+class YourProposedLegislationList extends Component {
+  render() {
+    const { config, loading, yourLegislation = [], user } = this.state
+    return this.html`
+      <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
+        <ul>
+          <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
+          <li><a class="has-text-grey" href="${`/${user.username}`}">${user.first_name} ${user.last_name}</a></li>
+          <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Proposed Legislation</a></li>
+        </ul>
+      </nav>
+      ${ProposeButton.for(this)}
+      <h2 class="title is-5">Your Proposed Legislation</h2>
+      ${loading
+        ? LoadingIndicator.for(this)
+        : yourLegislation.length
+          ? yourLegislation.map((p, idx) => ProposedLegislationItem.for(this, p, `proposed-${idx}`))
+          : ['<p>You have not proposed any legislation yet.</p>']}
+    <style>
+      .highlight-hover:hover {
+        background: #f6f8fa;
+      }
+    </style>
     `
   }
 }
