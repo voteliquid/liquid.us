@@ -91,7 +91,7 @@ module.exports = class Component extends hyperloop.Component {
     }
     this.htmlRegex = this.htmlRegex || /[&<>]/g
     this.urlRegex = this.urlRegex || /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/ig
-    return text.replace(this.htmlRegex, (char) => {
+    return (text || '').replace(this.htmlRegex, (char) => {
       return this.htmlTagsToReplace[char] || char
     }).replace(this.urlRegex, (url) => {
       return `<a href="${url}">${url}</a>`
