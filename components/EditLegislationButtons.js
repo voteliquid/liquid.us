@@ -59,9 +59,9 @@ class PublishButton extends Component {
     if (!this.state.loading && window.confirm(msg)) this.publish()
   }
   render() {
-    const { loading, user } = this.state
+    const { loading } = this.state
     return this.html`
-      <a href="${`/${user.username}/legislation`}" onclick="${this}" class="${`button is-small is-outlined ${loading ? 'is-loading' : ''}`}">
+      <a href="/legislation/yours" onclick="${this}" class="${`button is-small is-outlined ${loading ? 'is-loading' : ''}`}">
         <span class="icon"><i class="fa fa-check"></i></span>
         <span>Publish</span>
       </a>

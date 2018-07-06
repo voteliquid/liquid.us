@@ -45,7 +45,7 @@ module.exports = class EditLegislationForm extends Component {
         loading: false,
         yourLegislation: [bills[0]].concat(this.state.yourLegislation || []),
       })
-      this.location.redirect(303, `/${user.username}/legislation`)
+      this.location.redirect(303, `/legislation/yours`)
     })
     .catch((api_error) => this.handleError(api_error))
   }

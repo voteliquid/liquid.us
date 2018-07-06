@@ -110,7 +110,7 @@ class BillFoundPage extends Component {
           ${(user && l.author_id === user.id && !l.published) ? [`
             <div class="notification">
               <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
-              Your proposed legislation is unpublished. Only you can see it. Go to <a href="/${user.username}/legislation">Your Proposed Legislation</a> to make changes or publish it.
+              Your proposed legislation is unpublished. Only you can see it. Go to <a href="/legislation/yours">Your Proposed Legislation</a> to make changes or publish it.
             </div>
           `] : ''}
           ${(l.vote_position && !user.cc_verified) ? [`
