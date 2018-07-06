@@ -52,7 +52,7 @@ module.exports = class Comment extends Component {
             <a class="has-text-grey-light" href="${comment_url}">${timeAgo().format(`${updated_at}Z`)}</a>
           </div>
           <div class="column is-two-thirds has-text-right has-text-left-mobile">
-            <span>Share ${user && user.id === user_id ? 'your' : 'this'} comment:</span>
+            <span>Share:</span>
             <a target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-facebook"></i></span></a>
             <a target="_blank" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-twitter"></i></span></a>
             <a target="_blank" href="${`mailto:?to=&body=${email_share_body}&subject=${email_share_subject}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-envelope"></i></span></a>

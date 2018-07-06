@@ -40,13 +40,27 @@ module.exports = class EditLegislationForm extends Component {
     })
     .then((bills) => {
       event.target.reset()
+
+      const proposed_bill = bills[0]
+
       this.setState({
         editing_bill: {},
         loading: false,
-        yourLegislation: [bills[0]].concat(this.state.yourLegislation || []),
+        yourLegislation: [proposed_bill].concat(this.state.yourLegislation || []),
       })
-      this.location.redirect(303, `/legislation/yours`)
+
+      return this.api('/rpc/vote', {
+        method: 'POST',
+        body: JSON.stringify({
+          user_id: user.id,
+          legislation_id: proposed_bill.id,
+          vote_position: 'yea',
+          comment: '',
+          public: true,
+        }),
+      })
     })
+    .then(() => this.location.redirect(303, `/legislation/yours`))
     .catch((api_error) => this.handleError(api_error))
   }
   updateLegislation(event, form) {
