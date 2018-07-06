@@ -10,10 +10,12 @@ module.exports = class ShareLegislationButtons extends Component {
     const bill_title = type && number ? `${type} ${number} — ${title}` : title
     const twitter_bill_title = type && number ? `${type} ${number}` : title
     const twitter_share_text = vote_position
-      ? `I voted ${vote_position} on ${twitter_bill_title} at ${share_url} - you can too!`
-      : `Vote on ${twitter_bill_title} at ${share_url}`
-    const email_share_body = `I'm voting on ${bill_title}, and you should too! Vote at ${share_url}`
-    const email_share_subject = `Vote on ${bill_title}`
+      ? `Join me in voting ${vote_position} on ${twitter_bill_title} at ${share_url}`
+      : `Join me in voting on ${twitter_bill_title} at ${share_url}`
+    const email_share_subject = vote_position
+      ? `Join me in voting ${vote_position} on ${bill_title}`
+      : `Join me in voting on ${bill_title}`
+    const email_share_body = `${email_share_subject}, at ${share_url}`
     const email_url = `mailto:?to=&body=${email_share_body}&subject=${email_share_subject}`
     const twitter_url = `https://twitter.com/intent/tweet?text=${twitter_share_text}`
     const facebook_url = `https://www.facebook.com/sharer/sharer.php?u=${share_url}`
