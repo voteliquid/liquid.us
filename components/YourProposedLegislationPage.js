@@ -1,16 +1,11 @@
 const Component = require('./Component')
 const LoadingIndicator = require('./LoadingIndicator')
 const EditButtons = require('./EditLegislationButtons')
+const PublicProfileRequiredMsg = require('./PublicProfileRequiredMsg')
 
 module.exports = class YourProposedLegislationPage extends Component {
   oninit() {
-    const { user } = this.state
-    const { params } = this.props
-    const { redirect } = this.location
-    const usernameMatchesUser = user && params.username.toLowerCase() === user.username.toLowerCase()
-
-    if (!user) return redirect('/sign_in')
-    if (!usernameMatchesUser) return redirect(`/${user.username}/legislation`)
+    if (!this.state.user) return this.location.redirect('/sign_in')
     return this.fetchYourProposedLegislation()
   }
   onpagechange(oldProps) {
@@ -22,24 +17,12 @@ module.exports = class YourProposedLegislationPage extends Component {
       .then(yourLegislation => this.setState({ loading: false, yourLegislation }))
   }
   render() {
-    const { user } = this.state
-    const { params } = this.props
-
     return this.html`
       <section class="section">
         <div class="container">
-          ${params.username.toLowerCase() === user.username.toLowerCase() ? YourProposedLegislationList.for(this) : ForbiddenProfileMsg.for(this)}
+          ${this.state.user.username ? YourProposedLegislationList.for(this) : PublicProfileRequiredMsg.for(this)}
         </div>
       </section>
-    `
-  }
-}
-
-class ForbiddenProfileMsg extends Component {
-  render() {
-    const { user } = this.state
-    return this.html`
-      <p class="notification">You can only view <a href="${`/${user.username}/legislation`}">your own proposed legislation</a>.</p>
     `
   }
 }
