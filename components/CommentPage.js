@@ -72,13 +72,15 @@ module.exports = class CommentPage extends Component {
   render() {
     const { loading_bill, selected_bill } = this.state
 
-    return this.html`<div>${
-      loading_bill
-        ? LoadingIndicator.for(this)
-        : selected_bill && selected_bill.comment
-          ? BillFoundPage.for(this)
-          : BillNotFoundPage.for(this)
-    }</div>`
+    return this.html`
+      <div>
+        ${loading_bill
+            ? LoadingIndicator.for(this)
+            : selected_bill && selected_bill.comment
+              ? BillFoundPage.for(this)
+              : BillNotFoundPage.for(this)}
+      </div>
+    `
   }
 }
 
@@ -99,7 +101,7 @@ class BillNotFoundPage extends Component {
 
 class BillFoundPage extends Component {
   render() {
-    const { selected_bill: l } = this.state
+    const { config, selected_bill: l } = this.state
     const bill_details_url = l.legislature_name === 'U.S. Congress'
       ? `https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber.toLowerCase()}-bill/${l.number}`
       : `https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=${l.congress}0${l.type}${l.number}`
@@ -111,8 +113,7 @@ class BillFoundPage extends Component {
         <div class="container">
           <nav class="breadcrumb has-succeeds-operator is-left is-small" aria-label="breadcrumbs">
             <ul>
-              <li><a class="has-text-grey" href="/">Home</a></li>
-              <li><a class="has-text-grey" href="/legislation">Legislation</a></li>
+              <li><a class="has-text-grey" href="/legislation">${config.APP_NAME}</a></li>
               <li><a class="has-text-grey" href=${`/legislation/${l.short_id}`}>${l.type} ${l.number}</a></li>
               <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${this.possessive(l.comment.fullname || 'Anonymous')} vote</a></li>
             </ul>

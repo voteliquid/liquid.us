@@ -3,12 +3,18 @@ const Comment = require('./Comment')
 
 module.exports = class UserProfilePage extends Component {
   render() {
-    const { proxied_name, selected_profile: p, user } = this.state
-    const { public_votes } = p
+    const { config, proxied_name, selected_profile: p, user } = this.state
 
     return this.html`
       <section class="section">
         <div class="container">
+          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
+            <ul>
+              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
+              <li><a class="has-text-grey" href="/proxies">Proxies</a></li>
+              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${p.name}</a></li>
+            </ul>
+          </nav>
           ${user && !user.cc_verified ?
             UnverifiedNotification.for(this) : []
           }
@@ -58,7 +64,7 @@ module.exports = class UserProfilePage extends Component {
                   `]
                 : ProxyButton.for(this)
               }
-              ${public_votes && public_votes.length && !user ? [`
+              ${p.public_votes && p.public_votes.length && !user ? [`
                 <div class="content is-size-7 has-text-left">
                   <br />
                   <p><strong>United.vote</strong> lets you vote on any legislative bill, but most of us won't have time to do that.</p>
@@ -67,11 +73,11 @@ module.exports = class UserProfilePage extends Component {
              `] : []}
             </div>
             <div class="column">
-              ${(!p.about && !public_votes.length)
+              ${(!p.about && !p.public_votes.length)
                 ? EmptyProfileExplainer.for(this) : ''}
               ${p.about
                 ? AboutUser.for(this) : ''}
-              ${public_votes.length
+              ${p.public_votes.length
                 ? PublicVotes.for(this) : ''}
               ${!p.username
                 ? GhostProfileMessage.for(this) : ''}

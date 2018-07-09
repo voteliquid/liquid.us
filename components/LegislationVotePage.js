@@ -120,14 +120,14 @@ class LegislationVoteContent extends Component {
     return { selected_bill }
   }
   render() {
-    const { error, last_vote_public, legislation_query, saving_vote, selected_bill: l, user } = this.state
+    const { config, error, last_vote_public, legislation_query, saving_vote, selected_bill: l, user } = this.state
     const v = l.my_vote ? l.my_vote : {}
     const public_checked = v.hasOwnProperty('public') ? v.public : last_vote_public
     return this.html`
       <div class="container">
         <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
           <ul>
-            <li><a class="has-text-grey" href="/">Home</a></li>
+            <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
             <li><a class="has-text-grey" href="${legislation_query || '/legislation'}">Legislation</a></li>
             <li><a class="has-text-grey" href="${`/legislation/${l.short_id}`}">${l.type} ${l.number}</a></li>
             <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Vote</a></li>

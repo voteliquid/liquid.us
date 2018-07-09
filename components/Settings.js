@@ -43,48 +43,52 @@ class Settings extends Component {
     .then(() => ({ settings_unsaved: false, user: { ...user, update_emails_preference } }))
   }
   render() {
-    const { settings_unsaved, user } = this.state
+    const { config, settings_unsaved, user } = this.state
 
     return this.html`
       <section class="section">
-        <div class="columns is-centered">
-          <div class="column is-half">
-            <h2 class="title is-5">Settings</h2>
-            <div class="content">
-              <form method="POST" onsubmit=${this} action=${this}>
-                <p>
-                  Would you like to receive email updates about what your legislators have been voting on, how much they’re listening to constituents, and general updates about United?
-                </p>
-                <div class="field">
-                  <div class="control">
-                    <label class="radio">
-                      <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'daily'} value="daily" onclick=${this}>
-                      Daily
-                    </label>
-                    <label class="radio">
-                      <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'weekly'} value="weekly" onclick=${this}>
-                      Weekly
-                    </label>
-                    <label class="radio">
-                      <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'monthly'} value="monthly" onclick=${this}>
-                      Monthly
-                    </label>
-                    <label class="radio">
-                      <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'never'} value="never" onclick=${this}>
-                      Never
-                    </label>
-                  </div>
+        <div class="container">
+          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
+            <ul>
+              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
+              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Settings</a></li>
+            </ul>
+          </nav>
+          <h2 class="title is-5">Settings</h2>
+          <div class="content">
+            <form method="POST" onsubmit=${this} action=${this}>
+              <p>
+                Would you like to receive email updates about what your legislators have been voting on, how much they’re listening to constituents, and general updates about United?
+              </p>
+              <div class="field">
+                <div class="control">
+                  <label class="radio">
+                    <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'daily'} value="daily" onclick=${this}>
+                    Daily
+                  </label>
+                  <label class="radio">
+                    <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'weekly'} value="weekly" onclick=${this}>
+                    Weekly
+                  </label>
+                  <label class="radio">
+                    <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'monthly'} value="monthly" onclick=${this}>
+                    Monthly
+                  </label>
+                  <label class="radio">
+                    <input type="radio" name="update_emails_preference" checked=${user.update_emails_preference === 'never'} value="never" onclick=${this}>
+                    Never
+                  </label>
                 </div>
-                <div class="field">
-                  <div class="control">
-                    ${settings_unsaved
-                      ? [`<button class="button is-primary" type="submit">Save</button>`]
-                      : [`<button class="button is-primary" type="submit" disabled>Saved</button>`]
-                    }
-                  </div>
+              </div>
+              <div class="field">
+                <div class="control">
+                  ${settings_unsaved
+                    ? [`<button class="button is-primary" type="submit">Save</button>`]
+                    : [`<button class="button is-primary" type="submit" disabled>Saved</button>`]
+                  }
                 </div>
-              </form>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
       </section>

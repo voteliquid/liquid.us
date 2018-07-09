@@ -85,7 +85,7 @@ class BillNotFoundPage extends Component {
 
 class BillFoundPage extends Component {
   render() {
-    const { legislation_query, selected_bill: l, user } = this.state
+    const { config, legislation_query, selected_bill: l, user } = this.state
     const bill_details_url = l.legislature_name === 'U.S. Congress'
       ? `https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber === 'Lower' ? 'house' : 'senate'}-bill/${l.number}`
       : `https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=${l.congress}0${l.type}${l.number}`
@@ -100,7 +100,7 @@ class BillFoundPage extends Component {
         <div class="container">
           <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
             <ul>
-              <li><a class="has-text-grey" href="/">Home</a></li>
+              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
               <li><a class="has-text-grey" href="${legislation_query || '/legislation'}">Legislation</a></li>
               <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${l.type} ${l.number}</a></li>
             </ul>

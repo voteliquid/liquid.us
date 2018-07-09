@@ -13,14 +13,14 @@ module.exports = class LegislatorsPage extends Component {
   }
 
   render() {
-    const { loading_legislators } = this.state
+    const { config, loading_legislators } = this.state
 
     return this.html`
       <section class="section">
         <div class="container">
           <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
             <ul>
-              <li><a class="has-text-grey" href="/">Home</a></li>
+              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
               <li class="is-active"><a class="has-text-grey" href="/legislators" aria-current="page">Congress Members</a></li>
             </ul>
           </nav>
