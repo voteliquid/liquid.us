@@ -4,7 +4,6 @@ const Comment = require('./Comment')
 module.exports = class UserProfilePage extends Component {
   render() {
     const { config, proxied_name, selected_profile: p, user } = this.state
-    const { public_votes } = p
 
     return this.html`
       <section class="section">
@@ -65,7 +64,7 @@ module.exports = class UserProfilePage extends Component {
                   `]
                 : ProxyButton.for(this)
               }
-              ${public_votes && public_votes.length && !user ? [`
+              ${p.public_votes && p.public_votes.length && !user ? [`
                 <div class="content is-size-7 has-text-left">
                   <br />
                   <p><strong>United.vote</strong> lets you vote on any legislative bill, but most of us won't have time to do that.</p>
@@ -74,11 +73,11 @@ module.exports = class UserProfilePage extends Component {
              `] : []}
             </div>
             <div class="column">
-              ${(!p.about && !public_votes.length)
+              ${(!p.about && !p.public_votes.length)
                 ? EmptyProfileExplainer.for(this) : ''}
               ${p.about
                 ? AboutUser.for(this) : ''}
-              ${public_votes.length
+              ${p.public_votes.length
                 ? PublicVotes.for(this) : ''}
               ${!p.username
                 ? GhostProfileMessage.for(this) : ''}

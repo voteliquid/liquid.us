@@ -1,9 +1,9 @@
-const BillTitle = require('./BillTitle')
-const Component = require('./Component')
 const Comment = require('./Comment')
+const Component = require('./Component')
 const EditButtons = require('./EditLegislationButtons')
+const LegislationShareButtons = require('./LegislationShareButtons')
+const LegislationTitle = require('./LegislationTitle')
 const LoadingIndicator = require('./LoadingIndicator')
-const ShareLegislationButtons = require('./ShareLegislationButtons')
 
 module.exports = class LegislationPage extends Component {
   oninit() {
@@ -122,10 +122,10 @@ class BillFoundPage extends Component {
           `] : ''}
           <div class="columns">
             <div class="column is-two-thirds">
-              ${BillTitle.for(this)}
+              ${LegislationTitle.for(this)}
             </div>
             <div class="column is-one-third is-right">
-              ${user && l.author_id === user.id && !l.published ? EditButtons.for(this, l) : ShareLegislationButtons.for(this, l)}
+              ${user && l.author_id === user.id && !l.published ? EditButtons.for(this, l) : LegislationShareButtons.for(this, l)}
             </div>
           </div>
           <hr />
