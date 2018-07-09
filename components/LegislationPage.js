@@ -1,6 +1,7 @@
-const LegislationTitle = require('./LegislationTitle')
-const Component = require('./Component')
 const Comment = require('./Comment')
+const Component = require('./Component')
+const LegislationShareButtons = require('./LegislationShareButtons')
+const LegislationTitle = require('./LegislationTitle')
 const LoadingIndicator = require('./LoadingIndicator')
 
 module.exports = class LegislationPage extends Component {
@@ -118,7 +119,14 @@ class BillFoundPage extends Component {
               Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
             </div>
           `] : ''}
-          ${LegislationTitle.for(this)}
+          <div class="columns">
+            <div class="column is-two-thirds">
+              ${LegislationTitle.for(this)}
+            </div>
+            <div class="column is-one-third is-right">
+              ${user && l.author_id === user.id && !l.published ? '' : LegislationShareButtons.for(this, l)}
+            </div>
+          </div>
           <hr />
           <div class="content">
             <div class="columns">
