@@ -1,3 +1,4 @@
+const LegislationTitle = require('./LegislationTitle')
 const Component = require('./Component')
 const Comment = require('./Comment')
 const LoadingIndicator = require('./LoadingIndicator')
@@ -13,17 +14,10 @@ function escapeHtml(unsafe) {
 
 module.exports = class CommentPage extends Component {
   oninit() {
-    const { config, user } = this.state
+    const { config } = this.state
     const { params } = this.props
 
-    const fields = [
-      'title', 'number', 'type', 'short_id', 'id',
-      'sponsor_username', 'sponsor_first_name', 'sponsor_last_name', 'status',
-      'introduced_at', 'last_action_at', 'yeas', 'nays',
-      'abstains', 'number', 'congress', 'chamber', 'legislature_name'
-    ]
-    if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays')
-    const url = `/legislation_detail?select=${fields.join(',')}&short_id=eq.${params.short_id}`
+    const url = `/legislation_detail?short_id=eq.${params.short_id}`
 
     this.setState({ loading_bill: true })
 
@@ -72,15 +66,13 @@ module.exports = class CommentPage extends Component {
   render() {
     const { loading_bill, selected_bill } = this.state
 
-    return this.html`
-      <div>
-        ${loading_bill
-            ? LoadingIndicator.for(this)
-            : selected_bill && selected_bill.comment
-              ? BillFoundPage.for(this)
-              : BillNotFoundPage.for(this)}
-      </div>
-    `
+    return this.html`<div>${
+      loading_bill
+        ? LoadingIndicator.for(this)
+        : selected_bill && selected_bill.comment
+          ? BillFoundPage.for(this)
+          : BillNotFoundPage.for(this)
+    }</div>`
   }
 }
 
@@ -102,31 +94,20 @@ class BillNotFoundPage extends Component {
 class BillFoundPage extends Component {
   render() {
     const { config, selected_bill: l } = this.state
-    const bill_details_url = l.legislature_name === 'U.S. Congress'
-      ? `https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber.toLowerCase()}-bill/${l.number}`
-      : `https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=${l.congress}0${l.type}${l.number}`
-    const bill_details_name = l.legislature_name === 'U.S. Congress' ? 'congress.gov' : 'leginfo.legislature.ca.gov'
-
+    const bill_id = l.introduced_at ? `${l.type} ${l.number}` : l.title
 
     return this.html`
       <section class="section">
         <div class="container">
           <nav class="breadcrumb has-succeeds-operator is-left is-small" aria-label="breadcrumbs">
             <ul>
-              <li><a class="has-text-grey" href="/legislation">${config.APP_NAME}</a></li>
-              <li><a class="has-text-grey" href=${`/legislation/${l.short_id}`}>${l.type} ${l.number}</a></li>
+              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
+              <li><a class="has-text-grey" href="/legislation">Legislation</a></li>
+              <li><a class="has-text-grey" href=${`/legislation/${l.short_id}`}>${bill_id}</a></li>
               <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${this.possessive(l.comment.fullname || 'Anonymous')} vote</a></li>
             </ul>
           </nav>
-          <h4 class="has-text-grey is-paddingless is-margin-less">${l.legislature_name}</h4>
-          <h2 class="title has-text-weight-normal is-size-4" style="margin-bottom: .5rem;">${l.type} ${l.number} &mdash; ${l.title}</h2>
-          <p class="is-size-7 has-text-grey">
-            ${l.sponsor_username
-              ? [`Introduced by <a href=${`/${l.sponsor_username}`}>${l.sponsor_first_name} ${l.sponsor_last_name}</a> on ${(new Date(l.introduced_at)).toLocaleDateString()} &bullet; Last action on ${new Date(l.last_action_at).toLocaleDateString()}`]
-              : [`Introduced on ${(new Date(l.introduced_at)).toLocaleDateString()} &bullet; last action on ${new Date(l.last_action_at).toLocaleDateString()}`]
-            }
-            &bullet; <a href=${bill_details_url} target="_blank">Bill details at ${bill_details_name} <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>
-          </p>
+          ${LegislationTitle.for(this)}
           <hr />
           ${Comment.for(this, l.comment)}
         </div>

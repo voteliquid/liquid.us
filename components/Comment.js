@@ -9,9 +9,11 @@ module.exports = class Comment extends Component {
     const comment_url = `/legislation/${short_id}/votes/${id}`
     const share_url = `${config.WWW_URL}/legislation/${short_id}/votes/${id}`
     const subject = fullname ? `${fullname} is` : 'People are'
-    const email_share_body = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number} ${title}. See why: ${share_url}`
-    const email_share_subject = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number} ${title}.`
-    const twitter_share_text = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${type} ${number}. See why: ${share_url}`
+    const bill_title = type && number ? `${type} ${number} — ${title}` : title
+    const twitter_bill_title = type && number ? `${type} ${number}` : title
+    const email_share_body = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${bill_title}. See why: ${share_url}`
+    const email_share_subject = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${bill_title}.`
+    const twitter_share_text = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${twitter_bill_title}. See why: ${share_url}`
 
     return this.html`
       <div class="box" style="margin-bottom: 1.5rem;">
@@ -22,7 +24,7 @@ module.exports = class Comment extends Component {
                   <span>
                     ${selected_profile.first_name} voted <strong>${position}</strong>${proxy_vote_count ? ` on behalf of ${proxy_vote_count} ${proxy_vote_count === 1 ? 'person' : 'people'}` : ''}
                     <br />
-                    <a href="${`/legislation/${short_id}`}"><strong>${type.toUpperCase()} ${number}</strong>. ${title}</a>
+                    <a href="${`/legislation/${short_id}`}">${bill_title}</a>
                   </span>
                 `]
               : [`
@@ -50,7 +52,7 @@ module.exports = class Comment extends Component {
             <a class="has-text-grey-light" href="${comment_url}">${timeAgo().format(`${updated_at}Z`)}</a>
           </div>
           <div class="column is-two-thirds has-text-right has-text-left-mobile">
-            <span>Share ${user && user.id === user_id ? 'your' : 'this'} comment:</span>
+            <span>Share:</span>
             <a target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-facebook"></i></span></a>
             <a target="_blank" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-twitter"></i></span></a>
             <a target="_blank" href="${`mailto:?to=&body=${email_share_body}&subject=${email_share_subject}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-envelope"></i></span></a>
