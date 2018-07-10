@@ -126,7 +126,7 @@ class RepCard extends Component {
               <span class="tag is-size-6 is-dark has-text-weight-bold">${rep.score_grade || [`<span class="icon"><i class="fa fa-question"></i></span>`]}</span>
               <span class="is-size-7 has-text-grey">
                 ${rep.score_grade ?
-                  `${ordinalSuffix(rep.score_percentile)} percentile among ${rep.office_chamber} ${rep.party_affiliation}s` :
+                  `${ordinalSuffix(rep.score_percentile)} percentile among ${rep.office_chamber === 'Lower' ? 'House' : 'Senate'} ${rep.party_affiliation}s` :
                   `Need more constituent votes to calculate grade`}
               </span>
             </p>
