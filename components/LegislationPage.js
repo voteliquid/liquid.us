@@ -86,6 +86,22 @@ class BillNotFoundPage extends Component {
   }
 }
 
+class UnpublishedMsg extends Component {
+  render() {
+    const { selected_bill, user } = this.state
+    return this.html`
+      <div class="notification">
+        <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
+        ${user && selected_bill.author_id === user.id
+          ? `Your proposed legislation is unpublished. You can continue to edit it until you decide to publish.`
+          : `This proposed legislation is a draft. The author may continue to make changes until it's published.`
+        }
+
+      </div>
+    `
+  }
+}
+
 class BillFoundPage extends Component {
   render() {
     const { config, legislation_query, selected_bill: l, user } = this.state
@@ -107,12 +123,7 @@ class BillFoundPage extends Component {
               <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${bill_id}</a></li>
             </ul>
           </nav>
-          ${(user && l.author_id === user.id && !l.published) ? [`
-            <div class="notification">
-              <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
-              Your proposed legislation is unpublished. Only you can see it. Go to <a href="/legislation/yours">Your Proposed Legislation</a> to make changes or publish it.
-            </div>
-          `] : ''}
+          ${l.published ? '' : UnpublishedMsg.for(this)}
           ${(l.vote_position && !user.cc_verified) ? [`
             <div class="notification is-info">
               <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
@@ -125,7 +136,10 @@ class BillFoundPage extends Component {
               ${LegislationTitle.for(this)}
             </div>
             <div class="column is-one-third is-right">
-              ${user && l.author_id === user.id && !l.published ? EditButtons.for(this, l) : LegislationShareButtons.for(this, l)}
+              ${l.published
+                ? LegislationShareButtons.for(this, l)
+                : user && l.author_id === user.id ? EditButtons.for(this, l) : ''
+              }
             </div>
           </div>
           <hr />
