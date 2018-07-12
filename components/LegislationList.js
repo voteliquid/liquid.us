@@ -46,7 +46,7 @@ module.exports = class LegislationList extends Component {
       'summary', 'legislature_name', 'published'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays', 'constituent_abstains')
-    const api_url = `/legislation_detail?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&introduced_at=not.is.null&published=is.true&order=${order}&limit=40`
+    const api_url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&introduced_at=not.is.null&published=is.true&order=${order}&limit=40`
 
     return this.api(api_url)
       .then(legislation => ({ legislation_query: url, legislation, loading_legislation: false }))

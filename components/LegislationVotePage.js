@@ -24,7 +24,7 @@ module.exports = class LegislationVotePage extends Component {
 
     this.setState({ loading_legislation: true })
 
-    return this.api(`/legislation_detail?short_id=eq.${params.short_id}`)
+    return this.api(`/measures_detailed?short_id=eq.${params.short_id}`)
       .then(bills => {
         const bill = bills[0]
         if (bill) {
@@ -32,11 +32,11 @@ module.exports = class LegislationVotePage extends Component {
           if (user) {
             return this.api(`/votes?user_id=eq.${user.id}&delegate_rank=eq.-1&order=updated_at.desc`).then(votes => {
               const last_vote_public = votes[0] && votes[0].public
-              return this.api(`/votes?legislation_id=eq.${bill.id}&user_id=eq.${user.id}&delegate_rank=eq.-1`).then(votes => {
+              return this.api(`/votes?measure_id=eq.${bill.id}&user_id=eq.${user.id}&delegate_rank=eq.-1`).then(votes => {
                 bill.my_vote = votes[0]
-                return this.api(`/rpc/vote_power_for_legislation`, {
+                return this.api(`/rpc/vote_power_for_measure`, {
                   method: 'POST',
-                  body: JSON.stringify({ user_id: user.id, legislation_id: bill.id })
+                  body: JSON.stringify({ user_id: user.id, measure_id: bill.id })
                 }).then((bill_vote_power) => {
                   bill.vote_power = bill_vote_power
                   return this.setState({ page_title, selected_bill: { ...selected_bill, ...bill }, last_vote_public })
@@ -88,7 +88,7 @@ class LegislationVoteContent extends Component {
       method: 'POST',
       body: JSON.stringify({
         user_id: user.id,
-        legislation_id: selected_bill.id,
+        measure_id: selected_bill.id,
         vote_position: form.vote_position,
         comment: form.comment,
         public: form.public === 'true',

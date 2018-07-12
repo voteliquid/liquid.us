@@ -75,7 +75,7 @@ module.exports = class SignIn extends Component {
               jwt,
               body: JSON.stringify({
                 user_id,
-                legislation_id: this.storage.get('vote_bill_id'),
+                measure_id: this.storage.get('vote_bill_id'),
                 vote_position,
                 comment: this.storage.get('vote_comment') || null,
                 public: this.storage.get('vote_public') === 'true',

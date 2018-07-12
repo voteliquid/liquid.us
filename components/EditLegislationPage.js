@@ -16,7 +16,7 @@ module.exports = class EditLegislationPage extends Component {
   fetchLegislation() {
     const { editing_bill, user } = this.state
     const { params } = this.props
-    return this.api(`/legislation_detail?author_id=eq.${user.id}&${editing_bill.id ? `id=eq.${editing_bill.id}` : `short_id=eq.${params.short_id}`}`)
+    return this.api(`/measures_detailed?author_id=eq.${user.id}&${editing_bill.id ? `id=eq.${editing_bill.id}` : `short_id=eq.${params.short_id}`}`)
       .then((legislation) => {
         if (legislation[0] && legislation[0].published) {
           return this.location.redirect(302, `/legislation/${legislation[0].short_id}`)

@@ -13,7 +13,7 @@ module.exports = class YourProposedLegislationPage extends Component {
   }
   fetchYourProposedLegislation() {
     this.setState({ loading: true })
-    return this.api(`/legislation_detail?author_id=eq.${this.state.user.id}&order=created_at.desc`)
+    return this.api(`/measures_detailed?author_id=eq.${this.state.user.id}&order=created_at.desc`)
       .then(yourLegislation => this.setState({ loading: false, yourLegislation }))
   }
   render() {

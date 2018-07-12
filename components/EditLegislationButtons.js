@@ -29,7 +29,7 @@ class PublishButton extends Component {
 
     this.setState({ loading: true })
 
-    return this.api(`/legislation?id=eq.${id}`, {
+    return this.api(`/measures?id=eq.${id}`, {
       method: 'PATCH',
       headers: { Prefer: 'return=representation' },
       body: JSON.stringify({ published: true })

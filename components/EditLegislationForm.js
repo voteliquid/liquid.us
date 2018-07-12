@@ -24,7 +24,7 @@ module.exports = class EditLegislationForm extends Component {
 
     this.setState({ loading: 'saving' })
 
-    return this.api('/legislation', {
+    return this.api('/measures', {
       method: 'POST',
       headers: { Prefer: 'return=representation' },
       body: JSON.stringify({
@@ -53,7 +53,7 @@ module.exports = class EditLegislationForm extends Component {
         method: 'POST',
         body: JSON.stringify({
           user_id: user.id,
-          legislation_id: proposed_bill.id,
+          measure_id: proposed_bill.id,
           vote_position: 'yea',
           comment: '',
           public: true,
@@ -68,7 +68,7 @@ module.exports = class EditLegislationForm extends Component {
 
     this.setState({ loading: 'saving' })
 
-    return this.api(`/legislation?id=eq.${editing_bill.id}`, {
+    return this.api(`/measures?id=eq.${editing_bill.id}`, {
       method: 'PATCH',
       headers: { Prefer: 'return=representation' },
       body: JSON.stringify(form),
@@ -86,7 +86,7 @@ module.exports = class EditLegislationForm extends Component {
   handleError(api_error) {
     let ui_error
     switch (api_error.message) {
-      case 'new row for relation "legislation" violates check constraint "short_id_length"':
+      case 'new row for relation "measures" violates check constraint "short_id_length"':
         ui_error = 'URL ID must be between 2 and 32 characters.'
         break
       case 'duplicate key value violates unique constraint "legislation_unique"':

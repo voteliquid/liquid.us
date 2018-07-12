@@ -212,13 +212,13 @@ class LatestVotesTableRow extends Component {
       <tr>
         <td>${vote.rollcall_occurred_at_formatted}</td>
         <td>
-          <a href=${`/legislation/${vote.legislation_short_id}`}>
-            <span class="responsive-bold">${formatBillTitle(vote.legislation_short_id)}</span>
+          <a href=${`/legislation/${vote.measure_short_id}`}>
+            <span class="responsive-bold">${formatBillTitle(vote.measure_short_id)}</span>
           </a>
         </td>
         <td>
-          <a href=${`/legislation/${vote.legislation_short_id}`}>
-            ${vote.legislation_title}
+          <a href=${`/legislation/${vote.measure_short_id}`}>
+            ${vote.measure_title}
           </a>
         </td>
         <td class="has-text-centered"><span class="responsive-label">${selected_profile.name} voted </span>${vote.legislator_position}</td>
