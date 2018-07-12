@@ -34,7 +34,7 @@ module.exports = class App extends Component {
   render() {
     return this.html`
       <div id="wrapper">
-        <div class="container">${NavBar.for(this)}</div>
+        ${NavBar.for(this)}
         ${Router.for(this, {
           afterPageChange: () => {
             this.setState({ loading_page: false, error: false, selected_profile: null }, false)
