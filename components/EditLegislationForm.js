@@ -13,7 +13,7 @@ module.exports = class EditLegislationForm extends Component {
     const { editing_bill, loading } = this.state
 
     if (!loading) {
-      if (form.short_id === editing_bill.short_id) {
+      if (editing_bill.id) {
         return this.updateLegislation(event, form)
       }
       return this.insertLegislation(event, form)
@@ -77,7 +77,7 @@ module.exports = class EditLegislationForm extends Component {
       const bill = bills[0]
       this.setState({
         loading: false,
-        yourLegislation: this.state.yourLegislation.map((old) => (old.id === editing_bill.id ? bill : old)),
+        yourLegislation: (this.state.yourLegislation || []).map((old) => (old.id === editing_bill.id ? bill : old)),
       })
       this.location.redirect(303, `/${user.username}/legislation/${bill.short_id}`)
     })
