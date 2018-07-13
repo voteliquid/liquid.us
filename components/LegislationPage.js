@@ -10,7 +10,7 @@ module.exports = class LegislationPage extends Component {
     const { config } = this.state
     const { params } = this.props
 
-    const url = `/measures_detailed?short_id=eq.${params.short_id}`
+    const url = `/measures_detailed?short_id=eq.${params.short_id}&or=(type.eq.HR,type.eq.S)`
 
     this.setState({ loading_bill: true })
 

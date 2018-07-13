@@ -24,7 +24,7 @@ module.exports = class LegislationVotePage extends Component {
 
     this.setState({ loading_legislation: true })
 
-    return this.api(`/measures_detailed?short_id=eq.${params.short_id}`)
+    return this.api(`/measures_detailed?short_id=eq.${params.short_id}&or=(type.eq.HR,type.eq.S)`)
       .then(bills => {
         const bill = bills[0]
         if (bill) {
