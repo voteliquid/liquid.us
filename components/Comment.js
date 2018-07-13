@@ -6,14 +6,15 @@ module.exports = class Comment extends Component {
     const { comment, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id } = this.props
     const { config, selected_profile, user } = this.state
     const avatarURL = this.avatarURL(this.props)
-    const comment_url = `/legislation/${short_id}/votes/${id}`
-    const share_url = `${config.WWW_URL}/legislation/${short_id}/votes/${id}`
+    const measure_url = type === 'PN' ? `/nominations/${short_id}` : `/legislation/${short_id}`
+    const comment_url = type === 'PN' ? `/nominations/${short_id}` : `/legislation/${short_id}/votes/${id}`
+    const share_url = type === 'PN' ? `${config.WWW_URL}${measure_url}` : `${config.WWW_URL}/legislation/${short_id}/votes/${id}`
     const subject = fullname ? `${fullname} is` : 'People are'
-    const bill_title = type && number ? `${type} ${number} — ${title}` : title
-    const twitter_bill_title = type && number ? `${type} ${number}` : title
-    const email_share_body = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${bill_title}. See why: ${share_url}`
-    const email_share_subject = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${bill_title}.`
-    const twitter_share_text = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${twitter_bill_title}. See why: ${share_url}`
+    const measure_title = type && number ? `${type} ${number} — ${title}` : title
+    const twitter_measure_title = type && number ? `${type} ${number}` : title
+    const email_share_body = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${measure_title}. See why: ${share_url}`
+    const email_share_subject = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${measure_title}.`
+    const twitter_share_text = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${twitter_measure_title}. See why: ${share_url}`
 
     return this.html`
       <div class="box" style="margin-bottom: 1.5rem;">
@@ -24,7 +25,7 @@ module.exports = class Comment extends Component {
                   <span>
                     ${selected_profile.first_name} voted <strong>${position}</strong>${proxy_vote_count ? ` on behalf of ${proxy_vote_count} ${proxy_vote_count === 1 ? 'person' : 'people'}` : ''}
                     <br />
-                    <a href="${`/legislation/${short_id}`}">${bill_title}</a>
+                    <a href="${measure_url}">${measure_title}</a>
                   </span>
                 `]
               : [`
