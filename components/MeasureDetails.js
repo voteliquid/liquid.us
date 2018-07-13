@@ -21,7 +21,7 @@ module.exports = class MeasureDetails extends Component {
           <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
             <ul>
               <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-              <li><a class="has-text-grey" href="${legislation_query || '/legislation'}">Legislation</a></li>
+              <li><a class="has-text-grey" href="${l.type === 'PN' ? '/nominations' : (legislation_query || '/legislation')}">${l.type === 'PN' ? 'Nominations' : 'Legislation'}</a></li>
               <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${bill_id}</a></li>
             </ul>
           </nav>
