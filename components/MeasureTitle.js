@@ -1,8 +1,9 @@
 const Component = require('./Component')
 
-module.exports = class BillTitle extends Component {
+module.exports = class LegislationTitle extends Component {
   render() {
     const { selected_bill: l } = this.state
+    const show_tracker = l.legislature_name === 'U.S. Congress' && (l.type === 'HR' || l.type === 'S')
 
     let bill_details_name = false
     let bill_details_url = false
@@ -10,30 +11,34 @@ module.exports = class BillTitle extends Component {
     if (l.introduced_at) {
       if (l.legislature_name === 'U.S. Congress') {
         bill_details_name = 'congress.gov'
-        bill_details_url = `https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber === 'Lower' ? 'house' : 'senate'}-bill/${l.number}`
-      }
-      if (l.legislature_name === 'California') {
-        bill_details_name = 'leginfo.legislature.ca.gov'
-        bill_details_url = `https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=${l.congress}0${l.type}${l.number}`
+        if (l.type === 'HR' || l.type === 'S') {
+          bill_details_url = `https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber === 'Lower' ? 'house' : 'senate'}-bill/${l.number}`
+        } else if (l.type === 'PN') {
+          bill_details_url = `https://www.congress.gov/nomination/${l.congress}th-congress/${l.number}`
+        }
+        if (l.legislature_name === 'California') {
+          bill_details_name = 'leginfo.legislature.ca.gov'
+          bill_details_url = `https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=${l.congress}0${l.type}${l.number}`
+        }
       }
     }
 
     const bill_id = l.introduced_at ? `${l.type} ${l.number}` : l.title
 
     return this.html`
-      <h2 class="title has-text-weight-normal is-4 is-marginless">${[l.introduced_at ? `${bill_id} &mdash; ${l.title}` : l.title]}</h2>
-      ${l.legislature_name === 'U.S. Congress' && l.introduced_at ? StatusTracker.for(this) : ''}
-      <p class="is-size-7 has-text-grey">
+      <h2 class="title has-text-weight-normal is-4">${[l.introduced_at ? `${bill_id} &mdash; ${l.title}` : l.title]}</h2>
+      ${show_tracker ? StatusTracker.for(this) : ''}
+      <p class="subtitle is-size-7 has-text-grey">
         ${l.introduced_at ? l.legislature_name : `Proposed for ${l.legislature_name}`} &bullet;
         ${[l.sponsor_username
           ? `Introduced by <a href=${`/${l.sponsor_username}`}>${l.sponsor_first_name} ${l.sponsor_last_name}</a> on ${(new Date(l.introduced_at)).toLocaleDateString()} &bullet; Last action on ${new Date(l.last_action_at).toLocaleDateString()}`
           : l.introduced_at
-            ? `Introduced on ${(new Date(l.introduced_at)).toLocaleDateString()} &bullet; last action on ${new Date(l.last_action_at).toLocaleDateString()}`
+            ? `${l.type === 'PN' ? 'Received from president' : 'Introduced'} on ${(new Date(l.introduced_at)).toLocaleDateString()} &bullet; Last action on ${new Date(l.last_action_at).toLocaleDateString()}`
             : l.author_username
               ? `Authored by <a href="/${l.author_username}">${l.author_first_name} ${l.author_last_name}</a> on ${(new Date(l.created_at)).toLocaleDateString()}`
               : `Authored anonymously on ${(new Date(l.created_at)).toLocaleDateString()}`
         ]}
-        ${bill_details_url ? [`&bullet; <a href=${bill_details_url} target="_blank">Bill details at ${bill_details_name} <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`] : ''}
+        ${bill_details_url ? [`&bullet; <a href=${bill_details_url} target="_blank">Details at ${bill_details_name} <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`] : ''}
       </p>
     `
   }
@@ -64,7 +69,6 @@ class StatusTracker extends Component {
       }
       .status_tracker .step {
         float: left;
-        padding-top: .5rem;
       }
       .status_tracker .step:first-child {
         margin-left: -1rem;

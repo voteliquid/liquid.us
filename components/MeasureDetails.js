@@ -1,108 +1,10 @@
 const Comment = require('./Comment')
 const Component = require('./Component')
 const EditButtons = require('./EditLegislationButtons')
-const LegislationShareButtons = require('./LegislationShareButtons')
-const LegislationTitle = require('./LegislationTitle')
-const LoadingIndicator = require('./LoadingIndicator')
+const MeasureShareButtons = require('./MeasureShareButtons')
+const MeasureTitle = require('./MeasureTitle')
 
-module.exports = class LegislationPage extends Component {
-  oninit() {
-    const { config } = this.state
-    const { params } = this.props
-
-    const url = `/measures_detailed?short_id=eq.${params.short_id}&or=(type.eq.HR,type.eq.S)`
-
-    this.setState({ loading_bill: true })
-
-    return this.api(url).then((bills) => {
-      const selected_bill = bills[0]
-
-      if (selected_bill) {
-        if (this.isBrowser) {
-          const page_title = `${selected_bill.title} ★ ${config.APP_NAME}`
-          window.document.title = page_title
-          window.history.replaceState(window.history.state, page_title, document.location)
-        }
-
-        return this.fetchComments(selected_bill).then(({ yea_comments, nay_comments }) => {
-          selected_bill.yea_comments = yea_comments
-          selected_bill.nay_comments = nay_comments
-          return {
-            loading_bill: false,
-            page_title: selected_bill.title,
-            page_description: `Vote directly on legislative bills. We'll notify your representatives and grade them for how well they listen to their constituents.`,
-            selected_bill: { ...bills[selected_bill.short_id], ...selected_bill },
-            bills: { ...bills, [selected_bill.short_id]: selected_bill },
-          }
-        })
-      }
-
-      this.location.setStatus(404)
-      return { loading_bill: false }
-    })
-    .catch((error) => {
-      this.location.setStatus(404)
-      return { error, loading_bill: false }
-    })
-  }
-  fetchComments(selected_bill) {
-    return this.api(`/public_votes?measure_id=eq.${selected_bill.id}&comment=not.eq.&comment=not.is.null&order=proxy_vote_count.desc.nullslast,created_at.desc`)
-    .then(comments => ({
-      yea_comments: comments.filter(({ position }) => position === 'yea'),
-      nay_comments: comments.filter(({ position }) => position === 'nay'),
-    }))
-  }
-  onpagechange() {
-    const { loading_bill, selected_bill } = this.state
-    if (!loading_bill && selected_bill) {
-      this.oninit().then((newState) => this.setState(newState))
-    }
-  }
-  render() {
-    const { loading_bill, selected_bill } = this.state
-
-    return this.html`<div>${
-      loading_bill
-        ? LoadingIndicator.for(this)
-        : selected_bill
-          ? BillFoundPage.for(this)
-          : BillNotFoundPage.for(this)
-    }</div>`
-  }
-}
-
-class BillNotFoundPage extends Component {
-  render() {
-    return this.html`
-      <section class="hero is-fullheight is-dark">
-        <div class="hero-body">
-          <div class="container has-text-centered">
-            <h1 class="title">Can't find ${[this.location.path]}</h1>
-            <h2 class="subtitle">Maybe the URL is mistyped?</h2>
-          </div>
-        </div>
-      </section>
-    `
-  }
-}
-
-class UnpublishedMsg extends Component {
-  render() {
-    const { selected_bill, user } = this.state
-    return this.html`
-      <div class="notification">
-        <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
-        ${user && selected_bill.author_id === user.id
-          ? `Your proposed legislation is unpublished. You can continue to edit it until you decide to publish.`
-          : `This proposed legislation is a draft. The author may continue to make changes until it's published.`
-        }
-
-      </div>
-    `
-  }
-}
-
-class BillFoundPage extends Component {
+module.exports = class MeasureDetails extends Component {
   render() {
     const { config, legislation_query, selected_bill: l, user } = this.state
 
@@ -133,11 +35,11 @@ class BillFoundPage extends Component {
           `] : ''}
           <div class="columns">
             <div class="column is-two-thirds">
-              ${LegislationTitle.for(this)}
+              ${MeasureTitle.for(this)}
             </div>
             <div class="column is-one-third is-right">
               ${l.published
-                ? LegislationShareButtons.for(this, l)
+                ? MeasureShareButtons.for(this, l)
                 : user && l.author_id === user.id ? EditButtons.for(this, l) : ''
               }
             </div>
@@ -145,7 +47,7 @@ class BillFoundPage extends Component {
           <hr />
           <div class="content">
             <div class="columns">
-              <div class="column">${BillSummary.for(this)}</div>
+              <div class="column">${MeasureSummary.for(this)}</div>
               <div class="column">
                 <p>${VoteButton.for(this, l, `votebutton-${l.id}`)}</p>
                 ${l.vote_position
@@ -163,14 +65,30 @@ class BillFoundPage extends Component {
           </div>
           ${own_comment ? Comment.for(this, own_comment, `own-comment-${own_comment.id}`) : ''}
           <hr />
-          ${BillComments.for(this)}
+          ${Comments.for(this)}
         </div>
       </section>
     `
   }
 }
 
-class BillSummary extends Component {
+class UnpublishedMsg extends Component {
+  render() {
+    const { selected_bill, user } = this.state
+    return this.html`
+      <div class="notification">
+        <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
+        ${user && selected_bill.author_id === user.id
+          ? `Your proposed legislation is unpublished. You can continue to edit it until you decide to publish.`
+          : `This proposed legislation is a draft. The author may continue to make changes until it's published.`
+        }
+
+      </div>
+    `
+  }
+}
+
+class MeasureSummary extends Component {
   onclick(event) {
     event.preventDefault()
     this.setProps({ expanded: !this.props.expanded })
@@ -179,7 +97,8 @@ class BillSummary extends Component {
   render() {
     const { expanded } = this.props
     const { selected_bill } = this.state
-    const { chamber, congress, number, summary } = selected_bill
+    const { chamber, congress, number, type } = selected_bill
+    const summary = type === 'PN' ? `Confirm ${selected_bill.summary}` : selected_bill.summary
 
     return this.html`
       <style>
@@ -233,7 +152,7 @@ class VoteButton extends Component {
   render() {
     const s = this.props
 
-    let voteBtnTxt = 'Vote on this bill'
+    let voteBtnTxt = 'Vote'
     let voteBtnClass = 'button is-primary'
     let voteBtnIcon = 'fa fa-pencil-square-o'
 
@@ -255,14 +174,14 @@ class VoteButton extends Component {
         voteBtnClass = `button ${this.votePositionClass()}`
       }
     }
-    return this.html`<a style="white-space: inherit; height: auto;" class=${voteBtnClass} href=${`/legislation/${s.short_id}/vote`}>
+    return this.html`<a style="white-space: inherit; height: auto;" class=${voteBtnClass} href=${`/nominations/${s.short_id}/vote`}>
       <span class="icon"><i class=${voteBtnIcon}></i></span>
       <span class="has-text-weight-semibold">${voteBtnTxt}</span>
     </a>`
   }
 }
 
-class BillComments extends Component {
+class Comments extends Component {
   render() {
     return this.html`
       <div class="columns">
@@ -286,7 +205,7 @@ class CommentsColumn extends Component {
     return this.html`
       ${comments.length
         ? comments.map(c => Comment.for(this, c, `comment-${c.id}`))
-        : [`<p class="has-text-grey-light">No comments ${position === 'yea' ? 'in favor' : 'against'}. Vote on the bill to leave a comment.</p>`]
+        : [`<p class="has-text-grey-light">No comments ${position === 'yea' ? 'in favor' : 'against'}. Vote to leave a comment.</p>`]
       }
     `
   }

@@ -1,7 +1,7 @@
 const Component = require('./Component')
 const LoadingIndicator = require('./LoadingIndicator')
 
-module.exports = class LegislationVotePage extends Component {
+module.exports = class MeasureVotePage extends Component {
   oninit() {
     return this.fetchVote()
   }
@@ -24,7 +24,7 @@ module.exports = class LegislationVotePage extends Component {
 
     this.setState({ loading_legislation: true })
 
-    return this.api(`/measures_detailed?short_id=eq.${params.short_id}&or=(type.eq.HR,type.eq.S)`)
+    return this.api(`/measures_detailed?short_id=eq.${params.short_id}`)
       .then(bills => {
         const bill = bills[0]
         if (bill) {
@@ -55,12 +55,12 @@ module.exports = class LegislationVotePage extends Component {
   render() {
     const { loading_legislation, selected_bill } = this.state
     return this.html`<div>
-      ${selected_bill && !loading_legislation ? LegislationVoteContent.for(this) : LoadingIndicator.for(this)}
+      ${selected_bill && !loading_legislation ? MeasureVoteForm.for(this) : LoadingIndicator.for(this)}
     </div>`
   }
 }
 
-class LegislationVoteContent extends Component {
+class MeasureVoteForm extends Component {
   onsubmit(event, form) {
     event.preventDefault()
 
@@ -96,6 +96,9 @@ class LegislationVoteContent extends Component {
     })
     .then(() => {
       this.setState({ saving_vote: false })
+      if (selected_bill.type === 'PN') {
+        return redirect(303, `/nominations/${selected_bill.short_id}`)
+      }
       return redirect(303, `/legislation/${selected_bill.short_id}`)
     })
     .catch(error => {

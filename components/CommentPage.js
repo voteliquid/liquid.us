@@ -1,4 +1,4 @@
-const LegislationTitle = require('./LegislationTitle')
+const MeasureTitle = require('./MeasureTitle')
 const Component = require('./Component')
 const Comment = require('./Comment')
 const LoadingIndicator = require('./LoadingIndicator')
@@ -107,7 +107,7 @@ class BillFoundPage extends Component {
               <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${this.possessive(l.comment.fullname || 'Anonymous')} vote</a></li>
             </ul>
           </nav>
-          ${LegislationTitle.for(this)}
+          ${MeasureTitle.for(this)}
           <hr />
           ${Comment.for(this, l.comment)}
         </div>
