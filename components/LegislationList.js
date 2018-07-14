@@ -239,7 +239,7 @@ class SearchResultsMessage extends Component {
 
 class LegislationListRow extends Component {
   render() {
-    const { bill: s, legislatures } = this.props
+    const { bill: s } = this.props
     const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
 
     return this.html`
@@ -249,10 +249,6 @@ class LegislationListRow extends Component {
             <div class="column">
               <h3><a href="${`/legislation/${s.short_id}`}">${s.title}</a></h3>
               <div class="is-size-7 has-text-grey">
-                ${legislatures.length > 1 ? [`
-                  <strong class="has-text-grey">${s.legislature_name}</strong>
-                  &mdash;
-                `] : ''}
                 <strong class="has-text-grey">${s.type} ${s.number}</strong>
                 &mdash;
                 ${s.sponsor_first_name
