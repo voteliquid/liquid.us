@@ -28,7 +28,6 @@ module.exports = class LegislationList extends Component {
     const orders = {
       upcoming: '&next_agenda_begins_at=not.is.null&failed_lower_at=is.null&passed_lower_at=is.null&order=legislature_name.desc,next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
       new: '&order=introduced_at.desc',
-      active: '&order=last_action_at.desc',
     }
 
     const order = orders[query.order || 'upcoming']
@@ -143,7 +142,6 @@ class FilterTabs extends Component {
     const orderDescriptions = {
       upcoming: 'Bills with upcoming votes in the legislature',
       new: 'Bills recently introduced',
-      active: 'Bills recently acted upon',
     }
 
     return this.html`
@@ -151,7 +149,6 @@ class FilterTabs extends Component {
         <ul>
           <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('upcoming')}`}">Upcoming</a></li>
           <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('new')}`}">New</a></li>
-          <li class="${query.order === 'active' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('active')}`}">Active</a></li>
         </ul>
       </div>
       <div class="content">
