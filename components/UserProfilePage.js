@@ -42,7 +42,10 @@ module.exports = class UserProfilePage extends Component {
                   ${p.username ? [`<h2 class="subtitle is-5 has-text-grey-light">@${p.username}</h2>`] : ''}
                 </div>
               </div>
-              <h3 class="subtitle is-6"><span class="icon"><i class="fa fa-users"></i></span> Represents ${p.direct_proxy_count} ${p.direct_proxy_count === 1 ? 'person' : 'people'} directly, and ${p.max_vote_power || 0} ${p.max_vote_power === 1 ? 'person' : 'people'} indirectly.</h3>
+              ${[p.direct_proxy_count
+                ? `<h3 class="subtitle is-6"><span class="icon"><i class="fa fa-users"></i></span> Represents ${p.direct_proxy_count} ${p.direct_proxy_count === 1 ? 'person' : 'people'} directly, and ${p.max_vote_power || 0} ${p.max_vote_power === 1 ? 'person' : 'people'} indirectly</h3>`
+                : `<h3 class="subtitle is-6"><span class="icon"><i class="fa fa-users"></i></span> Represents 1 person</h3>`
+              ]}
               ${user && p.username && user.username === p.username
                 ? [`
                   <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
