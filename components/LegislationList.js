@@ -26,9 +26,9 @@ module.exports = class LegislationList extends Component {
     const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
 
     const orders = {
-      upcoming: 'legislature_name.desc,next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
-      new: 'introduced_at.desc',
-      active: 'last_action_at.desc',
+      upcoming: '&next_agenda_begins_at=not.is.null&failed_lower_at=is.null&passed_lower_at=is.null&order=legislature_name.desc,next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
+      new: '&order=introduced_at.desc',
+      active: '&order=last_action_at.desc',
     }
 
     const order = orders[query.order || 'upcoming']
@@ -46,7 +46,7 @@ module.exports = class LegislationList extends Component {
       'summary', 'legislature_name', 'published'
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays', 'constituent_abstains')
-    const api_url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&or=(type.eq.HR,type.eq.S)&introduced_at=not.is.null&order=${order}&limit=40`
+    const api_url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&or=(type.eq.HR,type.eq.S)&introduced_at=not.is.null${order}&limit=40`
 
     return this.api(api_url)
       .then(legislation => ({ legislation_query: url, legislation, loading_legislation: false }))
@@ -141,7 +141,7 @@ class FilterTabs extends Component {
     const { query } = this.location
 
     const orderDescriptions = {
-      upcoming: 'Bills on the official agenda',
+      upcoming: 'Bills with upcoming votes in the legislature',
       new: 'Bills recently introduced',
       active: 'Bills recently acted upon',
     }
