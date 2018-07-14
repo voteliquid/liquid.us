@@ -44,14 +44,6 @@ const style = `
       max-height: 40px;
     }
 
-    <!-- https://github.com/jgthms/bulma/issues/1952 -->
-    .navbar .container .navbar-brand {
-      margin-left: -0.75rem !important;
-    }
-    .navbar .container .navbar-menu {
-      margin-right: -0.75rem;
-    }
-
     @media (max-width: 1087px) {
       .navbar-brand .navbar-item {
         padding: 0rem 1rem;
@@ -59,7 +51,10 @@ const style = `
 
       <!-- https://github.com/jgthms/bulma/issues/1952 -->
       .navbar .container .navbar-brand {
-        margin-left: 0rem !important;
+        margin-left: -0.75rem !important;
+      }
+      .navbar .container .navbar-menu {
+        margin-right: -0.75rem;
       }
 
       .navbar-brand .navbar-item img {
