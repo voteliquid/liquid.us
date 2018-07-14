@@ -140,15 +140,15 @@ class FilterTabs extends Component {
     const { query } = this.location
 
     const orderDescriptions = {
-      upcoming: 'Bills with upcoming votes in the legislature',
+      upcoming: 'Bills upcoming for a vote in the legislature',
       new: 'Bills recently introduced',
     }
 
     return this.html`
       <div class="tabs">
         <ul>
-          <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('upcoming')}`}">Upcoming</a></li>
-          <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('new')}`}">New</a></li>
+          <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('upcoming')}`}">Upcoming for vote</a></li>
+          <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('new')}`}">Recently introduced</a></li>
         </ul>
       </div>
       <div class="content">
