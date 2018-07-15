@@ -98,7 +98,7 @@ class MeasureSummary extends Component {
     const { expanded } = this.props
     const { selected_bill } = this.state
     const { chamber, congress, number, type } = selected_bill
-    const summary = type === 'PN' ? `Confirm ${selected_bill.summary}` : selected_bill.summary
+    const summary = type === 'PN' ? `Confirm ${selected_bill.summary}` : this.linkifyUrls(selected_bill.summary)
 
     return this.html`
       <style>

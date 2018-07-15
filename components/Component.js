@@ -85,7 +85,6 @@ module.exports = class Component extends hyperloop.Component {
   }
   linkifyUrls(text) {
     this.htmlTagsToReplace = this.htmlTagsToReplace || {
-      '&': '&amp;',
       '<': '&lt;',
       '>': '&gt;'
     }
