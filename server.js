@@ -10,7 +10,7 @@ checkEngineVersion({
   if (error) throw error
 
   if (!result.versions.node.isSatisfied) {
-    throw new Error(`Invalid node version. Found: ${result.versions.node.version} / Wanted: ${result.versions.npm.wanted}`)
+    throw new Error(`Invalid node version. Found: ${result.versions.node.version} / Wanted: ${result.versions.node.wanted}`)
   }
 
   if (!result.versions.npm.isSatisfied) {
