@@ -53,6 +53,7 @@ module.exports = class Footer extends Component {
       </footer>
 
       <script src="/assets/outdatedbrowser.min.js"></script>
+      <script async src="https://d10lpsik1i8c69.cloudfront.net/w.js"></script>
       <script>
         //event listener: DOM ready
         function addLoadEvent(func) {
@@ -77,6 +78,8 @@ module.exports = class Footer extends Component {
                 languagePath: '/assets/outdatedbrowser_en.html'
             })
         });
+
+        window.__lo_site_id = 119200;
       </script>
       <div>
         ${[NODE_ENV === 'production' ? `

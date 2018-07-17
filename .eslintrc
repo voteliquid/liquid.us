@@ -6,7 +6,6 @@
     document: 0,
   },
   rules: {
-
     // Hard rules
     semi: [2, 'never'],
     no-console: 0,
@@ -49,6 +48,7 @@
     no-prototype-builtins: 0,
     no-return-assign: 0,
     no-restricted-globals: 0,
+    no-underscore-dangle: 0,
     padded-blocks: 0,
 
   }

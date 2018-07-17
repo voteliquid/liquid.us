@@ -69,6 +69,14 @@ module.exports = class App extends Component {
 }
 
 const trackPageview = (ctx) => {
+  const customData = {
+    cookie: ctx.storage.get('cookie') || '',
+    email: ctx.state.user ? ctx.state.user.email : '',
+  }
+
+  window._loq = window._loq || []
+  window._loq.push(['custom', customData])
+
   ctx.api(`/pageviews`, {
     method: 'POST',
     body: JSON.stringify({
