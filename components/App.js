@@ -69,7 +69,7 @@ module.exports = class App extends Component {
 }
 
 const trackPageview = (ctx) => {
-  const { user } = this.state
+  const { user } = ctx.state
   const customData = {
     cookie: ctx.storage.get('cookie') || '',
     email: user ? user.email : '',
