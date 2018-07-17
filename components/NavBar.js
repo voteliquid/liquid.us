@@ -42,11 +42,13 @@ const style = `
     .navbar-brand .navbar-item img {
       margin: 4px 0;
       max-height: 40px;
+      padding-left: 3px;
     }
 
     @media (max-width: 1087px) {
       .navbar-brand .navbar-item {
         padding: 0rem 1rem;
+        padding-left: 21px;
       }
 
       <!-- https://github.com/jgthms/bulma/issues/1952 -->
