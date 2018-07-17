@@ -90,7 +90,7 @@ const trackPageview = (ctx) => {
   })
   .then((res) => {
     if (!ctx.storage.get('cookie')) {
-      ctx.storage.set('cookie', res.headers.get('Location').replace('/pageviews?id=eq.', ''))
+      ctx.storage.set('cookie', res.headers.get('Location').slice(17, 53))
     }
   })
 }
