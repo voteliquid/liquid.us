@@ -174,7 +174,7 @@ class VoteButton extends Component {
         voteBtnClass = `button ${this.votePositionClass()}`
       }
     }
-    return this.html`<a style="white-space: inherit; height: auto;" class=${voteBtnClass} href=${`/nominations/${s.short_id}/vote`}>
+    return this.html`<a style="white-space: inherit; height: auto;" class=${voteBtnClass} href=${`/${s.type === 'PN' ? 'nominations' : 'legislation'}/${s.short_id}/vote`}>
       <span class="icon"><i class=${voteBtnIcon}></i></span>
       <span class="has-text-weight-semibold">${voteBtnTxt}</span>
     </a>`
