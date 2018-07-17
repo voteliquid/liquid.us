@@ -56,7 +56,7 @@ module.exports = class MeasureDetails extends Component {
                 `]
                 : [`
                   ${l.yeas + l.nays
-                    ? `<p>${l.yeas + l.nays} people have voted on this bill. Join them.</p>`
+                    ? `<p>${l.yeas + l.nays} people have voted. Join them.</p>`
                     : ''}
                   <p class="is-size-7">We'll notify <a href="/legislators">your representative</a> and hold them accountable by using your vote to calculate their <a href="https://blog.united.vote/2017/12/08/give-your-rep-an-f-introducing-united-legislator-grades/">representation score</a>.</p>
                 `]}
