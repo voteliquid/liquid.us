@@ -97,10 +97,6 @@ class AuthedProxies extends Component {
           <br />
         `] : []}
 
-        <div class="content">
-          <p>Choose people you trust as proxies to represent you whenever you don't vote - family members, friends, or public figures. You can remove a proxy or override a vote at any time.</p>
-        </div>
-
         <div class="columns is-variable is-5">
           <div class="column">
             <h3 class="title is-5">Add Proxy</h3>
