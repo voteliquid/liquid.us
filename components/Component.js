@@ -83,18 +83,23 @@ module.exports = class Component extends hyperloop.Component {
     if (bioguide_id) return `https://theunitedstates.io/images/congress/225x275/${bioguide_id}.jpg`
     return `https://www.gravatar.com/avatar/${gravatar_hash}?d=mm&s=200`
   }
-  linkifyUrls(text) {
-    this.htmlTagsToReplace = this.htmlTagsToReplace || {
-      '<': '&lt;',
-      '>': '&gt;'
-    }
-    this.htmlRegex = this.htmlRegex || /[&<>]/g
-    this.urlRegex = this.urlRegex || /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/ig
-    return (text || '').replace(this.htmlRegex, (char) => {
-      return this.htmlTagsToReplace[char] || char
-    }).replace(this.urlRegex, (url) => {
-      return `<a href="${url}">${url}</a>`
-    }).replace(/\n/g, '<br />')
+  escapeHtml(text = '') {
+    return text
+      .replace(/[<>]/g, (char) => {
+        if (char === '<') return '&lt;'
+        if (char === '>') return '&gt;'
+        return char
+      })
+      .replace(/&lt;(\/?)(p|br|ul|ol|li|strong|a|b)&gt;/gi, (match, p1, p2) => {
+        return `<${p1}${p2}>`
+      })
+  }
+  linkifyUrls(text = '') {
+    return this.escapeHtml(text)
+      .replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/ig, (url) => {
+        return `<a href="${url}">${url}</a>`
+      })
+      .replace(/\n/g, '<br />')
   }
   possessive(str) {
     if (typeof str === 'string' && str[str.length - 1] === 's') {
