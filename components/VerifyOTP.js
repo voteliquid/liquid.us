@@ -44,7 +44,12 @@ module.exports = class VerifyOTP extends Component {
 
     return this.api('/rpc/request_email_totp', {
       method: 'POST',
-      body: JSON.stringify({ email: sign_in_email, device_desc: userAgent || 'Unknown', signup_channel: 'united.vote' }),
+      body: JSON.stringify({
+        email: sign_in_email,
+        device_desc: userAgent || 'Unknown',
+        signup_channel: 'united.vote',
+        cookie: this.storage.get('cookie') || '',
+      }),
     })
     .then(({ device_secret }) => {
       this.storage.set('device_secret', device_secret)

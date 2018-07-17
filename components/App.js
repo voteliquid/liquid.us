@@ -31,12 +31,16 @@ module.exports = class App extends Component {
         return { user: false }
       })
   }
+  onconnected() {
+    trackPageview(this)
+  }
   render() {
     return this.html`
-      <div id="wrapper">
+      <div id="wrapper" onconnected="${this}">
         ${NavBar.for(this)}
         ${Router.for(this, {
           afterPageChange: () => {
+            if (this.isBrowser) trackPageview(this)
             this.setState({ loading_page: false, error: false, selected_profile: null }, false)
           },
           beforePageChange: () => {
@@ -62,6 +66,22 @@ module.exports = class App extends Component {
       <div>${Footer.for(this)}</div>
     `
   }
+}
+
+const trackPageview = (ctx) => {
+  ctx.api(`/pageviews`, {
+    method: 'POST',
+    body: JSON.stringify({
+      cookie: ctx.storage.get('cookie') || undefined,
+      referrer: window.document.referrer,
+      url: ctx.location.url || (window.location.pathname + window.location.search),
+    }),
+  })
+  .then((res) => {
+    if (!ctx.storage.get('cookie')) {
+      ctx.storage.set('cookie', res.headers.get('Location').replace('/pageviews?id=eq.', ''))
+    }
+  })
 }
 
 const quotes = [

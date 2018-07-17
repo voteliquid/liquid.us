@@ -15,6 +15,7 @@ module.exports = class Join extends Component {
             phone_user_id: this.location.query.sms,
             device_desc: this.location.userAgent || 'Unknown',
             signup_channel: 'united.vote',
+            cookie: this.storage.get('cookie') || '',
           }),
         })
         .then(() => this.location.redirect('/'))

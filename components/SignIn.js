@@ -29,7 +29,13 @@ module.exports = class SignIn extends Component {
 
     return this.api(`/rpc/request_email_totp`, {
       method: 'POST',
-      body: JSON.stringify({ email, phone_user_id, device_desc: this.location.userAgent || 'Unknown', signup_channel: 'united.vote' }),
+      body: JSON.stringify({
+        email,
+        phone_user_id,
+        device_desc: this.location.userAgent || 'Unknown',
+        signup_channel: 'united.vote',
+        cookie: this.storage.get('cookie') || '',
+      }),
     })
     .then(({ device_secret, jwt, refresh_token, user_id }) => {
       const oneYearFromNow = new Date(Date.now() + (365 * 24 * 60 * 60 * 1000))

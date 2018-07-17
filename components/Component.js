@@ -6,6 +6,8 @@ module.exports = class Component extends hyperloop.Component {
     const API_URL = this.state.config.API_URL
     const jwt = this.storage.get('jwt') || params.jwt
 
+    params.headers = params.headers || {}
+
     return fetch(`${API_URL}${path}`, {
       ...params,
       credentials: 'include',
@@ -17,8 +19,9 @@ module.exports = class Component extends hyperloop.Component {
       },
     })
     .then((res) => {
-      if (res.status < 400 && params.headers && params.headers.Prefer === 'return=minimal') return {}
-      if (res.status === 204) return {}
+      if (res.status === 201 && !params.headers.Prefer) return res
+      if (res.status < 400 && params.headers.Prefer === 'return=minimal') return res
+      if (res.status === 204) return res
       if (res.status >= 400 && res.status < 500) {
         return res.json().then((json) => {
           const refresh_token = this.storage.get('refresh_token')
