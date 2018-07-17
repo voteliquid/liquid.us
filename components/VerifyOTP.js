@@ -137,6 +137,7 @@ module.exports = class VerifyOTP extends Component {
           }),
         })
         .then(() => {
+          if (this.isBrowser && window._loq) window._loq.push(['tag', 'Voted'])
           this.storage.unset('vote_position')
           this.storage.unset('vote_bill_id')
           this.storage.unset('vote_public')

@@ -56,6 +56,7 @@ class AddProxyByEmailForm extends Component {
     })
     .then((delegations) => {
       if (event) event.target.reset()
+      if (this.isBrowser && window._loq) window._loq.push(['tag', 'Added Proxy'])
       return this.api(`/delegations_detailed?id=eq.${delegations[0].id}`).then(profiles => {
         return {
           error: false, typing: false, proxies: (proxies || []).concat(profiles[0] || delegations[0]),
@@ -160,6 +161,7 @@ class AddProxyByTwitterForm extends Component {
       })
       .then((newProxies) => {
         if (event) event.target.reset()
+        if (this.isBrowser && window._loq) window._loq.push(['tag', 'Added Proxy'])
         return this.api(`/delegations_detailed?id=eq.${newProxies[0].id}`).then(profiles => {
           return {
             error: false, typing: false, proxies: (proxies || []).concat(profiles[0] || newProxies[0]),
@@ -326,6 +328,7 @@ class SearchResultAdd extends Component {
     })
     .then((newProxies) => {
       if (event) event.target.reset()
+      if (this.isBrowser && window._loq) window._loq.push(['tag', 'Added Proxy'])
       return this.api(`/delegations_detailed?id=eq.${newProxies[0].id}`).then(profiles => {
         return {
           error: false,

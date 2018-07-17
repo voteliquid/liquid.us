@@ -95,6 +95,7 @@ class MeasureVoteForm extends Component {
       }),
     })
     .then(() => {
+      if (this.isBrowser && window._loq) window._loq.push(['tag', 'Voted'])
       this.setState({ saving_vote: false })
       if (selected_bill.type === 'PN') {
         return redirect(303, `/nominations/${selected_bill.short_id}`)

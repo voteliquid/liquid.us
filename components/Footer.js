@@ -53,7 +53,6 @@ module.exports = class Footer extends Component {
       </footer>
 
       <script src="/assets/outdatedbrowser.min.js"></script>
-      <script async src="https://d10lpsik1i8c69.cloudfront.net/w.js"></script>
       <script>
         //event listener: DOM ready
         function addLoadEvent(func) {
@@ -83,6 +82,7 @@ module.exports = class Footer extends Component {
       </script>
       <div>
         ${[NODE_ENV === 'production' ? `
+          <script async src="https://d10lpsik1i8c69.cloudfront.net/w.js"></script>
           <script src="https://cdn.ravenjs.com/3.20.1/raven.min.js" crossorigin="anonymous"></script>
           <script>
             Raven.config('https://613c962d6bfa43ba863bdd2b0c0ec907@sentry.io/254602', {

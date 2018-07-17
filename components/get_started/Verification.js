@@ -216,6 +216,7 @@ class StripeForm extends Component {
     })
     .then(charge => {
       if (charge.stripe_card_fingerprint && !charge.error_message) {
+        if (this.isBrowser && window._loq) window._loq.push(['tag', 'Verified'])
         this.setState({ loading_verification: false, error: false, user: { ...user, cc_verified: true } })
         this.location.redirect(303, '/get_started/profile')
       }

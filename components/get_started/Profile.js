@@ -51,6 +51,7 @@ module.exports = class PickUsernamePage extends Component {
       body: JSON.stringify({ username }),
     })
     .then(() => {
+      if (this.isBrowser && window._loq) window._loq.push(['tag', 'Created Public Profile'])
       this.setState({ user: { ...this.state.user, username } })
       this.location.redirect(`/${username}`)
     })
