@@ -86,8 +86,8 @@ module.exports = class Component extends hyperloop.Component {
     if (bioguide_id) return `https://theunitedstates.io/images/congress/225x275/${bioguide_id}.jpg`
     return `https://www.gravatar.com/avatar/${gravatar_hash}?d=mm&s=200`
   }
-  escapeHtml(text = '') {
-    return text
+  escapeHtml(text) {
+    return (text || '')
       .replace(/[<>]/g, (char) => {
         if (char === '<') return '&lt;'
         if (char === '>') return '&gt;'
