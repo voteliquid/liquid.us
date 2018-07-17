@@ -26,7 +26,7 @@ module.exports = class LegislationList extends Component {
     const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
 
     const orders = {
-      upcoming: '&next_agenda_begins_at=not.is.null&failed_lower_at=is.null&passed_lower_at=is.null&order=legislature_name.desc,next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
+      upcoming: '&failed_lower_at=is.null&passed_lower_at=is.null&order=legislature_name.desc,next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
       new: '&order=introduced_at.desc',
     }
 
