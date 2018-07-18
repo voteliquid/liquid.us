@@ -101,7 +101,6 @@ class GetStartedBasicsPage extends Component {
     }))
     .then(() => {
       this.setState({ reps: [], user: { ...user, voter_status, first_name, last_name, address: { address } } })
-
       return Promise.resolve(YourLegislators.prototype.fetchElectedLegislators.call(this)).then(newState => this.setState(newState))
     })
     .then(() => {
@@ -129,10 +128,9 @@ class GetStartedBasicsPage extends Component {
       })
     })
     .catch((api_error) => {
-      return {
-        error: (~api_error.message.indexOf('constraint "email')) ? 'Invalid email address' : (api_error.details || api_error.message),
-        loading: false,
-      }
+      console.log(api_error)
+      this.setState({ loading: false })
+      return redirect(303, '/get_started/proxies')
     })
   }
 
