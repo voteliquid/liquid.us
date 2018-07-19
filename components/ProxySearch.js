@@ -222,13 +222,15 @@ class AddProxyBySearchForm extends Component {
 
     this.setState({ loading_proxies: true })
 
-    return this.api(`/user_search_profiles?tsv=fts(simple).${encodeURIComponent(terms.replace(/ /g, ':* & ').replace(/$/, ':*'))}&order=num_delegations.desc&limit=5`).then(search_results => {
-        return { loading_proxies: false, search_results: search_results.filter(({ twitter_username }) => twitter_username !== 'dsernst'), terms }
+    return this.api(`/user_search_profiles?tsv=fts(simple).${encodeURIComponent(terms.replace(/ /g, ':* & ').replace(/$/, ':*'))}&order=num_delegations.desc&limit=5`)
+      .then(search_results => {
+        return {
+          loading_proxies: false,
+          search_results: search_results.filter(({ twitter_username }) => twitter_username !== 'dsernst'),
+          terms,
+        }
       })
-      .catch(error => {
-        console.log(error)
-        return { error }
-      })
+      .catch(error => console.log(error))
   }
 
   render() {
