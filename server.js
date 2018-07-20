@@ -69,10 +69,11 @@ server
   .listen(port)
 
 function htmlHead(state) {
-  const { page_description, page_title, selected_profile } = state
+  const { page_description, page_title, selected_bill, selected_profile } = state
   const description = page_description || `A new democracy for the modern world.`
   const title = page_title ? `${page_title} ★ ${APP_NAME}` : `${APP_NAME} ★ Liquid Democracy for America`
   const profile_image_url = selected_profile ? Component.prototype.avatarURL.call({ state }, selected_profile) : ''
+  const measure_image_url = selected_bill && selected_bill.image_name ? `${ASSETS_URL}/measure-images/${selected_bill.image_name}` : ''
 
   return `
     <meta charset="utf-8">
@@ -111,7 +112,7 @@ function htmlHead(state) {
     </style>
     <meta property="og:title" content="${title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
     <meta property="og:description" content="${description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
-    <meta property="og:image" content="${profile_image_url || 'https://blog.united.vote/assets/twitter_large.png'}" />
+    <meta property="og:image" content="${profile_image_url || measure_image_url || 'https://blog.united.vote/assets/twitter_large.png'}" />
     <meta property="og:type" content="website" />
     ${responsiveTableStyle}
     ${roundAvatarStyle}
