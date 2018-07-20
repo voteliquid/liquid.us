@@ -24,9 +24,10 @@ module.exports = class LegislationTitle extends Component {
     }
 
     const bill_id = l.introduced_at ? `${l.type} ${l.number}` : l.title
+    const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
 
     return this.html`
-      <h2 class="title has-text-weight-normal is-4">${[l.introduced_at ? `${bill_id} &mdash; ${l.title}` : l.title]}</h2>
+      <h2 class="title has-text-weight-normal is-4">${[l.introduced_at && l.type !== 'PN' ? `${bill_id} &mdash; ${l.title}` : title]}</h2>
       ${show_tracker ? StatusTracker.for(this) : ''}
       <p class="subtitle is-size-7 has-text-grey">
         ${l.introduced_at ? l.legislature_name : `Proposed for ${l.legislature_name}`} &bullet;
