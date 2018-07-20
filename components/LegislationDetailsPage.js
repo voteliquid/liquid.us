@@ -29,7 +29,7 @@ module.exports = class LegislationDetailsPage extends Component {
           return {
             loading_bill: false,
             page_title: title,
-            page_description: `Vote directly on legislative bills. We'll notify your representatives and grade them for how well they listen to their constituents.`,
+            page_description: `Vote directly on federal bills and nominations. We'll notify your representatives and grade them for how well they listen to their constituents.`,
             selected_bill: { ...bills[selected_bill.short_id], ...selected_bill },
             bills: { ...bills, [selected_bill.short_id]: selected_bill },
           }
