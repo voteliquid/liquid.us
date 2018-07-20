@@ -22,22 +22,15 @@ module.exports = class JoinForm extends Component {
   }
   fetchSignupMetrics() {
     const { show_title } = this.props
-    const { signup_metrics } = this.state
-    if (!signup_metrics && show_title !== false) {
-      return this.api('/metrics?metric=eq.join&order=period_begin.desc')
-        .then(metrics => metrics.reduce((b, a) => {
-          b.push({
-            x: new Date(a.period_begin).getTime(),
-            y: a.value,
-          })
-          return b
-        }, []).reverse())
-        .then(signup_metrics => this.setState({ signup_metrics }))
-        .catch(() => this.setState({ signup_metrics: [] }))
+    const { users_count } = this.state
+    if (!users_count && show_title !== false) {
+      return this.api('/metrics?select=users_count')
+        .then((metrics) => this.setState({ users_count: metrics[0] ? metrics[0].users_count : 0 }))
+        .catch(() => this.setState({ users_count: 0 }))
     }
   }
   render() {
-    const { config, email, error, req_proxy_profile, signup_metrics } = this.state
+    const { config, email, error, req_proxy_profile, users_count } = this.state
     const { APP_NAME } = config
     const { show_title } = this.props
     const { query } = this.location
@@ -59,8 +52,8 @@ module.exports = class JoinForm extends Component {
         `] : []}
         ${show_title !== false ? [`
           <h2 class="title has-text-centered">
-            ${signup_metrics && signup_metrics.length
-              ? `Join ${signup_metrics[signup_metrics.length - 1].y} people for healthier democracy`
+            ${users_count
+              ? `Join ${users_count} people for healthier democracy`
               : `Join for healthier democracy`
             }
           </h2>
