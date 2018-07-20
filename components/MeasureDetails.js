@@ -47,7 +47,7 @@ module.exports = class MeasureDetails extends Component {
           <hr />
           <div class="content">
             <div class="columns">
-              <div class="column">${MeasureSummary.for(this)}</div>
+              <div class="${`column ${l.type === 'PN' ? 'is-hidden' : ''}`}">${MeasureSummary.for(this)}</div>
               <div class="column">
                 <p>${VoteButton.for(this, l, `votebutton-${l.id}`)}</p>
                 ${l.vote_position
@@ -98,7 +98,7 @@ class MeasureSummary extends Component {
     const { expanded } = this.props
     const { selected_bill } = this.state
     const { chamber, congress, number, type } = selected_bill
-    const summary = type === 'PN' && selected_bill.summary ? `Do you support ${selected_bill.summary.replace(/\.$/, '')}?` : this.linkifyUrls(selected_bill.summary)
+    const summary = type === 'PN' && selected_bill.summary ? `Confirmation of ${selected_bill.summary}` : this.linkifyUrls(selected_bill.summary)
 
     return this.html`
       <style>
