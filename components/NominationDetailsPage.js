@@ -14,7 +14,10 @@ module.exports = class NominationDetailsPage extends Component {
 
     return this.api(url).then((bills) => {
       const selected_bill = bills[0]
-      const title = `${selected_bill.type} ${selected_bill.number} – ${selected_bill.title}`
+      const title =
+        selected_bill.type === 'PN'
+          ? `Do you support ${selected_bill.title.replace(/\.$/, '')}?`
+          : `${selected_bill.type} ${selected_bill.number} – ${selected_bill.title}`
 
       if (selected_bill) {
         if (this.isBrowser) {

@@ -71,10 +71,7 @@ server
 function htmlHead(state) {
   const { page_description, page_title, selected_bill, selected_profile } = state
   const description = page_description || `A new democracy for the modern world.`
-  const title =
-    selected_bill && selected_bill.type === 'PN'
-      ? `Do you support ${selected_bill.title.replace(/\.$/, '')}?`
-      : page_title ? `${page_title} ★ ${APP_NAME}` : `${APP_NAME} ★ Liquid Democracy for America`
+  const title = page_title ? `${page_title} ★ ${APP_NAME}` : `${APP_NAME} ★ Liquid Democracy for America`
   const profile_image_url = selected_profile ? Component.prototype.avatarURL.call({ state }, selected_profile) : ''
   const measure_image_url = selected_bill && selected_bill.image_name ? `${ASSETS_URL}/measure-images/${selected_bill.image_name}` : ''
 
