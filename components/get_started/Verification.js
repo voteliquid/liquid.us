@@ -1,6 +1,15 @@
 const Component = require('../Component')
 
 module.exports = class CreditCardVerificationPage extends Component {
+  oninit() {
+    const { user } = this.state
+    if (user && (!user.first_name || !user.last_name)) {
+      return this.location.redirect(302, '/get_started/basics')
+    }
+  }
+  onpagechange(oldProps) {
+    if (oldProps.url !== this.props.url) return this.oninit()
+  }
   render() {
     const { error, user } = this.state
     return this.html`
