@@ -1,22 +1,30 @@
 const Component = require('./Component')
 
-module.exports = class DripEmailUnsubscribePage extends Component {
+module.exports = class SettingsUnsubscribePage extends Component {
   oninit() {
-    if (this.state.drip_unsubscribed) return this.state
+    const { unsubscribed } = this.state
+    const { id: user_id, list } = this.location.query
 
-    return this.api(`/drip_emails?id=eq.${this.location.query.id}`, {
-      method: 'PATCH',
+    if (unsubscribed) return this.state
+
+    return this.api('/unsubscribes', {
+      method: 'POST',
       headers: { 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ unsubscribed: true }),
+      body: JSON.stringify({ user_id, list }),
     })
     .then(() => {
-      console.log('successfully patched')
-      return { drip_unsubscribed: true }
+      return { unsubscribed: true }
     })
     .catch(error => {
       console.log(error)
-      return { error }
+      if (error && error.message && !~error.message.indexOf('duplicate')) {
+        return { error }
+      }
     })
+  }
+
+  onpagechange(oldProps) {
+    if (oldProps.url !== this.props.url) return this.oninit()
   }
 
   onclick(event) {
