@@ -46,6 +46,7 @@ module.exports = class VerifyOTP extends Component {
       method: 'POST',
       body: JSON.stringify({
         email: sign_in_email,
+        phone_user_id: null,
         device_desc: userAgent || 'Unknown',
         signup_channel: 'united.vote',
         cookie: this.storage.get('cookie') || '',
