@@ -19,7 +19,16 @@ module.exports = class Join extends Component {
           }),
         })
         .then(() => this.location.redirect('/'))
-        .catch(() => this.location.redirect('/'))
+        .catch(api_error => {
+          if (~api_error.message.indexOf('constraint "email')) {
+            this.setState({ error: 'Invalid email address' })
+          } else if (api_error.message === 'Please wait 10 seconds and try again') {
+            this.setState({ error: api_error.message })
+          } else {
+            console.log(api_error)
+            this.setState({ error: `There was a problem on our end. Please try again and let us know if you're still encountering a problem.` })
+          }
+        })
       }
 
       return this.location.redirect('/')

@@ -110,11 +110,15 @@ module.exports = class SignIn extends Component {
 
       return this.location.redirect(303, '/sign_in/verify')
     })
-    .catch((error) => {
-      if (~error.message.indexOf('constraint "email')) {
-        error.message = 'Invalid email address'
+    .catch(api_error => {
+      if (~api_error.message.indexOf('constraint "email')) {
+        this.setState({ error: 'Invalid email address' })
+      } else if (api_error.message === 'Please wait 10 seconds and try again') {
+        this.setState({ error: api_error.message })
+      } else {
+        console.log(api_error)
+        this.setState({ error: `There was a problem on our end. Please try again and let us know if you're still encountering a problem.` })
       }
-      return { error }
     })
   }
   render() {

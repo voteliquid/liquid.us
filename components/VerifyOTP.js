@@ -57,9 +57,13 @@ module.exports = class VerifyOTP extends Component {
       return redirect(303, '/sign_in/verify?notification=resent_code')
     })
     .catch(api_error => {
-      console.log(api_error)
-      return {
-        error: (~api_error.message.indexOf('constraint "email')) ? 'Invalid email address' : api_error.message,
+      if (~api_error.message.indexOf('constraint "email')) {
+        this.setState({ error: 'Invalid email address' })
+      } else if (api_error.message === 'Please wait 10 seconds and try again') {
+        this.setState({ error: api_error.message })
+      } else {
+        console.log(api_error)
+        this.setState({ error: `There was a problem on our end. Please try again and let us know if you're still encountering a problem.` })
       }
     })
   }
