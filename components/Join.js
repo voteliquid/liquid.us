@@ -18,7 +18,30 @@ module.exports = class Join extends Component {
             cookie: this.storage.get('cookie') || '',
           }),
         })
-        .then(() => this.location.redirect('/'))
+        .then(() => {
+          const proxy_to = this.location.query.proxy_to
+          if (proxy_to) {
+            return this.api('/delegations', {
+              method: 'POST',
+              headers: { Prefer: 'return=representation' }, // returns created delegation in response
+              body: JSON.stringify({
+                from_id: this.state.user.id,
+                username: proxy_to,
+                delegate_rank: 0,
+              }),
+            })
+            .then((proxies) => {
+              this.storage.set('proxied_user_id', proxies[0].to_id)
+              this.storage.unset('proxying_user_id')
+              this.location.redirect(303, `/${proxy_to}`)
+            })
+            .catch(error => {
+              console.log(error)
+              this.location.redirect('/')
+            })
+          }
+          this.location.redirect('/')
+        })
         .catch(api_error => {
           if (~api_error.message.indexOf('constraint "email')) {
             this.setState({ error: 'Invalid email address' })
