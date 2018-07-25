@@ -102,12 +102,11 @@ module.exports = class VerifyOTP extends Component {
       })
     })
     .then(({ jwt, user_id }) => {
-      const delegating_user_id = this.storage.get('delegating_user_id')
       const proxying_user_id = this.storage.get('proxying_user_id')
       const redirect_to = this.storage.get('redirect_to')
       const vote_position = this.storage.get('vote_position')
 
-      if (delegating_user_id) {
+      if (proxying_user_id) {
         return this.api('/delegations', {
           method: 'POST',
           headers: { Prefer: 'return=representation' }, // returns created delegation in response

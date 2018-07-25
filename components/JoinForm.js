@@ -15,9 +15,17 @@ module.exports = class JoinForm extends Component {
   }
   fetchProxyingProfile() {
     const proxying_user_id = this.storage.get('proxying_user_id')
+    const proxying_username = this.location.query.proxy_to
     if (proxying_user_id) {
       return this.api(`/user_profiles?select=user_id,first_name,last_name&user_id=eq.${proxying_user_id}`)
         .then(users => this.setState({ req_proxy_profile: users[0] }))
+    }
+    if (proxying_username) {
+      return this.api(`/user_profiles?select=user_id,first_name,last_name&username=eq.${proxying_username}`)
+        .then(users => {
+          this.storage.set('proxying_user_id', users[0].user_id)
+          this.setState({ req_proxy_profile: users[0] })
+        })
     }
   }
   fetchSignupMetrics() {
@@ -34,12 +42,12 @@ module.exports = class JoinForm extends Component {
     const { APP_NAME } = config
     const { show_title } = this.props
     const { query } = this.location
-    const proxying_user_id = this.storage.get('proxying_user_id')
+    const proxy_to = this.storage.get('proxying_user_id') || this.location.query.proxy_to
     const vote_position = this.storage.get('vote_position')
 
     return this.html`
       <div>
-        ${proxying_user_id && req_proxy_profile ? [`
+        ${proxy_to && req_proxy_profile ? [`
           <div class="notification has-text-centered is-info">
             Join ${APP_NAME} to proxy to ${req_proxy_profile.first_name} ${req_proxy_profile.last_name}.
           </div>
