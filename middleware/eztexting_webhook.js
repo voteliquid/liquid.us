@@ -9,7 +9,7 @@ function eztextingWebhook(req, res, next) {
   const phone_number = `+1${req.query.PhoneNumber}`
   const message = req.query.Message
   const proxy_re = message.match(/liquid +(\w+)/i)
-  const proxy = (proxy_re && proxy_re[1]).toLowerCase()
+  const proxy = (proxy_re ? proxy_re[1] : '').toLowerCase()
 
   if (
     valid_phone.test(phone_number) &&
