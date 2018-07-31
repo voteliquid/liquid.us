@@ -58,7 +58,7 @@ server
   .use(redirects)
   .use('/assets', serveStatic(path.join(__dirname, 'public'))) // TODO serve using CDN in production
   .get('/rpc/healthcheck', (req, res) => res.status(200).end())
-  .get('/rpc/geoip', geoip)
+  .get('/rpc/geoip/:ip', geoip)
   .get('/rpc/eztexting_webhook', eztextingWebhook)
   .post('/rpc/twitter_username_search', bodyParser.json(), twitterUsernameSearch)
   .use(hyperloop.server(require.resolve('./components/App.js'), {

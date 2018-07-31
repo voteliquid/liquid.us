@@ -69,8 +69,6 @@ module.exports = class App extends Component {
 }
 
 const trackPageview = (ctx) => {
-  const { user } = ctx.state
-
   // https://help.luckyorange.com/article/126-tagging-with-javascript
   // https://help.luckyorange.com/article/41-passing-in-custom-user-data
   window._loq = window._loq || []
@@ -87,11 +85,7 @@ const trackPageview = (ctx) => {
     if (!ctx.storage.get('cookie')) {
       ctx.storage.set('cookie', res.headers.get('Location').slice(17, 53))
     }
-    const customData = {
-      cookie: ctx.storage.get('cookie') || '',
-      email: user ? user.email : '',
-    }
-    window._loq.push(['custom', customData])
+    window._loq.push(['custom', { cookie: ctx.storage.get('cookie') || '' }])
   })
 }
 

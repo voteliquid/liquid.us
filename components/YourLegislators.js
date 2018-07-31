@@ -9,7 +9,7 @@ module.exports = class YourLegislators extends Component {
   }
   fetchElectedLegislators() {
     const { config, reps, user } = this.state
-    const { NODE_ENV } = config
+    const { NODE_ENV, WWW_URL } = config
 
     if (reps && reps.length) return
 
@@ -27,8 +27,7 @@ module.exports = class YourLegislators extends Component {
 
     if (ip === '::1' && NODE_ENV !== 'production') ip = '198.27.235.190'
 
-    // https://freegeoip.net 15,000 req per hour
-    return fetch(`https://freegeoip.net/json/${ip}`, {
+    return fetch(`${WWW_URL}/rpc/geoip/${ip}`, {
       headers: {
         Accept: 'application/json',
       },
@@ -40,7 +39,7 @@ module.exports = class YourLegislators extends Component {
       if (!geoip) return { reps: [], reps_loaded: true }
       return this.api('/rpc/point_to_offices', {
         method: 'POST',
-        body: JSON.stringify({ lon: Number(geoip.longitude), lat: Number(geoip.latitude) }),
+        body: JSON.stringify({ lon: Number(geoip.lon), lat: Number(geoip.lat) }),
       })
       .then(reps => {
         if (!reps) reps = []
@@ -142,7 +141,7 @@ class AnonAddressNotification extends Component {
     const { geoip } = this.state
     return this.html`
       <div class="notification">
-        We selected your reps by guessing your location in <strong>${geoip.city}, ${geoip.region_code}.</strong> But this is only right about half the time. <strong><a href="/join">Set your address</a></strong>.
+        We selected your reps by guessing your location in <strong>${geoip.city}, ${geoip.regionName}.</strong> But this is only right about half the time. <strong><a href="/join">Set your address</a></strong>.
       </div>
     `
   }
@@ -153,7 +152,7 @@ class AuthedAddressNotification extends Component {
     const { geoip } = this.state
     return this.html`
       <div class="notification content">
-        <p>We selected your reps by guessing your location in <strong>${geoip.city}, ${geoip.region_code}</strong>. But this is only right about half the time. Fix it by entering your address.</p>
+        <p>We selected your reps by guessing your location in <strong>${geoip.city}, ${geoip.regionName}</strong>. But this is only right about half the time. Fix it by entering your address.</p>
         <div class="columns">
           <div class="column is-half">
             ${AddressAutocompleteForm.for(this)}
