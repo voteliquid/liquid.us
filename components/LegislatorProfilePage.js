@@ -1,6 +1,6 @@
 const Component = require('./Component')
-const ordinalSuffix = require('ordinal-suffix')
 const YourLegislators = require('./YourLegislators')
+const LegislatorScoreCard = require('./LegislatorScoreCard')
 
 module.exports = class LegislatorProfilePage extends Component {
   oninit() {
@@ -105,21 +105,8 @@ module.exports = class LegislatorProfilePage extends Component {
                 </div>
               </div>
             </div>
-            <div class="column is-one-third-desktop is-half-tablet">
-              <div class="box">
-                <div class="content">
-                  <p>
-                    <span class="tag is-dark has-text-weight-bold is-size-4">${selected_profile.score_grade || [`<span class="icon"><i class="fa fa-question"></i></span>`]}</span>
-                  </p>
-                  ${selected_profile.score_grade ?
-                    [`
-                      <p class="is-size-6 has-text-grey">${ordinalSuffix(selected_profile.score_percentile)} percentile among ${selected_profile.elected_office_chamber === 'Lower' ? 'House' : 'Senate'} ${selected_profile.party_affiliation}s</p>
-                      <p class="is-size-7 has-text-grey">Graded on how often ${selected_profile.first_name} votes the same way as verified constituents in ${selected_profile.elected_office_short_name}</p>
-                    `] : [`
-                      <p>Need more constituent votes to calculate a grade.<p>
-                  `]}
-                </div>
-              </div>
+            <div class="column is-half is-one-third-fullhd">
+              ${LegislatorScoreCard.for(this, selected_profile)}
             </div>
           </div>
           ${LatestVotesTable.for(this)}

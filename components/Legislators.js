@@ -6,7 +6,7 @@ module.exports = class LegislatorsPage extends Component {
   oninit() {
     if (!this.state.legislators) {
       this.setState({ loading_legislators: true })
-      return this.api('/user_profiles?select=user_id,username,first_name,last_name,party_affiliation,elected_office_chamber,elected_office_short_name,num_verified_constituents,score_grade&elected_office_name=neq.null&order=score_grade.asc.nullslast,num_verified_constituents.desc.nullslast,last_name.asc')
+      return this.api('/user_profiles?select=user_id,username,first_name,last_name,party_affiliation,elected_office_chamber,elected_office_short_name,num_verified_constituents,representation_grade&elected_office_name=neq.null&order=representation_grade.asc.nullslast,num_verified_constituents.desc.nullslast,last_name.asc')
         .then(legislators => ({ loading_legislators: false, legislators }))
         .catch(error => ({ error, loading_legislators: false, legislators: [] }))
     }
@@ -99,7 +99,7 @@ class CongressMembersRow extends Component {
           <span class="has-text-grey">${l.elected_office_short_name}</span>
         </td>
         <td>${l.num_verified_constituents}</td>
-        <td>${l.score_grade}</td>
+        <td>${l.representation_grade}</td>
       </tr>
     `
   }
