@@ -26,7 +26,7 @@ module.exports = class Comment extends Component {
     const email_share_body = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${measure_title}. See why: ${share_url}`
     const email_share_subject = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${measure_title}.`
     const twitter_share_text = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${twitter_measure_title}. See why: ${share_url}`
-    const tooltip = is_public
+    const tooltip = is_public || !fullname
       ? `This vote is public. Anyone can see it.`
       : user && user.id === user_id
         ? `This is your vote. Only <a href="/proxies/requests">people you've approved</a> will see your identity.`
@@ -72,10 +72,10 @@ module.exports = class Comment extends Component {
             <span class="notification is-marginless comment-tooltip"><button class="delete"></button>${[tooltip]}</span>
             <span class="has-text-grey-light">
               <a href="/proxies/requests" onclick="${this}" class="has-text-centered has-text-grey-light privacy-indicator">
-                <span class="icon is-small"><i class="${`fa ${is_public ? 'fa-globe' : 'fa-address-book-o'}`}"></i></span>
-                <span>${is_public ? 'Public' : 'Private'}</span>
+                <span class="icon is-small"><i class="${`fa ${is_public || !fullname ? 'fa-globe' : 'fa-address-book-o'}`}"></i></span>
+                <span>${is_public || !fullname ? 'Public' : 'Private'}</span>
               </a>
-              ${is_public ? [`
+              ${is_public || !fullname ? [`
                 <span class="has-text-grey-lighter">&bullet;</span>
                 <a title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-facebook"></i></span></a>
                 <a target="_blank" title="Share on Twitter" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-twitter"></i></span></a>
