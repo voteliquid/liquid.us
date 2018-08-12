@@ -50,17 +50,11 @@ module.exports = class UserProfilePage extends Component {
                 ? [`
                   <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
                   <style>
-                    .tooltip:hover::before {
-                      background: #000 !important;
-                    }
-                    .tooltip:hover::after {
-                      border-color: #000 transparent transparent transparent !important;
-                    }
                     .fix-bulma-centered-text {
                       display: inline-block; /* https://github.com/jgthms/bulma/issues/913 */
                     }
                   </style>
-                  <button disabled class="button is-info is-outlined is-fullwidth is-medium tooltip fix-bulma-centered-text" data-tooltip="You can't proxy to yourself">
+                  <button disabled class="button is-info is-outlined is-fullwidth is-medium tooltip is-tooltip-info fix-bulma-centered-text" data-tooltip="You can't proxy to yourself">
                     <span class="icon is-small"><i class="fa fa-handshake-o"></i></span>
                     <span>Proxy</span>
                   </button>

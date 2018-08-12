@@ -109,6 +109,17 @@ function htmlHead(state) {
         margin-top: -3rem;
         margin-bottom: 3rem;
       }
+
+      .comment-tooltip {
+        display: none;
+        position: absolute;
+        bottom: -1.25rem;
+        right: -1.25rem;
+        left: -1.25rem;
+        text-align: center;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+      }
     </style>
     <meta property="og:title" content="${title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
     <meta property="og:description" content="${description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
