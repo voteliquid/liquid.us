@@ -1,6 +1,5 @@
 const Component = require('./Component')
 const fetch = require('isomorphic-fetch')
-const GoogleAddressAutocompleteScript = require('./GoogleAddressAutocompleteScript')
 const ordinalSuffix = require('ordinal-suffix')
 
 module.exports = class YourLegislators extends Component {
@@ -8,10 +7,10 @@ module.exports = class YourLegislators extends Component {
     return this.fetchElectedLegislators()
   }
   fetchElectedLegislators() {
-    const { config, reps, user } = this.state
+    const { config, reps_loaded, user } = this.state
     const { NODE_ENV, WWW_URL } = config
 
-    if (reps && reps.length) return
+    if (reps_loaded) return
 
     const address = user && user.address
 
@@ -152,36 +151,8 @@ class AuthedAddressNotification extends Component {
     const { geoip } = this.state
     return this.html`
       <div class="notification content">
-        <p>We selected your reps by guessing your location in <strong>${geoip.city}, ${geoip.regionName}</strong>. But this is only right about half the time. Fix it by entering your address.</p>
-        <div class="columns">
-          <div class="column is-half">
-            ${AddressAutocompleteForm.for(this)}
-          </div>
-        </div>
+        <p>We selected your reps by guessing your location in <strong>${geoip.city}, ${geoip.regionName}</strong>. But this is only right about half the time. <a href="/get_started/basics">Enter your address</a> to fix it.</p>
       </div>
-    `
-  }
-}
-
-class AddressAutocompleteForm extends Component {
-  render() {
-    return this.html`
-      <form method="POST" onsubmit=${this} action=${this}>
-        <div class="field has-addons" style="align-items: center;">
-          <div class="control">
-            <label>Address:&nbsp;</label>
-          </div>
-          <div class="control is-expanded">
-            <input class="input" name="address[address]" id="address_autocomplete" placeholder="Enter your address of residence"/>
-          </div>
-          <div class="control">
-            <button class="button is-primary">Set Representatives!</button>
-          </div>
-        </div>
-        <input name="address[lat]" id="address_lat" type="hidden" />
-        <input name="address[lon]" id="address_lon" type="hidden" />
-      </form>
-      ${GoogleAddressAutocompleteScript.for(this)}
     `
   }
 }
