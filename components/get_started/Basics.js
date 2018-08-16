@@ -31,9 +31,9 @@ class GetStartedBasicsPage extends Component {
     const last_name = name_pieces.slice(1).join(' ')
 
     if (formData.address.name.split(' ').length < 2) {
-      return { error: { name: true, message: 'Please enter a first and last name' } }
+      return { loading: false, error: { name: true, message: 'Please enter a first and last name' } }
     } else if (formData.address.name.split(' ').length > 5) {
-      return { error: { name: true, message: 'Please enter only a first and last name' } }
+      return { loading: false, error: { name: true, message: 'Please enter only a first and last name' } }
     }
 
     if (!lat || !lon) {
