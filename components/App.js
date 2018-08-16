@@ -19,7 +19,14 @@ module.exports = class App extends Component {
     }
 
     if (!user && jwt) {
-      promise = this.api(`/users?select=id,about,intro_video_url,email,first_name,last_name,username,cc_verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`).then(users => this.setState({ user: { ...users[0], address: users[0].address[0] } }))
+      promise = this.api(`/users?select=id,about,intro_video_url,email,first_name,last_name,username,cc_verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`).then(users => {
+        this.setState({
+          user: {
+            ...users[0],
+            address: users[0] ? users[0].address[0] : null,
+          }
+        })
+      })
     }
 
     return promise
