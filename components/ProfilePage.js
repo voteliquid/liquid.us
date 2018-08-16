@@ -9,9 +9,9 @@ module.exports = class ProfilePage extends Component {
     const username = this.props.params.username.toLowerCase()
     const { path } = this.location
 
-    let url = `/user_profiles?username_lower=eq.${username}`
+    let url = `/user_profiles?username=eq.${username}`
     if (path.slice(0, 8) === '/twitter') {
-      url = `/user_profiles?twitter_username_lower=eq.${username}`
+      url = `/user_profiles?twitter_username=eq.${username}`
     }
 
     this.setState({ loading_profile: true })

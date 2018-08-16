@@ -42,18 +42,19 @@ module.exports = class VerifyOTP extends Component {
       return redirect('/sign_in')
     }
 
-    return this.api('/rpc/request_email_totp', {
+    return this.api('/totp?select=device_id', {
       method: 'POST',
+      headers: { 'Prefer': 'return=representation' },
       body: JSON.stringify({
         email: sign_in_email,
-        phone_user_id: null,
         device_desc: userAgent || 'Unknown',
         signup_channel: 'united.vote',
         cookie: this.storage.get('cookie') || '',
       }),
     })
-    .then(({ device_secret }) => {
-      this.storage.set('device_secret', device_secret)
+    .then((results) => results[0])
+    .then(({ device_id }) => {
+      this.storage.set('device_id', device_id)
       return redirect(303, '/sign_in/verify?notification=resent_code')
     })
     .catch(api_error => {
@@ -72,27 +73,28 @@ module.exports = class VerifyOTP extends Component {
 
     const { user } = this.state
     const { redirect, query, userAgent } = this.location
-    const device_secret = this.storage.get('device_secret')
 
     if (user && !query.totp) {
       return redirect(303, '/get_started')
     }
 
     const signin_body = {
-      device_secret: query.device_id || device_secret,
       totp: formData && formData.totp ? formData.totp.replace(/[^\d]/g, '') : query.totp,
+      device_id: this.storage.get('device_id'),
       device_desc: userAgent,
     }
 
-    return this.api('/rpc/request_jwt', {
+    return this.api('/sessions?select=refresh_token,user_id,jwt', {
       method: 'POST',
+      headers: { Prefer: 'return=representation' },
       body: JSON.stringify(signin_body),
     })
+    .then((results) => results[0])
     .then(({ jwt, refresh_token, user_id }) => {
       this.storage.set('jwt', jwt, { expires: new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)) })
       this.storage.set('refresh_token', refresh_token, { expires: new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)) })
       this.storage.set('user_id', user_id, { expires: new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)) })
-      this.storage.unset('device_secret')
+      this.storage.unset('device_id')
       this.storage.unset('sign_in_email')
 
       return this.api(`/users?select=id,email,first_name,last_name,username,cc_verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`)

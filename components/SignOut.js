@@ -10,7 +10,7 @@ module.exports = class SignOut extends Component {
   signOut() {
     const refresh_token = this.storage.get('refresh_token')
 
-    this.storage.unset('device_secret')
+    this.storage.unset('device_id')
     this.storage.unset('jwt')
     this.storage.unset('refresh_token')
     this.storage.unset('user_id')
@@ -25,12 +25,11 @@ module.exports = class SignOut extends Component {
     this.setState({ user: null }, false)
 
     if (refresh_token) {
-      return this.api('/rpc/revoke_device_token', {
-        method: 'POST',
-        body: JSON.stringify({ refresh_token }),
+      return this.api(`/sessions?select=jwt&refresh_token=eq.${refresh_token}`, {
+        method: 'DELETE',
       })
       .then(() => this.location.redirect('/'))
-      .catch(() => this.location.redirect('/'))
+      .catch((error) => console.error(error))
     }
 
     this.location.redirect('/')

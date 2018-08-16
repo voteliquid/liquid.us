@@ -27,15 +27,17 @@ module.exports = class Component extends hyperloop.Component {
           const refresh_token = this.storage.get('refresh_token')
 
           if (json.message === 'JWT expired' && refresh_token) {
-            return fetch(`${API_URL}/rpc/refresh_jwt`, {
+            return fetch(`${API_URL}/sessions?select=jwt`, {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
+                'Prefer': 'return=representation',
               },
               body: JSON.stringify({ refresh_token }),
             })
             .then(res => res.json())
+            .then(results => results[0])
             .then(({ jwt }) => {
               this.storage.set('jwt', jwt, { expires: new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)) })
 

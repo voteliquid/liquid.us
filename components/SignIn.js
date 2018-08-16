@@ -1,4 +1,5 @@
 const Component = require('./Component')
+const atob = require('atob')
 
 module.exports = class SignIn extends Component {
   oninit() {
@@ -22,91 +23,125 @@ module.exports = class SignIn extends Component {
   onsubmit(event, formData) {
     event.preventDefault()
 
-    const phone_user_id = formData.phone_user_id || null
+    const phone_number = this.location.query.ph ? atob(this.location.query.ph) : null
     const email = formData.email.toLowerCase().trim()
     const proxying_user_id = this.storage.get('proxying_user_id')
     const vote_position = this.storage.get('vote_position')
+    const device_desc = this.location.userAgent || 'Unknown'
 
-    return this.api(`/rpc/request_email_totp`, {
+    return this.api('/totp?select=device_id,first_seen', {
       method: 'POST',
+      headers: { Prefer: 'return=representation' },
       body: JSON.stringify({
         email,
-        phone_user_id,
-        device_desc: this.location.userAgent || 'Unknown',
+        phone_number,
+        device_desc,
         signup_channel: 'united.vote',
         cookie: this.storage.get('cookie') || '',
       }),
     })
-    .then(({ device_secret, jwt, refresh_token, user_id }) => {
-      const oneYearFromNow = new Date(Date.now() + (365 * 24 * 60 * 60 * 1000))
-
-      if (event.target) {
+    .then((results) => results[0])
+    .then(({ device_id, first_seen }) => {
+      if (event.target && event.target.reset) {
         event.target.reset()
       }
 
-      if (jwt) {
-        this.storage.set('jwt', jwt, { expires: oneYearFromNow })
-        this.storage.set('refresh_token', refresh_token, { expires: oneYearFromNow })
-        this.storage.set('user_id', user_id, { expires: oneYearFromNow })
+      if (first_seen) {
+        return this.api('/sessions?select=refresh_token,user_id,jwt', {
+          method: 'POST',
+          headers: { Prefer: 'return=representation' },
+          body: JSON.stringify({ device_id, device_desc }),
+        }).then((results) => results[0])
+        .then(({ jwt, refresh_token, user_id }) => {
+          const oneYearFromNow = new Date(Date.now() + (365 * 24 * 60 * 60 * 1000))
 
-        return this.api(`/users?select=id,email,first_name,last_name,username,cc_verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`)
-        .then(users => {
-          this.setState({ user: { ...users[0], address: users[0].address[0] } }, false)
+          this.storage.set('jwt', jwt, { expires: oneYearFromNow })
+          this.storage.set('refresh_token', refresh_token, { expires: oneYearFromNow })
+          this.storage.set('user_id', user_id, { expires: oneYearFromNow })
 
-          if (proxying_user_id) {
-            return this.api('/delegations', {
-              method: 'POST',
-              headers: { Prefer: 'return=representation' }, // returns created delegation in response
-              jwt,
-              body: JSON.stringify({
-                from_id: user_id,
-                to_id: proxying_user_id,
-                delegate_rank: 0,
-              }),
-            })
-            .then(() => {
-              this.storage.set('proxied_user_id', proxying_user_id)
-              this.storage.unset('proxying_user_id')
-              return this.location.redirect(303, '/get_started')
-            })
-            .catch(error => {
-              console.log(error)
-              return this.location.redirect(303, '/get_started')
-            })
-          }
+          return this.api(`/users?select=id,email,first_name,last_name,username,cc_verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`)
+          .then(users => {
+            const proxy_to = this.location.query.proxy_to
 
-          if (vote_position) {
-            return this.api('/rpc/vote', {
-              method: 'POST',
-              jwt,
-              body: JSON.stringify({
-                user_id,
-                measure_id: this.storage.get('vote_bill_id'),
-                vote_position,
-                comment: this.storage.get('vote_comment') || null,
-                public: this.storage.get('vote_public') === 'true',
-              }),
-            })
-            .then(() => {
-              if (this.isBrowser && window._loq) window._loq.push(['tag', 'Voted'])
-              this.storage.unset('vote_position')
-              this.storage.unset('vote_bill_id')
-              this.storage.unset('vote_public')
-              this.storage.unset('vote_comment')
-              return this.location.redirect(303, '/get_started')
-            })
-            .catch(error => {
-              console.log(error)
-              return this.location.redirect(303, '/get_started')
-            })
-          }
+            this.setState({ user: { ...users[0], address: users[0].address[0] } }, false)
 
-          return this.location.redirect(303, '/get_started')
+            if (proxying_user_id) {
+              return this.api('/delegations', {
+                method: 'POST',
+                headers: { Prefer: 'return=representation' }, // returns created delegation in response
+                jwt,
+                body: JSON.stringify({
+                  from_id: user_id,
+                  to_id: proxying_user_id,
+                  delegate_rank: 0,
+                }),
+              })
+              .then(() => {
+                this.storage.set('proxied_user_id', proxying_user_id)
+                this.storage.unset('proxying_user_id')
+                return this.location.redirect(303, '/get_started')
+              })
+              .catch(error => {
+                console.log(error)
+                return this.location.redirect(303, '/get_started')
+              })
+            }
+
+            if (proxy_to) {
+              return this.api('/delegations', {
+                method: 'POST',
+                headers: { Prefer: 'return=representation' }, // returns created delegation in response
+                jwt,
+                body: JSON.stringify({
+                  from_id: user_id,
+                  username: proxy_to,
+                  delegate_rank: 0,
+                }),
+              })
+              .then(() => {
+                this.storage.set('proxied_user_id', proxying_user_id)
+                this.storage.unset('proxying_user_id')
+                return this.location.redirect(303, '/get_started')
+              })
+              .catch(error => {
+                console.log(error)
+                return this.location.redirect(303, '/get_started')
+              })
+            }
+
+            if (vote_position) {
+              return this.api('/rpc/vote', {
+                method: 'POST',
+                jwt,
+                body: JSON.stringify({
+                  user_id,
+                  measure_id: this.storage.get('vote_bill_id'),
+                  vote_position,
+                  comment: this.storage.get('vote_comment') || null,
+                  public: this.storage.get('vote_public') === 'true',
+                }),
+              })
+              .then(() => {
+                if (this.isBrowser && window._loq) window._loq.push(['tag', 'Voted'])
+                this.storage.unset('vote_position')
+                this.storage.unset('vote_bill_id')
+                this.storage.unset('vote_public')
+                this.storage.unset('vote_comment')
+                return this.location.redirect(303, '/get_started')
+              })
+              .catch(error => {
+                console.log(error)
+                return this.location.redirect(303, '/get_started')
+              })
+            }
+
+            return this.location.redirect(303, '/get_started')
+          })
         })
       }
 
       this.storage.set('sign_in_email', email)
-      this.storage.set('device_secret', device_secret)
+      this.storage.set('device_id', device_id)
 
       return this.location.redirect(303, '/sign_in/verify')
     })

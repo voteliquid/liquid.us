@@ -1,57 +1,18 @@
 const Component = require('./Component')
 const JoinForm = require('./JoinForm')
+const atob = require('atob')
 
 module.exports = class Join extends Component {
   oninit() {
     if (this.state.user) {
-      if (this.location.query.sms) {
+      if (this.location.query.ph) {
         // If they followed an SMS signup link, update their account to include their phone number
-        // Currently, the best way to do this is to simply request a TOTP with their email and phone number,
-        // which handles the logic of merging orphan accounts created with that phone number.
-        return this.api(`/rpc/request_email_totp`, {
-          method: 'POST',
-          body: JSON.stringify({
-            email: this.state.user.email,
-            phone_user_id: this.location.query.sms,
-            device_desc: this.location.userAgent || 'Unknown',
-            signup_channel: 'united.vote',
-            cookie: this.storage.get('cookie') || '',
-          }),
+        return this.api(`/users?id=eq.${this.state.user.id}`, {
+          method: 'PATCH',
+          headers: { Prefer: 'return=minimal' },
+          body: JSON.stringify({ phone_number: atob(this.location.query.ph) }),
         })
-        .then(() => {
-          const proxy_to = this.location.query.proxy_to
-          if (proxy_to) {
-            return this.api('/delegations', {
-              method: 'POST',
-              headers: { Prefer: 'return=representation' }, // returns created delegation in response
-              body: JSON.stringify({
-                from_id: this.state.user.id,
-                username: proxy_to,
-                delegate_rank: 0,
-              }),
-            })
-            .then((proxies) => {
-              this.storage.set('proxied_user_id', proxies[0].to_id)
-              this.storage.unset('proxying_user_id')
-              this.location.redirect(303, `/${proxy_to}`)
-            })
-            .catch(error => {
-              console.log(error)
-              this.location.redirect('/')
-            })
-          }
-          this.location.redirect('/')
-        })
-        .catch(api_error => {
-          if (~api_error.message.indexOf('constraint "email')) {
-            this.setState({ error: 'Invalid email address' })
-          } else if (api_error.message === 'Please wait 10 seconds and try again') {
-            this.setState({ error: api_error.message })
-          } else {
-            console.log(api_error)
-            this.setState({ error: `There was a problem on our end. Please try again and let us know if you're still encountering a problem.` })
-          }
-        })
+        .then(() => this.location.redirect('/'))
       }
 
       return this.location.redirect('/')
