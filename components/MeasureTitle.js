@@ -3,7 +3,7 @@ const Component = require('./Component')
 module.exports = class LegislationTitle extends Component {
   render() {
     const { selected_bill: l } = this.state
-    const show_tracker = l.legislature_name === 'U.S. Congress' && (l.type === 'HR' || l.type === 'S')
+    const show_tracker = l.legislature_name === 'U.S. Congress' && l.introduced_at && (l.type === 'HR' || l.type === 'S')
 
     let bill_details_name = false
     let bill_details_url = false
