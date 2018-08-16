@@ -201,7 +201,7 @@ class ProxyButton extends Component {
         }),
       })
       .then(() => {
-        selected_profile.max_vote_power += 1
+        selected_profile.direct_proxy_count += 1
         selected_profile.proxied = true
         return { selected_profile }
       })
@@ -217,7 +217,7 @@ class ProxyButton extends Component {
       headers: { Prefer: 'return=representation' }, // returns created delegation in response
     })
     .then(() => {
-      selected_profile.max_vote_power -= 1
+      selected_profile.direct_proxy_count -= 1
       selected_profile.proxied = false
       return { selected_profile }
     })
