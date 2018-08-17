@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'))
 const checkEngineVersion = require('check-node-version')
+const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
 
 checkEngineVersion({
   node: packageJson.engines.node,
@@ -84,6 +85,8 @@ function htmlHead(state) {
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
     <style>
+      ${nprogressStyle}
+
       #hyperloop_application {
         display: flex;
         min-height: 100vh;

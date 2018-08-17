@@ -1,4 +1,5 @@
 const Component = require('../Component')
+const LoadingIndicator = require('./../LoadingIndicator')
 
 module.exports = class VerificationRouter extends Component {
   oninit() {
@@ -56,6 +57,6 @@ module.exports = class VerificationRouter extends Component {
   }
 
   render() {
-    return this.html`<section />`
+    return this.html`<section>${LoadingIndicator.for(this)}</section>`
   }
 }

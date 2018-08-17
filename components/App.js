@@ -1,11 +1,11 @@
 const { Router } = require('hyperloop')
 const Component = require('./Component')
 const Footer = require('./Footer')
-const LoadingIndicator = require('./LoadingIndicator')
 const YourLegislators = require('./YourLegislators')
 const NavBar = require('./NavBar')
 const NotFound = require('./NotFound')
 const routes = require('../routes')
+const nprogress = require('nprogress')
 
 module.exports = class App extends Component {
   oninit() {
@@ -47,18 +47,23 @@ module.exports = class App extends Component {
         ${NavBar.for(this)}
         ${Router.for(this, {
           afterPageChange: () => {
+            setTimeout(() => nprogress.done(), 1000)
+            if (this._timer) clearTimeout(this._timer)
             if (this.isBrowser) trackPageview(this)
             this.setState({ loading_page: false, error: false, selected_profile: null }, false)
           },
           beforePageChange: () => {
+            this._timer = setTimeout(() => {
+              nprogress.start()
+              this.setState({ loading_page: true })
+            }, 500)
+
             this.setState({
               hamburgerVisible: false,
-              loading_page: true,
               error: false,
               randomQuote: quotes[Math.floor(Math.random() * quotes.length)],
             }, false)
           },
-          loading: LoadingIndicator,
           notFound: () => {
             this.setState({ page_title: 'Not Found' }, false)
             return NotFound
