@@ -68,7 +68,7 @@ module.exports = class LegislatorProfilePage extends Component {
             </ul>
           </nav>
           ${isMyRep && !user ? [`
-            <div class="notification is-dark has-text-centered">
+            <div class="notification is-info has-text-centered">
               This looks like one of your reps. <a href="/join"><strong>Join United</strong></a> to begin holding them accountable.
             </div>
           `] : []}
