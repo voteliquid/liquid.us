@@ -140,8 +140,8 @@ class FilterTabs extends Component {
     const { query } = this.location
 
     const orderDescriptions = {
-      upcoming: 'Bills upcoming for a vote in the legislature',
-      new: 'Bills recently introduced',
+      upcoming: 'Bills upcoming for a vote in the legislature.',
+      new: 'Bills recently introduced.',
     }
 
     return this.html`
