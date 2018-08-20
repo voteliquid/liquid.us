@@ -21,8 +21,8 @@ module.exports = class LegislatorScoreCard extends Component {
               <span class="has-text-weight-bold has-text-grey-dark is-size-5">${with_constituent_percentage}%</span>
               <span class="is-size-6 has-text-grey">aligned with constituents</span>
               <br />
-              <span class="has-text-weight-bold has-text-grey-dark is-size-5">${representation_grade}</span>
-              <span class="is-size-6 has-text-grey">${ordinalSuffix(representation_percentile)} percentile among ${elected_office_chamber === 'Lower' ? 'House' : 'Senate'} ${party_affiliation}s</span>
+              <span class="has-text-weight-bold has-text-grey-dark is-size-5">${ordinalSuffix(representation_percentile)}</span>
+              <span class="is-size-6 has-text-grey">percentile among ${elected_office_chamber === 'Lower' ? 'House' : 'Senate'} ${party_affiliation}s</span>
             `] : [`
               <span class="has-text-weight-bold has-text-grey-dark is-size-5"><span class="icon"><i class="fa fa-question"></i></span></span>
               <span>Need more constituent votes to calculate their scorecard.<span>
