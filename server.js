@@ -130,6 +130,7 @@ function htmlHead(state) {
     <meta property="og:type" content="website" />
     ${responsiveTableStyle}
     ${roundAvatarStyle}
+    ${underlineBreadcrumbLinks}
   `
 }
 
@@ -204,6 +205,14 @@ const roundAvatarStyle = `
     border-radius: 50%;
     height: 100% !important;
     object-fit: cover;
+  }
+  </style>
+`
+
+const underlineBreadcrumbLinks = `
+  <style>
+  .breadcrumb a:hover {
+    text-decoration: underline;
   }
   </style>
 `
