@@ -27,7 +27,7 @@ module.exports = class Component extends hyperloop.Component {
           const refresh_token = this.storage.get('refresh_token')
 
           if (json.message === 'JWT expired' && refresh_token) {
-            return fetch(`${API_URL}/sessions?select=jwt&refresh_token`, {
+            return fetch(`${API_URL}/sessions?select=jwt,refresh_token`, {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',
