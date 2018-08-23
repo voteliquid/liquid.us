@@ -1,5 +1,6 @@
 const Component = require('./Component')
 const LoadingIndicator = require('./LoadingIndicator')
+const Sidebar = require('./MeasureDetailsSidebar')
 
 module.exports = class MeasureVotePage extends Component {
   oninit() {
@@ -128,94 +129,99 @@ class MeasureVoteForm extends Component {
     const v = l.my_vote ? l.my_vote : {}
     const public_checked = v.hasOwnProperty('public') ? v.public : last_vote_public
     return this.html`
-      <div class="container">
-        <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
-          <ul>
-            <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-            <li><a class="has-text-grey" href="${legislation_query || '/legislation'}">Legislation</a></li>
-            <li><a class="has-text-grey" href="${`/legislation/${l.short_id}`}">${l.introduced_at ? `${l.type} ${l.number}` : 'Bill Details'}</a></li>
-            <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Vote</a></li>
-          </ul>
-        </nav>
-      </div>
       <section class="section">
         <div class="container">
-          ${(v.id && !user.cc_verified) ? [`
-            <div class="notification is-info">
-            <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
-            <strong>Help hold your reps accountable!</strong><br />
-            Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
+          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
+            <ul>
+              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
+              <li><a class="has-text-grey" href="${legislation_query || '/legislation'}">Legislation</a></li>
+              <li><a class="has-text-grey" href="${`/legislation/${l.short_id}`}">${l.introduced_at ? `${l.type} ${l.number}` : 'Bill Details'}</a></li>
+              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Vote</a></li>
+            </ul>
+          </nav>
+          <div class="columns">
+            <div class="column is-one-quarter">
+              ${Sidebar.for(this, { ...l, user }, `vote-measure-sidebar-${l.id}`)}
             </div>
-          `] : ''}
-            <h2 class="title is-4 has-text-weight-normal">Vote on ${[l.introduced_at ? `${l.type} ${l.number} &mdash; ${l.title}` : l.title]}</h2>
-            ${l.vote_power > 1 ? [`<div class="notification"><span class="icon"><i class="fa fa-users"></i></span>You are casting a vote for <strong>${l.vote_power}</strong> people as their proxy. Consider including an explanation of your position.</div>`] : ''}
-            <form method="POST" onsubmit=${this} action=${this}>
-              ${error ? [`<div class="notification is-danger">${error}</div>`] : ''}
-              <div class="field">
-                <label for="vote_position" class="label has-text-grey">Position:</label>
-                <div class="control">
-                  <div class="button narrow-on-mobile">
-                    <label class="radio">
-                      <input onclick=${this} type="radio" name="vote_position" value="yea" checked=${v.vote_position === 'yea' ? 'checked' : ''} />
-                      Yea
-                    </label>
-                  </div>
-                  <div class="button narrow-on-mobile">
-                    <label class="radio">
-                      <input onclick=${this} type="radio" name="vote_position" value="nay" checked=${v.vote_position === 'nay' ? 'checked' : ''} />
-                      Nay
-                    </label>
-                  </div>
-                  <div class="button narrow-on-mobile">
-                    <label class="radio">
-                      <input onclick=${this} type="radio" name="vote_position" value="abstain" checked=${v.vote_position === 'abstain' ? 'checked' : ''} />
-                      Undecided
-                    </label>
-                  </div>
-                  <style>
-                    label.radio {
-                      padding: 0px 18px;
-                    }
-                    @media (max-width: 440px) {
-                      .narrow-on-mobile {
-                        padding: 0px 10px;
-                      }
+            <div class="column">
+              ${(v.id && !user.cc_verified) ? [`
+                <div class="notification is-info">
+                  <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
+                  <strong>Help hold your reps accountable!</strong><br />
+                  Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
+                </div>
+              `] : ''}
+              <h2 class="title is-4 has-text-weight-normal">Vote on ${[l.introduced_at ? `${l.type} ${l.number} &mdash; ${l.title}` : l.title]}</h2>
+              ${l.vote_power > 1 ? [`<div class="notification"><span class="icon"><i class="fa fa-users"></i></span>You are casting a vote for <strong>${l.vote_power}</strong> people as their proxy. Consider including an explanation of your position.</div>`] : ''}
+              <form method="POST" onsubmit=${this} action=${this}>
+                ${error ? [`<div class="notification is-danger">${error}</div>`] : ''}
+                <div class="field">
+                  <label for="vote_position" class="label has-text-grey">Position:</label>
+                  <div class="control">
+                    <div class="button narrow-on-mobile">
+                      <label class="radio">
+                        <input onclick=${this} type="radio" name="vote_position" value="yea" checked=${v.vote_position === 'yea' ? 'checked' : ''} />
+                        Yea
+                      </label>
+                    </div>
+                    <div class="button narrow-on-mobile">
+                      <label class="radio">
+                        <input onclick=${this} type="radio" name="vote_position" value="nay" checked=${v.vote_position === 'nay' ? 'checked' : ''} />
+                        Nay
+                      </label>
+                    </div>
+                    <div class="button narrow-on-mobile">
+                      <label class="radio">
+                        <input onclick=${this} type="radio" name="vote_position" value="abstain" checked=${v.vote_position === 'abstain' ? 'checked' : ''} />
+                        Undecided
+                      </label>
+                    </div>
+                    <style>
                       label.radio {
-                        padding: 0px;
+                        padding: 0px 18px;
                       }
+                      @media (max-width: 440px) {
+                        .narrow-on-mobile {
+                          padding: 0px 10px;
+                        }
+                        label.radio {
+                          padding: 0px;
+                        }
+                      }
+                    </style>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="comment" class="label has-text-grey">Comment:</label>
+                  <div class="control">
+                    <textarea name="comment" autocomplete="off" class="textarea" placeholder="Why are you voting this way? (Optional)" value=${v.comment}></textarea>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="control">
+                    <label class="checkbox">
+                      <input onclick=${this} type="checkbox" name="public" value="true" checked=${public_checked ? 'checked' : ''} />
+                      Public
+                    </label>
+                  </div>
+                  <p class="is-size-7 has-text-grey">
+                    ${public_checked
+                      ? 'Your comment will be published with your name. It will also be listed on your profile.'
+                      : 'Your comment will be published anonymously (your name will not be shown).'
                     }
-                  </style>
+                  </p>
                 </div>
-              </div>
-              <div class="field">
-                <label for="comment" class="label has-text-grey">Comment:</label>
-                <div class="control">
-                  <textarea name="comment" autocomplete="off" class="textarea" placeholder="Why are you voting this way? (Optional)" value=${v.comment}></textarea>
+                <div class="field">
+                  <div class="control">
+                    <button class=${`button is-primary ${saving_vote ? 'is-loading' : ''}`} type="submit">
+                      <span class="icon"><i class="fa fa-pencil-square-o"></i></span>
+                      <span>Confirm Vote</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div class="field">
-                <div class="control">
-                  <label class="checkbox">
-                    <input onclick=${this} type="checkbox" name="public" value="true" checked=${public_checked ? 'checked' : ''} />
-                    Public
-                  </label>
-                </div>
-                <p class="is-size-7 has-text-grey">
-                  ${public_checked
-                    ? 'Your comment will be published with your name. It will also be listed on your profile.'
-                    : 'Your comment will be published anonymously (your name will not be shown).'
-                  }
-                </p>
-              </div>
-              <div class="field">
-                <div class="control">
-                  <button class=${`button is-primary ${saving_vote ? 'is-loading' : ''}`} type="submit">
-                    <span class="icon"><i class="fa fa-pencil-square-o"></i></span>
-                    <span>Confirm Vote</span>
-                  </button>
-                </div>
-              </div>
-            </form>
+              </form>
+            </div>
+          </div>
         </div>
       </section>
     `

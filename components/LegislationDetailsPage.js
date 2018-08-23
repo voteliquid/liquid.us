@@ -60,12 +60,12 @@ module.exports = class LegislationDetailsPage extends Component {
   render() {
     const { loading_bill, selected_bill } = this.state
 
-    return this.html`<div>${
+    return this.html`${
       loading_bill
         ? LoadingIndicator.for(this)
         : selected_bill
           ? MeasureDetails.for(this)
           : NotFound.for(this)
-    }</div>`
+    }`
   }
 }

@@ -1,16 +1,7 @@
-const MeasureTitle = require('./MeasureTitle')
 const Component = require('./Component')
 const Comment = require('./Comment')
 const LoadingIndicator = require('./LoadingIndicator')
-
-function escapeHtml(unsafe) {
-  return unsafe
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
- }
+const Sidebar = require('./MeasureDetailsSidebar')
 
 module.exports = class CommentPage extends Component {
   oninit() {
@@ -38,7 +29,7 @@ module.exports = class CommentPage extends Component {
           return {
             loading_bill: false,
             page_title,
-            page_description: escapeHtml(comment.comment),
+            page_description: this.escapeHtml(comment.comment),
             selected_bill: { ...bills[selected_bill.short_id], ...selected_bill },
             bills: { ...bills, [selected_bill.short_id]: selected_bill },
           }
@@ -70,13 +61,13 @@ module.exports = class CommentPage extends Component {
       loading_bill
         ? LoadingIndicator.for(this)
         : selected_bill && selected_bill.comment
-          ? BillFoundPage.for(this)
-          : BillNotFoundPage.for(this)
+          ? CommentDetailPage.for(this)
+          : CommentNotFoundPage.for(this)
     }</div>`
   }
 }
 
-class BillNotFoundPage extends Component {
+class CommentNotFoundPage extends Component {
   render() {
     return this.html`
       <section class="hero is-fullheight is-dark">
@@ -91,10 +82,11 @@ class BillNotFoundPage extends Component {
   }
 }
 
-class BillFoundPage extends Component {
+class CommentDetailPage extends Component {
   render() {
-    const { config, selected_bill: l } = this.state
+    const { config, selected_bill: l, user } = this.state
     const bill_id = l.introduced_at ? `${l.type} ${l.number}` : l.title
+    const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
 
     return this.html`
       <section class="section">
@@ -107,9 +99,16 @@ class BillFoundPage extends Component {
               <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${this.possessive(l.comment.fullname || 'Anonymous')} vote</a></li>
             </ul>
           </nav>
-          ${MeasureTitle.for(this)}
-          <hr />
-          ${Comment.for(this, l.comment)}
+          <div class="columns">
+            <div class="column is-one-quarter">
+              ${Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`)}
+            </div>
+            <div class="column">
+              <h2 class="title has-text-weight-normal is-4">${title}</h2>
+              ${Comment.for(this, l.comment)}
+              <div><a href="${`/legislation/${l.short_id}`}">See all comments on ${l.type} ${l.number} <span class="icon"><i class="fa fa-long-arrow-right"></i></span></a></a>
+            </div>
+          </div>
         </div>
       </section>
     `

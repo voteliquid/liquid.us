@@ -1,19 +1,13 @@
 const Comment = require('./Comment')
 const Component = require('./Component')
-const EditButtons = require('./EditLegislationButtons')
-const MeasureShareButtons = require('./MeasureShareButtons')
-const MeasureTitle = require('./MeasureTitle')
+const Sidebar = require('./MeasureDetailsSidebar')
 
 module.exports = class MeasureDetails extends Component {
   render() {
     const { config, legislation_query, selected_bill: l, user } = this.state
 
-    const own_comment = user && l.yea_comments.concat(l.nay_comments).reduce((b, a) => {
-      if (a.user_id === user.id) return a
-      return b
-    }, false)
-
     const bill_id = l.introduced_at ? `${l.type} ${l.number}` : l.title
+    const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
 
     return this.html`
       <section class="section">
@@ -34,38 +28,15 @@ module.exports = class MeasureDetails extends Component {
             </div>
           `] : ''}
           <div class="columns">
-            <div class="column is-two-thirds">
-              ${MeasureTitle.for(this)}
+            <div class="column is-one-quarter">
+              ${Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`)}
             </div>
-            <div class="column is-one-third is-right">
-              ${l.published
-                ? MeasureShareButtons.for(this, l)
-                : user && l.author_id === user.id ? EditButtons.for(this, l) : ''
-              }
-            </div>
-          </div>
-          <hr />
-          <div class="content">
-            <div class="columns">
-              <div class="${`column ${l.type === 'PN' ? 'is-hidden' : ''}`}">${MeasureSummary.for(this)}</div>
-              <div class="column">
-                <p>${VoteButton.for(this, l, `votebutton-${l.id}`)}</p>
-                ${l.vote_position
-                ? [`
-                  <p><span class="has-text-weight-bold">${l.constituent_yeas} Yea and ${l.constituent_nays} Nay</span> votes from verified constituents in your district</p>
-                `]
-                : [`
-                  ${l.yeas + l.nays
-                    ? `<p>${l.yeas + l.nays} people have voted. Join them.</p>`
-                    : ''}
-                  <p class="is-size-7">We'll notify <a href="/legislators">your representative</a> and hold them accountable by using your vote to calculate their <a href="https://blog.united.vote/2017/12/08/give-your-rep-an-f-introducing-united-legislator-grades/">representation score</a>.</p>
-                `]}
-              </div>
+            <div class="column">
+              <h2 class="title has-text-weight-normal is-4">${title}</h2>
+              ${l.type !== 'PN' ? MeasureSummary.for(this) : ''}
+              ${Comments.for(this)}
             </div>
           </div>
-          ${own_comment ? Comment.for(this, own_comment, `own-comment-${own_comment.id}`) : ''}
-          <hr />
-          ${Comments.for(this)}
         </div>
       </section>
     `
@@ -138,57 +109,25 @@ class MeasureSummary extends Component {
             : ''}
         </a>
       </div>
+      <hr />
     `
-  }
-}
-
-class VoteButton extends Component {
-  votePositionClass() {
-    const { vote_position: position } = this.props
-    if (position === 'yea') return 'is-success'
-    if (position === 'nay') return 'is-danger'
-    return ''
-  }
-  render() {
-    const s = this.props
-
-    let voteBtnTxt = 'Vote'
-    let voteBtnClass = 'button is-primary'
-    let voteBtnIcon = 'fa fa-pencil-square-o'
-
-    if (s.vote_position) {
-      const position = `${s.vote_position[0].toUpperCase()}${s.vote_position.slice(1)}`
-      if (s.vote_position === 'yea') voteBtnIcon = 'fa fa-check'
-      if (s.vote_position === 'nay') voteBtnIcon = 'fa fa-times'
-      if (s.vote_position === 'abstain') voteBtnIcon = 'fa fa-circle-o'
-      if (s.delegate_rank > -1) {
-        if (s.delegate_name) {
-          voteBtnTxt = `Inherited ${position} vote from ${s.delegate_name}`
-        } else {
-          voteBtnTxt = `Inherited ${position} vote from proxy`
-        }
-        voteBtnClass = `button is-outlined ${this.votePositionClass()}`
-      }
-      if (s.delegate_rank === -1) {
-        voteBtnTxt = `You voted ${position}`
-        voteBtnClass = `button ${this.votePositionClass()}`
-      }
-    }
-    return this.html`<a style="white-space: inherit; height: auto;" class=${voteBtnClass} href=${`/${s.type === 'PN' ? 'nominations' : 'legislation'}/${s.short_id}/vote`}>
-      <span class="icon"><i class=${voteBtnIcon}></i></span>
-      <span class="has-text-weight-semibold">${voteBtnTxt}</span>
-    </a>`
   }
 }
 
 class Comments extends Component {
   render() {
     return this.html`
-      <div class="columns">
+      <div class="columns is-gapless">
         <div class="column">
+          <h4 class="title is-size-6 has-text-grey has-text-weight-semibold">
+            In favor
+          </h4>
           ${CommentsColumn.for(this, { position: 'yea' }, 'comments-yea')}
         </div>
         <div class="column">
+          <h4 class="title is-size-6 has-text-grey has-text-weight-semibold">
+            Against
+          </h4>
           ${CommentsColumn.for(this, { position: 'nay' }, 'comments-nay')}
         </div>
       </div>
@@ -205,7 +144,7 @@ class CommentsColumn extends Component {
     return this.html`
       ${comments.length
         ? comments.map(c => Comment.for(this, c, `comment-${c.id}`))
-        : [`<p class="has-text-grey-light">No comments ${position === 'yea' ? 'in favor' : 'against'}. Vote to leave a comment.</p>`]
+        : [`<p class="has-text-grey-light">No comments ${position === 'yea' ? 'in favor' : 'against'}.</p>`]
       }
     `
   }
