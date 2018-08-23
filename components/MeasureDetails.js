@@ -2,6 +2,7 @@ const Comment = require('./Comment')
 const Component = require('./Component')
 const Sidebar = require('./MeasureDetailsSidebar')
 const ProxyVotes = require('./MeasureProxyVotes')
+const TopComments = require('./MeasureTopComments')
 
 module.exports = class MeasureDetails extends Component {
   render() {
@@ -33,6 +34,7 @@ module.exports = class MeasureDetails extends Component {
             <div class="column">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
               ${l.type !== 'PN' ? MeasureSummary.for(this, { measure: l }) : ''}
+              ${TopComments.for(this, { yea: l.top_yea, nay: l.top_nay, measure: l })}
               ${user ? ProxyVotes.for(this, { measure: l }) : ''}
               ${Comments.for(this, { measure: l })}
             </div>
@@ -119,35 +121,17 @@ class MeasureSummary extends Component {
 class Comments extends Component {
   render() {
     const { measure } = this.props
+    const { comments } = measure
     return this.html`
-      <div class="columns is-gapless">
-        <div class="column">
-          <h4 class="title is-size-6 has-text-grey has-text-weight-semibold">
-            In favor
-          </h4>
-          ${CommentsColumn.for(this, { measure, position: 'yea' }, 'comments-yea')}
-        </div>
-        <div class="column">
-          <h4 class="title is-size-6 has-text-grey has-text-weight-semibold">
-            Against
-          </h4>
-          ${CommentsColumn.for(this, { measure, position: 'nay' }, 'comments-nay')}
-        </div>
+      <div id="votes">
+        <h4 class="title is-size-6 has-text-grey has-text-weight-semibold">
+          Votes
+        </h4>
+        ${comments.length
+          ? comments.map(c => Comment.for(this, c, `comment-${c.id}`))
+          : [`<p class="has-text-grey-light">No votes.</p>`]
+        }
       </div>
-    `
-  }
-}
-
-class CommentsColumn extends Component {
-  render() {
-    const { measure, position } = this.props
-    const comments = measure[`${position}_comments`] || []
-
-    return this.html`
-      ${comments.length
-        ? comments.map(c => Comment.for(this, c, `comment-${c.id}`))
-        : [`<p class="has-text-grey-light">No comments ${position === 'yea' ? 'in favor' : 'against'}.</p>`]
-      }
     `
   }
 }

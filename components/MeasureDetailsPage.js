@@ -10,7 +10,7 @@ module.exports = class MeasureDetailsPage extends Component {
     const measure = measures[params.short_id]
 
     if (measure) {
-      if (!measure.yea_comments) {
+      if (!measure.comments) {
         return this.setMeasureState(this.fetchComments(measure))
           .then(() => this.setMeasureState(this.fetchProxyVotes(measure, user)))
       }
@@ -44,6 +44,7 @@ module.exports = class MeasureDetailsPage extends Component {
 
         return this.setMeasureState(this.fetchComments(measure))
           .then(() => this.setMeasureState(this.fetchProxyVotes(measure, user)))
+          .then(() => this.setMeasureState(this.fetchTopComments(measure)))
       })
       .catch((error) => {
         this.location.setStatus(404)
@@ -59,6 +60,21 @@ module.exports = class MeasureDetailsPage extends Component {
         ...measure,
       },
     }))
+  }
+  fetchTopComments(measure) {
+    return this.api(`/public_votes?measure_id=eq.${measure.id}&comment=not.is.null&comment=not.eq.&position=eq.yea`).then((comments) => {
+      const yea = comments[0]
+
+      if (yea) {
+        return this.api(`/public_votes?measure_id=eq.${measure.id}&comment=not.is.null&comment=not.eq.&position=eq.nay&order=proxy_vote_count.desc,created_at.desc`).then((comments) => {
+          const nay = comments[0]
+          measure.top_yea = yea
+          measure.top_nay = nay
+          return measure
+        })
+      }
+      return measure
+    })
   }
   fetchMeasure(short_id) {
     const type = ~short_id.indexOf('-pn') ? '&type=eq.PN' : '&or=(type.eq.HR,type.eq.S)'
@@ -83,9 +99,8 @@ module.exports = class MeasureDetailsPage extends Component {
   }
   fetchComments(measure) {
     return this.api(`/public_votes?measure_id=eq.${measure.id}&order=proxy_vote_count.desc.nullslast,created_at.desc`)
-    .then(comments => {
-      measure.yea_comments = comments.filter(({ position }) => position === 'yea')
-      measure.nay_comments = comments.filter(({ position }) => position === 'nay')
+    .then((comments) => {
+      measure.comments = comments
       return measure
     })
   }

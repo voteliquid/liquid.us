@@ -31,7 +31,12 @@ module.exports = class Comment extends Component {
         : `${fullname} granted you permission to see this vote. Don’t share it publicly.`
 
     return this.html`
-      <div onclick="${this}" class="comment" style="margin-bottom: 1.5rem;">
+      <div onclick="${this}" class="comment">
+        <style>
+          .comment:not(:last-child) {
+            margin-bottom: 1.5rem;
+          }
+        </style>
         <div class="media">
           ${show_bill && selected_profile
           ? ''
