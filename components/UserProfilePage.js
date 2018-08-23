@@ -168,7 +168,16 @@ class PublicVotes extends Component {
     const { public_votes } = selected_profile
 
     return this.html`
-      ${public_votes.map(public_vote => Comment.for(this, { show_bill: true, ...public_vote, endorsements: false }, `vote-card-${public_vote.id}`))}
+      <div>
+        <style>
+          .comment {
+            border-bottom: 1px solid #eee;
+            margin-bottom: 1rem !important;
+            padding-bottom: 1rem;
+          }
+        </style>
+        ${public_votes.map(public_vote => Comment.for(this, { show_bill: true, ...public_vote, endorsements: false }, `vote-card-${public_vote.id}`))}
+      </div>
     `
   }
 }

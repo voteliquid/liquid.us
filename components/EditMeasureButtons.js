@@ -1,6 +1,6 @@
 const Component = require('./Component')
 
-module.exports = class EditLegislationButtons extends Component {
+module.exports = class EditMeasureButtons extends Component {
   render() {
     return this.html`
       <div class="buttons has-addons is-right">
@@ -25,7 +25,7 @@ class EditButton extends Component {
 
 class PublishButton extends Component {
   publish() {
-    const { id } = this.props
+    const { short_id, id } = this.props
 
     this.setState({ loading: true })
 
@@ -35,13 +35,18 @@ class PublishButton extends Component {
       body: JSON.stringify({ published: true })
     })
     .then(() => {
-      const { yourLegislation = [], selected_bill } = this.state
-      if (selected_bill && selected_bill.id === id) {
-        selected_bill.published = true
-      }
+      const { yourLegislation = [], measures } = this.state
+      const measure = measures[short_id]
       this.setState({
         loading: false,
         yourLegislation: yourLegislation.map((old) => (old.id === id ? { ...old, published: true } : old)),
+        measures: {
+          ...measures,
+          [short_id]: {
+            ...measure,
+            published: true,
+          },
+        },
       })
     })
     .catch((error) => {

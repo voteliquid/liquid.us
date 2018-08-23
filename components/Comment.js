@@ -18,7 +18,7 @@ module.exports = class Comment extends Component {
     const { config, selected_profile, user } = this.state
     const avatarURL = this.avatarURL(this.props)
     const measure_url = type === 'PN' ? `/nominations/${short_id}` : `/legislation/${short_id}`
-    const comment_url = type === 'PN' ? `/nominations/${short_id}` : `/legislation/${short_id}/votes/${id}`
+    const comment_url = type === 'PN' ? `/nominations/${short_id}/votes/${id}` : `/legislation/${short_id}/votes/${id}`
     const share_url = type === 'PN' ? `${config.WWW_URL}${measure_url}` : `${config.WWW_URL}/legislation/${short_id}/votes/${id}`
     const subject = fullname ? `${fullname} is` : 'People are'
     const measure_title = type && number ? `${type} ${number} — ${title}` : title
@@ -31,7 +31,7 @@ module.exports = class Comment extends Component {
         : `${fullname} granted you permission to see this vote. Don’t share it publicly.`
 
     return this.html`
-      <div onclick="${this}" style="margin-bottom: 1.5rem;">
+      <div onclick="${this}" class="comment" style="margin-bottom: 1.5rem;">
         <div class="media">
           ${show_bill && selected_profile
           ? ''
@@ -46,7 +46,7 @@ module.exports = class Comment extends Component {
                 </div>
               </div>
           `]}
-          <div class="media-content" style="${`${show_bill ? '' : 'border-left: 1px solid #EEE; margin-left: -2rem; padding-left: 2rem;'}`}">
+          <div class="media-content" style="${`${show_bill ? '' : `border-left: 1px solid ${position === 'yea' ? 'hsl(141, 71%, 87%)' : 'hsl(348, 100%, 93%)'}; margin-left: -2rem; padding-left: 2rem;`}`}">
             ${[show_bill && selected_profile ? `
               <div>
                 <span>${username ? fullname : 'Anonymous'}</span>
@@ -56,7 +56,7 @@ module.exports = class Comment extends Component {
             ` : `
               <div>
                 <span>${username ? [`<a href="/${username}">${fullname}</a>`] : 'Anonymous'}</span>
-                <span class="is-size-7">voted <strong>${position}</strong>${proxy_vote_count ? ` on behalf of ${proxy_vote_count + 1} people` : ''}</span>
+                <span class="is-size-7">voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : 'hsl(348, 80%, 51%)'};">${position}</strong>${proxy_vote_count ? ` on behalf of ${proxy_vote_count + 1} people` : ''}</span>
               </div>
             `]}
             ${comment ? [`<div class="content" style="margin: .25rem 0 .75rem;">${this.linkifyUrls(comment)}</div>`] : ''}

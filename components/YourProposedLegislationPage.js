@@ -1,6 +1,6 @@
 const Component = require('./Component')
 const LoadingIndicator = require('./LoadingIndicator')
-const EditButtons = require('./EditLegislationButtons')
+const EditButtons = require('./EditMeasureButtons')
 const PublicProfileRequiredMsg = require('./PublicProfileRequiredMsg')
 
 module.exports = class YourProposedLegislationPage extends Component {

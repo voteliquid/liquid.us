@@ -1,6 +1,6 @@
 const Component = require('./Component')
 const fetch = require('isomorphic-fetch')
-const ordinalSuffix = require('ordinal-suffix')
+const RepCard = require('./RepCard')
 
 module.exports = class YourLegislators extends Component {
   oninit() {
@@ -64,7 +64,6 @@ module.exports = class YourLegislators extends Component {
         ${geoip && reps && reps.length ? AddAddressNotification.for(this) : []}
         ${user && user.address && [`
           <div class="has-text-right has-text-grey is-size-7">
-            <br />
             <p>Based on your address of <strong>${user.address.address}</strong>. <a href="/change_address?from=${this.location.path}">Change</a>
           </div>
         `]}
@@ -87,50 +86,6 @@ class RepColumn extends Component {
     const { rep } = this.props
     return this.html`
       <div class="column">${RepCard.for(this, { rep }, `repcard-${rep.user_id}`)}</div>
-    `
-  }
-}
-
-class RepCard extends Component {
-  render() {
-    const { rep } = this.props
-    return this.html`
-      <div class="media">
-        <figure class="media-left">
-          <p class="image is-96x96">
-            <a href=${`/${rep.username}`}>
-              <img src=${this.avatarURL(rep)}>
-            </a>
-          </p>
-        </figure>
-        <div class="media-content">
-          <style>
-            .space-between {
-              display: flex;
-              flex-direction: column;
-              justify-content: space-between;
-              min-height: 120px;
-            }
-          </style>
-          <div class="content space-between">
-            <p class="is-small">
-              <a href=${`/${rep.username}`}>
-                <strong>${rep.first_name} ${rep.last_name}</strong> <small>@${rep.twitter_username}</small>
-              </a>
-              <br />
-              <span class="is-size-6">${rep.office_name}</span>
-            </p>
-            <p>
-              <span class="tag is-size-6 is-dark has-text-weight-bold">${rep.representation_grade || [`<span class="icon"><i class="fa fa-question"></i></span>`]}</span>
-              <span class="is-size-7 has-text-grey">
-                ${rep.representation_grade ?
-                  `${ordinalSuffix(rep.representation_percentile)} percentile among ${rep.office_chamber === 'Lower' ? 'House' : 'Senate'} ${rep.party_affiliation}s` :
-                  `Need more constituent votes to calculate grade`}
-              </span>
-            </p>
-          </div>
-        </div>
-      </div>
     `
   }
 }

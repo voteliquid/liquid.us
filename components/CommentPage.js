@@ -5,63 +5,69 @@ const Sidebar = require('./MeasureDetailsSidebar')
 
 module.exports = class CommentPage extends Component {
   oninit() {
-    const { config } = this.state
+    const { config, measures = {} } = this.state
     const { params } = this.props
 
     const url = `/measures_detailed?short_id=eq.${params.short_id}`
 
-    this.setState({ loading_bill: true })
+    this.setState({ loading_measure: true })
 
-    return this.api(url).then((bills) => {
-      const selected_bill = bills[0]
+    return this.api(url).then((results) => {
+      const measure = results[0]
 
-      if (selected_bill) {
-        return this.fetchComments(selected_bill).then(comment => {
-          selected_bill.comment = comment
+      if (measure) {
+        return this.fetchComment(params.comment_id, measure).then(comment => {
+          measure.comment = comment
 
-          const page_title = `${this.possessive(comment.fullname || 'Anonymous')} vote on ${selected_bill.title}`
+          const page_title = `${this.possessive(comment.fullname || 'Anonymous')} vote on ${measure.title}`
           if (this.isBrowser) {
             const page_title_with_appname = `${page_title} ★ ${config.APP_NAME}`
             window.document.title = page_title_with_appname
             window.history.replaceState(window.history.state, page_title_with_appname, document.location)
           }
 
-          return {
-            loading_bill: false,
+          return this.setState({
+            loading_measure: false,
             page_title,
             page_description: this.escapeHtml(comment.comment),
-            selected_bill: { ...bills[selected_bill.short_id], ...selected_bill },
-            bills: { ...bills, [selected_bill.short_id]: selected_bill },
-          }
+            measures: {
+              ...measures,
+              [measure.short_id]: {
+                ...measures[measure.short_id],
+                ...measure
+              },
+            },
+          })
         })
       }
 
       this.location.setStatus(404)
-      return { loading_bill: false }
+      return this.setState({ loading_measure: false })
     })
     .catch((error) => {
       this.location.setStatus(404)
-      return { error, loading_bill: false }
+      return this.setState({ error, loading_measure: false })
     })
   }
-  fetchComments(selected_bill) {
-    return this.api(`/public_votes?measure_id=eq.${selected_bill.id}&id=eq.${this.props.params.comment_id}`)
+  fetchComment(id, measure) {
+    return this.api(`/public_votes?measure_id=eq.${measure.id}&id=eq.${id}`)
     .then(([comment]) => (comment))
   }
-  onpagechange() {
-    const { loading_bill, selected_bill } = this.state
-    if (!loading_bill && selected_bill) {
+  onpagechange(oldProps) {
+    if (this.props.url !== oldProps.url) {
       this.oninit().then((newState) => this.setState(newState))
     }
   }
   render() {
-    const { loading_bill, selected_bill } = this.state
+    const { loading_measure, measures = {} } = this.state
+    const { params } = this.props
+    const measure = measures[params.short_id]
 
     return this.html`<div>${
-      loading_bill
+      loading_measure
         ? LoadingIndicator.for(this)
-        : selected_bill && selected_bill.comment
-          ? CommentDetailPage.for(this)
+        : measure && measure.comment
+          ? CommentDetailPage.for(this, { measure })
           : CommentNotFoundPage.for(this)
     }</div>`
   }
@@ -84,7 +90,8 @@ class CommentNotFoundPage extends Component {
 
 class CommentDetailPage extends Component {
   render() {
-    const { config, selected_bill: l, user } = this.state
+    const { config, user } = this.state
+    const { measure: l } = this.props
     const bill_id = l.introduced_at ? `${l.type} ${l.number}` : l.title
     const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
 
@@ -94,19 +101,19 @@ class CommentDetailPage extends Component {
           <nav class="breadcrumb has-succeeds-operator is-left is-small" aria-label="breadcrumbs">
             <ul>
               <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-              <li><a class="has-text-grey" href="/legislation">Legislation</a></li>
-              <li><a class="has-text-grey" href=${`/legislation/${l.short_id}`}>${bill_id}</a></li>
+              ${l.type !== 'PN' ? [`<li><a class="has-text-grey" href="/legislation">Legislation</a></li>`] : ''}
+              <li><a class="has-text-grey" href="${`/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`}">${l.introduced_at ? bill_id : 'Measure Details'}</a></li>
               <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${this.possessive(l.comment.fullname || 'Anonymous')} vote</a></li>
             </ul>
           </nav>
           <div class="columns">
-            <div class="column is-one-quarter">
-              ${Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`)}
-            </div>
             <div class="column">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
               ${Comment.for(this, l.comment)}
-              <div><a href="${`/legislation/${l.short_id}`}">See all comments on ${l.type} ${l.number} <span class="icon"><i class="fa fa-long-arrow-right"></i></span></a></a>
+              <div><a href="${`/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`}">See all comments on ${l.type} ${l.number} <span class="icon"><i class="fa fa-long-arrow-right"></i></span></a></a></div>
+            </div>
+            <div class="column is-one-quarter">
+              ${Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`)}
             </div>
           </div>
         </div>

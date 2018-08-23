@@ -1,62 +1,78 @@
 const Component = require('./Component')
 const LoadingIndicator = require('./LoadingIndicator')
 const Sidebar = require('./MeasureDetailsSidebar')
+const fetchMeasure = require('./MeasureDetailsPage').prototype.fetchMeasure
+const fetchComments = require('./MeasureDetailsPage').prototype.fetchComments
 
 module.exports = class MeasureVotePage extends Component {
   oninit() {
-    return this.fetchVote()
+    const { measures = {} } = this.state
+    const { params } = this.props
+    const measure = measures[params.short_id]
+
+    if (measure) {
+      if (!measure.my_vote) {
+        return this.fetchVote(measure)
+      }
+    } else {
+      this.setState({ loading_measure: true })
+      return fetchMeasure.call(this, params.short_id).then((measure) => {
+        this.setState({
+          loading_measure: false,
+          measures: {
+            ...measures,
+            [measure.short_id]: measure,
+          },
+        })
+        return this.fetchVote(measure)
+      })
+    }
   }
   onpagechange(oldProps) {
     if (oldProps.url !== this.props.url) {
-      this.fetchVote()
+      this.oninit()
     }
   }
-  setBrowserTitle() {
-    const { config, selected_bill } = this.state
-    if (this.isBrowser) {
-      const page_title = `Vote on ${selected_bill.title} ★ ${config.APP_NAME}`
-      window.document.title = page_title
-      window.history.replaceState(window.history.state, page_title, document.location)
-    }
-  }
-  fetchVote() {
-    const { selected_bill, user } = this.state
-    const { params } = this.props
-
-    this.setState({ loading_legislation: true })
-
-    return this.api(`/measures_detailed?short_id=eq.${params.short_id}`)
-      .then(bills => {
-        const bill = bills[0]
-        if (bill) {
-          const page_title = `Vote on ${bill.title}`
-          if (user) {
-            return this.api(`/votes?user_id=eq.${user.id}&delegate_rank=eq.-1&order=updated_at.desc`).then(votes => {
-              const last_vote_public = votes[0] && votes[0].public
-              return this.api(`/votes?measure_id=eq.${bill.id}&user_id=eq.${user.id}&delegate_rank=eq.-1`).then(votes => {
-                bill.my_vote = votes[0]
-                return this.api(`/rpc/vote_power_for_measure`, {
-                  method: 'POST',
-                  body: JSON.stringify({ user_id: user.id, measure_id: bill.id })
-                }).then((bill_vote_power) => {
-                  bill.vote_power = bill_vote_power
-                  return this.setState({ page_title, selected_bill: { ...selected_bill, ...bill }, last_vote_public })
-                })
-              })
+  fetchVote(measure) {
+    const { config, measures, user } = this.state
+    const page_title = `Vote on ${measure.title}`
+    if (user) {
+      return this.api(`/votes?user_id=eq.${user.id}&delegate_rank=eq.-1&order=updated_at.desc`).then(votes => {
+        const last_vote_public = votes[0] && votes[0].public
+        return this.api(`/votes?measure_id=eq.${measure.id}&user_id=eq.${user.id}&delegate_rank=eq.-1`).then(votes => {
+          measure.my_vote = votes[0]
+          return this.api(`/rpc/vote_power_for_measure`, {
+            method: 'POST',
+            body: JSON.stringify({ user_id: user.id, measure_id: measure.id })
+          }).then((measure_vote_power) => {
+            measure.vote_power = measure_vote_power
+            if (this.isBrowser) {
+              const page_title = `Vote on ${measure.title} ★ ${config.APP_NAME}`
+              window.document.title = page_title
+              window.history.replaceState(window.history.state, page_title, document.location)
+            }
+            return this.setState({
+              page_title,
+              measures: {
+                ...measures,
+                [measure.short_id]: {
+                  ...measures[measure.short_id],
+                  ...measure,
+                },
+              },
+              last_vote_public,
             })
-          }
-          return this.setState({ page_title, selected_bill: { ...selected_bill, ...bill } })
-        }
-        this.location.setStatus(404)
+          })
+        })
       })
-      .then(() => this.setState({ legislation_query: false, loading_legislation: false }))
-      .then(() => this.setBrowserTitle())
-      .catch(error => ({ error, loading_legislation: false }))
+    }
   }
   render() {
-    const { loading_legislation, selected_bill } = this.state
+    const { loading_measure, measures = {} } = this.state
+    const { params } = this.props
+    const measure = measures[params.short_id]
     return this.html`<div>
-      ${selected_bill && !loading_legislation ? MeasureVoteForm.for(this) : LoadingIndicator.for(this)}
+      ${measure && !loading_measure ? MeasureVoteForm.for(this, { measure }) : LoadingIndicator.for(this)}
     </div>`
   }
 }
@@ -65,7 +81,8 @@ class MeasureVoteForm extends Component {
   onsubmit(event, form) {
     event.preventDefault()
 
-    const { selected_bill, user } = this.state
+    const { measure } = this.props
+    const { measures = {}, user } = this.state
     const { redirect } = this.location
     const { storage } = this
 
@@ -74,8 +91,8 @@ class MeasureVoteForm extends Component {
     }
 
     if (!user) {
-      storage.set('vote_bill_id', selected_bill.id)
-      storage.set('vote_bill_short_id', selected_bill.short_id)
+      storage.set('vote_bill_id', measure.id)
+      storage.set('vote_bill_short_id', measure.short_id)
       storage.set('vote_position', form.vote_position)
       storage.set('vote_public', form.public === 'true' ? 'true' : '')
       storage.set('vote_comment', form.comment)
@@ -89,43 +106,60 @@ class MeasureVoteForm extends Component {
       method: 'POST',
       body: JSON.stringify({
         user_id: user.id,
-        measure_id: selected_bill.id,
+        measure_id: measure.id,
         vote_position: form.vote_position,
         comment: form.comment,
         public: form.public === 'true',
       }),
     })
-    .then(() => {
+    .then(() => fetchMeasure.call(this, measure.short_id))
+    .then((measure) => fetchComments.call(this, measure))
+    .then((measure) => {
       if (this.isBrowser && window._loq) window._loq.push(['tag', 'Voted'])
-      this.setState({ saving_vote: false })
-      if (selected_bill.type === 'PN') {
-        return redirect(303, `/nominations/${selected_bill.short_id}`)
+      this.setState({
+        measures: {
+          ...measures,
+          [measure.short_id]: {
+            ...measures[measure.short_id],
+            ...measure,
+          },
+        },
+        saving_vote: false,
+      })
+      if (measure.type === 'PN') {
+        return redirect(303, `/nominations/${measure.short_id}`)
       }
-      return redirect(303, `/legislation/${selected_bill.short_id}`)
+      return redirect(303, `/legislation/${measure.short_id}`)
     })
     .catch(error => {
       return { error: error.message, saving_vote: false }
     })
   }
   onclick(event) {
-    const { selected_bill } = this.state
+    const { measure } = this.props
 
     if (event.target.name === 'vote_position') {
-      selected_bill.my_vote = {
-        ...selected_bill.my_vote,
+      measure.my_vote = {
+        ...measure.my_vote,
         vote_position: event.target.checked ? event.target.value : ''
       }
     } else if (event.target.name === 'public') {
-      selected_bill.my_vote = {
-        ...selected_bill.my_vote,
+      measure.my_vote = {
+        ...measure.my_vote,
         public: event.target.checked
       }
     }
 
-    return { selected_bill }
+    return this.setState({
+      measures: {
+        ...this.states.measures,
+        [measure.short_id]: measure,
+      },
+    })
   }
   render() {
-    const { config, error, last_vote_public, legislation_query, saving_vote, selected_bill: l, user } = this.state
+    const { config, error, last_vote_public, legislation_query, saving_vote, user } = this.state
+    const { measure: l } = this.props
     const v = l.my_vote ? l.my_vote : {}
     const public_checked = v.hasOwnProperty('public') ? v.public : last_vote_public
     return this.html`
@@ -134,15 +168,12 @@ class MeasureVoteForm extends Component {
           <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
             <ul>
               <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-              <li><a class="has-text-grey" href="${legislation_query || '/legislation'}">Legislation</a></li>
-              <li><a class="has-text-grey" href="${`/legislation/${l.short_id}`}">${l.introduced_at ? `${l.type} ${l.number}` : 'Bill Details'}</a></li>
+              ${l.type !== 'PN' ? [`<li><a class="has-text-grey" href="${legislation_query || '/legislation'}">Legislation</a></li>`] : ''}
+              <li><a class="has-text-grey" href="${`/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`}">${l.introduced_at ? `${l.type} ${l.number}` : 'Measure Details'}</a></li>
               <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Vote</a></li>
             </ul>
           </nav>
           <div class="columns">
-            <div class="column is-one-quarter">
-              ${Sidebar.for(this, { ...l, user }, `vote-measure-sidebar-${l.id}`)}
-            </div>
             <div class="column">
               ${(v.id && !user.cc_verified) ? [`
                 <div class="notification is-info">
@@ -213,13 +244,16 @@ class MeasureVoteForm extends Component {
                 </div>
                 <div class="field">
                   <div class="control">
-                    <button class=${`button is-primary ${saving_vote ? 'is-loading' : ''}`} type="submit">
+                    <button class=${`button is-primary ${saving_vote ? 'is-loading' : ''}`} disabled=${saving_vote} type="submit">
                       <span class="icon"><i class="fa fa-pencil-square-o"></i></span>
                       <span>Confirm Vote</span>
                     </button>
                   </div>
                 </div>
               </form>
+            </div>
+            <div class="column is-one-quarter">
+              ${Sidebar.for(this, { ...l, user }, `vote-measure-sidebar-${l.id}`)}
             </div>
           </div>
         </div>

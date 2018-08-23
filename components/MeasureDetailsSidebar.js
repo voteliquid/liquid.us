@@ -1,10 +1,12 @@
 const Component = require('./Component')
-const EditButtons = require('./EditLegislationButtons')
+const EditButtons = require('./EditMeasureButtons')
 const MeasureShareButtons = require('./MeasureShareButtons')
+const ordinalSuffix = require('ordinal-suffix')
 
 module.exports = class MeasureDetailsSidebar extends Component {
   render() {
     const l = this.props
+    const { reps } = this.state
     const { user } = this.props
     const steps = [{ step: 'Introduced', fulfilled: !!l.introduced_at }]
     const show_tracker = l.legislature_name === 'U.S. Congress' && l.introduced_at && (l.type === 'HR' || l.type === 'S')
@@ -38,59 +40,80 @@ module.exports = class MeasureDetailsSidebar extends Component {
     steps.push({ step: 'Enacted', fulfilled: !!l.enacted_at })
 
     return this.html`
-      <nav class="panel">
-        <h3 class="panel-heading has-text-centered has-text-weight-semibold">${l.introduced_at ? `${l.type} ${l.number}` : 'Proposed'}</h3>
-        <div class="panel-block has-text-centered">
-          <div style="width: 100%;">
-            <div style="margin-bottom: .75rem;">${VoteButton.for(this, l, `votebutton-${l.id}`)}</div>
-            ${VoteStats.for(this, l, `votestats-${l.id}`)}
+      <div>
+        <nav class="panel">
+          <h3 class="panel-heading has-text-centered has-text-weight-semibold">${l.introduced_at ? `${l.type} ${l.number}` : 'Proposed'}</h3>
+          <div class="panel-block has-text-centered">
+            <div style="width: 100%;">
+              <div style="margin-bottom: .75rem;">${VoteButton.for(this, l, `votebutton-${l.id}`)}</div>
+              ${VoteStats.for(this, l, `votestats-${l.id}`)}
+            </div>
           </div>
-        </div>
-        <div class="panel-block">
-          <dl class="columns is-gapless is-multiline">
-            <div class="column is-one-third">
-                <dt class="has-text-weight-semibold">${l.introduced_at ? 'Introduced' : 'Proposed'}</dt>
-            </div>
-            <div class="column is-two-thirds">
-              <dd class="has-text-right has-text-left-mobile">${new Date(l.introduced_at || l.created_at).toLocaleDateString()}</dd>
-            </div>
-            <div class="column is-one-third">
-              <dt class="has-text-weight-semibold">${l.author_username ? 'Author' : 'Sponsor'}</dt>
-            </div>
-            <div class="column is-two-thirds">
-              <dd class="has-text-right has-text-left-mobile">
-                ${l.sponsor_username
-                  ? [`<a href="/${l.sponsor_username}">${l.sponsor_first_name} ${l.sponsor_last_name}</a>`]
-                  : l.author_username
-                    ? [`<a href="/${l.author_username}">${l.author_first_name} ${l.author_last_name}</a>`]
-                    : ''}
-              </dd>
-            </div>
-            ${bill_details_url ? [`
-              <div class="column is-one-third"><dt class="has-text-weight-semibold">Bill text</dt></div>
+          <div class="panel-block">
+            <dl class="columns is-gapless is-multiline">
+              <div class="column is-one-third">
+                  <dt class="has-text-weight-semibold">${l.introduced_at ? 'Introduced' : 'Proposed'}</dt>
+              </div>
+              <div class="column is-two-thirds">
+                <dd class="has-text-right has-text-left-mobile">${new Date(l.introduced_at || l.created_at).toLocaleDateString()}</dd>
+              </div>
+              <div class="column is-one-third">
+                <dt class="has-text-weight-semibold">${l.author_username ? 'Author' : (l.sponsor_username ? 'Sponsor' : '')}</dt>
+              </div>
               <div class="column is-two-thirds">
                 <dd class="has-text-right has-text-left-mobile">
-                  <a href="${bill_details_url}">${bill_details_name}</a>
+                  ${l.sponsor_username
+                    ? [`<a href="/${l.sponsor_username}">${l.sponsor_first_name} ${l.sponsor_last_name}</a>`]
+                    : l.author_username
+                      ? [`<a href="/${l.author_username}">${l.author_first_name} ${l.author_last_name}</a>`]
+                      : ''}
                 </dd>
               </div>
-            `] : ''}
-          </dl>
-        </div>
-        ${show_tracker ? [`
+              ${bill_details_url ? [`
+                <div class="column is-one-third"><dt class="has-text-weight-semibold">Bill text</dt></div>
+                <div class="column is-two-thirds">
+                  <dd class="has-text-right has-text-left-mobile">
+                    <a href="${bill_details_url}">${bill_details_name}</a>
+                  </dd>
+                </div>
+              `] : ''}
+            </dl>
+          </div>
+          ${show_tracker ? [`
+          <div class="panel-block">
+            <div>
+              <ul>
+                ${steps.map(({ fulfilled, step }) => {
+                  return `<li class="${`step ${fulfilled ? 'fulfilled' : 'has-text-grey'}`}"><span class="icon"><i class="fa ${fulfilled ? 'fa-check-circle-o' : 'fa-circle-o'}"></i></span>${step}</li>`
+                }).join('')}
+              </ul>
+            </div>
+          </div>
+          `] : ''}
+          <div class="panel-block is-size-7" style="justify-content: center;">
+            ${user && user.id === l.author_id ? EditButtons.for(this, l) : MeasureShareButtons.for(this, l)}
+          </div>
+        </nav>
+        ${reps && reps[0] ? RepSidebar.for(this, l) : ''}
+      </div>
+    `
+  }
+}
+
+class RepSidebar extends Component {
+  render() {
+    const rep = this.state.reps[0]
+    return this.html`
+      <div class="panel">
+        <h3 class="panel-heading has-text-centered has-text-weight-semibold">Your Rep</h3>
         <div class="panel-block">
           <div>
-            <ul>
-              ${steps.map(({ fulfilled, step }) => {
-                return `<li class="${`step ${fulfilled ? 'fulfilled' : 'has-text-grey'}`}"><span class="icon"><i class="fa ${fulfilled ? 'fa-check-circle-o' : 'fa-circle-o'}"></i></span>${step}</li>`
-              }).join('')}
-            </ul>
+            <p class="is-size-7">We'll notify <a href="/legislators">your representative</a> and hold them accountable by using your vote to calculate their <a href="https://blog.united.vote/2017/12/08/give-your-rep-an-f-introducing-united-legislator-grades/">representation score</a>.</p>
+            <br />
+            ${RepCard.for(this, { rep })}
           </div>
         </div>
-        `] : ''}
-        <div class="panel-block is-size-7" style="justify-content: center;">
-          ${user && user.id === l.author_id ? EditButtons.for(this, l) : MeasureShareButtons.for(this, l)}
-        </div>
-      </nav>
+      </div>
     `
   }
 }
@@ -110,7 +133,7 @@ class VoteStats extends Component {
           </div>
         </div>
         ${reps && reps.length ? [`
-        <div class="columns is-gapless is-marginless">
+        <div class="columns is-gapless is-marginless has-text-grey-light">
           <div class="column is-one-third">
             <div class="has-text-left">${reps[0] && reps[0].office_short_name}</div>
           </div>
@@ -164,5 +187,37 @@ class VoteButton extends Component {
       <span class="icon"><i class=${voteBtnIcon}></i></span>
       <span class="has-text-weight-semibold">${voteBtnTxt}</span>
     </a>`
+  }
+}
+
+class RepCard extends Component {
+  render() {
+    const { rep } = this.props
+    return this.html`
+      <div>
+        <div class="media" style="margin-bottom: .5rem;">
+          <figure class="media-left" style="overflow: hidden; border-radius: 5px;">
+            <p class="image is-64x64">
+              <a href=${`/${rep.username}`}>
+                <img src=${this.avatarURL(rep)}>
+              </a>
+            </p>
+          </figure>
+          <div class="media-content">
+            <a href=${`/${rep.username}`}>
+              <strong>${rep.first_name} ${rep.last_name}</strong>
+            </a>
+            <p class="is-size-7">${rep.office_name}</p>
+          </div>
+        </div>
+        <p class="is-size-7">
+          <span class="has-text-grey">
+          ${rep.representation_grade ?
+            [`<span class="is-size-6 has-text-weight-bold">${ordinalSuffix(rep.representation_percentile)}</span> percentile among ${rep.office_chamber === 'Lower' ? 'House' : 'Senate'} ${rep.party_affiliation}s`] :
+            `Need more constituent votes to calculate grade`}
+          </span>
+        </p>
+      </div>
+    `
   }
 }
