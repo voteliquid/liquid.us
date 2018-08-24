@@ -1,8 +1,8 @@
 const Component = require('./Component')
 
 module.exports = class NotFound extends Component {
-  defaultState() {
-    return { page_title: `Nothing at ${this.location.path}` }
+  oninit() {
+    return this.setState({ page_title: `Nothing at ${this.location.path}` })
   }
   render() {
     return this.html`
