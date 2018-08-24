@@ -3,6 +3,7 @@ const LoadingIndicator = require('./LoadingIndicator')
 const Sidebar = require('./MeasureDetailsSidebar')
 const fetchMeasure = require('./MeasureDetailsPage').prototype.fetchMeasure
 const fetchComments = require('./MeasureDetailsPage').prototype.fetchComments
+const fetchTopComments = require('./MeasureDetailsPage').prototype.fetchTopComments
 
 module.exports = class MeasureVotePage extends Component {
   oninit() {
@@ -113,7 +114,10 @@ class MeasureVoteForm extends Component {
       }),
     })
     .then(() => fetchMeasure.call(this, measure.short_id))
-    .then((measure) => fetchComments.call(this, measure))
+    .then((measure) =>
+      fetchComments.call(this, measure.id, measure.short_id)
+      .then(() => fetchTopComments.call(this, measure.id, measure.short_id))
+      .then(() => measure))
     .then((measure) => {
       if (this.isBrowser && window._loq) window._loq.push(['tag', 'Voted'])
       this.setState({
@@ -152,8 +156,11 @@ class MeasureVoteForm extends Component {
 
     return this.setState({
       measures: {
-        ...this.states.measures,
-        [measure.short_id]: measure,
+        ...this.state.measures,
+        [measure.short_id]: {
+          ...this.state.measures[measure.short_id],
+          ...measure,
+        }
       },
     })
   }

@@ -50,34 +50,34 @@ module.exports = class MeasureDetailsSidebar extends Component {
             </div>
           </div>
           <div class="panel-block">
-            <dl class="columns is-gapless is-multiline">
+            <div class="columns is-gapless is-multiline">
               <div class="column is-one-third">
-                  <dt class="has-text-weight-semibold">${l.introduced_at ? 'Introduced' : 'Proposed'}</dt>
+                <div class="has-text-weight-semibold">${l.introduced_at ? 'Introduced' : 'Proposed'}</div>
               </div>
               <div class="column is-two-thirds">
-                <dd class="has-text-right has-text-left-mobile">${new Date(l.introduced_at || l.created_at).toLocaleDateString()}</dd>
+                <div class="has-text-right has-text-left-mobile">${new Date(l.introduced_at || l.created_at).toLocaleDateString()}</div>
               </div>
               <div class="column is-one-third">
-                <dt class="has-text-weight-semibold">${l.author_username ? 'Author' : (l.sponsor_username ? 'Sponsor' : '')}</dt>
+                <div class="has-text-weight-semibold">${l.author_username ? 'Author' : (l.sponsor_username ? 'Sponsor' : '')}</div>
               </div>
               <div class="column is-two-thirds">
-                <dd class="has-text-right has-text-left-mobile">
+                <div class="has-text-right has-text-left-mobile">
                   ${l.sponsor_username
                     ? [`<a href="/${l.sponsor_username}">${l.sponsor_first_name} ${l.sponsor_last_name}</a>`]
                     : l.author_username
                       ? [`<a href="/${l.author_username}">${l.author_first_name} ${l.author_last_name}</a>`]
                       : ''}
-                </dd>
+                </div>
               </div>
               ${bill_details_url ? [`
-                <div class="column is-one-third"><dt class="has-text-weight-semibold">Bill text</dt></div>
+                <div class="column is-one-third"><div class="has-text-weight-semibold">Bill text</div></div>
                 <div class="column is-two-thirds">
-                  <dd class="has-text-right has-text-left-mobile">
+                  <div class="has-text-right has-text-left-mobile">
                     <a href="${bill_details_url}">${bill_details_name}</a>
-                  </dd>
+                  </div>
                 </div>
               `] : ''}
-            </dl>
+            </div>
           </div>
           ${show_tracker ? [`
           <div class="panel-block">

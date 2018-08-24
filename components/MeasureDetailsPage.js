@@ -10,70 +10,68 @@ module.exports = class MeasureDetailsPage extends Component {
     const measure = measures[params.short_id]
 
     if (measure) {
-      if (!measure.comments) {
-        return this.setMeasureState(this.fetchComments(measure))
-          .then(() => this.setMeasureState(this.fetchProxyVotes(measure, user)))
+      const title = measure.introduced_at ? `${measure.type} ${measure.number} – ${measure.title}` : measure.title
+      if (this.isBrowser) {
+        const page_title = `${title} ★ ${config.APP_NAME}`
+        window.document.title = page_title
+        window.history.replaceState(window.history.state, page_title, document.location)
       }
-      if (!measure.proxyVotes) return this.setMeasureState(this.fetchProxyVotes(measure, user))
-      return Promise.resolve()
+    } else {
+      this.setState({ loading_measure: true })
     }
 
-    this.setState({ loading_measure: true })
-    return this.fetchMeasure(params.short_id)
-      .then((measure) => {
-        if (!measure) {
-          this.location.setStatus(404)
-          return this.setState({ loading_measure: false })
-        }
-
-        const title = measure.introduced_at ? `${measure.type} ${measure.number} – ${measure.title}` : measure.title
-        if (this.isBrowser) {
-          const page_title = `${title} ★ ${config.APP_NAME}`
-          window.document.title = page_title
-          window.history.replaceState(window.history.state, page_title, document.location)
-        }
-        this.setState({
-          loading_measure: false,
-          page_title: title,
-          page_description: `Vote directly on federal bills and nominations. We'll notify your representatives and grade them for how well they listen to their constituents.`,
-          measures: {
-            ...measures,
-            [measure.short_id]: measure,
-          },
-        })
-
-        return this.setMeasureState(this.fetchComments(measure))
-          .then(() => this.setMeasureState(this.fetchProxyVotes(measure, user)))
-          .then(() => this.setMeasureState(this.fetchTopComments(measure)))
-      })
-      .catch((error) => {
+    return this.fetchMeasure(params.short_id).then((measure) => {
+      if (!measure) {
         this.location.setStatus(404)
-        return { error, loading_measure: false }
+        return this.setState({ loading_measure: false })
+      }
+
+      const title = measure.introduced_at ? `${measure.type} ${measure.number} – ${measure.title}` : measure.title
+      if (this.isBrowser) {
+        const page_title = `${title} ★ ${config.APP_NAME}`
+        window.document.title = page_title
+        window.history.replaceState(window.history.state, page_title, document.location)
+      }
+      this.setState({
+        loading_measure: false,
+        page_title: title,
+        page_description: `Vote directly on federal bills and nominations. We'll notify your representatives and grade them for how well they listen to their constituents.`,
+        measures: {
+          ...this.state.measures,
+          [measure.short_id]: {
+            ...(this.state.measures || {})[measure.short_id],
+            ...measure,
+          }
+        },
       })
+
+      return this.fetchComments(measure.id, measure.short_id)
+        .then(() => this.fetchTopComments(measure.id, measure.short_id))
+        .then(() => this.fetchProxyVotes(measure.id, measure.short_id, user))
+    })
+    .catch((error) => {
+      console.log(error)
+      this.location.setStatus(404)
+      return { error, loading_measure: false }
+    })
   }
-  setMeasureState(promise) {
-    const measures = this.state
-    return promise.then((measure) => this.setState({
-      ...measures,
-      [measure.short_id]: {
-        ...this.state.measures[measure.short_id],
-        ...measure,
-      },
-    }))
-  }
-  fetchTopComments(measure) {
-    return this.api(`/public_votes?measure_id=eq.${measure.id}&comment=not.is.null&comment=not.eq.&position=eq.yea`).then((comments) => {
+  fetchTopComments(id, short_id) {
+    return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea`).then((comments) => {
       const yea = comments[0]
 
-      if (yea) {
-        return this.api(`/public_votes?measure_id=eq.${measure.id}&comment=not.is.null&comment=not.eq.&position=eq.nay&order=proxy_vote_count.desc,created_at.desc`).then((comments) => {
-          const nay = comments[0]
-          measure.top_yea = yea
-          measure.top_nay = nay
-          return measure
+      return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.nay&order=proxy_vote_count.desc,created_at.desc`).then((comments) => {
+        const nay = comments[0]
+        this.setState({
+          measures: {
+            ...this.state.measures,
+            [short_id]: {
+              ...this.state.measures[short_id],
+              top_yea: yea,
+              top_nay: nay,
+            },
+          },
         })
-      }
-      return measure
+      })
     })
   }
   fetchMeasure(short_id) {
@@ -82,31 +80,48 @@ module.exports = class MeasureDetailsPage extends Component {
 
     return this.api(url).then((results) => results[0])
   }
-  fetchProxyVotes(measure, user) {
+  fetchProxyVotes(measure_id, short_id, user) {
     if (user) {
       return this.api(`/delegations_detailed?from_id=eq.${user.id}&order=delegate_rank.asc`)
         .then((proxies) => {
-          const measure_id = measure.id
           const proxyIds = proxies.map(({ to_id }) => to_id)
           return this.api(`/public_votes?measure_id=eq.${measure_id}&user_id=in.(${proxyIds.join(',')})&order=proxy_vote_count.desc,created_at.desc`)
         })
         .then((proxyVotes) => {
-          measure.proxyVotes = proxyVotes
-          return measure
+          this.setState({
+            measures: {
+              ...this.state.measures,
+              [short_id]: {
+                ...this.state.measures[short_id],
+                proxyVotes,
+              },
+            },
+          })
         })
     }
-    return Promise.resolve(measure)
   }
-  fetchComments(measure) {
-    return this.api(`/public_votes?measure_id=eq.${measure.id}&order=proxy_vote_count.desc.nullslast,created_at.desc`)
-    .then((comments) => {
-      measure.comments = comments
-      return measure
+  fetchComments(measure_id, short_id) {
+    const { query } = this.location
+    const order = query.order || 'most_recent'
+    const orders = {
+      most_recent: 'updated_at.desc',
+      vote_power: 'proxy_vote_count.desc.nullslast,created_at.desc',
+    }
+    return this.api(`/public_votes?measure_id=eq.${measure_id}&order=${orders[order]}`).then((comments) => {
+      this.setState({
+        measures: {
+          ...this.state.measures,
+          [short_id]: {
+            ...this.state.measures[short_id],
+            comments,
+          },
+        },
+      })
     })
   }
   onpagechange(oldProps) {
-    if (this.props.url !== oldProps.url) {
-      this.oninit().then((newState) => this.setState(newState))
+    if (this.props.url !== oldProps.url && this.state.measures) {
+      this.oninit().then(() => this.setState({}))
     }
   }
   render() {

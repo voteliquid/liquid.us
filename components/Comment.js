@@ -68,9 +68,16 @@ module.exports = class Comment extends Component {
             <div style="display: none;" class="notification is-size-7 has-text-centered is-marginless comment-tooltip"><button class="delete"></button>${[tooltip]}</div>
             <div class="is-size-7" style="position: relative;">
               <a class="has-text-grey-light" title="Permalink" href="${comment_url}">${timeAgo().format(`${updated_at}Z`)}</a>
-              <span class="has-text-grey-lighter">&bullet;</span>
               <span class="has-text-grey-light">
-                <a href="/proxies/requests" onclick="${this}" class="has-text-centered has-text-grey-light privacy-indicator">
+                ${user && user.id === user_id ? [`
+                  <span class="has-text-grey-lighter">&bullet;</span>
+                  <a href="${`${measure_url}/vote`}" class="has-text-grey-light">
+                    <span class="icon is-small"><i class="fa fa-pencil"></i></span>
+                    <span>Edit</span>
+                  </a>
+                `] : ''}
+                <span class="has-text-grey-lighter">&bullet;</span>
+                <a href="/proxies/requests" onclick="${this}" class="has-text-grey-light privacy-indicator">
                   <span class="icon is-small"><i class="${`fa ${is_public || !fullname ? 'fa-globe' : 'fa-address-book-o'}`}"></i></span>
                   <span>${is_public || !fullname ? 'Public' : 'Private'}</span>
                 </a>
