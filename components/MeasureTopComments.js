@@ -34,7 +34,7 @@ module.exports = class MeasureTopComments extends Component {
             `]}
           </div>
         </div>
-        ${yea || nay ? [`<div class="has-text-centered is-size-7"><a href="#votes">See all opinions</a>`] : ''}
+        ${yea || nay ? [`<div class="has-text-centered is-size-7"><a href="#votes">See all opinions</a></div>`] : ''}
         <hr />
       </div>
     `
