@@ -199,7 +199,7 @@ class RepCard extends Component {
           <figure class="media-left" style="overflow: hidden; border-radius: 5px;">
             <p class="image is-64x64">
               <a href=${`/${rep.username}`}>
-                <img src=${this.avatarURL(rep)}>
+                <img src=${this.avatarURL(rep)} />
               </a>
             </p>
           </figure>

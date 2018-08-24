@@ -24,14 +24,14 @@ module.exports = class MeasureDetails extends Component {
           </nav>
           ${l.published ? '' : UnpublishedMsg.for(this, { measure: l, user })}
           ${(l.vote_position && !user.cc_verified) ? [`
-            <div class="notification is-info">
+            <p class="notification is-info">
               <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
               <strong>Help hold your reps accountable!</strong><br />
               Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
-            </div>
+            </p>
           `] : ''}
           <div class="columns">
-            <div class="column">
+            <div class="column is-three-quarters">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
               ${l.type !== 'PN' ? MeasureSummary.for(this, { measure: l }) : ''}
               ${TopComments.for(this, { yea: l.top_yea, nay: l.top_nay, measure: l })}

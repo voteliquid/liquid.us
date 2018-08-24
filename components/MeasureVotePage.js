@@ -181,7 +181,7 @@ class MeasureVoteForm extends Component {
             </ul>
           </nav>
           <div class="columns">
-            <div class="column">
+            <div class="column is-three-quarters">
               ${(v.id && !user.cc_verified) ? [`
                 <div class="notification is-info">
                   <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>

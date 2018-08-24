@@ -121,7 +121,7 @@ module.exports = class MeasureDetailsPage extends Component {
   }
   onpagechange(oldProps) {
     if (this.props.url !== oldProps.url && this.state.measures) {
-      this.oninit().then(() => this.setState({}))
+      this.oninit()
     }
   }
   render() {
