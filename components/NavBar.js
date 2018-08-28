@@ -13,18 +13,18 @@ module.exports = class NavBar extends Component {
 
     return this.html`
       <nav class="navbar" role="navigation" aria-label="main navigation">
-        <div class="container">
+        <div class="container is-widescreen">
           ${[style]}
           <div class="navbar-brand">
             <a class="navbar-item" href="/">
               <img src=${`${ASSETS_URL}/united-vote-logo-100px.png`} alt="United.vote" />
             </a>
 
-            <a role="button" href="#" aria-label="menu" aria-expanded="${hamburgerVisible ? 'true' : 'false'}" class="${`navbar-burger ${hamburgerVisible ? 'is-active' : ''}`}" onclick=${this}>
+            <div role="button" href="#" aria-label="menu" aria-expanded="${hamburgerVisible ? 'true' : 'false'}" class="${`navbar-burger burger ${hamburgerVisible ? 'is-active' : ''}`}" onclick=${this}>
               <span aria-hidden="true"></span>
               <span aria-hidden="true"></span>
               <span aria-hidden="true"></span>
-            </a>
+            </div>
           </div>
           <div class=${`navbar-menu ${hamburgerVisible ? 'is-active' : ''}`}>
             <div class="navbar-end">
@@ -39,6 +39,14 @@ module.exports = class NavBar extends Component {
 
 const style = `
   <style>
+    .navbar {
+      padding: 0 1.5rem;
+    }
+    .navbar-burger {
+      height: auto;
+      width: 5rem;
+    }
+
     .navbar-brand .navbar-item img {
       margin: 4px 0;
       max-height: 40px;
@@ -46,22 +54,8 @@ const style = `
     }
 
     @media (max-width: 1087px) {
-      .navbar-brand .navbar-item {
-        padding: 0rem 1rem;
-        padding-left: 21px;
-      }
-
-      <!-- https://github.com/jgthms/bulma/issues/1952 -->
-      .navbar .container .navbar-brand {
-        margin-left: -0.75rem !important;
-      }
-      .navbar .container .navbar-menu {
-        margin-right: -0.75rem;
-      }
-
-      .navbar-brand .navbar-item img {
-        margin: 0;
-        padding-top: 4px;
+      .navbar {
+        padding: 0 0 0 .5rem;
       }
       a.navbar-item:hover {
         background-color: #f5f5f5 !important;

@@ -14,7 +14,7 @@ module.exports = class CreditCardVerificationPage extends Component {
     const { error, user } = this.state
     return this.html`
       <section class="section">
-        <div class="container">
+        <div class="container is-widescreen">
           ${!user ?
             SignUpNotification.for(this) : []
           }

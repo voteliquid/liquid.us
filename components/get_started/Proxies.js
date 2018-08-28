@@ -19,7 +19,7 @@ module.exports = class ChooseFirstProxyPage extends Component {
     const { proxies = [] } = this.state
     return this.html`
       <section oninit=${this} class="section">
-        <div class="container">
+        <div class="container is-widescreen">
           <div class="content">
             <h2 class="subtitle">Who do you trust to represent your vote?</h2>
             <p>None of us can cast an informed vote on every bill.</p>

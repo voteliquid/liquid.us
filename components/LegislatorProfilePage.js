@@ -59,7 +59,7 @@ module.exports = class LegislatorProfilePage extends Component {
 
     return this.html`
       <section class="section">
-        <div class="container">
+        <div class="container is-widescreen">
           <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
             <ul>
               <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>

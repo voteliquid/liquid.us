@@ -19,7 +19,7 @@ module.exports = class YourProposedLegislationPage extends Component {
   render() {
     return this.html`
       <section class="section">
-        <div class="container">
+        <div class="container is-widescreen">
           ${this.state.user.username ? YourProposedLegislationList.for(this) : PublicProfileRequiredMsg.for(this)}
         </div>
       </section>

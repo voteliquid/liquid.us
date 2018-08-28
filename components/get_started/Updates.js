@@ -36,7 +36,7 @@ module.exports = class GetStartedUpdatesPage extends Component {
 
     return this.html`
       <section class="section">
-        <div class="container">
+        <div class="container is-widescreen">
             <div class="content" style="max-width: 650px;">
               <h2 class="subtitle">Updates</h2>
               <form method="POST" onsubmit=${this} action=${this}>

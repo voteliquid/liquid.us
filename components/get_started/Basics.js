@@ -140,7 +140,7 @@ class GetStartedBasicsPage extends Component {
 
     return this.html`
       <section class="section">
-        <div class="container">
+        <div class="container is-widescreen">
           <div class="content" style="max-width: 650px;">
             ${location.query.notification === 'proxy_wo_name' ? [`
               <div class="notification is-info">You must set your first and last name before proxying.</div>

@@ -37,7 +37,7 @@ module.exports = class EditLegislationPage extends Component {
   render() {
     return this.html`
       <section class="section">
-        <div class="container">
+        <div class="container is-widescreen">
           <h2 class="title is-5">Edit Draft Legislation</h2>
           ${this.state.loading === 'populating' ? LoadingIndicator.for(this) : EditLegislationForm.for(this)}
         </div>

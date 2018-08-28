@@ -31,7 +31,7 @@ module.exports = class ProposeLegislationPage extends Component {
 
     return this.html`
       <section class="section">
-        <div class="container">
+        <div class="container is-widescreen">
           <h2 class="title is-5">Propose New Legislation</h2>
           ${user.username ? EditLegislationForm.for(this) : PublicProfileRequiredMsg.for(this)}
         </div>

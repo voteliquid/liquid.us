@@ -10,16 +10,13 @@ module.exports = class MeasureDetailsSidebar extends Component {
     const showStatusTracker = l.legislature_name === 'U.S. Congress' && l.introduced_at && (l.type === 'HR' || l.type === 'S')
 
     return this.html`
-      <div>
-        <nav class="panel">
-          <h3 class="panel-heading has-text-centered has-text-weight-semibold">${l.introduced_at ? `${l.type} ${l.number}` : 'Proposed'}</h3>
-          ${reps && reps.length ? MeasureRepsPanel.for(this, { measure: l, reps }) : ''}
-          ${MeasureVotesPanel.for(this, { measure: l })}
-          ${MeasureInfoPanel.for(this, { measure: l })}
-          ${showStatusTracker ? MeasureStatusPanel.for(this, { measure: l }) : ''}
-          ${MeasureActionsPanel.for(this, { measure: l, user })}
-        </nav>
-      </div>
+      <nav class="panel">
+        <h3 class="panel-heading has-text-centered has-text-weight-semibold">${l.introduced_at ? `${l.type} ${l.number}` : 'Proposed'}</h3>
+        ${reps && reps.length ? MeasureRepsPanel.for(this, { measure: l, reps }) : ''}
+        ${MeasureInfoPanel.for(this, { measure: l })}
+        ${showStatusTracker ? MeasureStatusPanel.for(this, { measure: l }) : ''}
+        ${MeasureActionsPanel.for(this, { measure: l, user })}
+      </nav>
     `
   }
 }
@@ -66,11 +63,13 @@ class MeasureStatusPanel extends Component {
 
 class MeasureInfoPanel extends Component {
   render() {
+    const { APP_NAME } = this.state.config
     const { measure } = this.props
     const {
       introduced_at, created_at, author_username, sponsor_username,
       sponsor_first_name, sponsor_last_name, author_first_name,
-      author_last_name, type, number, congress, chamber, legislature_name
+      author_last_name, type, number, congress, chamber, legislature_name,
+      yeas, nays
     } = measure
 
     let bill_details_name = false
@@ -93,6 +92,15 @@ class MeasureInfoPanel extends Component {
     return this.html`
       <div class="panel-block">
         <div class="columns is-gapless is-multiline is-mobile">
+          <div class="column is-half">
+            <div class="has-text-left has-text-grey">${APP_NAME} Votes</div>
+          </div>
+          <div class="column is-half has-text-right">
+            <span>${yeas}</span>
+            <span class="is-size-7">Yeas</span>
+            <span>${nays}</span>
+            <span class="is-size-7">Nays</span>
+          </div>
           <div class="column is-one-third">
             <div class="has-text-grey">${introduced_at ? 'Introduced' : 'Proposed'}</div>
           </div>
@@ -119,35 +127,6 @@ class MeasureInfoPanel extends Component {
               </div>
             </div>
           `] : ''}
-        </div>
-      </div>
-    `
-  }
-}
-
-class MeasureVotesPanel extends Component {
-  render() {
-    const { APP_NAME } = this.state.config
-    const { measure } = this.props
-    const { yeas, nays } = measure
-    return this.html`
-      <div class="panel-block">
-        <div style="width: 100%;">
-          <div class="columns is-gapless is-marginless is-mobile">
-            <div class="column is-half">
-              <div class="has-text-left has-text-grey">${APP_NAME} Votes</div>
-            </div>
-            <div class="column is-half has-text-right has-text-grey">
-              <span>${yeas}</span>
-              <span class="is-size-7">Yeas</span>
-              <span>${nays}</span>
-              <span class="is-size-7">Nays</span>
-            </div>
-          </div>
-          <div style="background-color: hsl(0, 0%, 86%); margin: .5rem 0; position: relative; border-radius: 2px; height: 6px; overflow: hidden;">
-            <div style="${`position: absolute; top: 0; bottom: 0; left: 0; width: ${(yeas / (yeas + nays)) * 100}%; background-color: hsl(141, 71%, 48%);`}"></div>
-            <div style="${`position: absolute; top: 0; bottom: 0; left: ${(yeas / (yeas + nays)) * 100}%; width: ${(nays / (yeas + nays)) * 100}%; background-color: hsl(348, 100%, 61%);`}"></div>
-          </div>
         </div>
       </div>
     `
@@ -198,6 +177,7 @@ class VoteButton extends Component {
 class MeasureRepsPanel extends Component {
   render() {
     const { measure, reps = [] } = this.props
+    const { constituent_yeas, constituent_nays } = measure
     const officeName = reps[0] && reps[0].office_short_name
     return this.html`
       <div class="panel-block">
@@ -209,6 +189,17 @@ class MeasureRepsPanel extends Component {
             : `Vote to tell your rep${reps.length > 1 ? 's' : ''} in ${officeName}`}
           </h4>
           ${reps.map((rep) => RepSnippet.for(this, { rep }, `sidebar-rep-${rep.user_id}`))}
+          <div class="columns is-gapless is-marginless is-mobile">
+            <div class="column is-half">
+              <div class="has-text-left has-text-grey">Constituents</div>
+            </div>
+            <div class="column is-half has-text-right has-text-grey">
+              <span>${constituent_yeas}</span>
+              <span class="is-size-7">Yeas</span>
+              <span>${constituent_nays}</span>
+              <span class="is-size-7">Nays</span>
+            </div>
+          </div>
         </div>
       </div>
     `

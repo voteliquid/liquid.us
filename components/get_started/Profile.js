@@ -67,7 +67,7 @@ module.exports = class PickUsernamePage extends Component {
 
     return this.html`
       <section class="section" >
-        <div class="container">
+        <div class="container is-widescreen">
           <div class="content">
             <h2 class="subtitle">
               Thank you for verifying

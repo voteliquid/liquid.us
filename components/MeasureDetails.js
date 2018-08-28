@@ -14,7 +14,7 @@ module.exports = class MeasureDetails extends Component {
 
     return this.html`
       <section class="section">
-        <div class="container">
+        <div class="container is-widescreen">
           <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
             <ul>
               <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
@@ -31,14 +31,14 @@ module.exports = class MeasureDetails extends Component {
             </p>
           `] : ''}
           <div class="columns">
-            <div class="column is-three-quarters">
+            <div class="column is-two-thirds-tablet is-three-quarters-desktop">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
               ${l.type !== 'PN' ? MeasureSummary.for(this, { measure: l }) : ''}
               ${TopComments.for(this, { measure: l, yea: l.top_yea, nay: l.top_nay })}
               ${user ? ProxyVotes.for(this, { measure: l }) : ''}
               ${Votes.for(this, { measure: l })}
             </div>
-            <div class="column is-one-quarter">
+            <div class="column is-one-third-tablet is-one-quarter-desktop">
               ${Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`)}
             </div>
           </div>
