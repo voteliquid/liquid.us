@@ -176,6 +176,7 @@ class VoteButton extends Component {
 
 class MeasureRepsPanel extends Component {
   render() {
+    const { user } = this.state
     const { measure, reps = [] } = this.props
     const { constituent_yeas, constituent_nays } = measure
     const officeName = reps[0] && reps[0].office_short_name
@@ -189,6 +190,7 @@ class MeasureRepsPanel extends Component {
             : `Vote to tell your rep${reps.length > 1 ? 's' : ''} in ${officeName}`}
           </h4>
           ${reps.map((rep) => RepSnippet.for(this, { rep }, `sidebar-rep-${rep.user_id}`))}
+          ${user && reps.length ? [`
           <div class="columns is-gapless is-marginless is-mobile">
             <div class="column is-half">
               <div class="has-text-left has-text-grey">Constituents</div>
@@ -200,6 +202,7 @@ class MeasureRepsPanel extends Component {
               <span class="is-size-7">Nays</span>
             </div>
           </div>
+          `] : ''}
         </div>
       </div>
     `
