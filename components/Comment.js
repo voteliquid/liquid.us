@@ -54,14 +54,14 @@ module.exports = class Comment extends Component {
           <div class="media-content" style="${`${show_bill ? '' : `border-left: 1px solid ${position === 'yea' ? 'hsl(141, 71%, 87%)' : 'hsl(348, 100%, 93%)'}; margin-left: -2rem; padding-left: 2rem;`}`}">
             ${[show_bill && selected_profile ? `
               <div>
-                <span>${username ? fullname : 'Anonymous'}</span>
-                <span>voted <strong>${position}</strong>${proxy_vote_count ? ` on behalf of ${proxy_vote_count + 1} people` : ''}</span>
+                <span class="has-text-weight-semibold">${username ? fullname : 'Anonymous'}</span>
+                <span>voted <strong>${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${proxy_vote_count + 1}</span> people` : ''}</span>
               </div>
               <div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>
             ` : `
               <div>
-                <span>${username ? [`<a href="/${username}">${fullname}</a>`] : 'Anonymous'}</span>
-                <span class="is-size-7">voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : 'hsl(348, 80%, 51%)'};">${position}</strong>${proxy_vote_count ? ` on behalf of ${proxy_vote_count + 1} people` : ''}</span>
+                <span class="has-text-weight-semibold">${username ? [`<a href="/${username}">${fullname}</a>`] : 'Anonymous'}</span>
+                <span class="is-size-7">voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${proxy_vote_count + 1}</span> people` : ''}</span>
               </div>
             `]}
             ${comment ? [`<div class="content" style="margin: .25rem 0 .75rem;">${this.linkifyUrls(comment)}</div>`] : ''}

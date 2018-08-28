@@ -34,7 +34,7 @@ module.exports = class MeasureDetails extends Component {
             <div class="column is-three-quarters">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
               ${l.type !== 'PN' ? MeasureSummary.for(this, { measure: l }) : ''}
-              ${TopComments.for(this, { yea: l.top_yea, nay: l.top_nay, measure: l })}
+              ${TopComments.for(this, { measure: l, yea: l.top_yea, nay: l.top_nay })}
               ${user ? ProxyVotes.for(this, { measure: l }) : ''}
               ${Votes.for(this, { measure: l })}
             </div>
@@ -79,6 +79,7 @@ class MeasureSummary extends Component {
       <style>
         .summary {
           max-height: 10rem;
+          margin-bottom: 1.5rem;
           position: relative;
           overflow: hidden;
         }
@@ -113,7 +114,6 @@ class MeasureSummary extends Component {
             : ''}
         </a>
       </div>
-      <hr />
     `
   }
 }

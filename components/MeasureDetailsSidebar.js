@@ -1,33 +1,44 @@
 const Component = require('./Component')
 const EditButtons = require('./EditMeasureButtons')
 const MeasureShareButtons = require('./MeasureShareButtons')
-const ordinalSuffix = require('ordinal-suffix')
 
 module.exports = class MeasureDetailsSidebar extends Component {
   render() {
     const l = this.props
-    const { reps } = this.state
     const { user } = this.props
+    const reps = (this.state.reps || []).filter(({ office_chamber }) => office_chamber === l.chamber)
+    const showStatusTracker = l.legislature_name === 'U.S. Congress' && l.introduced_at && (l.type === 'HR' || l.type === 'S')
+
+    return this.html`
+      <div>
+        <nav class="panel">
+          <h3 class="panel-heading has-text-centered has-text-weight-semibold">${l.introduced_at ? `${l.type} ${l.number}` : 'Proposed'}</h3>
+          ${reps && reps.length ? MeasureRepsPanel.for(this, { measure: l, reps }) : ''}
+          ${MeasureVotesPanel.for(this, { measure: l })}
+          ${MeasureInfoPanel.for(this, { measure: l })}
+          ${showStatusTracker ? MeasureStatusPanel.for(this, { measure: l }) : ''}
+          ${MeasureActionsPanel.for(this, { measure: l, user })}
+        </nav>
+      </div>
+    `
+  }
+}
+
+class MeasureActionsPanel extends Component {
+  render() {
+    const { measure: l, user } = this.props
+    return this.html`
+      <div class="panel-block is-size-7" style="justify-content: center;">
+        ${user && user.id === l.author_id ? EditButtons.for(this, l) : MeasureShareButtons.for(this, l)}
+      </div>
+    `
+  }
+}
+
+class MeasureStatusPanel extends Component {
+  render() {
+    const { measure: l } = this.props
     const steps = [{ step: 'Introduced', fulfilled: !!l.introduced_at }]
-    const show_tracker = l.legislature_name === 'U.S. Congress' && l.introduced_at && (l.type === 'HR' || l.type === 'S')
-
-    let bill_details_name = false
-    let bill_details_url = false
-
-    if (l.introduced_at) {
-      if (l.legislature_name === 'U.S. Congress') {
-        bill_details_name = 'congress.gov'
-        if (l.type === 'HR' || l.type === 'S') {
-          bill_details_url = `https://www.congress.gov/bill/${l.congress}th-congress/${l.chamber === 'Lower' ? 'house' : 'senate'}-bill/${l.number}`
-        } else if (l.type === 'PN') {
-          bill_details_url = `https://www.congress.gov/nomination/${l.congress}th-congress/${l.number}`
-        }
-        if (l.legislature_name === 'California') {
-          bill_details_name = 'leginfo.legislature.ca.gov'
-          bill_details_url = `https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=${l.congress}0${l.type}${l.number}`
-        }
-      }
-    }
 
     if (l.chamber === 'Upper') {
       steps.push({ step: 'Passed Senate', fulfilled: !!l.passed_upper_at })
@@ -40,111 +51,103 @@ module.exports = class MeasureDetailsSidebar extends Component {
     steps.push({ step: 'Enacted', fulfilled: !!l.enacted_at })
 
     return this.html`
-      <div>
-        <nav class="panel">
-          <h3 class="panel-heading has-text-centered has-text-weight-semibold">${l.introduced_at ? `${l.type} ${l.number}` : 'Proposed'}</h3>
-          <div class="panel-block has-text-centered">
-            <div style="width: 100%;">
-              <div style="margin-bottom: .75rem;">${VoteButton.for(this, l, `votebutton-${l.id}`)}</div>
-              ${VoteStats.for(this, l, `votestats-${l.id}`)}
+      <div class="panel-block">
+        <div>
+          <ul>
+            ${steps.map(({ fulfilled, step }) => {
+              return `<li class="${`step ${fulfilled ? 'fulfilled' : 'has-text-grey'}`}"><span class="icon"><i class="fa ${fulfilled ? 'fa-check-circle-o' : 'fa-circle-o'}"></i></span>${step}</li>`
+            })}
+          </ul>
+        </div>
+      </div>
+    `
+  }
+}
+
+class MeasureInfoPanel extends Component {
+  render() {
+    const { measure } = this.props
+    const {
+      introduced_at, created_at, author_username, sponsor_username,
+      sponsor_first_name, sponsor_last_name, author_first_name,
+      author_last_name, type, number, congress, chamber, legislature_name
+    } = measure
+
+    let bill_details_name = false
+    let bill_details_url = false
+
+    if (introduced_at) {
+      if (legislature_name === 'U.S. Congress') {
+        bill_details_name = 'congress.gov'
+        if (type === 'HR' || type === 'S') {
+          bill_details_url = `https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}`
+        } else if (type === 'PN') {
+          bill_details_url = `https://www.congress.gov/nomination/${congress}th-congress/${number}`
+        }
+        if (legislature_name === 'California') {
+          bill_details_name = 'leginfo.legislature.ca.gov'
+          bill_details_url = `https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=${congress}0${type}${number}`
+        }
+      }
+    }
+    return this.html`
+      <div class="panel-block">
+        <div class="columns is-gapless is-multiline is-mobile">
+          <div class="column is-one-third">
+            <div class="has-text-grey">${introduced_at ? 'Introduced' : 'Proposed'}</div>
+          </div>
+          <div class="column is-two-thirds">
+            <div class="has-text-right">${new Date(introduced_at || created_at).toLocaleDateString()}</div>
+          </div>
+          <div class="column is-one-third">
+            <div class="has-text-grey">${author_username ? 'Author' : (sponsor_username ? 'Sponsor' : '')}</div>
+          </div>
+          <div class="column is-two-thirds">
+            <div class="has-text-right">
+              ${sponsor_username
+                ? [`<a href="/${sponsor_username}">${sponsor_first_name} ${sponsor_last_name}</a>`]
+                : author_username
+                  ? [`<a href="/${author_username}">${author_first_name} ${author_last_name}</a>`]
+                  : ''}
             </div>
           </div>
-          <div class="panel-block">
-            <div class="columns is-gapless is-multiline">
-              <div class="column is-one-third">
-                <div class="has-text-weight-semibold">${l.introduced_at ? 'Introduced' : 'Proposed'}</div>
+          ${bill_details_url ? [`
+            <div class="column is-one-third"><div class="has-text-grey">Bill text</div></div>
+            <div class="column is-two-thirds">
+              <div class="has-text-right">
+                <a href="${bill_details_url}">${bill_details_name}</a>
               </div>
-              <div class="column is-two-thirds">
-                <div class="has-text-right has-text-left-mobile">${new Date(l.introduced_at || l.created_at).toLocaleDateString()}</div>
-              </div>
-              <div class="column is-one-third">
-                <div class="has-text-weight-semibold">${l.author_username ? 'Author' : (l.sponsor_username ? 'Sponsor' : '')}</div>
-              </div>
-              <div class="column is-two-thirds">
-                <div class="has-text-right has-text-left-mobile">
-                  ${l.sponsor_username
-                    ? [`<a href="/${l.sponsor_username}">${l.sponsor_first_name} ${l.sponsor_last_name}</a>`]
-                    : l.author_username
-                      ? [`<a href="/${l.author_username}">${l.author_first_name} ${l.author_last_name}</a>`]
-                      : ''}
-                </div>
-              </div>
-              ${bill_details_url ? [`
-                <div class="column is-one-third"><div class="has-text-weight-semibold">Bill text</div></div>
-                <div class="column is-two-thirds">
-                  <div class="has-text-right has-text-left-mobile">
-                    <a href="${bill_details_url}">${bill_details_name}</a>
-                  </div>
-                </div>
-              `] : ''}
             </div>
-          </div>
-          ${show_tracker ? [`
-          <div class="panel-block">
-            <div>
-              <ul>
-                ${steps.map(({ fulfilled, step }) => {
-                  return `<li class="${`step ${fulfilled ? 'fulfilled' : 'has-text-grey'}`}"><span class="icon"><i class="fa ${fulfilled ? 'fa-check-circle-o' : 'fa-circle-o'}"></i></span>${step}</li>`
-                }).join('')}
-              </ul>
-            </div>
-          </div>
           `] : ''}
-          <div class="panel-block is-size-7" style="justify-content: center;">
-            ${user && user.id === l.author_id ? EditButtons.for(this, l) : MeasureShareButtons.for(this, l)}
-          </div>
-        </nav>
-        ${reps && reps[0] ? RepSidebar.for(this, l) : ''}
-      </div>
-    `
-  }
-}
-
-class RepSidebar extends Component {
-  render() {
-    const rep = this.state.reps[0]
-    return this.html`
-      <div class="panel">
-        <h3 class="panel-heading has-text-centered has-text-weight-semibold">Your Rep</h3>
-        <div class="panel-block">
-          <div>
-            <p class="is-size-7">We'll notify <a href="/legislators">your representative</a> and hold them accountable by using your vote to calculate their <a href="https://blog.united.vote/2017/12/08/give-your-rep-an-f-introducing-united-legislator-grades/">representation score</a>.</p>
-            <br />
-            ${RepCard.for(this, { rep })}
-          </div>
         </div>
       </div>
     `
   }
 }
 
-class VoteStats extends Component {
+class MeasureVotesPanel extends Component {
   render() {
-    const { reps } = this.state
-    const l = this.props
+    const { APP_NAME } = this.state.config
+    const { measure } = this.props
+    const { yeas, nays } = measure
     return this.html`
-      <div>
-        <div class="columns is-gapless is-marginless">
-          <div class="column is-one-third">
-            <div class="has-text-left">${l.legislature_name.replace(' Congress', '')}</div>
+      <div class="panel-block">
+        <div style="width: 100%;">
+          <div class="columns is-gapless is-marginless is-mobile">
+            <div class="column is-half">
+              <div class="has-text-left has-text-grey">${APP_NAME} Votes</div>
+            </div>
+            <div class="column is-half has-text-right has-text-grey">
+              <span>${yeas}</span>
+              <span class="is-size-7">Yeas</span>
+              <span>${nays}</span>
+              <span class="is-size-7">Nays</span>
+            </div>
           </div>
-          <div class="column is-two-thirds">
-            <div class="has-text-right has-text-left-mobile">${l.yeas} Yea <span class="has-text-grey-lighter">|</span> ${Number(l.nays) + Number(l.abstains)} Nay</div>
+          <div style="background-color: hsl(0, 0%, 86%); margin: .5rem 0; position: relative; border-radius: 2px; height: 6px; overflow: hidden;">
+            <div style="${`position: absolute; top: 0; bottom: 0; left: 0; width: ${(yeas / (yeas + nays)) * 100}%; background-color: hsl(141, 71%, 48%);`}"></div>
+            <div style="${`position: absolute; top: 0; bottom: 0; left: ${(yeas / (yeas + nays)) * 100}%; width: ${(nays / (yeas + nays)) * 100}%; background-color: hsl(348, 100%, 61%);`}"></div>
           </div>
-        </div>
-        ${reps && reps.length ? [`
-        <div class="columns is-gapless is-marginless has-text-grey-light">
-          <div class="column is-one-third">
-            <div class="has-text-left">${reps[0] && reps[0].office_short_name}</div>
-          </div>
-          <div class="column is-two-thirds">
-            <div class="has-text-right has-text-left-mobile">${l.constituent_yeas} Yea <span class="has-text-grey-lighter">|</span> ${Number(l.constituent_nays) + Number(l.constituent_abstains)} Nay</div>
-          </div>
-        </div>
-        `] : ''}
-        <div style="background-color: hsl(0, 0%, 86%); margin: .75rem 0; position: relative; border-radius: 2px; height: 6px; overflow: hidden;">
-          <div style="${`position: absolute; top: 0; bottom: 0; left: 0; width: ${(l.yeas / (l.yeas + l.nays)) * 100}%; background-color: hsl(141, 71%, 48%);`}"></div>
-          <div style="${`position: absolute; top: 0; bottom: 0; left: ${(l.yeas / (l.yeas + l.nays)) * 100}%; width: ${(l.nays / (l.yeas + l.nays)) * 100}%; background-color: hsl(348, 100%, 61%);`}"></div>
         </div>
       </div>
     `
@@ -183,14 +186,36 @@ class VoteButton extends Component {
         voteBtnClass = `button is-fullwidth ${this.votePositionClass()}`
       }
     }
-    return this.html`<a style="height: auto; white-space: normal; align-items: flex-start;" class=${voteBtnClass} href=${`/${s.type === 'PN' ? 'nominations' : 'legislation'}/${s.short_id}/vote`}>
-      <span class="icon"><i class=${voteBtnIcon}></i></span>
-      <span class="has-text-weight-semibold">${voteBtnTxt}</span>
-    </a>`
+    return this.html`
+      <a style="height: auto; white-space: normal; align-items: flex-start; margin-bottom: .5rem;" class=${voteBtnClass} href=${`/${s.type === 'PN' ? 'nominations' : 'legislation'}/${s.short_id}/vote`}>
+        <span class="icon"><i class=${voteBtnIcon}></i></span>
+        <span class="has-text-weight-semibold">${voteBtnTxt}</span>
+      </a>
+    `
   }
 }
 
-class RepCard extends Component {
+class MeasureRepsPanel extends Component {
+  render() {
+    const { measure, reps = [] } = this.props
+    const officeName = reps[0] && reps[0].office_short_name
+    return this.html`
+      <div class="panel-block">
+        <div>
+          ${measure.vote_position ? VoteButton.for(this, measure) : ''}
+          <h4 class="has-text-centered has-text-weight-semibold" style="margin: 0 0 .5rem;">
+            ${measure.vote_position
+            ? `We told your rep${reps.length > 1 ? 's' : ''} in ${officeName}`
+            : `Vote to tell your rep${reps.length > 1 ? 's' : ''} in ${officeName}`}
+          </h4>
+          ${reps.map((rep) => RepSnippet.for(this, { rep }, `sidebar-rep-${rep.user_id}`))}
+        </div>
+      </div>
+    `
+  }
+}
+
+class RepSnippet extends Component {
   render() {
     const { rep } = this.props
     return this.html`
@@ -210,13 +235,6 @@ class RepCard extends Component {
             <p class="is-size-7">${rep.office_name}</p>
           </div>
         </div>
-        <p class="is-size-7">
-          <span class="has-text-grey">
-          ${rep.representation_grade ?
-            [`<span class="is-size-6 has-text-weight-bold">${ordinalSuffix(rep.representation_percentile)}</span> percentile among ${rep.office_chamber === 'Lower' ? 'House' : 'Senate'} ${rep.party_affiliation}s`] :
-            `Need more constituent votes to calculate grade`}
-          </span>
-        </p>
       </div>
     `
   }

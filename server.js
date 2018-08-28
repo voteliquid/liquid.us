@@ -87,6 +87,10 @@ function htmlHead(state) {
     <style>
       ${nprogressStyle}
 
+      body {
+        font-size: .9rem;
+      }
+
       #hyperloop_application {
         display: flex;
         min-height: 100vh;

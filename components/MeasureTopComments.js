@@ -3,39 +3,70 @@ const Comment = require('./Comment')
 
 module.exports = class MeasureTopComments extends Component {
   render() {
-    const { yea, nay, measure } = this.props
+    const { measure, yea, nay } = this.props
+    const { short_id, type, vote_position } = measure
+    const measureVoteUrl = `/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}/vote`
     return this.html`
       <div>
-        <div class="columns is-gapless">
-          <div class="column">
-            <h4 class="title is-size-6 has-text-grey has-text-weight-semibold">
-              Top opinions in favor
-            </h4>
-            ${yea
-            ? Comment.for(this, yea, `topcomment-${yea.id}`)
-            : [`
-              <p class="has-text-grey-light">
-                No opinions in favor yet.
-                <a href="/${measure.type === 'PN' ? 'nominations' : 'legislation'}/${measure.short_id}/vote">Vote</a> to add one.
-              </p>
-            `]}
+        <style>
+          .vote-button-yea {
+            border-radius: 4px 0 0 0;
+          }
+          .vote-button-nay {
+            border-radius: 0 4px 0 0;
+          }
+          @media screen and (max-width: 800px) {
+            .vote-button-yea {
+              border-radius: 4px;
+              margin-bottom: .5rem;
+            }
+            .vote-button-nay {
+              border-radius: 4px;
+              margin-bottom: .5rem;
+            }
+          }
+        </style>
+        <div class="columns is-gapless is-multiline is-marginless">
+          ${!vote_position ? [`
+          <div class="column is-half">
+            <a href="${measureVoteUrl}" class="button vote-button-yea is-success has-text-weight-semibold is-fullwidth">
+              <span class="icon is-small"><i class="fa fa-check"></i></span>
+              <span>Vote Yea</span>
+            </a>
           </div>
-          <div class="column">
-            <h4 class="title is-size-6 has-text-grey has-text-weight-semibold">
-              Top opinions against
-            </h4>
-            ${nay
-            ? Comment.for(this, nay, `topcomment-${nay.id}`)
-            : [`
-              <p class="has-text-grey-light">
-                No opinions against yet.
-                <a href="/${measure.type === 'PN' ? 'nominations' : 'legislation'}/${measure.short_id}/vote">Vote</a> to add one.
-              </p>
-            `]}
+          <div class="column is-half">
+            <a href="${measureVoteUrl}" class="button vote-button-nay is-danger has-text-weight-semibold is-fullwidth">
+              <span class="icon is-small"><i class="fa fa-close"></i></span>
+              <span>Vote Nay</span>
+            </a>
+          </div>
+          `] : ''}
+          <div class="column is-half" style="background-color: hsla(141, 71%, 97%, 1); color: #222;">
+            <div style="padding: 1rem;">
+              <h4 style="color: hsl(141, 80%, 38%); padding-bottom: 1rem;" class="${`${vote_position ? 'has-text-weight-semibold' : ''} has-text-centered`}">Top Argument In Favor</h4>
+              ${yea
+              ? Comment.for(this, yea, `topcomment-${yea.id}`)
+              : [`
+                <p class="has-text-grey-light has-text-centered">
+                  No arguments in favor yet.
+                </p>
+              `]}
+            </div>
+          </div>
+          <div class="column is-half" style="background-color: hsla(348, 100%, 98%, 1); color: #222;">
+            <div style="padding: 1rem;">
+              <h4 style="padding-bottom: 1rem;" class="${`${vote_position ? 'has-text-weight-semibold' : ''} has-text-centered has-text-danger`}">Top Argument Against</h4>
+              ${nay
+              ? Comment.for(this, nay, `topcomment-${nay.id}`)
+              : [`
+                <p class="has-text-grey-light has-text-centered">
+                  No arguments against yet.
+                </p>
+              `]}
+            </div>
           </div>
         </div>
-        ${yea || nay ? [`<div class="has-text-centered is-size-7"><a href="#votes">See all opinions</a></div>`] : ''}
-        <hr />
+        <hr style="margin: 0 0 2rem" />
       </div>
     `
   }

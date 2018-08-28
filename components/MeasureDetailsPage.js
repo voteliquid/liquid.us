@@ -103,11 +103,17 @@ module.exports = class MeasureDetailsPage extends Component {
   fetchComments(measure_id, short_id) {
     const { query } = this.location
     const order = query.order || 'most_recent'
+    const position = query.position || 'all'
     const orders = {
       most_recent: 'updated_at.desc',
       vote_power: 'proxy_vote_count.desc.nullslast,created_at.desc',
     }
-    return this.api(`/public_votes?measure_id=eq.${measure_id}&order=${orders[order]}`).then((comments) => {
+    const positions = {
+      all: '',
+      yea: '&position=eq.yea',
+      nay: '&position=eq.nay',
+    }
+    return this.api(`/public_votes?measure_id=eq.${measure_id}&comment=not.is.null&comment=not.eq.&order=${orders[order]}${positions[position]}`).then((comments) => {
       this.setState({
         measures: {
           ...this.state.measures,
@@ -129,12 +135,12 @@ module.exports = class MeasureDetailsPage extends Component {
     const { params } = this.props
     const measure = measures[params.short_id]
 
-    return this.html`${
+    return this.html`<div>${
       loading_measure
         ? LoadingIndicator.for(this)
         : measure
           ? MeasureDetails.for(this, { measure })
           : NotFound.for(this)
-    }`
+    }</div>`
   }
 }
