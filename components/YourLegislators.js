@@ -6,11 +6,11 @@ module.exports = class YourLegislators extends Component {
   oninit() {
     return this.fetchElectedLegislators()
   }
-  fetchElectedLegislators() {
+  fetchElectedLegislators(refresh) {
     const { config, reps_loaded, user } = this.state
     const { NODE_ENV, WWW_URL } = config
 
-    if (reps_loaded) return
+    if (!refresh && reps_loaded) return
 
     const address = user && user.address
 
@@ -19,7 +19,7 @@ module.exports = class YourLegislators extends Component {
         method: 'POST',
         body: JSON.stringify({ user_id: user.id }),
       })
-      .then(reps => ({ reps: reps || [], reps_loaded: true }))
+      .then(reps => this.setState({ reps: reps || [], reps_loaded: true }))
     }
 
     let ip = this.location.ip || ''
@@ -35,7 +35,9 @@ module.exports = class YourLegislators extends Component {
     })
     .then(response => response.json())
     .then((geoip) => {
-      if (!geoip) return { reps: [], reps_loaded: true }
+      if (!geoip) {
+        return this.setState({ reps: [], reps_loaded: true })
+      }
       return this.api('/rpc/point_to_offices', {
         method: 'POST',
         body: JSON.stringify({ lon: Number(geoip.lon), lat: Number(geoip.lat) }),
@@ -43,12 +45,12 @@ module.exports = class YourLegislators extends Component {
       .then(reps => {
         if (!reps) reps = []
         this.storage.set('geoip_house_rep', reps[0] ? reps[0].user_id : 'not_found')
-        return { reps, reps_loaded: true, geoip }
+        return this.setState({ reps, reps_loaded: true, geoip })
       })
     })
     .catch((error) => {
       console.error(error)
-      return { reps: [], reps_loaded: true }
+      return this.setState({ reps: [], reps_loaded: true })
     })
   }
   render() {

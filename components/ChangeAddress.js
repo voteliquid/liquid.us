@@ -2,6 +2,7 @@ const { GOOGLE_GEOCODER_KEY } = process.env
 const Component = require('./Component')
 const fetch = require('isomorphic-fetch')
 const GoogleAddressAutocompleteScript = require('./GoogleAddressAutocompleteScript')
+const fetchElectedLegislators = require('./YourLegislators').prototype.fetchElectedLegislators
 
 module.exports = class ChangeAddressPage extends Component {
   onsubmit(event, formData) {
@@ -58,15 +59,19 @@ module.exports = class ChangeAddressPage extends Component {
       })
     }
 
-    return addressUpsert.then(() => {
-      this.setState({ user: { ...user, address: { address } } })
-      this.location.redirect(303, this.location.query.from || '/legislators')
-    })
-    .catch((api_error) => {
-      return {
-        error: (~api_error.message.indexOf('constraint "email')) ? 'Invalid email address' : api_error.message,
-      }
-    })
+    return addressUpsert
+      .then(() => {
+        return fetchElectedLegislators.call(this, true)
+      })
+      .then(() => {
+        this.setState({ user: { ...user, address: { address } } })
+        this.location.redirect(303, this.location.query.from || '/legislators')
+      })
+      .catch((api_error) => {
+        return {
+          error: (~api_error.message.indexOf('constraint "email')) ? 'Invalid email address' : api_error.message,
+        }
+      })
   }
 
   render() {

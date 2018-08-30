@@ -101,7 +101,7 @@ class GetStartedBasicsPage extends Component {
     }))
     .then(() => {
       this.setState({ reps: [], user: { ...user, voter_status, first_name, last_name, address: { address } } })
-      return Promise.resolve(YourLegislators.prototype.fetchElectedLegislators.call(this)).then(newState => this.setState(newState))
+      return Promise.resolve(YourLegislators.prototype.fetchElectedLegislators.call(this, true))
     })
     .then(() => {
       if (!storage.get('proxying_user_id')) {

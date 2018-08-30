@@ -32,11 +32,7 @@ module.exports = class MeasureTopComments extends Component {
               <h4 style="color: hsl(141, 80%, 38%); padding-bottom: 1rem;" class="${`${vote_position ? 'has-text-weight-semibold' : ''} has-text-centered`}">Top Argument In Favor</h4>
               ${yea
               ? Comment.for(this, yea, `topcomment-yea-${yea.id}`)
-              : [`
-                <p class="has-text-grey-light has-text-centered">
-                  No arguments in favor yet.
-                </p>
-              `]}
+              : NoArgumentsMsg.for(this, { vote_position, position: 'yea' }, 'noarguments-yea')}
             </div>
           </div>
           <div class="column is-half" style="border-left: 1px solid white; background-color: hsla(348, 100%, 98%, 1); color: #222;">
@@ -44,16 +40,41 @@ module.exports = class MeasureTopComments extends Component {
               <h4 style="padding-bottom: 1rem;" class="${`${vote_position ? 'has-text-weight-semibold' : ''} has-text-centered has-text-danger`}">Top Argument Against</h4>
               ${nay
               ? Comment.for(this, nay, `topcomment-nay-${nay.id}`)
-              : [`
-                <p class="has-text-grey-light has-text-centered">
-                  No arguments against yet.
-                </p>
-              `]}
+              : NoArgumentsMsg.for(this, { vote_position, position: 'nay' }, 'noarguments-nay')}
             </div>
           </div>
         </div>
         <hr style="margin: 0 0 2rem" />
       </div>
+    `
+  }
+}
+
+class NoArgumentsMsg extends Component {
+  render() {
+    const { vote_position, position } = this.props
+    return this.html`
+      <p class="has-text-grey-light has-text-centered">
+        No arguments ${position === 'yea' ? 'in favor' : 'against'} yet.
+        ${!vote_position || vote_position === position ? AddArgumentLink.for(this, `arg-link-${position}`) : ''}
+      </p>
+    `
+  }
+}
+
+class AddArgumentLink extends Component {
+  onclick(event) {
+    event.preventDefault()
+
+    this.setState({
+      showMeasureVoteForm: true,
+    })
+
+    window.scrollTo(0, document.getElementById('votes').getBoundingClientRect().top)
+  }
+  render() {
+    return this.html`
+      <span><a onclick=${this} href="#vote" class="has-text-grey">Add one</a>.</span>
     `
   }
 }
