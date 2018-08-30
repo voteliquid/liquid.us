@@ -1,9 +1,8 @@
 const Component = require('./Component')
 const LoadingIndicator = require('./LoadingIndicator')
+const MeasureVoteForm = require('./MeasureVoteForm')
 const Sidebar = require('./MeasureDetailsSidebar')
 const fetchMeasure = require('./MeasureDetailsPage').prototype.fetchMeasure
-const fetchComments = require('./MeasureDetailsPage').prototype.fetchComments
-const fetchTopComments = require('./MeasureDetailsPage').prototype.fetchTopComments
 
 module.exports = class MeasureVotePage extends Component {
   oninit() {
@@ -73,102 +72,16 @@ module.exports = class MeasureVotePage extends Component {
     const { params } = this.props
     const measure = measures[params.short_id]
     return this.html`<div>
-      ${measure && !loading_measure ? MeasureVoteForm.for(this, { measure }) : LoadingIndicator.for(this)}
+      ${measure && !loading_measure ? MeasureVotePageLoaded.for(this, { measure }) : LoadingIndicator.for(this)}
     </div>`
   }
 }
 
-class MeasureVoteForm extends Component {
-  onsubmit(event, form) {
-    event.preventDefault()
-
-    const { measure } = this.props
-    const { measures = {}, user } = this.state
-    const { redirect } = this.location
-    const { storage } = this
-
-    if (!form.vote_position) {
-      return { error: 'You must choose a position.' }
-    }
-
-    if (!user) {
-      storage.set('vote_bill_id', measure.id)
-      storage.set('vote_bill_short_id', measure.short_id)
-      storage.set('vote_position', form.vote_position)
-      storage.set('vote_public', form.public === 'true' ? 'true' : '')
-      storage.set('vote_comment', form.comment)
-
-      return redirect('/join')
-    }
-
-    this.setState({ saving_vote: true })
-
-    return this.api('/rpc/vote', {
-      method: 'POST',
-      body: JSON.stringify({
-        user_id: user.id,
-        measure_id: measure.id,
-        vote_position: form.vote_position,
-        comment: form.comment,
-        public: form.public === 'true',
-      }),
-    })
-    .then(() => fetchMeasure.call(this, measure.short_id))
-    .then((measure) =>
-      fetchComments.call(this, measure.id, measure.short_id)
-      .then(() => fetchTopComments.call(this, measure.id, measure.short_id))
-      .then(() => measure))
-    .then((measure) => {
-      if (this.isBrowser && window._loq) window._loq.push(['tag', 'Voted'])
-      this.setState({
-        measures: {
-          ...measures,
-          [measure.short_id]: {
-            ...measures[measure.short_id],
-            ...measure,
-          },
-        },
-        saving_vote: false,
-      })
-      if (measure.type === 'PN') {
-        return redirect(303, `/nominations/${measure.short_id}`)
-      }
-      return redirect(303, `/legislation/${measure.short_id}`)
-    })
-    .catch(error => {
-      return { error: error.message, saving_vote: false }
-    })
-  }
-  onclick(event) {
-    const { measure } = this.props
-
-    if (event.target.name === 'vote_position') {
-      measure.my_vote = {
-        ...measure.my_vote,
-        vote_position: event.target.checked ? event.target.value : ''
-      }
-    } else if (event.target.name === 'public') {
-      measure.my_vote = {
-        ...measure.my_vote,
-        public: event.target.checked
-      }
-    }
-
-    return this.setState({
-      measures: {
-        ...this.state.measures,
-        [measure.short_id]: {
-          ...this.state.measures[measure.short_id],
-          ...measure,
-        }
-      },
-    })
-  }
+class MeasureVotePageLoaded extends Component {
   render() {
-    const { config, error, last_vote_public, legislation_query, saving_vote, user } = this.state
+    const { config, legislation_query, user } = this.state
     const { measure: l } = this.props
-    const v = l.my_vote ? l.my_vote : {}
-    const public_checked = v.hasOwnProperty('public') ? v.public : last_vote_public
+    const { my_vote: v = {} } = l
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
@@ -182,82 +95,15 @@ class MeasureVoteForm extends Component {
           </nav>
           <div class="columns">
             <div class="column is-three-quarters">
-              ${(v.id && !user.cc_verified) ? [`
-                <div class="notification is-info">
-                  <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
-                  <strong>Help hold your reps accountable!</strong><br />
-                  Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
-                </div>
-              `] : ''}
-              <h2 class="title is-4 has-text-weight-normal">Vote on ${[l.introduced_at ? `${l.type} ${l.number} &mdash; ${l.title}` : l.title]}</h2>
-              ${l.vote_power > 1 ? [`<div class="notification"><span class="icon"><i class="fa fa-users"></i></span>You are casting a vote for <strong>${l.vote_power}</strong> people as their proxy. Consider including an explanation of your position.</div>`] : ''}
-              <form method="POST" onsubmit=${this} action=${this}>
-                ${error ? [`<div class="notification is-danger">${error}</div>`] : ''}
-                <div class="field">
-                  <label for="vote_position" class="label has-text-grey">Position:</label>
-                  <div class="control">
-                    <div class="button narrow-on-mobile">
-                      <label class="radio">
-                        <input onclick=${this} type="radio" name="vote_position" value="yea" checked=${v.vote_position === 'yea' ? 'checked' : ''} />
-                        Yea
-                      </label>
-                    </div>
-                    <div class="button narrow-on-mobile">
-                      <label class="radio">
-                        <input onclick=${this} type="radio" name="vote_position" value="nay" checked=${v.vote_position === 'nay' ? 'checked' : ''} />
-                        Nay
-                      </label>
-                    </div>
-                    <div class="button narrow-on-mobile">
-                      <label class="radio">
-                        <input onclick=${this} type="radio" name="vote_position" value="abstain" checked=${v.vote_position === 'abstain' ? 'checked' : ''} />
-                        Undecided
-                      </label>
-                    </div>
-                    <style>
-                      label.radio {
-                        padding: 0px 18px;
-                      }
-                      @media (max-width: 440px) {
-                        .narrow-on-mobile {
-                          padding: 0px 10px;
-                        }
-                        label.radio {
-                          padding: 0px;
-                        }
-                      }
-                    </style>
-                  </div>
-                </div>
-                <div class="field">
-                  <label for="comment" class="label has-text-grey">Comment:</label>
-                  <div class="control">
-                    <textarea name="comment" autocomplete="off" class="textarea" placeholder="Why are you voting this way? (Optional)" value=${v.comment}></textarea>
-                  </div>
-                </div>
-                <div class="field">
-                  <div class="control">
-                    <label class="checkbox">
-                      <input onclick=${this} type="checkbox" name="public" value="true" checked=${public_checked ? 'checked' : ''} />
-                      Public
-                    </label>
-                  </div>
-                  <p class="is-size-7 has-text-grey">
-                    ${public_checked
-                      ? 'Your comment will be published with your name. It will also be listed on your profile.'
-                      : 'Your comment will be published anonymously (your name will not be shown).'
-                    }
-                  </p>
-                </div>
-                <div class="field">
-                  <div class="control">
-                    <button class=${`button is-primary ${saving_vote ? 'is-loading' : ''}`} disabled=${saving_vote} type="submit">
-                      <span class="icon"><i class="fa fa-pencil-square-o"></i></span>
-                      <span>Confirm Vote</span>
-                    </button>
-                  </div>
-                </div>
-              </form>
+              <h2 class="title is-4 has-text-weight-normal">${l.vote_position ? 'Edit your vote' : 'Vote'} on ${[l.introduced_at ? `${l.type} ${l.number} &mdash; ${l.title}` : l.title]}</h2>
+            ${(v.id && !user.cc_verified) ? [`
+              <div class="notification is-info">
+                <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
+                <strong>Help hold your reps accountable!</strong><br />
+                Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
+              </div>
+            `] : ''}
+              ${MeasureVoteForm.for(this, { measure: l })}
             </div>
             <div class="column is-one-quarter">
               ${Sidebar.for(this, { ...l, user }, `vote-measure-sidebar-${l.id}`)}

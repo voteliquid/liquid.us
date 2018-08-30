@@ -193,25 +193,31 @@ class MeasureVoteCounts extends Component {
                 <td colspan="3" class="has-text-left has-text-grey">${legislature_name}</td>
               </tr>
               <tr>
-                <td colspan="${!measure.lower_yeas && !measure.lower_nays ? 3 : 1}" class="has-text-left has-text-grey">
+                <td class="has-text-left has-text-grey">
                   ${chamberNames[legislature_name].Lower}
-                  ${measure.lower_yeas ? '' : measure.passed_lower_at ? ' passed unanimously' : ' has not voted'}
                 </td>
                 ${measure.lower_yeas || measure.lower_nays ? `
                 <td class="has-text-right">${measure[`${chamber === 'Upper' ? 'upper' : 'lower'}_yeas`] || ''}</td>
                 <td class="has-text-right">${measure[`${chamber === 'Upper' ? 'upper' : 'lower'}_nays`] || ''}</td>
-                ` : ''}
+                ` : `
+                <td class="has-text-right" colspan="2">
+                  ${measure.lower_yeas ? '' : measure.passed_lower_at ? 'Passed unanimously' : 'No vote yet'}
+                </td>
+                `}
               </tr>
               ${type !== 'PN' ? [`
               <tr>
-                <td colspan="${!measure.upper_yeas && !measure.upper_nays ? 3 : 1}" class="has-text-left has-text-grey">
+                <td class="has-text-left has-text-grey">
                   ${chamberNames[legislature_name].Upper}
-                  ${measure.upper_yeas ? '' : measure.passed_upper_at ? ' passed unanimously' : ' has not voted'}
                 </td>
                 ${measure.upper_yeas || measure.upper_nays ? `
                 <td class="has-text-right">${measure[`${chamber === 'Upper' ? 'lower' : 'upper'}_yeas`] || ''}</td>
                 <td class="has-text-right">${measure[`${chamber === 'Upper' ? 'lower' : 'upper'}_nays`] || ''}</td>
-                ` : ''}
+                ` : `
+                <td class="has-text-right" colspan="2">
+                  ${measure.upper_yeas ? '' : measure.passed_upper_at ? 'Passed unanimously' : ' No vote yet'}
+                </td>
+                `}
               </tr>
               `] : ''}
               `] : ''}
@@ -223,59 +229,16 @@ class MeasureVoteCounts extends Component {
   }
 }
 
-class VoteButton extends Component {
-  votePositionClass() {
-    const { vote_position: position } = this.props
-    if (position === 'yea') return 'is-success'
-    if (position === 'nay') return 'is-danger'
-    return ''
-  }
-  render() {
-    const s = this.props
-
-    let voteBtnTxt = 'Vote'
-    let voteBtnClass = 'button is-primary is-fullwidth'
-    let voteBtnIcon = 'fa fa-pencil-square-o'
-
-    if (s.vote_position) {
-      const position = `${s.vote_position[0].toUpperCase()}${s.vote_position.slice(1)}`
-      if (s.vote_position === 'yea') voteBtnIcon = 'fa fa-check'
-      if (s.vote_position === 'nay') voteBtnIcon = 'fa fa-times'
-      if (s.vote_position === 'abstain') voteBtnIcon = 'fa fa-circle-o'
-      if (s.delegate_rank > -1) {
-        if (s.delegate_name) {
-          voteBtnTxt = `Inherited ${position} vote from ${s.delegate_name}`
-        } else {
-          voteBtnTxt = `Inherited ${position} vote from proxy`
-        }
-        voteBtnClass = `button is-outlined is-fullwidth ${this.votePositionClass()}`
-      }
-      if (s.delegate_rank === -1) {
-        voteBtnTxt = `You voted ${position}`
-        voteBtnClass = `button is-fullwidth ${this.votePositionClass()}`
-      }
-    }
-    return this.html`
-      <a style="height: auto; white-space: normal; align-items: flex-start; margin-bottom: .5rem;" class=${voteBtnClass} href=${`/${s.type === 'PN' ? 'nominations' : 'legislation'}/${s.short_id}/vote`}>
-        <span class="icon"><i class=${voteBtnIcon}></i></span>
-        <span class="has-text-weight-semibold">${voteBtnTxt}</span>
-      </a>
-    `
-  }
-}
-
 class MeasureRepsPanel extends Component {
   render() {
     const { measure, reps = [] } = this.props
-    const officeName = reps[0] && reps[0].office_short_name
     return this.html`
       <div class="panel-block">
         <div>
-          ${measure.vote_position ? VoteButton.for(this, measure) : ''}
           <h4 class="has-text-centered has-text-weight-semibold" style="margin: 0 0 .5rem;">
             ${measure.vote_position
-            ? `We told your rep${reps.length > 1 ? 's' : ''} in ${officeName}`
-            : `Vote to tell your rep${reps.length > 1 ? 's' : ''} in ${officeName}`}
+            ? `We told your rep${reps.length > 1 ? 's' : ''} to vote ${measure.vote_position}`
+            : `Vote to tell your rep${reps.length > 1 ? 's' : ''}`}
           </h4>
           ${reps.map((rep) => RepSnippet.for(this, { rep }, `sidebar-rep-${rep.user_id}`))}
         </div>

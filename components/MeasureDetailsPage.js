@@ -9,6 +9,10 @@ module.exports = class MeasureDetailsPage extends Component {
     const { params } = this.props
     const measure = measures[params.short_id]
 
+    this.setState({
+      showMeasureVoteForm: false,
+    })
+
     if (measure) {
       const title = measure.introduced_at ? `${measure.type} ${measure.number} – ${measure.title}` : measure.title
       if (this.isBrowser) {
