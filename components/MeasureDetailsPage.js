@@ -5,7 +5,7 @@ const NotFound = require('./NotFound')
 
 module.exports = class MeasureDetailsPage extends Component {
   oninit() {
-    const { config, measures = {}, user } = this.state
+    const { config, measures = {}, reps = [], user } = this.state
     const { params } = this.props
     const measure = measures[params.short_id]
 
@@ -45,7 +45,11 @@ module.exports = class MeasureDetailsPage extends Component {
         },
       })
 
+      const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
+      const officeId = repsInChamber[0] && repsInChamber[0].office_id
+
       return this.fetchComments(measure.id, measure.short_id)
+        .then(() => this.fetchConstituentVotes(measure.id, measure.short_id, officeId))
         .then(() => this.fetchTopComments(measure.id, measure.short_id))
         .then(() => this.fetchProxyVotes(measure.id, measure.short_id, user))
     })
@@ -54,6 +58,23 @@ module.exports = class MeasureDetailsPage extends Component {
       this.location.setStatus(404)
       return { error, loading_measure: false }
     })
+  }
+  fetchConstituentVotes(id, short_id, office_id) {
+    if (office_id) {
+      return this.api(`/measure_votes?measure_id=eq.${id}&or=(office_id.eq.${office_id},office_id.is.null)`)
+        .then((results) => {
+          const votes = results[0] || {}
+          this.setState({
+            measures: {
+              ...this.state.measures,
+              [short_id]: {
+                ...this.state.measures[short_id],
+                ...votes
+              },
+            },
+          })
+        })
+    }
   }
   fetchTopComments(id, short_id) {
     return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea`).then((comments) => {
@@ -75,7 +96,7 @@ module.exports = class MeasureDetailsPage extends Component {
     })
   }
   fetchMeasure(short_id) {
-    const type = ~short_id.indexOf('-pn') ? '&type=eq.PN' : '&or=(type.eq.HR,type.eq.S)'
+    const type = ~short_id.indexOf('-pn') ? '&type=eq.PN' : '&or=(type.eq.HR,type.eq.S,type.eq.AB,type.eq.SB)'
     const url = `/measures_detailed?short_id=eq.${short_id}${type}`
 
     return this.api(url).then((results) => results[0])

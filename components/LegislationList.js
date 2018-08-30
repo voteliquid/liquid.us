@@ -40,11 +40,10 @@ module.exports = class LegislationList extends Component {
     const fields = [
       'title', 'number', 'type', 'short_id', 'id', 'status',
       'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
-      'introduced_at', 'last_action_at', 'yeas',
-      'nays', 'abstains', 'next_agenda_begins_at', 'next_agenda_action_at',
+      'introduced_at', 'last_action_at', 'next_agenda_begins_at', 'next_agenda_action_at',
       'summary', 'legislature_name', 'published'
     ]
-    if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name', 'constituent_yeas', 'constituent_nays', 'constituent_abstains')
+    if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
     const api_url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&type=not.eq.PN&introduced_at=not.is.null${order}&limit=40`
 
     return this.api(api_url)
@@ -265,8 +264,6 @@ class LegislationListRow extends Component {
                   <br />
                 `]}
                 <strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}
-                <br />
-                ${VoteCountOrTally.call(this, s)}
               </div>
             </div>
             <div class="column is-one-quarter has-text-right-tablet has-text-left-mobile">
@@ -314,31 +311,6 @@ class VoteButton extends Component {
       <span class="icon" style="align-self: flex-start;"><i class=${voteBtnIcon}></i></span>
       <span class="has-text-weight-semibold">${voteBtnTxt}</span>
     </a>`
-  }
-}
-
-function VoteCountOrTally(bill) {
-  if (bill.vote_position && bill.delegate_rank === -1) {
-    return VoteTally.for(this, bill, `votetally-${bill.id}`)
-  }
-  return VoteCount.for(this, bill, `votecount-${bill.id}`)
-}
-
-class VoteCount extends Component {
-  render() {
-    const { abstains, nays, yeas } = this.props
-    return this.html`
-      <span class="is-size-7 has-text-grey"><span class="has-text-weight-bold">Votes:</span> ${yeas + nays + abstains}</span>
-    `
-  }
-}
-
-class VoteTally extends Component {
-  render() {
-    const { constituent_abstains, constituent_nays, constituent_yeas } = this.props
-    return this.html`
-      <span class="is-size-7 has-text-grey"><span class="has-text-weight-bold">Votes:</span> Yea: ${constituent_yeas}, Nay: ${constituent_nays}, Abstain: ${constituent_abstains}</span>
-    `
   }
 }
 

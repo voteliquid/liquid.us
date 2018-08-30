@@ -87,7 +87,7 @@ function htmlHead(state) {
     <style>
       ${nprogressStyle}
 
-      body {
+      body, .panel {
         font-size: .9rem;
       }
 
