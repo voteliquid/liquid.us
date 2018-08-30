@@ -148,7 +148,10 @@ class MeasureVoteCounts extends Component {
   render() {
     const { APP_NAME } = this.state.config
     const { measure, reps = [] } = this.props
-    const { type, constituent_yeas, constituent_nays, yeas, nays, legislature_name, chamber } = measure
+    const {
+      type, constituent_yeas, constituent_nays, yeas, nays,
+      legislature_name, chamber, delegate_name, vote_position, short_id
+    } = measure
 
     const localLegislatureName = reps[0] && reps[0].office_short_name
     const chamberNames = {
@@ -170,6 +173,16 @@ class MeasureVoteCounts extends Component {
           </style>
           <table class="table vote-table is-narrow is-fullwidth">
             <tbody>
+              ${vote_position ? [`
+              <tr>
+                <td class="has-text-left has-text-grey">Your Vote</td>
+                <td colspan="2" class="has-text-right">
+                  <a class="${`${vote_position === 'yea' ? 'has-text-success' : 'has-text-danger'} has-text-weight-semibold`}" href="${`/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}/vote`}">${this.capitalize(vote_position)}</a>
+                </td>
+              </tr>
+              ${delegate_name ? [`<tr><td colspan="3" class="has-text-grey">Inherited from ${delegate_name}</td></tr>`] : ''}
+              <tr><td colspan="3">&nbsp;</td><tr/>
+              `] : ''}
               <tr class="has-text-grey">
                 <td class="has-text-left">${APP_NAME}</td>
                 <td class="has-text-right">Yea</td>

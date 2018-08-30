@@ -88,6 +88,9 @@ module.exports = class Component extends hyperloop.Component {
     if (bioguide_id) return `https://theunitedstates.io/images/congress/225x275/${bioguide_id}.jpg`
     return `https://www.gravatar.com/avatar/${gravatar_hash}?d=mm&s=200`
   }
+  capitalize(str = '') {
+    return str.slice(0, 1).toUpperCase() + str.slice(1)
+  }
   escapeHtml(unsafe) {
     return (unsafe || '')
       .replace(/[<>"'&]/g, (char) => {

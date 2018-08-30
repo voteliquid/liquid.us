@@ -81,29 +81,37 @@ class VoteButtons extends Component {
   render() {
     const { saving_vote } = this.state
     const { measure } = this.props
-    const { vote_position } = measure
+    const { delegate_name, vote_position } = measure
     const { my_vote = { vote_position } } = measure
     return this.html`
-      <div class="columns is-gapless is-multiline is-marginless">
-        <div onconnected=${this} class="column is-half">
-          <form action=${this} method="POST" onsubmit=${this}>
+      <div onconnected=${this} class="columns is-gapless is-multiline is-marginless">
+        ${vote_position === 'abstain' ? [`
+          <div class="column is-full">
+            <a href="${`/${measure.type === 'PN' ? 'nominations' : 'legislation'}/${measure.short_id}/vote`}" style="line-height: 100%; height: 100%; white-space: normal;" class="${`${saving_vote ? 'is-loading' : ''} button vote-button-yea is-outline has-text-weight-semibold is-fullwidth`}">
+              <span class="icon is-small"><i class="fa fa-circle-o"></i></span>
+              <span>${delegate_name ? `Inherited Abstain vote from ${delegate_name}` : 'You Abstained'}</span>
+            </a>
+          </div>
+        `] : ''}
+        <div class="column is-half">
+          <form action=${this} method="POST" onsubmit=${this} style="height: 100%;">
             <input type="hidden" name="vote_position" value="yea" />
             <input type="hidden" name="public" value="${my_vote.public || 'false'}" />
             <input type="hidden" name="comment" value="${my_vote.comment || ''}" />
-            <button type="submit" style="${vote_position !== 'yea' ? 'opacity: .3;' : ''}" class="${`${saving_vote ? 'is-loading' : ''} button vote-button-yea is-success has-text-weight-semibold is-fullwidth`}">
+            <button type="submit" style="${`${vote_position !== 'yea' ? 'opacity: .3;' : ''} line-height: 100%; height: 100%; white-space: normal;`}" class="${`${saving_vote ? 'is-loading' : ''} button vote-button-yea is-success has-text-weight-semibold is-fullwidth`}">
               <span class="icon is-small"><i class="fa fa-check"></i></span>
-              <span>${vote_position === 'yea' ? 'You voted Yea' : 'Vote Yea'}</span>
+              <span>${vote_position === 'yea' ? delegate_name ? `Inherited Yea vote from ${delegate_name}` : 'You voted Yea' : 'Vote Yea'}</span>
             </button>
           </form>
         </div>
         <div class="column is-half" style="border-left: 1px solid white;">
-          <form action=${this} method="POST" onsubmit=${this}>
+          <form action=${this} method="POST" onsubmit=${this} style="height: 100%;">
             <input type="hidden" name="vote_position" value="nay" />
             <input type="hidden" name="public" value="${my_vote.public || 'false'}" />
             <input type="hidden" name="comment" value="${my_vote.comment || ''}" />
-            <button type="submit" style="${vote_position !== 'nay' ? 'opacity: .3;' : ''}" class="${`${saving_vote ? 'is-loading' : ''} button vote-button-nay is-danger has-text-weight-semibold is-fullwidth`}">
+            <button type="submit" style="${`${vote_position !== 'nay' ? 'opacity: .3;' : ''} line-height: 100%; height: 100%; white-space: normal;`}" class="${`${saving_vote ? 'is-loading' : ''} button vote-button-nay is-danger has-text-weight-semibold is-fullwidth`}">
               <span class="icon is-small"><i class="fa fa-close"></i></span>
-              <span>${vote_position === 'nay' ? 'You voted Nay' : 'Vote Nay'}</span>
+              <span>${vote_position === 'nay' ? delegate_name ? `Inherited Nay vote from ${delegate_name}` : 'You voted Nay' : 'Vote Nay'}</span>
             </button>
           </form>
         </div>
