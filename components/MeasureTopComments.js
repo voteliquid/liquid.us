@@ -119,7 +119,7 @@ class VoteButtons extends Component {
             <input type="hidden" name="vote_position" value="yea" />
             <input type="hidden" name="public" value="${my_vote.public || 'false'}" />
             <input type="hidden" name="comment" value="${my_vote.comment || ''}" />
-            <button type="submit" style="${`${vote_position !== 'yea' ? 'opacity: .3;' : ''} line-height: 100%; height: 100%; white-space: normal;`}" class="${`${saving_vote ? 'is-loading' : ''} button vote-button-yea is-success has-text-weight-semibold is-fullwidth`}">
+            <button type="submit" style="${`${vote_position && vote_position !== 'yea' ? 'opacity: .3;' : ''} line-height: 100%; height: 100%; white-space: normal;`}" class="${`${saving_vote ? 'is-loading' : ''} button vote-button-yea is-success has-text-weight-semibold is-fullwidth`}">
               <span class="icon is-small"><i class="fa fa-check"></i></span>
               <span>${vote_position === 'yea' ? delegate_name ? `Inherited Yea vote from ${delegate_name}` : 'You voted Yea' : 'Vote Yea'}</span>
             </button>
@@ -130,7 +130,7 @@ class VoteButtons extends Component {
             <input type="hidden" name="vote_position" value="nay" />
             <input type="hidden" name="public" value="${my_vote.public || 'false'}" />
             <input type="hidden" name="comment" value="${my_vote.comment || ''}" />
-            <button type="submit" style="${`${vote_position !== 'nay' ? 'opacity: .3;' : ''} line-height: 100%; height: 100%; white-space: normal;`}" class="${`${saving_vote ? 'is-loading' : ''} button vote-button-nay is-danger has-text-weight-semibold is-fullwidth`}">
+            <button type="submit" style="${`${vote_position && vote_position !== 'nay' ? 'opacity: .3;' : ''} line-height: 100%; height: 100%; white-space: normal;`}" class="${`${saving_vote ? 'is-loading' : ''} button vote-button-nay is-danger has-text-weight-semibold is-fullwidth`}">
               <span class="icon is-small"><i class="fa fa-close"></i></span>
               <span>${vote_position === 'nay' ? delegate_name ? `Inherited Nay vote from ${delegate_name}` : 'You voted Nay' : 'Vote Nay'}</span>
             </button>
