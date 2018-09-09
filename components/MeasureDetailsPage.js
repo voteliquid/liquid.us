@@ -81,10 +81,11 @@ module.exports = class MeasureDetailsPage extends Component {
     }
   }
   fetchTopComments(id, short_id) {
-    return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea`).then((comments) => {
+    const order = `order=proxy_vote_count.desc.nullslast,created_at.desc`
+    return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea&${order}`).then((comments) => {
       const yea = comments[0]
 
-      return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.nay&order=proxy_vote_count.desc,created_at.desc`).then((comments) => {
+      return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.nay&${order}`).then((comments) => {
         const nay = comments[0]
         this.setState({
           measures: {
