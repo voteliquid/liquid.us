@@ -55,7 +55,7 @@ module.exports = class MeasureDetailsPage extends Component {
       return this.fetchComments(measure.id, measure.short_id)
         .then(() => this.fetchConstituentVotes(measure.id, measure.short_id, officeId))
         .then(() => this.fetchTopComments(measure.id, measure.short_id))
-        .then(() => this.fetchProxyVotes(measure.id, measure.short_id, user))
+        // .then(() => this.fetchProxyVotes(measure.id, measure.short_id, user))
     })
     .catch((error) => {
       console.log(error)
