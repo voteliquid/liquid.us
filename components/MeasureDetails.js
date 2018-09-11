@@ -1,6 +1,5 @@
 const Component = require('./Component')
 const Sidebar = require('./MeasureDetailsSidebar')
-const ProxyVotes = require('./MeasureProxyVotes')
 const TopComments = require('./MeasureTopComments')
 const Votes = require('./MeasureVotes')
 
@@ -88,18 +87,21 @@ class MeasureSummary extends Component {
           left: 0;
           width: 100%;
           margin: 0;
-          height: 3rem;
+          height: 4rem;
 
           /* "transparent" only works here because == rgba(0,0,0,0) */
-          background-image: linear-gradient(to bottom, transparent, white);
+          background-image: -webkit-linear-gradient(to bottom, rgba(255,255,255,0.01), white);
+          background-image: linear-gradient(to bottom, rgba(255,255,255,0.01), white);
         }
         .summary .read-more-link {
           background: white;
           display: block;
           width: 100%;
-          height: 1rem;
+          height: 2rem;
+          line-height: 2rem;
           position: absolute;
           bottom: 0;
+          left: 0;
         }
       </style>
       <div class=${`${expanded || !summary ? '' : 'summary'}`}>
