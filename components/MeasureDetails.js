@@ -76,7 +76,6 @@ class MeasureSummary extends Component {
     return this.html`
       <style>
         .summary {
-          max-height: 10rem;
           margin-bottom: 1.5rem;
           position: relative;
           overflow: hidden;
@@ -104,7 +103,7 @@ class MeasureSummary extends Component {
           left: 0;
         }
       </style>
-      <div class=${`${expanded || !summary ? '' : 'summary'}`}>
+      <div class=${`${expanded || !summary ? '' : 'summary'}`} style=${summary && summary.length > 512 ? 'max-height: 10rem;' : ''}>
         <div class="content">
           ${[summary ? summary.replace(/\n/g, '<br />') : `<p>A summary is in progress. <a href="https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text" target="_blank">Read full text of the bill at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
         </div>
