@@ -17,7 +17,7 @@ class EditButton extends Component {
     const { short_id } = this.props
     return this.html`
       <a href="${`/${user.username}/legislation/${short_id}/edit`}" class="button is-small">
-        <span class="icon is-small"><i class="fa fa-pencil"></i></span><span>Edit</span>
+        <span class="icon is-small"><i class="fa fa-pencil-alt"></i></span><span>Edit</span>
       </a>
     `
   }

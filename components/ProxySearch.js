@@ -106,7 +106,7 @@ class AddProxyByEmailForm extends Component {
             <div class="field">
               <div class="control">
                 <button class="button is-link is-outlined">
-                  <span class="icon is-small" style="margin-left:0 !important;"><i class="fa fa-handshake-o"></i></span>
+                  <span class="icon is-small" style="margin-left:0 !important;"><i class="far fa-handshake"></i></span>
                   <span>Add</span>
                 </button>
               </div>
@@ -193,13 +193,13 @@ class AddProxyByTwitterForm extends Component {
                 <input autocomplete="off" name="add_proxy[twitter_username]" class=${`input ${error.email ? 'is-danger' : ''}`} type="text" required placeholder="Twitter @username" />
                 ${error.message
                   ? [`<span class="icon is-small is-left"><i class="fa fa-warning"></i></span>`]
-                  : [`<span class="icon is-small is-left"><i class="fa fa-twitter"></i></span>`]
+                  : [`<span class="icon is-small is-left"><i class="fab fa-twitter"></i></span>`]
                 }
                 ${error.message ? [`<p class="help is-danger">${error.message}</p>`] : ''}
               </div>
               <div class="control">
                 <button class="button is-link is-outlined" type="submit">
-                  <span class="icon is-small" style="margin-left:0 !important;"><i class="fa fa-handshake-o"></i></span>
+                  <span class="icon is-small" style="margin-left:0 !important;"><i class="far fa-handshake"></i></span>
                   <span>Add</span>
                 </button>
               </div>
@@ -222,11 +222,11 @@ class AddProxyBySearchForm extends Component {
 
     this.setState({ loading_proxies: true })
 
-    return this.api(`/user_search_profiles?tsv=fts(simple).${encodeURIComponent(terms.replace(/ /g, ':* & ').replace(/$/, ':*'))}&order=num_delegations.desc&limit=5`)
+    return this.api(`/search_results_detailed?terms=fts(english).${encodeURIComponent(terms.replace(/ /g, ':* & ').replace(/$/, ':*'))}&limit=5`)
       .then(search_results => {
         return {
           loading_proxies: false,
-          search_results: search_results.filter(({ twitter_username }) => twitter_username !== 'dsernst'),
+          search_results: search_results.filter(({ resource }) => resource.twitter_username !== 'dsernst').map(({ resource }) => resource),
           terms,
         }
       })
@@ -459,7 +459,7 @@ class SearchResultAdded extends Component {
       <form style="display: inline;" method="POST" onsubmit=${this} action=${this}>
         <input name="add_proxy[to_id]" type="hidden" value="${id}" />
         <button class="button is-small" disabled type="submit">
-          <span class="icon"><i class="fa fa-handshake-o"></i></span>
+          <span class="icon"><i class="far fa-handshake"></i></span>
           <span>Added</span>
         </button>
       </form>

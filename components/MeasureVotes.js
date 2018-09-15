@@ -62,7 +62,7 @@ module.exports = class MeasureVotes extends Component {
               <div class="field is-narrow">
                 <div class="control">
                   <button onclick=${this} class="${`button is-primary has-text-weight-semibold is-small ${showMeasureVoteForm ? 'is-hidden' : ''}`}">
-                    <span class="icon"><i class="fa fa-pencil-square-o"></i></span>
+                    <span class="icon"><i class="fa fa-edit"></i></span>
                     <span>Add an argument</span>
                   </button>
                 </div>

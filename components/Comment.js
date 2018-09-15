@@ -72,19 +72,19 @@ module.exports = class Comment extends Component {
                 ${user && user.id === user_id ? [`
                   <span class="has-text-grey-lighter">&bullet;</span>
                   <a href="${`${measure_url}/vote`}" class="has-text-grey-light">
-                    <span class="icon is-small"><i class="fa fa-pencil"></i></span>
+                    <span class="icon is-small"><i class="fas fa-pencil-alt"></i></span>
                     <span>Edit</span>
                   </a>
                 `] : ''}
                 <span class="has-text-grey-lighter">&bullet;</span>
                 <a href="/proxies/requests" onclick="${this}" class="has-text-grey-light privacy-indicator">
-                  <span class="icon is-small"><i class="${`fa ${is_public || !fullname ? 'fa-globe' : 'fa-address-book-o'}`}"></i></span>
+                  <span class="icon is-small"><i class="${`${is_public || !fullname ? 'fa fa-globe-americas' : 'far fa-address-book'}`}"></i></span>
                   <span>${is_public || !fullname ? 'Public' : 'Private'}</span>
                 </a>
                 ${is_public || !fullname ? [`
                   <span class="has-text-grey-lighter">&bullet;</span>
-                  <a title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-facebook"></i></span></a>
-                  <a target="_blank" title="Share on Twitter" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-twitter"></i></span></a>
+                  <a title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-facebook"></i></span></a>
+                  <a target="_blank" title="Share on Twitter" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-twitter"></i></span></a>
                   <a target="_blank" title="Permalink" href="${comment_url}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-link"></i></span></a>
                 `] : ''}
               </span>

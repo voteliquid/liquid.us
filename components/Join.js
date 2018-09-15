@@ -46,7 +46,7 @@ module.exports = class Join extends Component {
               <div class="column has-text-centered">
                 <h4 class="title is-4">
                   <span class="has-text-grey-light">&#9313;</span><br /><br />
-                  <i class="fa fa-address-card-o" aria-hidden="true"></i>
+                  <i class="far fa-address-card" aria-hidden="true"></i>
                   Verification
                 </h4>
                 <p>Confirm your identity to ensure 1-person-1-vote.</p>
@@ -54,7 +54,7 @@ module.exports = class Join extends Component {
               <div class="column has-text-centered">
                 <h4 class="title is-4">
                   <span class="has-text-grey-light">&#9314;</span><br /><br />
-                  <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                  <i class="far fa-check-square" aria-hidden="true"></i>
                   Legislation
                 </h4>
                 <p>Vote directly on bills to hold your elected reps accountable.</p>

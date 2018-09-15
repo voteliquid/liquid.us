@@ -48,7 +48,7 @@ module.exports = class UserProfilePage extends Component {
                     }
                   </style>
                   <button disabled class="button is-info is-outlined is-fullwidth is-medium tooltip is-tooltip-info fix-bulma-centered-text" data-tooltip="You can't proxy to yourself">
-                    <span class="icon is-small"><i class="fa fa-handshake-o"></i></span>
+                    <span class="icon is-small"><i class="far fa-handshake"></i></span>
                     <span>Proxy</span>
                   </button>
                   `]
@@ -231,7 +231,7 @@ class ProxyButton extends Component {
     const proxied = selected_profile.proxied
     return this.html`
       <form onsubmit=${this} action=${this} method="POST">
-        <button disabled=${proxied} type="submit" class="${`button is-info is-medium is-fullwidth ${proxied ? '' : 'is-outlined'}`}" style="display: inline-block">&nbsp;<span class="icon is-small"><i class="fa fa-handshake-o"></i></span> <span>${proxied ? 'Proxied' : `Proxy to ${selected_profile.first_name}`}</span></button>
+        <button disabled=${proxied} type="submit" class="${`button is-info is-medium is-fullwidth ${proxied ? '' : 'is-outlined'}`}" style="display: inline-block">&nbsp;<span class="icon is-small"><i class="far fa-handshake"></i></span> <span>${proxied ? 'Proxied' : `Proxy to ${selected_profile.first_name}`}</span></button>
         ${proxied
           ? [`
               <div class="content is-size-7">
@@ -272,10 +272,10 @@ class YourProfileNotification extends Component {
             <span class="icon"><i class="fa fa-camera"></i></span> Change your photo by signing in to <a href="https://www.gravatar.com"><strong>Gravatar</strong></a> with your same email.
           </div>
           <div class="column is-half">
-            <span class="icon"><i class="fa fa-pencil-square-o"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
+            <span class="icon"><i class="fa fa-edit"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
           </div>
           <div class="column is-half">
-            <span class="icon"><i class="fa fa-user-circle-o"></i></span> <a href="/edit_profile"><strong>Edit Profile</strong></a> to add an intro video or bio to your page.
+            <span class="icon"><i class="fas fa-user-circle"></i></span> <a href="/edit_profile"><strong>Edit Profile</strong></a> to add an intro video or bio to your page.
           </div>
         </div>
       </div>

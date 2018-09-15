@@ -59,9 +59,7 @@ module.exports = class LegislationList extends Component {
     return this.html`
       <div class="section">
         <div class="container is-widescreen">
-          <div class="has-text-right has-text-left-mobile">${ProposeButton.for(this)}</div>
           ${FilterTabs.for(this)}
-          ${FilterForm.for(this, { legislatures })}
           ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(bill => LegislationListRow.for(this, { bill, legislatures }, `billitem-${bill.id}`))}
           <style>
             .highlight-hover:hover {
@@ -144,87 +142,11 @@ class FilterTabs extends Component {
           <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('new')}`}">Recently introduced</a></li>
         </ul>
       </div>
-      <div class="content">
-        <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
-      </div>
-    `
-  }
-}
-
-class FilterForm extends Component {
-  autosubmit() {
-    document.querySelector('.filter-submit').click()
-  }
-  onclick(event) {
-    const btn = document.querySelector('.filter-submit')
-    if (btn.disabled) {
-      event.preventDefault()
-    } else {
-      if (event.target && event.target.checked) {
-        this.storage.set('hide_direct_votes', 'on')
-      } else {
-        this.storage.unset('hide_direct_votes')
-      }
-      btn.click()
-    }
-  }
-  render() {
-    const { legislatures } = this.props
-    const { loading_legislation, user } = this.state
-    const { query } = this.location
-    const terms = query.terms || ''
-    const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
-
-    return this.html`
-      <form name="legislation_filters" method="GET" action="/legislation">
-        <input name="order" type="hidden" value="${query.order || 'upcoming'}" />
-
-        <div class="field has-addons">
-          <div class=${`control ${legislatures.length > 1 ? '' : 'is-hidden'}`}>
-            <div class="select">
-              <select autocomplete="off" name="legislature" onchange=${this.autosubmit}>
-                <option value="U.S. Congress" selected=${!query.legislature || query.legislature === 'U.S. Congress'}>U.S. Congress</option>
-                <option value="California" selected=${query.legislature === 'California'}>California</option>
-              </select>
-            </div>
-          </div>
-          <div class="control is-expanded">
-            <input class="input" type="text" name="terms" placeholder="Examples: hr3440, health care, dream act" value="${terms}" />
-          </div>
-          <div class="control">
-            <button class="filter-submit button" disabled=${!!loading_legislation} type="submit">
-              <span class="icon"><i class="fa fa-search"></i></span>
-              <span>Search</span>
-            </button>
-          </div>
+      <div class="columns">
+        <div class="column">
+          <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
         </div>
-
-        <div class=${`field is-grouped is-grouped-right ${user ? '' : 'is-hidden'}`}>
-          <div class="control">
-            <label class="checkbox has-text-grey">
-              <input onclick=${this} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
-              Hide direct votes
-            </label>
-          </div>
-        </div>
-      </form>
-      <div class="field">${!loading_legislation && terms ? SearchResultsMessage.for(this) : ''}</div>
-    `
-  }
-}
-
-class SearchResultsMessage extends Component {
-  render() {
-    const { legislation } = this.state
-    const { query } = this.location
-    const pluralFound = legislation.length === 1 ? 'bill' : 'bills'
-    const new_query = query.order ? `?order=${query.order}` : ''
-
-    return this.html`
-      <div class="field is-size-7">
-        ${legislation.length} ${pluralFound} found using term <strong>${query.terms}</strong>
-        &mdash;
-        <a href="${`/legislation${new_query}`}">Clear</a>
+        <div class="column has-text-right has-text-left-mobile">${ProposeButton.for(this)}</div>
       </div>
     `
   }
@@ -282,12 +204,12 @@ class VoteButton extends Component {
     const s = this.props
     let voteBtnTxt = 'Vote'
     let voteBtnClass = 'button is-small is-outlined is-primary'
-    let voteBtnIcon = 'fa fa-pencil-square-o'
+    let voteBtnIcon = 'fas fa-edit'
     if (s.vote_position) {
       const position = `${s.vote_position[0].toUpperCase()}${s.vote_position.slice(1)}`
       if (s.vote_position === 'yea') voteBtnIcon = 'fa fa-check'
       if (s.vote_position === 'nay') voteBtnIcon = 'fa fa-times'
-      if (s.vote_position === 'abstain') voteBtnIcon = 'fa fa-circle-o'
+      if (s.vote_position === 'abstain') voteBtnIcon = 'far fa-circle'
       if (s.delegate_rank > -1) {
         if (s.delegate_name) {
           voteBtnTxt = `Inherited ${position} vote from ${s.delegate_name}`

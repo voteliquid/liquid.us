@@ -86,7 +86,7 @@ module.exports = class LegislatorProfilePage extends Component {
                   <h2 class="subtitle is-6 has-text-grey">${selected_profile.elected_office_name}</h2>
                   <form onsubmit=${this} action=${this} method="POST">
                     ${[`<button ${proxied ? "disabled" : ""} type="submit" class="button">
-                      <span class="icon is-small"><i class="fa fa-handshake-o"></i></span>
+                      <span class="icon is-small"><i class="far fa-handshake"></i></span>
                       <span>&nbsp;Prox${proxied ? 'ied' : 'y'} to ${selected_profile.first_name}</span>
                     </button>`]}
                     ${proxied ? [`

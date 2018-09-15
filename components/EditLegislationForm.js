@@ -148,7 +148,7 @@ module.exports = class EditLegislationForm extends Component {
         <div class="field is-grouped">
           <div class="control">
             <button class=${`button is-primary ${loading === 'saving' ? 'is-loading' : ''}`} disabled="${loading}" type="submit">
-              <span class="icon"><i class="fa fa-pencil-square-o"></i></span>
+              <span class="icon"><i class="fa fa-edit"></i></span>
               <span>Save</span>
             </button>
           </div>

@@ -101,7 +101,7 @@ class CommentDetailPage extends Component {
             <div class="column">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
               ${Comment.for(this, l.comment)}
-              <div><a href="${`/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`}">See all comments on ${l.type} ${l.number} <span class="icon"><i class="fa fa-long-arrow-right"></i></span></a></a></div>
+              <div><a href="${`/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`}">See all comments on ${l.type} ${l.number} <span class="icon"><i class="fas fa-long-arrow-alt-right"></i></span></a></a></div>
             </div>
             <div class="column is-one-quarter">
               ${Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`)}

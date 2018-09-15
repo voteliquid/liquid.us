@@ -220,7 +220,7 @@ class MeasureVoteForm extends Component {
           <div class="field is-grouped">
             <div class="control">
               <button class=${`button ${saving_vote ? 'is-loading' : ''}`} disabled=${saving_vote} type="submit">
-                <span class="icon"><i class="fa fa-pencil-square-o"></i></span>
+                <span class="icon"><i class="fa fa-edit"></i></span>
                 <span>${v.id ? 'Save' : 'Publish'}</span>
               </button>
             </div>

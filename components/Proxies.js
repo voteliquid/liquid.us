@@ -5,19 +5,11 @@ const ProxiesTable = require('./ProxiesTable')
 const JoinForm = require('./JoinForm')
 
 module.exports = class ProxiesPage extends Component {
-  render() {
-    const { config } = this.state
-
+  render(_, { user }) {
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
-          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
-            <ul>
-              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Proxies</a></li>
-            </ul>
-          </nav>
-          ${this.state.user ? AuthedProxies.for(this) : AnonProxies.for(this)}
+          ${user ? AuthedProxies.for(this) : AnonProxies.for(this)}
         </div>
       </section>
     `

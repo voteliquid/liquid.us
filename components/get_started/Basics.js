@@ -173,7 +173,7 @@ class GetStartedBasicsPage extends Component {
                   ${GoogleAddressAutocompleteScript.for(this)}
                   ${error.address
                     ? [`<span class="icon is-small is-left"><i class="fa fa-warning"></i></span>`]
-                    : [`<span class="icon is-small is-left"><i class="fa fa-map-marker"></i></span>`]
+                    : [`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`]
                   }
                   ${error.address && [`<p class="help is-danger">${error.message}</p>`]}
                 </div>

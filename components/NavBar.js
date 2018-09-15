@@ -1,6 +1,7 @@
 const Component = require('./Component')
 const NavBarAnon = require('./NavBarAnon')
 const NavBarAuthed = require('./NavBarAuthed')
+const Search = require('./Search')
 
 module.exports = class NavBar extends Component {
   onclick(event) {
@@ -27,6 +28,7 @@ module.exports = class NavBar extends Component {
             </div>
           </div>
           <div class=${`navbar-menu ${hamburgerVisible ? 'is-active' : ''}`}>
+              <div class="navbar-item" style="flex-grow: 1;">${Search.for(this)}</div>
             <div class="navbar-end">
               ${user ? NavBarAuthed.for(this, 'authed') : NavBarAnon.for(this)}
             </div>
@@ -55,7 +57,7 @@ const style = `
 
     @media (max-width: 1087px) {
       .navbar {
-        padding: 0 0 0 .5rem;
+        padding: 0;
       }
       a.navbar-item:hover {
         background-color: #f5f5f5 !important;

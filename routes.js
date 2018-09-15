@@ -31,7 +31,6 @@ module.exports = {
   '/get_started/verification': route('Verify your identity', () => import('./components/get_started/Verification')),
   '/get_started/profile': route('Create Profile', () => import('./components/get_started/Profile')),
   '/change_address': route('Change Address', () => import('./components/ChangeAddress')),
-  '/legislators': route('Legislators', () => import('./components/Legislators')),
   '/new_legislatures': route('New Legislatures', () => import('./components/NewLegislatures')),
   '/advocacy': route('Advocacy', () => import('./components/Advocacy')),
   '/twitter/:username': route('Profile', () => import('./components/ProfilePage')),

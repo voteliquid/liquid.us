@@ -18,10 +18,10 @@ module.exports = class LegislationShareButtons extends Component {
 
     return this.html`
       <a class="is-small" href="${twitter_url}" title="Share on Twitter">
-        <span class="icon"><i class="fa fa-twitter"></i></span><span>Twitter</span>
+        <span class="icon"><i class="fab fa-twitter"></i></span><span>Twitter</span>
       </a>
       <a class="is-small" href="${facebook_url}" title="Share on Facebook">
-        <span class="icon"><i class="fa fa-facebook"></i></span><span>Facebook</span>
+        <span class="icon"><i class="fab fa-facebook"></i></span><span>Facebook</span>
       </a>
       <a class="is-small" href="${share_url}" title="Permalink">
         <span class="icon"><i class="fa fa-link"></i></span><span>Permalink</span>
