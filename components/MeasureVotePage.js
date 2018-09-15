@@ -79,20 +79,12 @@ module.exports = class MeasureVotePage extends Component {
 
 class MeasureVotePageLoaded extends Component {
   render() {
-    const { config, legislation_query, user } = this.state
+    const { user } = this.state
     const { measure: l } = this.props
     const { my_vote: v = {} } = l
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
-          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
-            <ul>
-              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-              ${l.type !== 'PN' ? [`<li><a class="has-text-grey" href="${legislation_query || '/legislation'}">Legislation</a></li>`] : ''}
-              <li><a class="has-text-grey" href="${`/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`}">${l.introduced_at ? `${l.type} ${l.number}` : 'Measure Details'}</a></li>
-              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Vote</a></li>
-            </ul>
-          </nav>
           <div class="columns">
             <div class="column is-three-quarters">
               <h2 class="title is-4 has-text-weight-normal">${l.vote_position ? 'Edit your vote' : 'Vote'} on ${[l.introduced_at ? `${l.type} ${l.number} &mdash; ${l.title}` : l.title]}</h2>

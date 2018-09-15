@@ -90,22 +90,13 @@ class CommentNotFoundPage extends Component {
 
 class CommentDetailPage extends Component {
   render() {
-    const { config, user } = this.state
+    const { user } = this.state
     const { measure: l } = this.props
-    const bill_id = l.introduced_at ? `${l.type} ${l.number}` : l.title
     const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
 
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
-          <nav class="breadcrumb has-succeeds-operator is-left is-small" aria-label="breadcrumbs">
-            <ul>
-              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-              ${l.type !== 'PN' ? [`<li><a class="has-text-grey" href="/legislation">Legislation</a></li>`] : ''}
-              <li><a class="has-text-grey" href="${`/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`}">${l.introduced_at ? bill_id : 'Measure Details'}</a></li>
-              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${this.possessive(l.comment.fullname || 'Anonymous')} vote</a></li>
-            </ul>
-          </nav>
           <div class="columns">
             <div class="column">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>

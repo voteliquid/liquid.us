@@ -43,17 +43,11 @@ class Settings extends Component {
     .then(() => ({ settings_unsaved: false, user: { ...user, update_emails_preference } }))
   }
   render() {
-    const { config, settings_unsaved, user } = this.state
+    const { settings_unsaved, user } = this.state
 
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
-          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
-            <ul>
-              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Settings</a></li>
-            </ul>
-          </nav>
           <h2 class="title is-5">Settings</h2>
           <div class="content">
             <form method="POST" onsubmit=${this} action=${this}>

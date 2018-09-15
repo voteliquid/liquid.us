@@ -6,22 +6,14 @@ const Votes = require('./MeasureVotes')
 
 module.exports = class MeasureDetails extends Component {
   render() {
-    const { config, legislation_query, user } = this.state
+    const { user } = this.state
     const { measure: l } = this.props
 
-    const bill_id = l.introduced_at ? `${l.type} ${l.number}` : l.title
     const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
 
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
-          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
-            <ul>
-              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-              ${[l.type === 'PN' ? '' : `<li><a class="has-text-grey" href="${legislation_query || '/legislation'}">Legislation</a></li>`]}
-              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${bill_id}</a></li>
-            </ul>
-          </nav>
           ${l.published ? '' : UnpublishedMsg.for(this, { measure: l, user })}
           ${(l.vote_position && !user.cc_verified) ? [`
             <p class="notification is-info">

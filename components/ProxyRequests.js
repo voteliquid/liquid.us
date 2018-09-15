@@ -12,7 +12,7 @@ module.exports = class ProxyRequests extends Component {
     }
   }
   render() {
-    const { config, proxy_requests } = this.state
+    const { proxy_requests } = this.state
 
     let unresponded = []
     let approved = []
@@ -32,12 +32,6 @@ module.exports = class ProxyRequests extends Component {
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
-          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
-            <ul>
-              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Proxy Requests</a></li>
-            </ul>
-          </nav>
           <h2 class="title is-5">Proxy Requests</h2>
           <div class="content">
             <p>Your votes are private by default. Before someone can proxy to you, you have to allow them to see how you vote.</p>

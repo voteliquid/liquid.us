@@ -63,12 +63,6 @@ class EditProfile extends Component {
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
-          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
-            <ul>
-              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Edit Profile</a></li>
-            </ul>
-          </nav>
           <h2 class="title is-5">Edit Profile</h2>
           <form action=${this} method="POST" onsubmit=${this}>
             <div class="field">

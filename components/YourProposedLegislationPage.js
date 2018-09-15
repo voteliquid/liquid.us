@@ -29,27 +29,22 @@ module.exports = class YourProposedLegislationPage extends Component {
 
 class YourProposedLegislationList extends Component {
   render() {
-    const { config, loading, yourLegislation = [], user } = this.state
+    const { loading, yourLegislation = [] } = this.state
     return this.html`
-      <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
-        <ul>
-          <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-          <li><a class="has-text-grey" href="${`/${user.username}`}">${user.first_name} ${user.last_name}</a></li>
-          <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">Proposed Legislation</a></li>
-        </ul>
-      </nav>
-      ${ProposeButton.for(this)}
-      <h2 class="title is-5">Your Proposed Legislation</h2>
-      ${loading
-        ? LoadingIndicator.for(this)
-        : yourLegislation.length
-          ? yourLegislation.map((p, idx) => ProposedLegislationItem.for(this, p, `proposed-${idx}`))
-          : ['<p>You have not proposed any legislation yet.</p>']}
-    <style>
-      .highlight-hover:hover {
-        background: #f6f8fa;
-      }
-    </style>
+      <div>
+        <style>
+          .highlight-hover:hover {
+            background: #f6f8fa;
+          }
+        </style>
+        ${ProposeButton.for(this)}
+        <h2 class="title is-5">Your Proposed Legislation</h2>
+        ${loading
+          ? LoadingIndicator.for(this)
+          : yourLegislation.length
+            ? yourLegislation.map((p, idx) => ProposedLegislationItem.for(this, p, `proposed-${idx}`))
+            : ['<p>You have not proposed any legislation yet.</p>']}
+      </div>
     `
   }
 }

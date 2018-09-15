@@ -3,18 +3,11 @@ const Comment = require('./Comment')
 
 module.exports = class UserProfilePage extends Component {
   render() {
-    const { config, proxied_name, selected_profile: p, user } = this.state
+    const { proxied_name, selected_profile: p, user } = this.state
 
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
-          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs">
-            <ul>
-              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-              <li><a class="has-text-grey" href="/proxies">Proxies</a></li>
-              <li class="is-active"><a class="has-text-grey" href="#" aria-current="page">${p.name}</a></li>
-            </ul>
-          </nav>
           ${user && !user.cc_verified ?
             UnverifiedNotification.for(this) : []
           }
@@ -136,6 +129,7 @@ class AboutUser extends Component {
     const video_src = this.videoIframeSrc()
 
     return this.html`
+      <div>
       ${[video_src
         ? `<div class="responsive-video-wrapper">
             <iframe width="560" height="315" src="${video_src}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
@@ -158,6 +152,7 @@ class AboutUser extends Component {
         : '']}
       ${[about_text ? `<div class="content"><p class="is-size-5">${about_text}</p></div>` : '']}
       <br />
+      </div>
     `
   }
 }
@@ -284,7 +279,6 @@ class YourProfileNotification extends Component {
           </div>
         </div>
       </div>
-      <br />
     `
   }
 }

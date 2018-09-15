@@ -51,7 +51,7 @@ module.exports = class LegislationList extends Component {
       .catch(error => ({ error, loading_legislation: false }))
   }
   render() {
-    const { config, loading_legislation, legislation, reps } = this.state
+    const { loading_legislation, legislation, reps } = this.state
     const legislatures = reps.some(({ office_short_name }) => office_short_name.slice(0, 2) === 'CA')
       ? ['U.S. Congress', 'California']
       : ['U.S. Congress']
@@ -59,12 +59,6 @@ module.exports = class LegislationList extends Component {
     return this.html`
       <div class="section">
         <div class="container is-widescreen">
-          <nav class="breadcrumb has-succeeds-separator is-left is-small" aria-label="breadcrumbs" style="margin-bottom: 1rem;">
-            <ul>
-              <li><a class="has-text-grey" href="/">${config.APP_NAME}</a></li>
-              <li class="is-active"><a class="has-text-grey" href="/legislation" aria-current="page">Legislation</a></li>
-            </ul>
-          </nav>
           <div class="has-text-right has-text-left-mobile">${ProposeButton.for(this)}</div>
           ${FilterTabs.for(this)}
           ${FilterForm.for(this, { legislatures })}
