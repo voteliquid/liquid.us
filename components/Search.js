@@ -40,7 +40,7 @@ module.exports = class Search extends Component {
     }
     const fts = encodeURIComponent(query.trim().replace(/ /g, ':* & ').replace(/(.)$/, '$1:*'))
     this.dispatch({ loading: true })
-    return this.api(`/search_results_detailed?terms=fts(english).${fts}&limit=5`)
+    return this.api(`/search_results_detailed?terms=fts(english).${fts}&resource_id=not.eq.f2f3190b-eb4a-49fe-b160-3daca3ec3273&limit=5`)
       .then((results) => this.dispatch({ showResults: true, loading: false, query, results }))
       .catch((error) => {
         console.error(error)
@@ -139,8 +139,11 @@ class SearchResult extends Component {
       }
     }, 100)
   }
-  onclick() {
+  onclick(event) {
+    event.preventDefault()
+    this.location.redirect(303, event.currentTarget.getAttribute('href'))
     setTimeout(() => {
+      document.querySelector('.search form input').value = ''
       this.setState({ search: { ...this.state.search, showResults: false } })
     }, 100)
   }
