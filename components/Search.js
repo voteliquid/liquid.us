@@ -192,15 +192,15 @@ class UserSearchResult extends SearchResult {
 
 class MeasureSearchResult extends SearchResult {
   truncate(str) {
-    if (str < 50) return str
-    str = str.slice(0, 50)
+    if (str.length < 60) return str
+    str = str.slice(0, 60)
     if (str[str.length - 1] === ' ') {
       return `${str.slice(0, -1)}...`
     }
     return `${str}...`
   }
   render({ number, type, title, legislature_name, short_id }) {
-    const titleFmt = `${type} ${number} ${this.truncate(title)}`
+    const titleFmt = number ? `${type} ${number} ${this.truncate(title)}` : this.truncate(title)
     const href = type === 'PN' ? `/nominations/${short_id}` : `/legislation/${short_id}`
     return this.html`
       <a onblur="${this}" onclick="${this}" onfocus="${this}" href="${href}" class="search-result" style="display: block; padding: .3rem 1rem;">
