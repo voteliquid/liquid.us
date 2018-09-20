@@ -3,9 +3,7 @@ const LoadingIndicator = require('./../LoadingIndicator')
 
 module.exports = class VerificationRouter extends Component {
   oninit() {
-    if (this.isServer) {
-      return this.redirect()
-    }
+    return this.redirect()
   }
 
   redirect() {

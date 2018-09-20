@@ -22,7 +22,7 @@ module.exports = class YourLegislators extends Component {
       .then(reps => this.setState({ reps: reps || [], reps_loaded: true }))
     }
 
-    let ip = this.location.ip || ''
+    let ip = this.location.ip || '198.27.235.190'
 
     if (ip === '::1' && NODE_ENV !== 'production') ip = '198.27.235.190'
 

@@ -37,9 +37,6 @@ module.exports = {
   '/:username': route('Profile', () => import('./components/ProfilePage')),
 }
 
-function route(page_title, fn) {
-  return function route() {
-    this.setState({ page_title }, false)
-    return fn.call(this)
-  }
+function route(page_title, fn, waitForState) {
+  return { page_title, fn, waitForState }
 }

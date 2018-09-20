@@ -1,12 +1,27 @@
-const Component = require('./Component')
-const ContactWidget = require('./ContactWidget')
+const { NODE_ENV } = process.env
+const { html } = require('../helpers')
+const quotes = require('../quotes')
 
-module.exports = class Footer extends Component {
-  render() {
-    const { config, randomQuote = { text: '' } } = this.state
-    const { NODE_ENV } = config
-
-    return this.html`
+module.exports = {
+  randomQuote: (dispatch) => {
+    dispatch({
+      type: 'quoteSelected',
+      quote: quotes[Math.floor(Math.random() * quotes.length)],
+    })
+  },
+  init: [{
+    randomQuote: quotes[Math.floor(Math.random() * quotes.length)],
+  }],
+  update: (event, state) => {
+    switch (event.type) {
+      case 'quoteSelected':
+        return [{ ...state, randomQuote: event.quote }]
+      default:
+        return [state]
+    }
+  },
+  view: ({ randomQuote }) => {
+    return html()`
       <style>
         .quote-icon {
           color: rgb(115, 115, 115);
@@ -44,7 +59,6 @@ module.exports = class Footer extends Component {
             </div>
           </div>
         </div>
-        ${ContactWidget.for(this)}
         <style>
           .footer {
             padding: 3rem 0rem 3.5rem;
@@ -101,5 +115,5 @@ module.exports = class Footer extends Component {
         ` : '']}
       </div>
     `
-  }
+  },
 }

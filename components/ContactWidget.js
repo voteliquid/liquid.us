@@ -1,15 +1,30 @@
-const Component = require('./Component')
+const { combineEffects, html, preventDefault } = require('../helpers')
 const fetch = require('isomorphic-fetch')
 
-module.exports = class ContactWidget extends Component {
-  render() {
-    const { isContactWidgetVisible } = this.state
-
-    return this.html`
-      ${isContactWidgetVisible
-        ? ContactWidgetForm.for(this)
-        : ContactWidgetButton.for(this)
-      }
+module.exports = {
+  init: [{
+    contactSubmitted: false,
+    isOpen: false,
+    url: '',
+    user: null,
+  }],
+  update: (event, state) => {
+    switch (event.type) {
+      case 'buttonClicked':
+        return [{ ...state, isOpen: !state.isOpen }, preventDefault]
+      case 'formSubmitted':
+        return [state, combineEffects(
+          preventDefault,
+          submitMessage(event.event, state.user, state.url)
+        )]
+      case 'messageSent':
+        return [{ ...state, contactSubmitted: true }]
+      default:
+        return [state]
+    }
+  },
+  view: ({ isOpen }, dispatch) => {
+    return html()`
       <style>
         .contact-btn, .contact-window {
           position: fixed;
@@ -22,115 +37,103 @@ module.exports = class ContactWidget extends Component {
           border: 1px solid #deeaf2;
         }
       </style>
+      ${isOpen ? contactWidgetForm({}, dispatch) : contactWidgetButton({}, dispatch)}
     `
+  },
+}
+
+const submitMessage = (event, user, url) => (dispatch) => {
+  const message = event.target.querySelector('input[name="message"]')
+  const email = event.target.querySelector('input[name="email"]')
+  if (message) {
+    if (!user) user = { email }
+
+    fetch('https://api.liquid.vote/feedback', {
+      body: JSON.stringify({
+        text: message,
+        user,
+        url,
+      }),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    })
+
+    dispatch({ type: 'messageSent' })
   }
 }
 
-class ContactWidgetButton extends Component {
-  onclick(event) {
-    event.preventDefault()
-    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
-  }
-  render() {
-    return this.html`
-      <p class="field contact-btn">
-        <a class="button is-info is-small" onclick=${this}>
+const contactWidgetButton = (state, dispatch) => {
+  return html()`
+    <p class="field contact-btn">
+      <a
+        class="button is-info is-small"
+        onclick=${(event) => dispatch({ type: 'buttonClicked', event })}
+      >
+        <span class="icon is-small">
+          <i class="fa fa-comment"></i>
+        </span>
+        <span>Help</span>
+      </a>
+    </p>
+  `
+}
+
+const contactWidgetForm = ({ contactSubmitted, user }, dispatch) => {
+  return html()`
+    <article class="message is-info contact-window">
+      <div class="message-header" onclick=${(event) => dispatch({ type: 'buttonClicked', event })}>
+        <p>
           <span class="icon is-small">
             <i class="fa fa-comment"></i>
           </span>
-          <span>Help</span>
-        </a>
-      </p>
-    `
-  }
-}
-
-class ContactWidgetForm extends Component {
-  onclick(event) {
-    event.preventDefault()
-    return {
-      contactSubmitted: false,
-      isContactWidgetVisible: !this.state.isContactWidgetVisible,
-    }
-  }
-  onsubmit(event, formData) {
-    event.preventDefault()
-
-    if (formData.message) {
-      const user = this.state.user || { email: formData.email }
-
-      fetch('https://api.liquid.vote/feedback', {
-        body: JSON.stringify({
-          text: formData.message,
-          user,
-          url: this.location.path,
-        }),
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-      })
-
-      return { contactSubmitted: true }
-    }
-  }
-  render() {
-    const { contactSubmitted, user } = this.state
-
-    return this.html`
-      <article class="message is-info contact-window">
-        <div class="message-header" onclick=${this}>
-          <p>
-            <span class="icon is-small">
-              <i class="fa fa-comment"></i>
-            </span>
-            <span>&nbsp;Help</span>
-          </p>
-          <button class="delete" aria-label="delete"></button>
-        </div>
-        <div class="message-body">
-          <form method="POST" action="${this}" onsubmit=${this}>
-            ${contactSubmitted
-              ? [`
-                <p class="title is-5 has-text-centered">Thank you</p>
-              `] : [`
-                ${user ? [] : [`
-                  <div class="field">
-                    <div class="control has-icons-left">
-                      <input class="input" type="email" name="email" placeholder="Email (optional)" />
-                      <span class="icon is-small is-left">
-                        <i class="fa fa-envelope"></i>
-                      </span>
-                    </div>
-                  </div>
-                `]}
+          <span>&nbsp;Help</span>
+        </p>
+        <button class="delete" aria-label="delete"></button>
+      </div>
+      <div class="message-body">
+        <form method="POST" onsubmit=${(event) => dispatch({ type: 'formSubmitted', event })}>
+          ${contactSubmitted
+            ? [`
+              <p class="title is-5 has-text-centered">Thank you</p>
+            `] : [`
+              ${user ? [] : [`
                 <div class="field">
-                  <div class="control">
-                    <textarea class="textarea" name="message" placeholder="Share any questions or comments. \n\nHow can we improve United?"></textarea>
+                  <div class="control has-icons-left">
+                    <input class="input" type="email" name="email" placeholder="Email (optional)" />
+                    <span class="icon is-small is-left">
+                      <i class="fa fa-envelope"></i>
+                    </span>
                   </div>
                 </div>
-                <div class="field">
-                  <div class="control">
-                    <button class="button is-info is-fullwidth" style="display:block; width:100%;" type="submit">Submit</button>
-                  </div>
+              `]}
+              <div class="field">
+                <div class="control">
+                  <textarea class="textarea" name="message" placeholder="Share any questions or comments. \n\nHow can we improve United?"></textarea>
                 </div>
-              `]
-            }
-          </form>
-        </div>
-      </article>
-      <style>
-        .contact-window {
-          width: 300px;
-        }
-        .contact-window .message-header {
-          cursor: pointer;
-        }
-        .contact-window textarea {
-          height: 300px;
-        }
-      </style>
-    `
-  }
+              </div>
+              <div class="field">
+                <div class="control">
+                  <button class="button is-info is-fullwidth" style="display:block; width:100%;" type="submit">Submit</button>
+                </div>
+              </div>
+            `]
+          }
+        </form>
+      </div>
+    </article>
+    <style>
+      .contact-window {
+        width: 300px;
+      }
+      .contact-window .message-header {
+        cursor: pointer;
+      }
+      .contact-window textarea {
+        height: 300px;
+      }
+    </style>
+  `
 }

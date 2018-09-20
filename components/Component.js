@@ -1,7 +1,7 @@
 const fetch = require('isomorphic-fetch')
-const hyperloop = require('hyperloop')
+const { hyperloopComponent } = require('../helpers')
 
-module.exports = class Component extends hyperloop.Component {
+module.exports = class Component extends hyperloopComponent {
   api(path, params = {}) {
     const API_URL = this.state.config.API_URL
     const jwt = this.storage.get('jwt') || params.jwt

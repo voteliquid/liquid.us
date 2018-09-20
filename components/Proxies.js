@@ -17,20 +17,6 @@ module.exports = class ProxiesPage extends Component {
 }
 
 class AnonProxies extends Component {
-  oninit() {
-    this.setBrowserTitle()
-  }
-  onpagechange() {
-    this.setBrowserTitle()
-  }
-  setBrowserTitle() {
-    if (this.isBrowser) {
-      const page_title = `Pick your Proxies ★ United`
-      window.document.title = page_title
-      window.history.replaceState(window.history.state, page_title, document.location)
-    }
-  }
-
   render() {
     return this.html`
       <div class="columns is-variable is-6">
