@@ -1,5 +1,4 @@
-const fetch = require('isomorphic-fetch')
-const { avatarURL, html } = require('../helpers')
+const { api, avatarURL, html } = require('../helpers')
 
 module.exports = {
   init: [{
@@ -223,8 +222,7 @@ const fetchSearchResult = (query = '') => (dispatch) => {
     dispatch({ type: 'resultsRequested', query })
 
     const fts = encodeURIComponent(query.trim().replace(/ /g, ':* & ').replace(/(.)$/, '$1:*'))
-    fetch(`http://localhost:4000/search_results_detailed?terms=fts(simple).${fts}&limit=5`)
-      .then((res) => res.json())
+    api(`/search_results_detailed?terms=fts(simple).${fts}&resource_id=not.eq.f2f3190b-eb4a-49fe-b160-3daca3ec3273&limit=5`)
       .then((results) => dispatch({ type: 'resultsReceived', results }))
       .catch((error) => dispatch({ type: 'resultsError', error }))
   }, 300)

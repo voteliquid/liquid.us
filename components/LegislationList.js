@@ -59,7 +59,8 @@ module.exports = class LegislationList extends Component {
     return this.html`
       <div class="section">
         <div class="container is-widescreen">
-          ${FilterTabs.for(this)}
+          <div class="has-text-right has-text-left-mobile">${ProposeButton.for(this)}</div>
+          ${FilterTabs.for(this, { legislatures })}
           ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(bill => LegislationListRow.for(this, { bill, legislatures }, `billitem-${bill.id}`))}
           <style>
             .highlight-hover:hover {
@@ -119,6 +120,54 @@ module.exports = class LegislationList extends Component {
   }
 }
 
+class FilterForm extends Component {
+  autosubmit() {
+    document.querySelector('.filter-submit').click()
+  }
+  onclick(event) {
+    const btn = document.querySelector('.filter-submit')
+    if (btn.disabled) {
+      event.preventDefault()
+    } else {
+      if (event.target && event.target.checked) {
+        this.storage.set('hide_direct_votes', 'on')
+      } else {
+        this.storage.unset('hide_direct_votes')
+      }
+      btn.click()
+    }
+  }
+  render() {
+    const { legislatures } = this.props
+    const { user } = this.state
+    const { query } = this.location
+    const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
+
+    return this.html`
+      <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation">
+        <input name="order" type="hidden" value="${query.order || 'upcoming'}" />
+        <div class="field is-grouped">
+          <div class="${`control ${user ? '' : 'is-hidden'}`}">
+            <label class="checkbox has-text-grey">
+              <input onclick=${this} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
+              Hide direct votes
+            </label>
+          </div>
+          <div class=${`control ${legislatures.length > 1 ? '' : 'is-hidden'}`}>
+            <div class="select">
+              <select autocomplete="off" name="legislature" onchange=${this.autosubmit}>
+                <option value="U.S. Congress" selected=${!query.legislature || query.legislature === 'U.S. Congress'}>U.S. Congress</option>
+                <option value="California Congress" selected=${query.legislature === 'California Congress'}>California</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="filter-submit is-hidden">Update</button>
+        </div>
+      </form>
+    `
+  }
+}
+
 class FilterTabs extends Component {
   makeQuery(order) {
     const query = this.location.query
@@ -146,7 +195,9 @@ class FilterTabs extends Component {
         <div class="column">
           <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
         </div>
-        <div class="column has-text-right has-text-left-mobile">${ProposeButton.for(this)}</div>
+        <div class="column has-text-right has-text-left-mobile">
+          ${FilterForm.for(this, { legislatures: this.props.legislatures })}
+        </div>
       </div>
     `
   }

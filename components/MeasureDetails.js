@@ -1,6 +1,5 @@
 const Component = require('./Component')
 const Sidebar = require('./MeasureDetailsSidebar')
-const ProxyVotes = require('./MeasureProxyVotes')
 const TopComments = require('./MeasureTopComments')
 const Votes = require('./MeasureVotes')
 
@@ -23,15 +22,14 @@ module.exports = class MeasureDetails extends Component {
             </p>
           `] : ''}
           <div class="columns">
-            <div class="column is-two-thirds-tablet is-three-quarters-desktop">
+            <div class="${l.introduced_at ? `column is-two-thirds-tablet is-three-quarters-desktop` : ''}">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
               ${l.type !== 'PN' ? MeasureSummary.for(this, { measure: l }) : ''}
               ${TopComments.for(this, { measure: l, yea: l.top_yea, nay: l.top_nay })}
-              ${user ? ProxyVotes.for(this, { measure: l }) : ''}
               ${Votes.for(this, { measure: l })}
             </div>
-            <div class="column is-one-third-tablet is-one-quarter-desktop">
-              ${Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`)}
+            <div class="${l.introduced_at ? `column is-one-third-tablet is-one-quarter-desktop` : ''}">
+              ${l.introduced_at ? Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`) : ''}
             </div>
           </div>
         </div>
@@ -70,7 +68,6 @@ class MeasureSummary extends Component {
     return this.html`
       <style>
         .summary {
-          max-height: 10rem;
           margin-bottom: 1.5rem;
           position: relative;
           overflow: hidden;
@@ -81,21 +78,24 @@ class MeasureSummary extends Component {
           left: 0;
           width: 100%;
           margin: 0;
-          height: 3rem;
+          height: 4rem;
 
           /* "transparent" only works here because == rgba(0,0,0,0) */
-          background-image: linear-gradient(to bottom, transparent, white);
+          background-image: -webkit-linear-gradient(to bottom, rgba(255,255,255,0.01), white);
+          background-image: linear-gradient(to bottom, rgba(255,255,255,0.01), white);
         }
         .summary .read-more-link {
           background: white;
           display: block;
           width: 100%;
-          height: 1rem;
+          height: 2rem;
+          line-height: 2rem;
           position: absolute;
           bottom: 0;
+          left: 0;
         }
       </style>
-      <div class=${`${expanded || !summary ? '' : 'summary'}`}>
+      <div class=${`${expanded || !summary ? '' : 'summary'}`} style=${summary && summary.length > 512 ? 'max-height: 10rem;' : ''}>
         <div class="content">
           ${[summary ? summary.replace(/\n/g, '<br />') : `<p>A summary is in progress. <a href="https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text" target="_blank">Read full text of the bill at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
         </div>

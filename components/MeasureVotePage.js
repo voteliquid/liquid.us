@@ -86,7 +86,7 @@ class MeasureVotePageLoaded extends Component {
       <section class="section">
         <div class="container is-widescreen">
           <div class="columns">
-            <div class="column is-three-quarters">
+            <div class="${l.introduced_at ? `column is-three-quarters` : ''}">
               <h2 class="title is-4 has-text-weight-normal">${l.vote_position ? 'Edit your vote' : 'Vote'} on ${[l.introduced_at ? `${l.type} ${l.number} &mdash; ${l.title}` : l.title]}</h2>
             ${(v.id && !user.cc_verified) ? [`
               <div class="notification is-info">
@@ -97,8 +97,8 @@ class MeasureVotePageLoaded extends Component {
             `] : ''}
               ${MeasureVoteForm.for(this, { measure: l })}
             </div>
-            <div class="column is-one-quarter">
-              ${Sidebar.for(this, { ...l, user }, `vote-measure-sidebar-${l.id}`)}
+            <div class="${l.introduced_at ? `column is-one-quarter` : ''}">
+              ${l.introduced_at ? Sidebar.for(this, { ...l, user }, `vote-measure-sidebar-${l.id}`) : ''}
             </div>
           </div>
         </div>

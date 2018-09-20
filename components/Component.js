@@ -91,14 +91,14 @@ module.exports = class Component extends hyperloopComponent {
   capitalize(str = '') {
     return str.slice(0, 1).toUpperCase() + str.slice(1)
   }
-  escapeHtml(unsafe) {
+  escapeHtml(unsafe, opts = {}) {
     return (unsafe || '')
       .replace(/[<>"'&]/g, (char) => {
         if (char === '<') return '&lt;'
         if (char === '>') return '&gt;'
         if (char === '"') return '&quot;'
         if (char === "'") return '&#039;'
-        if (char === '&') return '&amp;'
+        if (opts.replaceAmp && char === '&') return '&amp;'
         return char
       })
       .replace(/&lt;(\/?)(p|br|ul|ol|li|strong|a|b)&gt;/gi, (match, p1, p2) => {
