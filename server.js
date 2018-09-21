@@ -219,6 +219,7 @@ function runApp(req, res, done) {
     },
     view: (state, dispatch) => {
       if (res.running && state.routeView) {
+        if (state.location.status) res.status(state.location.status)
         res.running = false
         const appHtml = App.view(state, dispatch)
         const pageHtml = htmlWrapper(state, appHtml, `${webpackConfig.output.publicPath}${webpackStats.compilation.hash}.js`)

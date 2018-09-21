@@ -1,4 +1,5 @@
 module.exports = {
+  notFound: route('Not Found', () => import('./components/NotFound')),
   '/': route(null, () => import('./components/Home')),
   '/edit_profile': route('Edit Profile', () => import('./components/EditProfilePage')),
   '/join': route('Join', () => import('./components/Join')),

@@ -285,7 +285,7 @@ function load(url, status = 200, dispatch) {
       b[key] = val
       return b
     }, {}),
-    status,
+    status: matched.status || status,
     url,
   }
 
@@ -337,6 +337,8 @@ const routes = Object.keys(routes_).map((path) => {
   return { keys, loader: routes_[path].fn, title: routes_[path].page_title, path, regexp }
 })
 
+routes.notFound = { ...routes[0], status: 404 }
+
 const match = (url) => {
   for (let i = 0, l = routes.length; i < l; i++) {
     const route = routes[i]
@@ -350,8 +352,6 @@ const match = (url) => {
     }
   }
 
-  return () => {
-    const notFound = routes.notFound
-    return typeof notFound === 'function' ? notFound.call(this) : notFound
-  }
+  const notFound = routes.notFound
+  return typeof notFound === 'function' ? notFound.call(this) : notFound
 }
