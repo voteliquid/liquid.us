@@ -88,7 +88,7 @@ class MeasureVotePageLoaded extends Component {
           <div class="columns">
             <div class="${l.introduced_at ? `column is-three-quarters` : ''}">
               <h2 class="title is-4 has-text-weight-normal">${l.vote_position ? 'Edit your vote' : 'Vote'} on ${[l.introduced_at ? `${l.type} ${l.number} &mdash; ${l.title}` : l.title]}</h2>
-            ${(v.id && !user.cc_verified) ? [`
+            ${(v.id && !user.verified) ? [`
               <div class="notification is-info">
                 <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
                 <strong>Help hold your reps accountable!</strong><br />

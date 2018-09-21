@@ -8,7 +8,7 @@ module.exports = class UserProfilePage extends Component {
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
-          ${user && !user.cc_verified ?
+          ${user && !user.verified ?
             UnverifiedNotification.for(this) : []
           }
           ${user && p.username && user.username === p.username ?

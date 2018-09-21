@@ -18,7 +18,7 @@ module.exports = class PickUsernamePage extends Component {
     const { user } = this.state
     const { redirect } = this.location
 
-    if (!user || !user.cc_verified) {
+    if (!user || !user.verified) {
       return redirect('/get_started')
     }
 

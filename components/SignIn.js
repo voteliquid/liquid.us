@@ -59,7 +59,7 @@ module.exports = class SignIn extends Component {
           this.storage.set('refresh_token', refresh_token, { expires: oneYearFromNow })
           this.storage.set('user_id', user_id, { expires: oneYearFromNow })
 
-          return this.api(`/users?select=id,email,first_name,last_name,username,cc_verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`)
+          return this.api(`/users?select=id,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`)
           .then(users => {
             const proxy_to = this.location.query.proxy_to
 

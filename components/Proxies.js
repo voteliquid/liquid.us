@@ -66,7 +66,7 @@ class AuthedProxies extends Component {
       <div onconnected=${this}>
         ${user
           && user.voter_status !== 'Ineligible'
-          && !user.cc_verified
+          && !user.verified
           && proxies.length > 0 ? [`
           <div class="notification">
             <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>

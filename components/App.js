@@ -1,15 +1,13 @@
-const { APP_NAME, NODE_ENV, WWW_URL } = process.env
-const pathToRegexp = require('path-to-regexp')
+const { NODE_ENV, WWW_URL } = process.env
 const fetch = require('isomorphic-fetch')
 
 const { api, html, runInSeries, combineEffects, mapEffect, mapEvent } = require('../helpers')
-const routes_ = require('../routes')
+const { loadPage } = require('./Router')
 const Navbar = require('./NavBar')
 const Footer = require('./Footer')
 const ContactWidget = require('./ContactWidget')
 
 module.exports = {
-  load,
   init: [{
     footer: Footer.init[0],
     location: {
@@ -22,7 +20,7 @@ module.exports = {
     },
     navbar: Navbar.init[0],
     route: {},
-    routeView: null,
+    routeProgram: null,
     storage: {},
     user: null,
     contactWidget: ContactWidget.init[0],
@@ -52,7 +50,8 @@ module.exports = {
           location: { ...state.location, ...event.location },
           navbar: { ...state.navbar, location: event.location },
           contactWidget: { ...state.contactWidget, url: event.location.url },
-          routeView: event.view || state.routeView
+          routeProgram: event.program || state.routeProgram,
+          route: { ...state.location, ...state.route },
         }, combineEffects(
           changePageTitle(event.page_title || state.page_title),
           stopNProgress(),
@@ -63,15 +62,32 @@ module.exports = {
       case 'repsRequested':
         return [state]
       case 'repsReceived':
-        return [{ ...state, reps: event.reps, geoip: event.geoip }]
+        return [{
+          ...state,
+          geoip: event.geoip || state.geoip,
+          route: { ...state.route, reps: event.reps },
+          reps: event.reps,
+        }]
       case 'repsReceivedError':
         console.log(event.error)
         return [state]
+      case 'routeEvent':
+        const [routeState, effect] = state.routeProgram.update(event.event, state.route)
+        switch (event.event.type) {
+          case 'contactWidgetOpened':
+            return [{ ...state, contactWidget: { ...state.contactWidget, isOpen: true } }]
+          case 'verified':
+            return [{ ...state, route: routeState, user: { ...state.user, verified: true } }, effect]
+          case 'redirected':
+            return [{ ...state, route: routeState }, effect]
+          default:
+            return [{ ...state, route: routeState }, mapEffect('routeEvent', effect)]
+        }
       case 'routeLoaded':
         const hyperloopOrRajPageChange =
-          event.view.for
-            ? (dispatch) => dispatch({ type: 'hyperloopRouteLoaded', component: event.view })
-            : (dispatch) => dispatch({ type: 'pageChanged', view: event.view })
+          event.program.for
+            ? (dispatch) => dispatch({ type: 'hyperloopRouteLoaded', component: event.program })
+            : (dispatch) => dispatch({ type: 'pageChanged', location: state.location, program: event.program })
 
         return [state, runInSeries(
           startNProgress(),
@@ -81,11 +97,13 @@ module.exports = {
       case 'userRequested':
         return [state]
       case 'userReceived':
+        const user = { ...event.user, jwt: state.storage.get('jwt') }
         return [{
           ...state,
-          user: event.user,
-          navbar: { ...state.navbar, user: event.user },
-          contactWidget: { ...state.contactWidget, user: event.user },
+          contactWidget: { ...state.contactWidget, user },
+          navbar: { ...state.navbar, user },
+          route: { ...state.route, user },
+          user,
         }]
       case 'userReceivedError':
         console.log(event.error)
@@ -94,11 +112,11 @@ module.exports = {
         return [state]
     }
   },
-  view: ({ contactWidget, footer, route, routeView, navbar }, dispatch) => {
+  view: ({ contactWidget, footer, route, routeProgram, navbar }, dispatch) => {
     return html()`
       <div id="wrapper">
         ${Navbar.view(navbar, mapEvent('navbarEvent', dispatch))}
-        ${routeView ? routeView(route, mapEvent('routeEvent', dispatch)) : ''}
+        ${routeProgram ? routeProgram.view(route, mapEvent('routeEvent', dispatch)) : ''}
       </div>
       <div>${Footer.view(footer, mapEvent('footerEvent', dispatch))}</div>
       ${ContactWidget.view(contactWidget, mapEvent('contactWidgetEvent', dispatch))}
@@ -162,7 +180,7 @@ const fetchUser = (storage) => (dispatch) => {
   const jwt = storage.get('jwt')
   if (userId && jwt) {
     dispatch({ type: 'userRequested' })
-    return api(`/users?select=id,about,intro_video_url,email,first_name,last_name,username,cc_verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${userId}`, { jwt })
+    return api(`/users?select=id,about,intro_video_url,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${userId}`, { jwt })
     .then(users => {
       const user = {
         ...users[0],
@@ -180,14 +198,17 @@ const fetchUser = (storage) => (dispatch) => {
 const startNProgress = () => () => {
   if (typeof window === 'object') {
     if (window.nprogressTimeout) clearTimeout(window.nprogressTimeout)
-    window.nprogressTimout = setTimeout(() => require('nprogress').start(), 500)
+    window.nprogressTimeout = setTimeout(() => require('nprogress').start(), 750)
   }
 }
 
 const stopNProgress = () => () => {
   if (typeof window === 'object') {
-    if (window.nprogressTimeout) clearTimeout(window.nprogressTimeout)
-    setTimeout(() => require('nprogress').done(), 1000)
+    if (window.nprogressTimeout) {
+      clearTimeout(window.nprogressTimeout)
+    } else {
+      setTimeout(() => require('nprogress').done(), 1000)
+    }
   }
 }
 
@@ -227,7 +248,7 @@ function trackPageView(storage) {
 
 const listeners = (dispatch) => ({
   popstate: () =>
-    load(window.location.pathname + window.location.search, 200, dispatch),
+    loadPage(window.location.pathname + window.location.search, 200, dispatch),
   redirect: (event) => {
     const status = event.detail.status || 302
     if (status === 303) {
@@ -235,7 +256,7 @@ const listeners = (dispatch) => ({
     } else {
       window.history.replaceState({}, null, event.detail.url)
     }
-    load(event.detail.url, status, dispatch)
+    loadPage(event.detail.url, status, dispatch)
   },
   click: (event) => {
     const url = window.location.pathname + window.location.search
@@ -247,7 +268,7 @@ const listeners = (dispatch) => ({
     if (!event.metaKey && href && href[0] === '/' && href !== url) {
       event.preventDefault()
       window.history.pushState({}, null, href)
-      load(href, 200, dispatch)
+      loadPage(href, 200, dispatch)
     }
   },
 })
@@ -260,7 +281,7 @@ const changePageTitle = (newTitle) => () => {
 
 function watchHistory(dispatch) {
   if (typeof window === 'object') {
-    load(window.location.pathname + window.location.search, 200, dispatch)
+    loadPage(window.location.pathname + window.location.search, 200, dispatch)
 
     const { click, popstate, redirect } = window.__listeners || {}
     window.removeEventListener('popstate', popstate)
@@ -271,35 +292,6 @@ function watchHistory(dispatch) {
     window.addEventListener('popstate', l.popstate)
     window.addEventListener('redirect', l.redirect)
     window.addEventListener('click', l.click)
-  }
-}
-
-function load(url, status = 200, dispatch) {
-  const pathname = url.split('?')[0]
-  const matched = match(pathname)
-  const location = {
-    params: matched.params,
-    path: pathname,
-    query: (url.split('?')[1] || '').split('&').reduce((b, a) => {
-      const [key, val] = a.split('=')
-      b[key] = val
-      return b
-    }, {}),
-    status: matched.status || status,
-    url,
-  }
-
-  const page_title = matched.title ? `${matched.title} ★ ${APP_NAME}` : `${APP_NAME} ★ Liquid Democracy for America`
-  dispatch({ type: 'pageChanged', location, page_title })
-
-  if (matched.loader) {
-    const loader = typeof matched.loader === 'function' ? matched.loader.call(this) : matched.loader
-    if (loader.then) {
-      return loader.then((loaded) => {
-        dispatch({ type: 'routeLoaded', view: loaded.default || loaded })
-      })
-    }
-    dispatch({ type: 'routeLoaded', view: loader.default || loader })
   }
 }
 
@@ -323,35 +315,10 @@ const initHyperloop = (context, location, Component) => (dispatch) => {
     dispatch({
       type: 'pageChanged',
       location,
-      view: () => html,
+      program: { view: () => html },
     })
     if (context.root.onpagechange && oldComponent === Component) {
       context.root.onpagechange({ params: {}, query: {} })
     }
   })
-}
-
-const routes = Object.keys(routes_).map((path) => {
-  const keys = []
-  const regexp = pathToRegexp(path, keys)
-  return { keys, loader: routes_[path].fn, title: routes_[path].page_title, path, regexp }
-})
-
-routes.notFound = { ...routes[0], status: 404 }
-
-const match = (url) => {
-  for (let i = 0, l = routes.length; i < l; i++) {
-    const route = routes[i]
-    if (route.regexp.test(url)) {
-      const matches = route.regexp.exec(url)
-      route.params = matches.slice(1).reduce((b, a, i) => {
-        b[route.keys[i].name] = a
-        return b
-      }, {})
-      return route
-    }
-  }
-
-  const notFound = routes.notFound
-  return typeof notFound === 'function' ? notFound.call(this) : notFound
 }

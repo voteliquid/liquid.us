@@ -4,6 +4,8 @@ const fetch = require('isomorphic-fetch')
 const { runtime } = require('raj')
 const { wire } = require('viperhtml')
 const url = require('url')
+const { loadPage } = require('./components/Router')
+
 exports.avatarURL = ({ gravatar_hash, bioguide_id, twitter_avatar, twitter_username }) => {
   if (twitter_avatar) return `https://avatars.io/twitter/${twitter_username}`
   if (bioguide_id) return `https://theunitedstates.io/images/congress/225x275/${bioguide_id}.jpg`
@@ -11,6 +13,13 @@ exports.avatarURL = ({ gravatar_hash, bioguide_id, twitter_avatar, twitter_usern
 }
 
 const map = new WeakMap()
+
+exports.redirect = (url, code) => (dispatch) => {
+  if (typeof window === 'object') {
+    window.history.pushState({}, null, url)
+  }
+  loadPage(url, code || 303, dispatch)
+}
 
 exports.preventDefault = (event) => () => {
   event.preventDefault()

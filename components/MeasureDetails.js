@@ -14,7 +14,7 @@ module.exports = class MeasureDetails extends Component {
       <section class="section">
         <div class="container is-widescreen">
           ${l.published ? '' : UnpublishedMsg.for(this, { measure: l, user })}
-          ${(l.vote_position && !user.cc_verified) ? [`
+          ${(l.vote_position && !user.verified) ? [`
             <p class="notification is-info">
               <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
               <strong>Help hold your reps accountable!</strong><br />

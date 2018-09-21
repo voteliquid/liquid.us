@@ -11,10 +11,10 @@ module.exports = {
   update: (event, state) => {
     switch (event.type) {
       case 'buttonClicked':
-        return [{ ...state, isOpen: !state.isOpen }, preventDefault]
+        return [{ ...state, isOpen: !state.isOpen }, preventDefault(event.event)]
       case 'formSubmitted':
         return [state, combineEffects(
-          preventDefault,
+          preventDefault(event.event),
           submitMessage(event.event, state.user, state.url)
         )]
       case 'messageSent':

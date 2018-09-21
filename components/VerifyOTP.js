@@ -97,7 +97,7 @@ module.exports = class VerifyOTP extends Component {
       this.storage.unset('device_id')
       this.storage.unset('sign_in_email')
 
-      return this.api(`/users?select=id,email,first_name,last_name,username,cc_verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`)
+      return this.api(`/users?select=id,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`)
       .then(users => {
         this.setState({ user: { ...users[0], address: users[0].address[0] } }, false)
         return { jwt, user_id }

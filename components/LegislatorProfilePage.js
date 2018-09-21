@@ -65,7 +65,7 @@ module.exports = class LegislatorProfilePage extends Component {
               This looks like one of your reps. <a href="/join"><strong>Join United</strong></a> to begin holding them accountable.
             </div>
           `] : []}
-          ${isMyRep && user && !user.cc_verified ? [`
+          ${isMyRep && user && !user.verified ? [`
             <div class="notification is-dark has-text-centered">
               This is one of your reps. <a href="/get_started"><strong>Verify your identity</strong></a> to begin holding them accountable.
             </div>

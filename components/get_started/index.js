@@ -18,7 +18,7 @@ module.exports = class VerificationRouter extends Component {
       return redirect(`/get_started/basics`)
     } else if (!user.voter_status) {
       return redirect(`/get_started/voter_status`)
-    } else if (!user.cc_verified) {
+    } else if (!user.verified) {
       return redirect(`/get_started/verification`)
     } else if (!user.username) {
       return redirect(`/get_started/profile`)

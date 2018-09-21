@@ -49,7 +49,9 @@ const geoip = require('./middleware/geoip')
 const eztextingWebhook = require('./middleware/eztexting_webhook')
 const redirects = require('./middleware/redirects')
 const twitterUsernameSearch = require('./middleware/twitter_username_search')
+const verifyPhoneNumber = require('./middleware/verify_phone_number')
 const htmlWrapper = require('./components/HtmlWrapper')
+const { loadPage } = require('./components/Router')
 let App = require('./components/App')
 const { serverHyperloopContext: HyperloopContext, combineEffects } = require('./helpers')
 
@@ -149,6 +151,7 @@ function startAppServer() {
     .use('/assets', serveStatic(path.join(__dirname, 'public'))) // TODO serve using CDN in production
     .get('/rpc/healthcheck', (req, res) => res.status(200).end())
     .get('/rpc/geoip/:ip', geoip)
+    .post('/rpc/verify_phone_number', bodyParser.json(), verifyPhoneNumber)
     .get('/rpc/eztexting_webhook', eztextingWebhook)
     .post('/rpc/twitter_username_search', bodyParser.json(), twitterUsernameSearch)
     .get('/hyperloop/:filename', (req, res) => {
@@ -194,7 +197,9 @@ function initAppState(App, req, res) {
         return val
       },
       unset: (key) => {
-        res.clearCookie(key)
+        if (res.running) {
+          res.clearCookie(key)
+        }
       },
     },
   }
@@ -210,7 +215,7 @@ function runApp(req, res, done) {
       ...initState,
       hyperloop,
     }, (dispatch) => {
-      App.load(req.url, 200, dispatch)
+      loadPage(req.url, 200, dispatch)
     }],
     update: (event, state) => {
       // Intercept app updates and update the hyperloop state.
@@ -218,9 +223,9 @@ function runApp(req, res, done) {
       return [appState, combineEffects(setHyperloopState(appState), appEffect)]
     },
     view: (state, dispatch) => {
-      if (res.running && state.routeView) {
-        if (state.location.status) res.status(state.location.status)
+      if (res.running && state.routeProgram) {
         res.running = false
+        if (state.location.status) res.status(state.location.status)
         const appHtml = App.view(state, dispatch)
         const pageHtml = htmlWrapper(state, appHtml, `${webpackConfig.output.publicPath}${webpackStats.compilation.hash}.js`)
         done(null, pageHtml)

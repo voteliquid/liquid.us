@@ -116,7 +116,7 @@ const navbarAuthed = ({ location, user }) => {
       <a class="navbar-link" href="${username_url}">${user.first_name || 'You'}</a>
       <div class="navbar-dropdown is-right">
         ${[
-          !user.cc_verified
+          !user.verified
             ? `<a class="navbar-item ${path.slice(0, 12) === '/get_started' ? 'is-active' : ''}" href="/get_started">Verify your identity</a>`
             : ''
         ]}

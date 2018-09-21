@@ -17,6 +17,7 @@ runtime({
   init: [{
     ...initState,
     hyperloop: new HyperloopContext(window.__app_state || {}),
+    routeProgram: null,
     storage: {
       get: cookies.get,
       set: cookies.set,
@@ -30,7 +31,7 @@ runtime({
   },
   view: (state, dispatch) => {
     // Wait for route view to load (async chunked JS) before rendering.
-    if (starting && state.routeView) {
+    if (starting && state.routeProgram) {
       starting = false
       return hyperhtml.bind(document.getElementById('hyperloop_app'))`${App.view(state, dispatch)}`
     }
