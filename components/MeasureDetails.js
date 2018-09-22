@@ -22,14 +22,14 @@ module.exports = class MeasureDetails extends Component {
             </p>
           `] : ''}
           <div class="columns">
-            <div class="${l.introduced_at ? `column is-two-thirds-tablet is-three-quarters-desktop` : ''}">
+            <div class="column is-two-thirds-tablet is-three-quarters-desktop">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
               ${l.type !== 'PN' ? MeasureSummary.for(this, { measure: l }) : ''}
               ${TopComments.for(this, { measure: l, yea: l.top_yea, nay: l.top_nay })}
               ${Votes.for(this, { measure: l })}
             </div>
             <div class="${l.introduced_at ? `column is-one-third-tablet is-one-quarter-desktop` : ''}">
-              ${l.introduced_at ? Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`) : ''}
+              ${Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`)}
             </div>
           </div>
         </div>

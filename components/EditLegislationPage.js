@@ -8,7 +8,7 @@ module.exports = class EditLegislationPage extends Component {
 
     this.setState({ editing_bill: {}, loading: 'populating' })
 
-    return this.fetchLegislatures().then(() => this.fetchLegislation()).then(() => this.setState({ loading: false }))
+    return this.fetchLegislation().then(() => this.setState({ loading: false }))
   }
   onpagechange(oldProps) {
     if (this.props.url !== oldProps.url) return this.oninit()
@@ -23,16 +23,6 @@ module.exports = class EditLegislationPage extends Component {
         }
         return this.setState({ editing_bill: legislation[0] })
       })
-  }
-  fetchLegislatures() {
-    const { reps } = this.state
-    return this.api('/legislatures').then(legislatures => this.setState({
-      legislatures: legislatures.filter(({ short_name }) => {
-        return short_name === 'US-Congress' || reps.some(({ office_short_name }) => {
-          return short_name.slice(0, 2) === office_short_name.slice(0, 2)
-        })
-      })
-    }))
   }
   render() {
     return this.html`

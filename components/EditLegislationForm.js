@@ -114,8 +114,8 @@ module.exports = class EditLegislationForm extends Component {
           <div class="control">
             <div class="select">
               <select name="legislature_id">
-                ${legislatures.map(({ id, name }) => {
-                  return `<option value="${id}" ${name === legislature_name ? 'selected' : ''}>${name}</option>`
+                ${legislatures.map(({ id, abbr, name }) => {
+                  return `<option value="${id}" ${abbr === legislature_name ? 'selected' : ''}>${name}</option>`
                 })}
               </select>
             </div>

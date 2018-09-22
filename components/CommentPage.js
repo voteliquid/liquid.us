@@ -98,13 +98,13 @@ class CommentDetailPage extends Component {
       <section class="section">
         <div class="container is-widescreen">
           <div class="columns">
-            <div class="${l.introduced_at ? 'column' : ''}">
+            <div class="column">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
               ${Comment.for(this, l.comment)}
               <div><a href="${`/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`}">See all comments <span class="icon"><i class="fas fa-long-arrow-alt-right"></i></span></a></a></div>
             </div>
-            <div class="${l.introduced_at ? 'column is-one-quarter' : ''}">
-              ${l.introduced_at ? Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`) : ''}
+            <div class="column is-one-quarter">
+              ${Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`)}
             </div>
           </div>
         </div>

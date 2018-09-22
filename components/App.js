@@ -1,5 +1,6 @@
 const { NODE_ENV, WWW_URL } = process.env
 const fetch = require('isomorphic-fetch')
+const stateNames = require('datasets-us-states-abbr-names')
 
 const { api, html, runInSeries, combineEffects, mapEffect, mapEvent } = require('../helpers')
 const { loadPage } = require('./Router')
@@ -37,6 +38,13 @@ module.exports = {
         return [state, initHyperloop(state.hyperloop, state.location, event.component)]
       case 'hyperloopStateChanged':
         return [{ ...state, ...event.state, hyperloop: state.hyperloop }]
+      case 'legislaturesReceivedError':
+        console.error(event.error)
+        return [state]
+      case 'legislaturesReceived':
+        return [{ ...state, legislatures: event.legislatures }]
+      case 'legislaturesRequested':
+        return [state]
       case 'navbarEvent':
         const [navbarState, navbarEffect] = Navbar.update(event.event, state.navbar)
         return [
@@ -91,7 +99,7 @@ module.exports = {
 
         return [state, runInSeries(
           startNProgress(),
-          fetchUserAndReps(state),
+          fetchUserAndRepsAndLegislatures(state),
           hyperloopOrRajPageChange
         )]
       case 'userRequested':
@@ -124,10 +132,15 @@ module.exports = {
   },
 }
 
-const fetchUserAndReps = ({ location, storage, user }) => (dispatch) => {
-  if (user) return fetchReps({ location, storage, user })(dispatch)
+const fetchUserAndRepsAndLegislatures = ({ geoip, location, storage, user }) => (dispatch) => {
+  if (user) {
+    return fetchReps({ location, storage, user })(dispatch)
+      .then(() => fetchLegislatures(user, geoip)(dispatch))
+  }
   return Promise.resolve(fetchUser(storage)(dispatch))
-    .then((user) => fetchReps({ location, storage, user })(dispatch))
+    .then((user) =>
+      fetchReps({ location, storage, user })(dispatch)
+        .then(() => fetchLegislatures(user, geoip)(dispatch)))
 }
 
 const fetchReps = ({ location, storage, user }) => (dispatch) => {
@@ -180,19 +193,43 @@ const fetchUser = (storage) => (dispatch) => {
   const jwt = storage.get('jwt')
   if (userId && jwt) {
     dispatch({ type: 'userRequested' })
-    return api(`/users?select=id,about,intro_video_url,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${userId}`, { jwt })
+    return api(`/users?select=id,about,intro_video_url,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address,city,state)&id=eq.${userId}`, { jwt })
     .then(users => {
       const user = {
         ...users[0],
         address: users[0] ? users[0].address[0] : null,
       }
       dispatch({ type: 'userReceived', user })
+      return user
     })
     .catch((error) => {
       console.log(error)
       dispatch({ type: 'userReceivedError', error })
     })
   }
+}
+
+const fetchLegislatures = (user, geoip = {}) => (dispatch) => {
+  dispatch({ type: 'legislaturesRequested' })
+  return api('/legislatures').then((legislatures) => {
+    const city = user ? user.address.city : geoip.city
+    const state = user ? user.address.state : geoip.region
+    dispatch({
+      type: 'legislaturesReceived',
+      legislatures: legislatures.filter(({ short_name }) => {
+        return short_name === 'US-Congress' || short_name === city || short_name === state
+      }).sort((a, b) => {
+        if (a.short_name === city && b.short_name === state) return 1
+        if (a.short_name === state && b.short_name === city) return -1
+        return 0
+      }).map((legislature) => {
+        legislature.abbr = legislature.name
+        legislature.name = stateNames[legislature.name] || legislature.name
+        return legislature
+      }),
+    })
+  })
+  .catch((error) => dispatch({ type: 'legislaturesReceivedError', error }))
 }
 
 const startNProgress = () => () => {

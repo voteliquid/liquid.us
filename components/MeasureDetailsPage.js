@@ -5,7 +5,7 @@ const NotFound = require('./NotFound')
 
 module.exports = class MeasureDetailsPage extends Component {
   oninit() {
-    const { config, measures = {}, reps = [], user } = this.state
+    const { config, measures = {}, reps = [] } = this.state
     const { params } = this.props
     const measure = measures[params.short_id]
 

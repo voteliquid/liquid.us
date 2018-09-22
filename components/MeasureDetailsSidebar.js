@@ -1,3 +1,5 @@
+const stateNames = require('datasets-us-states-abbr-names')
+
 const Component = require('./Component')
 const EditButtons = require('./EditMeasureButtons')
 const MeasureShareButtons = require('./MeasureShareButtons')
@@ -13,10 +15,10 @@ module.exports = class MeasureDetailsSidebar extends Component {
       <nav class="panel">
         <div class="panel-heading has-text-centered">
           <h3 class="title has-text-weight-semibold is-size-5">
-            ${l.introduced_at ? `${l.type} ${l.number}` : 'Proposed'}
+            ${l.introduced_at ? `${l.type} ${l.number}` : 'Proposed Legislation'}
           </h3>
           <h4 class="subtitle is-size-7 has-text-grey is-uppercase has-text-weight-semibold">
-            ${l.legislature_name}
+            ${stateNames[l.legislature_name] || l.legislature_name}
           </h4>
         </div>
         ${reps && reps.length ? MeasureRepsPanel.for(this, { measure: l, reps }) : ''}
@@ -69,7 +71,7 @@ class MeasureStatus extends Component {
         <ul>
           ${steps.map(({ fulfilled, step }) => {
             return `<li class="${`step ${fulfilled ? 'fulfilled' : 'has-text-grey'}`}">
-              <span class="icon is-small"><i class="fa ${fulfilled ? 'fa-check-circle-o' : 'fa-circle-o'}"></i></span>
+              <span class="icon is-small"><i class="far ${fulfilled ? 'fa-check-circle' : 'fa-circle'}"></i></span>
               <span>${step}</span>
             </li>`
           })}

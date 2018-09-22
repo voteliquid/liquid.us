@@ -51,10 +51,7 @@ module.exports = class LegislationList extends Component {
       .catch(error => ({ error, loading_legislation: false }))
   }
   render() {
-    const { loading_legislation, legislation, reps = [] } = this.state
-    const legislatures = reps.some(({ office_short_name }) => office_short_name.slice(0, 2) === 'CA')
-      ? ['U.S. Congress', 'California']
-      : ['U.S. Congress']
+    const { loading_legislation, legislation, legislatures } = this.state
 
     return this.html`
       <div class="section">
@@ -156,8 +153,9 @@ class FilterForm extends Component {
           <div class=${`control ${legislatures.length > 1 ? '' : 'is-hidden'}`}>
             <div class="select">
               <select autocomplete="off" name="legislature" onchange=${this.autosubmit}>
-                <option value="U.S. Congress" selected=${!query.legislature || query.legislature === 'U.S. Congress'}>U.S. Congress</option>
-                <option value="California Congress" selected=${query.legislature === 'California Congress'}>California</option>
+                ${legislatures.map(({ abbr, name }) => {
+                  return `<option value="${abbr}" ${abbr === query.legislature ? 'selected' : ''}>${name}</option>`
+                })}
               </select>
             </div>
           </div>
