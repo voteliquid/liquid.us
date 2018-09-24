@@ -105,6 +105,9 @@ module.exports = class EditLegislationForm extends Component {
     const { legislature_name, summary, title } = editing_bill
     const { short_id } = this.props
     const auto_short_id = (this.props.title || title || '').toLowerCase().replace(/ /g, '-').replace(/[^A-z0-9-_]/g, '').slice(0, 32)
+    const l1 = legislatures[0] || {}
+    const l2 = legislatures[1] || {}
+    const l3 = legislatures[2] || {}
 
     return this.html`
       <form method="POST" onsubmit=${this} action=${this}>
@@ -112,11 +115,11 @@ module.exports = class EditLegislationForm extends Component {
         <div class="${`field ${legislatures.length === 1 ? 'is-hidden' : ''}`}">
           <label for="short_id" class="label has-text-grey">Legislature</label>
           <div class="control">
-            <div class="select">
+            <div class="${`select ${l1 && l2 && l3 ? '' : 'is-hidden'}`}">
               <select name="legislature_id">
-                ${legislatures.map(({ id, abbr, name }) => {
-                  return `<option value="${id}" ${abbr === legislature_name ? 'selected' : ''}>${name}</option>`
-                })}
+                <option value="${l1.id}" selected=${l1.abbr === legislature_name}>${l1.name}</option>
+                <option value="${l2.id}" selected=${l2.abbr === legislature_name}>${l2.name}</option>
+                <option value="${l3.id}" selected=${l3.abbr === legislature_name}>${l3.name}</option>
               </select>
             </div>
           </div>

@@ -8,6 +8,7 @@ module.exports = {
     loading: false,
     showVerifyOtpForm: false,
     skipWarning: false,
+    storage: null,
     user: null,
   }],
   update: (event, state) => {
@@ -25,9 +26,9 @@ module.exports = {
             error: 'Phone number must be 10-digit US number. Example: 111-222-3333'
           }, preventDefault(event.event)]
         }
-        return [{ ...state, error: null }, combineEffects(
+        return [{ ...state, phoneNum: phoneInput.value || '', error: null }, combineEffects(
           preventDefault(event.event),
-          requestOTP(phoneInput.value || '', state.user)
+          requestOTP(phoneInput.value || '', state.user, state.storage)
         )]
       case 'requestedOtp':
       case 'requestedVerification':
@@ -59,7 +60,7 @@ module.exports = {
         const otpInput = event.event.target.querySelector('input[name="otp"]')
         return [{ ...state, error: null }, combineEffects(
           preventDefault(event.event),
-          verifyOTP(otpInput.value || '', state.user)
+          verifyOTP(otpInput.value || '', state.user, state.phoneNum, state.storage)
         )]
       default:
         return [state]
@@ -91,7 +92,7 @@ module.exports = {
   },
 }
 
-const requestOTP = (phone_number, user) => (dispatch) => {
+const requestOTP = (phone_number, user, storage) => (dispatch) => {
   dispatch({ type: 'requestedOtp' })
   fetch(`${WWW_URL}/rpc/verify_phone_number`, {
     method: 'POST',
@@ -109,19 +110,19 @@ const requestOTP = (phone_number, user) => (dispatch) => {
     method: 'POST',
     body: JSON.stringify({ phone_number, user_id: user.id }),
     headers: { Prefer: 'return=minimal' },
-    jwt: user.jwt,
+    storage,
   }))
   .then(() => dispatch({ type: 'sentOtp' }))
   .catch((error) => dispatch({ type: 'receivedOtpError', error }))
 }
 
-const verifyOTP = (otp, user) => (dispatch) => {
+const verifyOTP = (otp, user, phone_number, storage) => (dispatch) => {
   dispatch({ type: 'requestedVerification' })
   api('/phone_verifications', {
     method: 'POST',
-    body: JSON.stringify({ otp, user_id: user.id }),
+    body: JSON.stringify({ otp, user_id: user.id, phone_number }),
     headers: { Prefer: 'return=minimal' },
-    jwt: user.jwt,
+    storage,
   })
   .then(() => dispatch({ type: 'verified' }))
   .catch((error) => dispatch({ type: 'receivedOtpError', error }))

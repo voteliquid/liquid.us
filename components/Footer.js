@@ -97,13 +97,6 @@ module.exports = {
       <div>
         ${[NODE_ENV === 'production' ? `
           <script async src="https://d10lpsik1i8c69.cloudfront.net/w.js"></script>
-          <script src="https://cdn.ravenjs.com/3.20.1/raven.min.js" crossorigin="anonymous"></script>
-          <script>
-            Raven.config('https://613c962d6bfa43ba863bdd2b0c0ec907@sentry.io/254602', {
-              environment: "${NODE_ENV}"
-            }).install()
-          </script>
-
           <script async src="https://www.googletagmanager.com/gtag/js?id=UA-84279342-5"></script>
           <script>
             window.dataLayer = window.dataLayer || [];

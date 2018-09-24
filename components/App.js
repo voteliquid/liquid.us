@@ -7,6 +7,7 @@ const { loadPage } = require('./Router')
 const Navbar = require('./NavBar')
 const Footer = require('./Footer')
 const ContactWidget = require('./ContactWidget')
+const loadingIndicator = require('./ActivityIndicator')
 
 module.exports = {
   init: [{
@@ -35,9 +36,15 @@ module.exports = {
         const [footerState, footerEffect] = Footer.update(event.event, state.footer)
         return [{ ...state, footer: footerState }, mapEffect('footerEvent', footerEffect)]
       case 'hyperloopRouteLoaded':
-        return [state, initHyperloop(state.hyperloop, state.location, event.component)]
+        return [state, initHyperloop(state.hyperloop, event.location, event.component)]
       case 'hyperloopStateChanged':
-        return [{ ...state, ...event.state, hyperloop: state.hyperloop }]
+        return [{
+          ...state,
+          ...event.state,
+          hyperloop: state.hyperloop,
+          navbar: { ...state.navbar, user: event.state.user || state.user },
+          legislatures: event.state.legislatures || state.legislatures,
+        }]
       case 'legislaturesReceivedError':
         console.error(event.error)
         return [state]
@@ -58,12 +65,12 @@ module.exports = {
           location: { ...state.location, ...event.location },
           navbar: { ...state.navbar, location: event.location },
           contactWidget: { ...state.contactWidget, url: event.location.url },
-          routeProgram: event.program || state.routeProgram,
-          route: { ...state.location, ...state.route },
+          routeProgram: event.program,
+          route: { ...state.location, ...state.route, storage: state.storage },
         }, combineEffects(
           changePageTitle(event.page_title || state.page_title),
           stopNProgress(),
-          scrollToTop(),
+          scrollToTop(event.scroll),
           mapEffect('footerEvent', Footer.randomQuote),
           trackPageView(state.storage)
         )]
@@ -94,8 +101,8 @@ module.exports = {
       case 'routeLoaded':
         const hyperloopOrRajPageChange =
           event.program.for
-            ? (dispatch) => dispatch({ type: 'hyperloopRouteLoaded', component: event.program })
-            : (dispatch) => dispatch({ type: 'pageChanged', location: state.location, program: event.program })
+            ? (dispatch) => dispatch({ type: 'hyperloopRouteLoaded', location: event.location, component: event.program })
+            : (dispatch) => dispatch({ type: 'pageChanged', location: event.location, program: event.program })
 
         return [state, runInSeries(
           startNProgress(),
@@ -124,7 +131,9 @@ module.exports = {
     return html()`
       <div id="wrapper">
         ${Navbar.view(navbar, mapEvent('navbarEvent', dispatch))}
-        ${routeProgram ? routeProgram.view(route, mapEvent('routeEvent', dispatch)) : ''}
+        <div class="router">
+          ${routeProgram ? routeProgram.view(route, mapEvent('routeEvent', dispatch)) : loadingIndicator()}
+        </div>
       </div>
       <div>${Footer.view(footer, mapEvent('footerEvent', dispatch))}</div>
       ${ContactWidget.view(contactWidget, mapEvent('contactWidgetEvent', dispatch))}
@@ -132,15 +141,19 @@ module.exports = {
   },
 }
 
-const fetchUserAndRepsAndLegislatures = ({ geoip, location, storage, user }) => (dispatch) => {
+const fetchUserAndRepsAndLegislatures = ({ geoip, legislatures, location, storage, reps, user }) => (dispatch) => {
   if (user) {
+    if (reps) {
+      if (!legislatures) return fetchLegislatures(storage, user, geoip)(dispatch)
+      return Promise.resolve()
+    }
     return fetchReps({ location, storage, user })(dispatch)
-      .then(() => fetchLegislatures(user, geoip)(dispatch))
+      .then(() => fetchLegislatures(storage, user, geoip)(dispatch))
   }
   return Promise.resolve(fetchUser(storage)(dispatch))
     .then((user) =>
       fetchReps({ location, storage, user })(dispatch)
-        .then(() => fetchLegislatures(user, geoip)(dispatch)))
+        .then(() => fetchLegislatures(storage, user, geoip)(dispatch)))
 }
 
 const fetchReps = ({ location, storage, user }) => (dispatch) => {
@@ -150,7 +163,7 @@ const fetchReps = ({ location, storage, user }) => (dispatch) => {
       return api('/rpc/user_offices', {
         method: 'POST',
         body: JSON.stringify({ user_id: user.id }),
-        jwt: storage.get('jwt'),
+        storage,
       })
       .then((reps) => dispatch({ type: 'repsReceived', reps: reps || [] }))
       .catch((error) => dispatch({ type: 'repsReceivedError', error }))
@@ -193,7 +206,7 @@ const fetchUser = (storage) => (dispatch) => {
   const jwt = storage.get('jwt')
   if (userId && jwt) {
     dispatch({ type: 'userRequested' })
-    return api(`/users?select=id,about,intro_video_url,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address,city,state)&id=eq.${userId}`, { jwt })
+    return api(`/users?select=id,about,intro_video_url,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address,city,state)&id=eq.${userId}`, { storage })
     .then(users => {
       const user = {
         ...users[0],
@@ -209,16 +222,16 @@ const fetchUser = (storage) => (dispatch) => {
   }
 }
 
-const fetchLegislatures = (user, geoip = {}) => (dispatch) => {
+const fetchLegislatures = (storage, user, geoip = {}) => (dispatch) => {
+  const city = user && user.address ? user.address.city : geoip.city
+  const state = user && user.address ? user.address.state : geoip.region
   dispatch({ type: 'legislaturesRequested' })
-  return api('/legislatures').then((legislatures) => {
-    const city = user ? user.address.city : geoip.city
-    const state = user ? user.address.state : geoip.region
+  return api(`/legislatures?or=(short_name.eq.${city},short_name.eq.${state},short_name.eq.US-Congress)`, {
+    storage,
+  }).then((legislatures) => {
     dispatch({
       type: 'legislaturesReceived',
-      legislatures: legislatures.filter(({ short_name }) => {
-        return short_name === 'US-Congress' || short_name === city || short_name === state
-      }).sort((a, b) => {
+      legislatures: (legislatures || []).sort((a, b) => {
         if (a.short_name === city && b.short_name === state) return 1
         if (a.short_name === state && b.short_name === city) return -1
         return 0
@@ -243,14 +256,16 @@ const stopNProgress = () => () => {
   if (typeof window === 'object') {
     if (window.nprogressTimeout) {
       clearTimeout(window.nprogressTimeout)
-    } else {
-      setTimeout(() => require('nprogress').done(), 1000)
     }
+    setTimeout(() => {
+      if (window.nprogressTimeout) clearTimeout(window.nprogressTimeout)
+      require('nprogress').done()
+    }, 1000)
   }
 }
 
-const scrollToTop = () => () => {
-  if (typeof window === 'object') {
+const scrollToTop = (scroll) => () => {
+  if (scroll && typeof window === 'object') {
     window.scrollTo(0, 0)
   }
 }
@@ -270,6 +285,7 @@ function trackPageView(storage) {
         referrer: window.document.referrer,
         url: window.location.pathname + window.location.search,
       }),
+      storage,
     })
     .then((res) => {
       if (!storage.get('cookie')) {
@@ -285,7 +301,7 @@ function trackPageView(storage) {
 
 const listeners = (dispatch) => ({
   popstate: () =>
-    loadPage(window.location.pathname + window.location.search, 200, dispatch),
+    loadPage(window.location.pathname + window.location.search, 200, dispatch, false),
   redirect: (event) => {
     const status = event.detail.status || 302
     if (status === 303) {
@@ -333,12 +349,11 @@ function watchHistory(dispatch) {
 }
 
 const initHyperloop = (context, location, Component) => (dispatch) => {
-  const oldComponent = context.root && context.root.constructor
   context.root = null
   let p = null
   if (typeof window === 'object') {
     context.initializing = false
-    p = Promise.resolve(Component.for({}, { ...location, context }))
+    p = Promise.resolve(Component.for(context, { ...location, context }))
   } else {
     p = context.initialize(Component, location)
   }
@@ -354,7 +369,7 @@ const initHyperloop = (context, location, Component) => (dispatch) => {
       location,
       program: { view: () => html },
     })
-    if (context.root.onpagechange && oldComponent === Component) {
+    if (context.root.onpagechange) {
       context.root.onpagechange({ params: {}, query: {} })
     }
   })

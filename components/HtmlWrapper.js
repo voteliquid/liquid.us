@@ -24,11 +24,15 @@ module.exports = (state, html, bundleUrl) => {
         <style>
           ${nprogressStyle}
 
+          body {
+            height: 100%;
+          }
+
           body, .panel {
             font-size: .9rem;
           }
 
-          #hyperloop_application {
+          #application {
             display: flex;
             min-height: 100vh;
             flex-direction: column;
@@ -40,18 +44,8 @@ module.exports = (state, html, bundleUrl) => {
             position: relative;
           }
 
-          .hyperloop_router {
+          .router {
             min-height: 50vh;
-          }
-
-          .section .breadcrumb {
-            margin-top: -3rem;
-            margin-bottom: 3rem;
-          }
-
-          .section .breadcrumb:not(:last-child) {
-            margin-top: -3rem;
-            margin-bottom: 3rem;
           }
         </style>
         <meta property="og:title" content="${title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
@@ -63,10 +57,10 @@ module.exports = (state, html, bundleUrl) => {
         <script>
           window.__app_state = ${JSON.stringify({ ...state, hyperloop: undefined }).replace(/<\//g, '<\\/')};
         </script>
-        <script defer async src="${bundleUrl}"></script>
       </head>
       <body>
-        <div id="hyperloop_app">${html}</div>
+        <div id="application">${html}</div>
+        <script src="${bundleUrl}"></script>
       </body>
     </html>
   `

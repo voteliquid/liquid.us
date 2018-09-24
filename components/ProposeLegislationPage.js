@@ -8,7 +8,7 @@ module.exports = class ProposeLegislationPage extends Component {
 
     if (!user) return this.location.redirect('/sign_in?notification=propose-legislation')
 
-    this.setState({ editing_bill: {} })
+    this.setState({ editing_bill: {}, error: false })
   }
   onpagechange(oldProps) {
     if (this.props.url !== oldProps.url) return this.oninit()

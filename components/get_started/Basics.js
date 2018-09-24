@@ -2,6 +2,7 @@ const Component = require('../Component')
 const fetch = require('isomorphic-fetch')
 const GoogleAddressAutocompleteScript = require('../GoogleAddressAutocompleteScript')
 const YourLegislators = require('../YourLegislators')
+const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = class PageOrRedirect extends Component {
   oninit() {
@@ -24,7 +25,7 @@ class GetStartedBasicsPage extends Component {
     this.setState({ loading: true })
 
     const { GOOGLE_GEOCODER_KEY } = this.state.config
-    const { address, lat, lon, voter_status } = formData.address
+    const { address, lat, lon, city, state, voter_status } = formData.address
 
     const name_pieces = formData.address.name.split(' ')
     const first_name = name_pieces[0]
@@ -59,10 +60,10 @@ class GetStartedBasicsPage extends Component {
         })
     }
 
-    return this.upsertAddressAndContinue({ first_name, last_name, address, voter_status, lat, lon })
+    return this.upsertAddressAndContinue({ first_name, last_name, address, voter_status, lat, lon, city, state })
   }
 
-  upsertAddressAndContinue({ first_name, last_name, address, voter_status, lat, lon }) {
+  upsertAddressAndContinue({ first_name, last_name, address, voter_status, lat, lon, city, state }) {
     const { user } = this.state
     const { redirect } = this.location
     const storage = this.storage
@@ -75,16 +76,20 @@ class GetStartedBasicsPage extends Component {
         headers: { Prefer: 'return=representation' },
         body: JSON.stringify({
           address,
+          city,
+          state,
           geocoords: `POINT(${lon} ${lat})`,
         }),
       })
     } else {
-      addressUpsert = this.api('/user_addresses', {
+      addressUpsert = this.api(`/user_addresses?select=id&user_id=eq.${user.id}`, {
         method: 'POST',
         headers: { Prefer: 'return=representation' },
         body: JSON.stringify({
           user_id: user.id,
           address,
+          city,
+          state,
           geocoords: `POINT(${lon} ${lat})`,
         }),
       })
@@ -100,8 +105,23 @@ class GetStartedBasicsPage extends Component {
       }),
     }))
     .then(() => {
-      this.setState({ reps: [], user: { ...user, voter_status, first_name, last_name, address: { address } } })
+      this.setState({ reps: [], user: { ...user, voter_status, first_name, last_name, address: { address, city, state } } })
       return Promise.resolve(YourLegislators.prototype.fetchElectedLegislators.call(this, true))
+    })
+    .then(() => {
+      return this.api(`/legislatures?or=(short_name.eq.${city},short_name.eq.${state},short_name.eq.US-Congress)`).then((legislatures) => {
+        this.setState({
+          legislatures: (legislatures || []).sort((a, b) => {
+            if (a.short_name === city && b.short_name === state) return 1
+            if (a.short_name === state && b.short_name === city) return -1
+            return 0
+          }).map((legislature) => {
+            legislature.abbr = legislature.name
+            legislature.name = stateNames[legislature.name] || legislature.name
+            return legislature
+          }),
+        })
+      })
     })
     .then(() => {
       if (!storage.get('proxying_user_id')) {
@@ -170,6 +190,8 @@ class GetStartedBasicsPage extends Component {
                   <input class=${`input ${error.address && 'is-danger'}`} autocomplete="off" name="address[address]" id="address_autocomplete" required placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" />
                   <input name="address[lat]" id="address_lat" type="hidden" />
                   <input name="address[lon]" id="address_lon" type="hidden" />
+                  <input name="address[city]" id="city" type="hidden" />
+                  <input name="address[state]" id="state" type="hidden" />
                   ${GoogleAddressAutocompleteScript.for(this)}
                   ${error.address
                     ? [`<span class="icon is-small is-left"><i class="fa fa-warning"></i></span>`]

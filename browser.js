@@ -33,7 +33,7 @@ runtime({
     // Wait for route view to load (async chunked JS) before rendering.
     if (starting && state.routeProgram) {
       starting = false
-      return hyperhtml.bind(document.getElementById('hyperloop_app'))`${App.view(state, dispatch)}`
+      return hyperhtml.bind(document.getElementById('application'))`${App.view(state, dispatch)}`
     }
     return App.view(state, dispatch)
   },

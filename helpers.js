@@ -72,9 +72,11 @@ exports.runInSeries = (...effects) => (dispatch) => {
 exports.cookies = require('browser-cookies')
 
 exports.api = (url, params = {}) => {
+  const storage = params.storage
+  const jwt = storage && storage.get('jwt')
   params.headers = params.headers || {}
-  if (params.jwt) {
-    params.headers.Authorization = `Bearer ${params.jwt}`
+  if (jwt) {
+    params.headers.Authorization = `Bearer ${jwt}`
   }
   return fetch(`${API_URL}${url}`, {
     ...params,
@@ -87,6 +89,63 @@ exports.api = (url, params = {}) => {
     if (res.status === 201 && !params.headers.Prefer) return res
     if (res.status < 400 && params.headers.Prefer === 'return=minimal') return res
     if (res.status === 204) return res
+    if (res.status >= 400 && res.status < 500) {
+      return res.json().then((json) => {
+        const refresh_token = storage && storage.get('refresh_token')
+
+        if (json.message === 'JWT expired' && refresh_token) {
+          return fetch(`${API_URL}/sessions?select=jwt,refresh_token`, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'Prefer': 'return=representation',
+            },
+            body: JSON.stringify({ refresh_token }),
+          })
+          .then(res => res.json())
+          .then(results => results[0])
+          .then(({ jwt }) => {
+            storage.set('jwt', jwt, { expires: new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)) })
+
+            return fetch(`${API_URL}${url}`, {
+              ...params,
+              credentials: 'include',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwt}`,
+                ...params.headers,
+              },
+            })
+            .then(res => {
+              if (res.status === 204) return {}
+              if (res.status >= 400 && res.status < 500) {
+                return res.json().then(json => {
+                  const error = new Error(json.message)
+                  error.details = json.details
+                  error.status = res.status
+                  error.code = isNaN(json.code) ? json.code : Number(json.code)
+                  error.hint = json.hint
+                  throw error
+                })
+              }
+              return res.json()
+            })
+          })
+          .catch(error => {
+            console.log(error)
+            storage.unset('refresh_token')
+          })
+        }
+        const error = new Error(json.message)
+        error.details = json.details
+        error.status = res.status
+        error.code = isNaN(json.code) ? json.code : Number(json.code)
+        error.hint = json.hint
+        throw error
+      })
+    }
     return res.json()
   })
 }

@@ -27,7 +27,7 @@ const match = (url) => {
   return typeof notFound === 'function' ? notFound.call(this) : notFound
 }
 
-exports.loadPage = (url, status = 200, dispatch) => {
+exports.loadPage = (url, status = 200, dispatch, scroll = true) => {
   const pathname = url.split('?')[0]
   const search = url.split('?')[1]
   const matched = match(pathname)
@@ -43,20 +43,23 @@ exports.loadPage = (url, status = 200, dispatch) => {
     url,
   }
 
-  if (typeof window === 'object' && search) {
-    window.history.replaceState({}, null, url)
+  const page_title = matched.title ? `${matched.title} ★ ${APP_NAME}` : `${APP_NAME} ★ Liquid Democracy for America`
+
+  if (typeof window === 'object') {
+    if (pathname === window.location.pathname) {
+      window.history.replaceState({}, null, url)
+    }
   }
 
-  const page_title = matched.title ? `${matched.title} ★ ${APP_NAME}` : `${APP_NAME} ★ Liquid Democracy for America`
-  dispatch({ type: 'pageChanged', location, page_title })
+  dispatch({ type: 'pageChanged', location, page_title, scroll })
 
   if (matched.loader) {
     const loader = typeof matched.loader === 'function' ? matched.loader.call(this) : matched.loader
     if (loader.then) {
       return loader.then((loaded) => {
-        dispatch({ type: 'routeLoaded', program: loaded.default || loaded })
+        dispatch({ type: 'routeLoaded', location, program: loaded.default || loaded })
       })
     }
-    dispatch({ type: 'routeLoaded', program: loader.default || loader })
+    dispatch({ type: 'routeLoaded', location, program: loader.default || loader })
   }
 }

@@ -35,7 +35,7 @@ class PublishButton extends Component {
       body: JSON.stringify({ published: true })
     })
     .then(() => {
-      const { yourLegislation = [], measures } = this.state
+      const { yourLegislation = [], measures = {} } = this.state
       const measure = measures[short_id]
       this.setState({
         loading: false,

@@ -124,9 +124,9 @@ class MeasureVoteForm extends Component {
       })
       if (!prev_vote || this.location.path.match(/^\/(nominations|legislation)\/[\w-]+\/vote$/)) {
         if (measure.type === 'PN') {
-          return redirect(303, `/nominations/${measure.short_id}#votes`)
+          return redirect(303, `/nominations/${measure.short_id}`)
         }
-        return redirect(303, `/legislation/${measure.short_id}#votes`)
+        return redirect(303, `/legislation/${measure.short_id}`)
       }
     })
     .catch((error) => {

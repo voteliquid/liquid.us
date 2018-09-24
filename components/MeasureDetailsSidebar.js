@@ -45,7 +45,7 @@ class MeasureActionsPanel extends Component {
     const { measure: l, user } = this.props
     return this.html`
       <div class="panel-block is-size-7 has-background-light" style="justify-content: center;">
-        ${user && user.id === l.author_id ? EditButtons.for(this, l) : MeasureShareButtons.for(this, l)}
+        ${user && user.id === l.author_id && !l.published ? EditButtons.for(this, l) : MeasureShareButtons.for(this, l)}
       </div>
     `
   }

@@ -170,11 +170,10 @@ function startAppServer() {
 }
 
 function serveApp(req, res, next) {
-  runApp(req, res, (error, html) => {
+  runApp(req, res, (error, html, status) => {
     if (error) return next(error)
     res.set('Content-Type', 'text/html')
-    res.write(html)
-    res.end()
+    res.status(status || 200).send(html)
   })
 }
 
@@ -223,12 +222,11 @@ function runApp(req, res, done) {
       return [appState, combineEffects(setHyperloopState(appState), appEffect)]
     },
     view: (state, dispatch) => {
-      if (res.running && state.routeProgram) {
+      if (res.running && state.routeProgram && !hyperloop.redirected) {
         res.running = false
-        if (state.location.status) res.status(state.location.status)
         const appHtml = App.view(state, dispatch)
         const pageHtml = htmlWrapper(state, appHtml, `${webpackConfig.output.publicPath}${webpackStats.compilation.hash}.js`)
-        done(null, pageHtml)
+        done(null, pageHtml, state.location.status)
       }
     },
   })
