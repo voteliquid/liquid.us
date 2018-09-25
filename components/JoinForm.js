@@ -97,10 +97,10 @@ module.exports = class JoinForm extends Component {
                 ${/* use shorter submit button text for small screens */''}
                 <div class="control">
                   <div class="is-hidden-touch">
-                    <button class="button is-info" type="submit"><strong>Create Account</strong></button>
+                    <button class="button is-primary" type="submit"><strong>Create Account</strong></button>
                   </div>
                   <div class="is-hidden-desktop">
-                    <button class="button is-info" type="submit"><strong>Join</strong></button>
+                    <button class="button is-primary" type="submit"><strong>Join</strong></button>
                   </div>
                 </div>
               </div>

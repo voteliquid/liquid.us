@@ -47,7 +47,7 @@ module.exports = class UserProfilePage extends Component {
                       display: inline-block; /* https://github.com/jgthms/bulma/issues/913 */
                     }
                   </style>
-                  <button disabled class="button is-info is-outlined is-fullwidth is-medium tooltip is-tooltip-info fix-bulma-centered-text" data-tooltip="You can't proxy to yourself">
+                  <button disabled class="button is-link is-outlined is-fullwidth is-medium tooltip is-tooltip-info fix-bulma-centered-text" data-tooltip="You can't proxy to yourself">
                     <span class="icon is-small"><i class="far fa-handshake"></i></span>
                     <span>Proxy</span>
                   </button>
@@ -231,7 +231,7 @@ class ProxyButton extends Component {
     const proxied = selected_profile.proxied
     return this.html`
       <form onsubmit=${this} action=${this} method="POST">
-        <button disabled=${proxied} type="submit" class="${`button is-info is-medium is-fullwidth ${proxied ? '' : 'is-outlined'}`}" style="display: inline-block">&nbsp;<span class="icon is-small"><i class="far fa-handshake"></i></span> <span>${proxied ? 'Proxied' : `Proxy to ${selected_profile.first_name}`}</span></button>
+        <button disabled=${proxied} type="submit" class="${`button is-link is-medium is-fullwidth ${proxied ? '' : 'is-outlined'}`}" style="display: inline-block">&nbsp;<span class="icon is-small"><i class="far fa-handshake"></i></span> <span>${proxied ? 'Proxied' : `Proxy to ${selected_profile.first_name}`}</span></button>
         ${proxied
           ? [`
               <div class="content is-size-7">
