@@ -1,9 +1,16 @@
 const Component = require('./Component')
 
 module.exports = class LegislationShareButtons extends Component {
+  onclick(event) {
+    event.preventDefault()
+    document.querySelector('.copy2clipboard').select()
+    document.execCommand('copy')
+    this.setProps({ copied2clipboard: true }).render()
+    setTimeout(() => this.setProps({ copied2clipboard: false }).render(), 2000)
+  }
   render() {
     const { config } = this.state
-    const { author_username, number, short_id, title, type, vote_position } = this.props
+    const { author_username, copied2clipboard, number, short_id, title, type, vote_position } = this.props
     const share_url = author_username
       ? `${config.WWW_URL}/${author_username}/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
       : `${config.WWW_URL}/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
@@ -23,9 +30,17 @@ module.exports = class LegislationShareButtons extends Component {
       <a class="is-small" href="${facebook_url}" title="Share on Facebook">
         <span class="icon"><i class="fab fa-facebook"></i></span><span>Facebook</span>
       </a>
-      <a class="is-small" href="${share_url}" title="Permalink">
+      <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
+      <a
+        class="${`tooltip is-small ${copied2clipboard ? 'is-tooltip-active is-tooltip-info' : ''}`}"
+        data-tooltip="${copied2clipboard ? 'Copied URL to clipboard' : 'Copy URL to clipboard'}"
+        href="${share_url}"
+        title="Permalink"
+        onclick=${this}
+      >
         <span class="icon"><i class="fa fa-link"></i></span><span>Permalink</span>
       </a>
+      <textarea class="copy2clipboard" style="position: absolute; left: -9999px;" readonly>${share_url}</textarea>
     `
   }
 }
