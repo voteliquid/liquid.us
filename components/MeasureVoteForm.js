@@ -21,7 +21,7 @@ class MeasureVoteBox extends Component {
     if (user) {
       this.setState({ loading: 'vote' })
       return this.api(`/votes?user_id=eq.${user.id}&delegate_rank=eq.-1&order=updated_at.desc`).then(votes => {
-        const last_vote_public = votes[0] && votes[0].public
+        const last_vote_private = votes[0] && !votes[0].public
         return this.api(`/votes?measure_id=eq.${measure.id}&user_id=eq.${user.id}&delegate_rank=eq.-1`).then(votes => {
           const my_vote = votes[0]
           return this.api(`/rpc/vote_power_for_measure`, {
@@ -38,7 +38,7 @@ class MeasureVoteBox extends Component {
                   my_vote,
                 },
               },
-              last_vote_public,
+              last_vote_private,
             })
           })
         })
@@ -159,10 +159,10 @@ class MeasureVoteForm extends Component {
     })
   }
   render() {
-    const { error, last_vote_public, saving_vote } = this.state
+    const { error, last_vote_private, saving_vote } = this.state
     const { measure: l } = this.props
     const { my_vote: v = {} } = l
-    const public_checked = v.hasOwnProperty('public') ? v.public : last_vote_public
+    const public_checked = v.hasOwnProperty('public') ? v.public : !last_vote_private
     const vote_position = v.vote_position || l.vote_position
     return this.html`
       <form method="POST" style="margin-bottom: 2rem;" onsubmit=${this} action=${this}>
