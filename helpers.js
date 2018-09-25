@@ -78,8 +78,7 @@ exports.api = (url, params = {}) => {
   if (jwt) {
     params.headers.Authorization = `Bearer ${jwt}`
   }
-  const apiUrl = typeof window === 'object' ? '/api' : API_URL
-  return fetch(`${apiUrl}${url}`, {
+  return fetch(`${API_URL}${url}`, {
     ...params,
     headers: {
       'Content-Type': 'application/json',
@@ -95,7 +94,7 @@ exports.api = (url, params = {}) => {
         const refresh_token = storage && storage.get('refresh_token')
 
         if (json.message === 'JWT expired' && refresh_token) {
-          return fetch(`${apiUrl}/sessions?select=jwt,refresh_token`, {
+          return fetch(`${API_URL}/sessions?select=jwt,refresh_token`, {
             method: 'POST',
             headers: {
               'Accept': 'application/json',
@@ -109,7 +108,7 @@ exports.api = (url, params = {}) => {
           .then(({ jwt }) => {
             storage.set('jwt', jwt, { expires: new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)) })
 
-            return fetch(`${apiUrl}${url}`, {
+            return fetch(`${API_URL}${url}`, {
               ...params,
               credentials: 'include',
               headers: {
