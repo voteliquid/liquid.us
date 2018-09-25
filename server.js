@@ -1,9 +1,10 @@
+const { API_URL, NODE_ENV, PORT, WWW_PORT } = process.env
+
 const fs = require('fs')
 const path = require('path')
 const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'))
 const checkEngineVersion = require('check-node-version')
 
-const { NODE_ENV, PORT, WWW_PORT } = process.env
 const { runtime } = require('raj')
 const bodyParser = require('body-parser')
 const callerPath = require('caller-path')
@@ -11,6 +12,7 @@ const compression = require('compression')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const express = require('express')
+const httpProxy = require('http-proxy')
 const MemoryFS = require('memory-fs')
 const resolveFrom = require('resolve-from')
 const serveStatic = require('serve-static')
@@ -136,6 +138,8 @@ compile((err, stats) => {
   }
 })
 
+const apiProxy = httpProxy.createServer({ changeOrigin: true, target: API_URL })
+
 function startAppServer() {
   server
     .enable('trust proxy') // use x-forwarded-by for request ip
@@ -149,6 +153,7 @@ function startAppServer() {
 
   server
     .use('/assets', serveStatic(path.join(__dirname, 'public'))) // TODO serve using CDN in production
+    .use('/api', apiProxy.web.bind(apiProxy))
     .get('/rpc/healthcheck', (req, res) => res.status(200).end())
     .get('/rpc/geoip/:ip', geoip)
     .post('/rpc/verify_phone_number', bodyParser.json(), verifyPhoneNumber)

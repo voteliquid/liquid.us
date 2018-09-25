@@ -4,11 +4,12 @@ const { hyperloopComponent } = require('../helpers')
 module.exports = class Component extends hyperloopComponent {
   api(path, params = {}) {
     const API_URL = this.state.config.API_URL
+    const apiUrl = typeof window === 'object' ? '/api' : API_URL
     const jwt = this.storage.get('jwt') || params.jwt
 
     params.headers = params.headers || {}
 
-    return fetch(`${API_URL}${path}`, {
+    return fetch(`${apiUrl}${path}`, {
       ...params,
       credentials: 'include',
       headers: {
@@ -27,7 +28,7 @@ module.exports = class Component extends hyperloopComponent {
           const refresh_token = this.storage.get('refresh_token')
 
           if (json.message === 'JWT expired' && refresh_token) {
-            return fetch(`${API_URL}/sessions?select=jwt,refresh_token`, {
+            return fetch(`${apiUrl}/sessions?select=jwt,refresh_token`, {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',
@@ -41,7 +42,7 @@ module.exports = class Component extends hyperloopComponent {
             .then(({ jwt }) => {
               this.storage.set('jwt', jwt, { expires: new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)) })
 
-              return fetch(`${API_URL}${path}`, {
+              return fetch(`${apiUrl}${path}`, {
                 ...params,
                 credentials: 'include',
                 headers: {
