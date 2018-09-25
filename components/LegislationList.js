@@ -4,7 +4,7 @@ const LoadingIndicator = require('./LoadingIndicator')
 module.exports = class LegislationList extends Component {
   oninit() {
     if (!this.state.legislation) {
-      return this.fetchLegislation()
+      return this.fetchLegislation().then((newState) => this.setState(newState))
     }
   }
   onpagechange(oldProps) {

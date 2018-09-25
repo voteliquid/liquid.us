@@ -72,7 +72,7 @@ module.exports = {
           stopNProgress(),
           scrollToTop(event.scroll),
           mapEffect('footerEvent', Footer.randomQuote),
-          trackPageView(state.storage)
+          event.program && trackPageView(state.storage)
         )]
       case 'repsRequested':
         return [state]
@@ -369,8 +369,9 @@ const initHyperloop = (context, location, Component) => (dispatch) => {
       location,
       program: { view: () => html },
     })
-    if (context.root.onpagechange) {
+    if (context.root.onpagechange && context.root.initialized) {
       context.root.onpagechange({ params: {}, query: {} })
     }
+    context.root.initialized = true
   })
 }
