@@ -63,12 +63,15 @@ class MeasureVoteForm extends Component {
     const fetchMeasure = require('./MeasureDetailsPage').prototype.fetchMeasure
     const fetchComments = require('./MeasureDetailsPage').prototype.fetchComments
     const fetchTopComments = require('./MeasureDetailsPage').prototype.fetchTopComments
+    const fetchConstituentVotes = require('./MeasureDetailsPage').prototype.fetchConstituentVotes
 
     const { measure } = this.props
-    const { user } = this.state
+    const { user, reps } = this.state
     const { redirect } = this.location
     const { storage } = this
     const prev_vote = measure.vote_position
+    const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
+    const officeId = repsInChamber[0] && repsInChamber[0].office_id
 
     if (!form.vote_position) {
       return { error: 'You must choose a position.' }
@@ -99,6 +102,7 @@ class MeasureVoteForm extends Component {
     .then(() => fetchMeasure.call(this, measure.short_id))
     .then(() => fetchComments.call(this, measure.id, measure.short_id))
     .then(() => fetchTopComments.call(this, measure.id, measure.short_id))
+    .then(() => fetchConstituentVotes.call(this, measure.id, measure.short_id, officeId))
     .then(() => {
       if (this.isBrowser && window._loq) window._loq.push(['tag', 'Voted'])
       this.setState({
