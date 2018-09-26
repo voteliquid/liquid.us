@@ -178,6 +178,7 @@ function serveApp(req, res, next) {
 }
 
 function initAppState(App, req, res) {
+  const store = {}
   return {
     ...App.init[0],
     config,
@@ -187,7 +188,13 @@ function initAppState(App, req, res) {
     },
     storage: {
       get: (key) => {
-        return req.cookies[key]
+        const info = store[key]
+        if (req.cookies[key]) {
+          return req.cookies[key]
+        }
+        if (info && (!info.expires || info.expires > (new Date()))) {
+          return info.val
+        }
       },
       set: (key, val, opts) => {
         if (res.running) {

@@ -73,10 +73,9 @@ exports.cookies = require('browser-cookies')
 
 exports.api = (url, params = {}) => {
   const storage = params.storage
-  const jwt = storage && storage.get('jwt')
   params.headers = params.headers || {}
-  if (jwt) {
-    params.headers.Authorization = `Bearer ${jwt}`
+  if (storage && storage.get('jwt')) {
+    params.headers.Authorization = `Bearer ${storage.get('jwt')}`
   }
   return fetch(`${API_URL}${url}`, {
     ...params,
@@ -93,7 +92,7 @@ exports.api = (url, params = {}) => {
       return res.json().then((json) => {
         const refresh_token = storage && storage.get('refresh_token')
 
-        if (json.message === 'JWT expired' && refresh_token) {
+        if (json.message === 'JWT expired') {
           return fetch(`${API_URL}/sessions?select=jwt,refresh_token`, {
             method: 'POST',
             headers: {
@@ -114,8 +113,8 @@ exports.api = (url, params = {}) => {
               headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${jwt}`,
                 ...params.headers,
+                'Authorization': `Bearer ${jwt}`,
               },
             })
             .then(res => {
@@ -136,6 +135,7 @@ exports.api = (url, params = {}) => {
           .catch(error => {
             console.log(error)
             storage.unset('refresh_token')
+            storage.unset('jwt')
           })
         }
         const error = new Error(json.message)

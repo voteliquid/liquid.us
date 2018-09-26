@@ -36,8 +36,6 @@ module.exports = class SignIn extends Component {
         email,
         phone_number,
         device_desc,
-        signup_channel: 'united.vote',
-        cookie: null,
       }),
     })
     .then((results) => results[0])
