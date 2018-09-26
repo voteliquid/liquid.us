@@ -37,7 +37,7 @@ module.exports = class SignIn extends Component {
         phone_number,
         device_desc,
         signup_channel: 'united.vote',
-        cookie: this.storage.get('cookie') || '',
+        cookie: null,
       }),
     })
     .then((results) => results[0])

@@ -49,7 +49,7 @@ module.exports = class VerifyOTP extends Component {
         email: sign_in_email,
         device_desc: userAgent || 'Unknown',
         signup_channel: 'united.vote',
-        cookie: this.storage.get('cookie') || '',
+        cookie: null,
       }),
     })
     .then((results) => results[0])

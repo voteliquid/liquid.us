@@ -1,5 +1,9 @@
 require('@babel/polyfill')
 
+// https://help.luckyorange.com/article/126-tagging-with-javascript
+// https://help.luckyorange.com/article/41-passing-in-custom-user-data
+window._loq = window._loq || []
+
 const { runtime } = require('raj')
 const cookies = require('browser-cookies')
 const hyperhtml = require('hyperhtml')

@@ -71,8 +71,7 @@ module.exports = {
           changePageTitle(event.page_title || state.page_title),
           stopNProgress(),
           scrollToTop(event.scroll),
-          mapEffect('footerEvent', Footer.randomQuote),
-          event.program && trackPageView(state.storage)
+          mapEffect('footerEvent', Footer.randomQuote)
         )]
       case 'repsRequested':
         return [state]
@@ -267,35 +266,6 @@ const stopNProgress = () => () => {
 const scrollToTop = (scroll) => () => {
   if (scroll && typeof window === 'object') {
     window.scrollTo(0, 0)
-  }
-}
-
-function trackPageView(storage) {
-  return () => {
-    if (typeof window !== 'object') return
-
-    // https://help.luckyorange.com/article/126-tagging-with-javascript
-    // https://help.luckyorange.com/article/41-passing-in-custom-user-data
-    window._loq = window._loq || []
-
-    api('/pageviews', {
-      method: 'POST',
-      body: JSON.stringify({
-        cookie: storage.get('cookie') || undefined,
-        referrer: window.document.referrer,
-        url: window.location.pathname + window.location.search,
-      }),
-      storage,
-    })
-    .then((res) => {
-      if (!storage.get('cookie')) {
-        storage.set('cookie', res.headers.get('Location').slice(17, 53))
-      }
-      window._loq.push(['custom', { cookie: storage.get('cookie') || '' }])
-    })
-    .catch((error) => {
-      console.log(error)
-    })
   }
 }
 
