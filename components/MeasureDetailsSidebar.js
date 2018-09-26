@@ -10,12 +10,17 @@ module.exports = class MeasureDetailsSidebar extends Component {
     const { user } = this.props
     const reps = (this.state.reps || []).filter(({ office_chamber, legislature_name }) => office_chamber === l.chamber && legislature_name === l.legislature_name)
     const showStatusTracker = l.legislature_name === 'U.S. Congress' && l.introduced_at && (l.type === 'HR' || l.type === 'S')
+    const measureUrl = l.author_username
+      ? `/${l.author_username}/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`
+      : `/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`
 
     return this.html`
       <nav class="panel">
         <div class="panel-heading has-text-centered">
           <h3 class="title has-text-weight-semibold is-size-5">
-            ${l.introduced_at ? `${l.type} ${l.number}` : 'Proposed Legislation'}
+            <a href="${measureUrl}" class="has-text-dark">
+              ${l.introduced_at ? `${l.type} ${l.number}` : 'Proposed Legislation'}
+            </a>
           </h3>
           <h4 class="subtitle is-size-7 has-text-grey is-uppercase has-text-weight-semibold">
             ${stateNames[l.legislature_name] || l.legislature_name}
