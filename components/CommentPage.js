@@ -2,10 +2,12 @@ const Component = require('./Component')
 const Comment = require('./Comment')
 const LoadingIndicator = require('./LoadingIndicator')
 const Sidebar = require('./MeasureDetailsSidebar')
+const Endorse = require('./Endorse')
+const { fetchConstituentVotes } = require('./MeasureDetailsPage').prototype
 
 module.exports = class CommentPage extends Component {
   oninit() {
-    const { config, measures = {} } = this.state
+    const { config, measures = {}, reps = [] } = this.state
     const { params } = this.props
 
     const url = `/measures_detailed?short_id=eq.${params.short_id}`
@@ -16,27 +18,40 @@ module.exports = class CommentPage extends Component {
       const measure = results[0]
 
       if (measure) {
-        return this.fetchComment(params.comment_id, measure).then(comment => {
-          measure.comment = comment
-
-          const page_title = `${this.possessive(comment.fullname || 'Anonymous')} vote on ${measure.title}`
-          if (this.isBrowser) {
-            const page_title_with_appname = `${page_title} ★ ${config.APP_NAME}`
-            window.document.title = page_title_with_appname
-            window.history.replaceState(window.history.state, page_title_with_appname, document.location)
-          }
-
-          return this.setState({
-            loading_measure: false,
-            page_title,
-            page_description: this.escapeHtml(comment.comment, { replaceAmp: true }),
-            measures: {
-              ...measures,
-              [measure.short_id]: {
-                ...measures[measure.short_id],
-                ...measure
-              },
+        this.setState({
+          measures: {
+            ...measures,
+            [measure.short_id]: {
+              ...measures[measure.short_id],
+              ...measure
             },
+          }
+        })
+        const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
+        const officeId = repsInChamber[0] && repsInChamber[0].office_id
+        return fetchConstituentVotes.call(this, measure.id, measure.short_id, officeId).then(() => {
+          return this.fetchComment(params.comment_id, measure).then(comment => {
+            measure.comment = comment
+
+            const page_title = `${this.possessive(comment.fullname || 'Anonymous')} vote on ${measure.title}`
+            if (this.isBrowser) {
+              const page_title_with_appname = `${page_title} ★ ${config.APP_NAME}`
+              window.document.title = page_title_with_appname
+              window.history.replaceState(window.history.state, page_title_with_appname, document.location)
+            }
+
+            return this.setState({
+              loading_measure: false,
+              page_title,
+              page_description: this.escapeHtml(comment.comment, { replaceAmp: true }),
+              measures: {
+                ...this.state.measures,
+                [measure.short_id]: {
+                  ...this.state.measures[measure.short_id],
+                  ...measure
+                },
+              },
+            })
           })
         })
       }
@@ -93,15 +108,27 @@ class CommentDetailPage extends Component {
     const { user } = this.state
     const { measure: l } = this.props
     const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
+    const url = `/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`
 
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
           <div class="columns">
             <div class="column">
-              <h2 class="title has-text-weight-normal is-4">${title}</h2>
+              <h2 class="title has-text-weight-normal is-4"><a class="has-text-dark" href="${url}">${title}</a></h2>
+              <div class="subtitle is-size-7">
+                <a class="is-size-7 has-text-grey button is-text" href="${url}">
+                  <span>More details</span>
+                </a>
+              </div>
               ${Comment.for(this, l.comment)}
-              <div><a href="${`/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`}">See all comments <span class="icon"><i class="fas fa-long-arrow-alt-right"></i></span></a></a></div>
+              ${this.isUnitedUser(user) ? Endorse.for(this, { vote: l.comment, vote_position: l.vote_position, user }) : ''}
+              <br />
+              <div>
+                <a class="is-size-7 has-text-grey button is-text" href="${url}">
+                  <span>See all arguments for this ${l.type === 'PN' ? 'nomination' : 'bill'}</span>
+                </a>
+              </div>
             </div>
             <div class="column is-one-quarter">
               ${Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`)}

@@ -3,18 +3,166 @@ const timeAgo = require('timeago.js')
 
 module.exports = class Comment extends Component {
   onclick(event) {
-    const tooltips = window.document.getElementsByClassName('comment-tooltip')
-    Array.prototype.forEach.call(tooltips, tooltip => tooltip.style.display = 'none')
+    event.preventDefault()
     if (~event.currentTarget.className.indexOf('privacy-indicator')) {
-      event.preventDefault()
-      const tooltip = event.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelector('.comment-tooltip')
-      if (tooltip) {
-        tooltip.style.display = 'block'
-      }
+      return console.log('foo')
+    }
+    if (this.props.endorsed) {
+      return this.unendorse()
+    }
+    return this.endorse()
+  }
+  endorse() {
+    const { measures = {}, reps = [], user } = this.state
+    if (!user) {
+      return this.location.redirect('/join')
+    }
+    const { short_id, id: vote_id } = this.props
+    const measure = measures[short_id]
+    const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
+    const officeId = repsInChamber[0] && repsInChamber[0].office_id
+    return this.api(`/endorsements?user_id=eq.${user.id}`, {
+      method: 'POST',
+      body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id }),
+    })
+    .then(() => this.fetchMeasure(short_id).then((measure) => {
+      this.setState({
+        measures: {
+          ...this.state.measures,
+          [short_id]: {
+            ...this.state.measures[short_id],
+            ...measure,
+          }
+        }
+      })
+    }))
+    .then(() => this.fetchConstituentVotes(measure.id, short_id, officeId))
+    .then(() => this.fetchTopComments(measure.id, short_id))
+    .then(() => this.fetchComments(measure.id, short_id))
+    .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
+    .then((votes) => {
+      this.setState({
+        measures: {
+          ...this.state.measures,
+          [short_id]: {
+            ...this.state.measures[short_id],
+            comment: votes[0] || this.state.measures[short_id].comment,
+          }
+        }
+      })
+    })
+    .catch((error) => console.log(error))
+  }
+  unendorse() {
+    const { measures = {}, reps = [], user } = this.state
+    if (!user) {
+      return this.location.redirect('/join')
+    }
+    const { short_id, id: vote_id } = this.props
+    const measure = measures[short_id]
+    const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
+    const officeId = repsInChamber[0] && repsInChamber[0].office_id
+    return this.api(`/endorsements?user_id=eq.${user.id}&vote_id=eq.${vote_id}`, {
+      method: 'DELETE',
+    })
+    .then(() => this.fetchMeasure(short_id).then((measure) => {
+      this.setState({
+        measures: {
+          ...this.state.measures,
+          [short_id]: {
+            ...this.state.measures[short_id],
+            ...measure,
+          }
+        }
+      })
+    }))
+    .then(() => this.fetchConstituentVotes(measure.id, short_id, officeId))
+    .then(() => this.fetchTopComments(measure.id, short_id))
+    .then(() => this.fetchComments(measure.id, short_id))
+    .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
+    .then((votes) => {
+      this.setState({
+        measures: {
+          ...this.state.measures,
+          [short_id]: {
+            ...this.state.measures[short_id],
+            comment: votes[0] || this.state.measures[short_id].comment,
+          }
+        }
+      })
+    })
+    .catch((error) => console.log(error))
+  }
+  fetchMeasure(short_id) {
+    const type = ~short_id.indexOf('-pn') ? '&type=eq.PN' : '&or=(type.eq.HR,type.eq.S,type.eq.AB,type.eq.SB)'
+    const url = `/measures_detailed?short_id=eq.${short_id}${type}`
+
+    return this.api(url).then((results) => results[0])
+  }
+  fetchConstituentVotes(id, short_id, office_id) {
+    if (office_id) {
+      return this.api(`/measure_votes?measure_id=eq.${id}&or=(office_id.eq.${office_id},office_id.is.null)`)
+        .then((results) => {
+          const votes = results[0] || {}
+          this.setState({
+            measures: {
+              ...this.state.measures,
+              [short_id]: {
+                ...this.state.measures[short_id],
+                ...votes
+              },
+            },
+          })
+        })
     }
   }
+  fetchTopComments(id, short_id) {
+    const order = `order=proxy_vote_count.desc.nullslast,created_at.desc`
+    return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea&${order}`).then((comments) => {
+      const yea = comments[0]
+
+      return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.nay&${order}`).then((comments) => {
+        const nay = comments[0]
+        this.setState({
+          measures: {
+            ...this.state.measures,
+            [short_id]: {
+              ...this.state.measures[short_id],
+              top_yea: yea,
+              top_nay: nay,
+            },
+          },
+        })
+      })
+    })
+  }
+  fetchComments(measure_id, short_id) {
+    const { query } = this.location
+    const order = query.order || 'most_recent'
+    const position = query.position || 'all'
+    const orders = {
+      most_recent: 'updated_at.desc',
+      vote_power: 'proxy_vote_count.desc.nullslast,created_at.desc',
+    }
+    const positions = {
+      all: '',
+      yea: '&position=eq.yea',
+      nay: '&position=eq.nay',
+    }
+    return this.api(`/public_votes?measure_id=eq.${measure_id}&comment=not.is.null&comment=not.eq.&order=${orders[order]}${positions[position]}`).then((comments) => {
+      this.setState({
+        measures: {
+          ...this.state.measures,
+          [short_id]: {
+            ...this.state.measures[short_id],
+            comments,
+          },
+        },
+      })
+    })
+  }
   render() {
-    const { comment, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id, public: is_public } = this.props
+    const { comment, endorsed, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id, public: is_public } = this.props
     const { config, selected_profile, user } = this.state
     const avatarURL = this.avatarURL(this.props)
     const measure_url = type === 'PN' ? `/nominations/${short_id}` : `/legislation/${short_id}`
@@ -31,7 +179,7 @@ module.exports = class Comment extends Component {
         : `${fullname} granted you permission to see this vote. Don’t share it publicly.`
 
     return this.html`
-      <div onclick="${this}" class="comment">
+      <div class="comment">
         <style>
           .comment:not(:last-child) {
             margin-bottom: 1.5rem;
@@ -61,7 +209,7 @@ module.exports = class Comment extends Component {
             ` : `
               <div>
                 <span class="has-text-weight-semibold">${username ? [`<a href="/${username}">${fullname}</a>`] : 'Anonymous'}</span>
-                <span class="is-size-7">voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${proxy_vote_count + 1}</span> people` : ''}</span>
+                <span>voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${proxy_vote_count + 1}</span> people` : ''}</span>
               </div>
             `]}
             ${comment ? [`<div class="content" style="margin: .25rem 0 .75rem;">${this.linkifyUrls(comment)}</div>`] : ''}
@@ -77,7 +225,7 @@ module.exports = class Comment extends Component {
                   </a>
                 `] : ''}
                 <span class="has-text-grey-lighter">&bullet;</span>
-                <a href="/proxies/requests" onclick="${this}" class="has-text-grey-light privacy-indicator">
+                <a href="#" onclick=${this} class="has-text-grey-light privacy-indicator">
                   <span class="icon is-small"><i class="${`${is_public || !fullname ? 'fa fa-globe-americas' : 'far fa-address-book'}`}"></i></span>
                   <span>${is_public || !fullname ? 'Public' : 'Private'}</span>
                 </a>
@@ -87,6 +235,10 @@ module.exports = class Comment extends Component {
                   <a target="_blank" title="Share on Twitter" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-twitter"></i></span></a>
                   <a target="_blank" title="Permalink" href="${comment_url}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-link"></i></span></a>
                 `] : ''}
+                <span class="${`has-text-grey-lighter ${this.isUnitedUser(user) ? '' : 'is-hidden'}`}">&bullet;</span>
+                <a href="#" onclick=${this} class="${`has-text-grey-light endorse ${this.isUnitedUser(user) ? '' : 'is-hidden'}`}">
+                  <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
+                </a>
               </span>
             </div>
           </div>
