@@ -90,16 +90,22 @@ class Endorsed extends Component {
   render() {
     const { fullname, username } = this.props
     return this.html`
-      <div class="box" style="display: flex; align-items: center; justify-content: space-between; max-width: 600px;">
-        <div class="has-text-centered">
-          <p class="has-text-left">
-            Share ${possessive(fullname && username ? fullname : 'Anonymous')} position to build support.
-          </p>
-          ${VoteShareButtons.for(this, this.props)}
+      <div class="box" style="max-width: 600px;">
+        <div class="level">
+          <div class="level-left">
+            <div class="has-text-centered has-text-left-mobile">
+              <p class="has-text-left">
+                Share ${possessive(fullname && username ? fullname : 'Anonymous')} position to build support.
+              </p>
+              ${VoteShareButtons.for(this, this.props)}
+            </div>
+          </div>
+          <div class="level-right">
+            <a onclick=${this} href="#" class="button is-primary">
+              <span>Endorsed</span>
+            </a>
+          </div>
         </div>
-        <a onclick=${this} href="#" class="button" style="margin-right: 1rem;">
-          <span>Endorsed</span>
-        </a>
       </div>
     `
   }
@@ -138,13 +144,19 @@ class Unendorsed extends Component {
   render() {
     const { fullname, username } = this.props
     return this.html`
-      <div class="box" style="display: flex; align-items: center; justify-content: space-between; max-width: 600px;">
-        <p class="has-text-left">
-          You haven't voted on this bill.<br />Let your reps know you agree with ${fullname && username ? fullname : 'Anonymous'}.
-        </p>
-        <a onclick=${this} href="#" class="button" style="margin-right: 1rem;">
-          <span>Endorse</span>
-        </a>
+      <div class="box" style="max-width: 600px;">
+        <div class="level">
+          <div class="level-left">
+            <p class="has-text-left">
+              You haven't voted on this bill.<br />Let your reps know you agree with ${fullname && username ? fullname : 'Anonymous'}.
+            </p>
+          </div>
+          <div class="level-right">
+            <a onclick=${this} href="#" class="button is-primary">
+              <span>Endorse</span>
+            </a>
+          </div>
+        </div>
       </div>
     `
   }
@@ -184,13 +196,19 @@ class AlreadyVoted extends Component {
     const { vote, vote_position } = this.props
     const { fullname, username } = vote
     return this.html`
-      <div class="box" style="display: flex; align-items: center; justify-content: space-between; max-width: 600px;">
-        <p class="has-text-left">
-          You already voted ${this.capitalize(vote_position)} on this bill.<br />Endorse ${possessive(fullname && username ? fullname : 'Anonymous')} position instead?
-        </p>
-        <a onclick=${this} href="#" class="button" style="margin-right: 1rem;">
-          <span>Endorse</span>
-        </a>
+      <div class="box" style="max-width: 600px;">
+        <div class="level">
+          <div class="level-left">
+            <p class="has-text-left">
+              You already voted ${this.capitalize(vote_position)} on this bill.<br />Endorse ${possessive(fullname && username ? fullname : 'Anonymous')} position instead?
+            </p>
+          </div>
+          <div class="level-right">
+            <a onclick=${this} href="#" class="button is-primary">
+              <span>Endorse</span>
+            </a>
+          </div>
+        </div>
       </div>
     `
   }
@@ -199,12 +217,16 @@ class AlreadyVoted extends Component {
 class YourVote extends Component {
   render() {
     return this.html`
-      <div class="box" style="display: flex; align-items: center; justify-content: space-between; max-width: 600px;">
-        <div class="has-text-centered">
-          <p class="has-text-left">
-            Encourage others to endorse your position.
-          </p>
-          ${VoteShareButtons.for(this, this.props)}
+      <div class="box" style="max-width: 600px;">
+        <div class="level">
+          <div class="level-left">
+            <div class="has-text-centered has-text-left-mobile">
+              <p class="has-text-left">
+                Encourage others to endorse your position.
+              </p>
+              ${VoteShareButtons.for(this, this.props)}
+            </div>
+          </div>
         </div>
       </div>
     `
