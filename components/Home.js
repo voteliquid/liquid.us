@@ -150,10 +150,6 @@ module.exports = class Home extends Component {
             <br />
             <br />
             <br />
-            <h3 class="subtitle is-3 is-size-4-mobile reveal"><em>Liquid democracy</em>.</h3>
-            <br />
-            <br />
-            <br />
             <h4 class="subtitle is-3 is-size-4-mobile reveal">Vote directly on policy when you want, and choose personal proxies to represent you the rest of the time.</h4>
           </div>
         </div>
@@ -257,20 +253,6 @@ module.exports = class Home extends Component {
                 ${Video.for(this)}
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="hero is-dark is-bold">
-        <div class="hero-body">
-          <div class="container">
-            <br />
-            <br />
-            <h3 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Want liquid democracy beyond Congress?</h3>
-            <br />
-            <br />
-            <h4 class="subtitle is-4 is-size-3-desktop is-size-5-mobile reveal"><a href="/new_legislatures" class="has-text-info has-text-weight-bold">Learn about</a> bringing <strong>${APP_NAME}</strong> to new legislatures.</h4>
-            <br />
           </div>
         </div>
       </section>
