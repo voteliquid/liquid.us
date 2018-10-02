@@ -86,7 +86,7 @@ class GhostProfileMessage extends Component {
     return this.html`
       <div class="content">
         <p>
-          Are you ${selected_profile.name}? <a target="_blank" href="${`mailto:support@${WWW_DOMAIN}?subject=Claiming+twitter/${selected_profile.twitter_username}&body=I will send twitter.com/united_vote a DM from @${selected_profile.twitter_username}`}"><strong>Claim this profile</strong></a>.
+          Are you ${selected_profile.name}? <a target="_blank" href="${`mailto:support@${WWW_DOMAIN}?subject=Claiming+twitter/${selected_profile.twitter_username}&body=I will send twitter.com/VoteLiquid a DM from @${selected_profile.twitter_username}`}"><strong>Claim this profile</strong></a>.
         </p>
       </div>
     `
@@ -102,7 +102,7 @@ class EmptyProfileExplainer extends Component {
         <p>You can vote on any legislative bill, but most of us won't have time to do that.</p>
         <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
         ${[!selected_profile.username ? `
-          <p>They haven't joined ${APP_NAME} yet, and will be sent <a href="https://twitter.com/united_notifs" target="_blank"><strong>a tweet</strong></a> for each new request.<br />
+          <p>They haven't joined ${APP_NAME} yet, and will be sent <a href="https://twitter.com/liquid_notifs" target="_blank"><strong>a tweet</strong></a> for each new request.<br />
             When ${selected_profile.first_name} signs up, they will immediately represent their proxiers.</p>
         ` : '']}
         <p><a target="_blank" href="${`https://blog.${WWW_DOMAIN}/2017/11/06/announcing-united-vote/`}"><strong>Learn more about how we're building a democracy we can trust</strong>.</a></p>

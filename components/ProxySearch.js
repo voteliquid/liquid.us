@@ -207,7 +207,7 @@ class AddProxyByTwitterForm extends Component {
             </div>
           </div>
         </div>
-        <p class="is-size-7">They'll be sent an <a href="https://twitter.com/united_notifs" target="_blank"><strong>invitation tweet</strong></a>.</p>
+        <p class="is-size-7">They'll be sent an <a href="https://twitter.com/liquid_notifs" target="_blank"><strong>invitation tweet</strong></a>.</p>
       </form>
     `
   }
