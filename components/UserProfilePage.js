@@ -1,3 +1,4 @@
+const { APP_NAME, WWW_DOMAIN, WWW_URL } = process.env
 const Component = require('./Component')
 const Comment = require('./Comment')
 
@@ -57,7 +58,7 @@ module.exports = class UserProfilePage extends Component {
               ${p.public_votes && p.public_votes.length && !user ? [`
                 <div class="content is-size-7 has-text-left">
                   <br />
-                  <p><strong>United.vote</strong> lets you vote on any legislative bill, but most of us won't have time to do that.</p>
+                  <p><strong>${APP_NAME}</strong> lets you vote on any legislative bill, but most of us won't have time to do that.</p>
                   <p>Proxy to ${p.first_name} to vote for you whenever you don't vote directly yourself.</p>
                </div>
              `] : []}
@@ -85,7 +86,7 @@ class GhostProfileMessage extends Component {
     return this.html`
       <div class="content">
         <p>
-          Are you ${selected_profile.name}? <a target="_blank" href="${`mailto:support@united.vote?subject=Claiming+twitter/${selected_profile.twitter_username}&body=I will send twitter.com/united_vote a DM from @${selected_profile.twitter_username}`}"><strong>Claim this profile</strong></a>.
+          Are you ${selected_profile.name}? <a target="_blank" href="${`mailto:support@${WWW_DOMAIN}?subject=Claiming+twitter/${selected_profile.twitter_username}&body=I will send twitter.com/united_vote a DM from @${selected_profile.twitter_username}`}"><strong>Claim this profile</strong></a>.
         </p>
       </div>
     `
@@ -97,14 +98,14 @@ class EmptyProfileExplainer extends Component {
     const { selected_profile } = this.state
     return this.html`
       <div class="content">
-        <h3><strong>United.vote</strong> lets you pick anyone to represent you.</h3>
+        <h3><strong>${APP_NAME}</strong> lets you pick anyone to represent you.</h3>
         <p>You can vote on any legislative bill, but most of us won't have time to do that.</p>
         <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
         ${[!selected_profile.username ? `
-          <p>They haven't joined United yet, and will be sent <a href="https://twitter.com/united_notifs" target="_blank"><strong>a tweet</strong></a> for each new request.<br />
+          <p>They haven't joined ${APP_NAME} yet, and will be sent <a href="https://twitter.com/united_notifs" target="_blank"><strong>a tweet</strong></a> for each new request.<br />
             When ${selected_profile.first_name} signs up, they will immediately represent their proxiers.</p>
         ` : '']}
-        <p><a target="_blank" href="https://blog.united.vote/2017/11/06/announcing-united-vote/"><strong>Learn more about how we're building a democracy we can trust</strong>.</a></p>
+        <p><a target="_blank" href="${`https://blog.${WWW_DOMAIN}/2017/11/06/announcing-united-vote/`}"><strong>Learn more about how we're building a democracy we can trust</strong>.</a></p>
       </div>
     `
   }
@@ -258,15 +259,14 @@ class UnverifiedNotification extends Component {
 
 class YourProfileNotification extends Component {
   render() {
-    const { config, selected_profile } = this.state
-    const { WWW_URL } = config
+    const { selected_profile } = this.state
 
     return this.html`
       <div class="notification">
         <h4 class="title is-5">This is your profile page.</h4>
         <div class="columns is-multiline">
           <div class="column is-half">
-            <span class="icon"><i class="fa fa-users"></i></span> Share the URL <strong><a href="${`${WWW_URL}/${selected_profile.username}`}">united.vote/${selected_profile.username}</a></strong> with others to easily proxy to you.
+            <span class="icon"><i class="fa fa-users"></i></span> Share the URL <strong><a href="${`${WWW_URL}/${selected_profile.username}`}">${WWW_DOMAIN}/${selected_profile.username}</a></strong> with others to easily proxy to you.
           </div>
           <div class="column is-half">
             <span class="icon"><i class="fa fa-camera"></i></span> Change your photo by signing in to <a href="https://www.gravatar.com"><strong>Gravatar</strong></a> with your same email.

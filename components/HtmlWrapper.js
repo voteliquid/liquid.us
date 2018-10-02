@@ -1,4 +1,4 @@
-const { APP_NAME, ASSETS_URL } = process.env
+const { APP_NAME, ASSETS_URL, WWW_DOMAIN } = process.env
 const { avatarURL } = require('../helpers')
 const fs = require('fs')
 const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
@@ -50,7 +50,7 @@ module.exports = (state, html, bundleUrl) => {
         </style>
         <meta property="og:title" content="${title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:description" content="${description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
-        <meta property="og:image" content="${profile_image_url || measure_image_url || 'https://blog.united.vote/assets/twitter_large.png'}" />
+        <meta property="og:image" content="${profile_image_url || measure_image_url || `https://blog.${WWW_DOMAIN}/assets/twitter_large.png`}" />
         <meta property="og:type" content="website" />
         ${responsiveTableStyle}
         ${roundAvatarStyle}

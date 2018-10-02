@@ -1,3 +1,4 @@
+const { APP_NAME } = process.env
 const Component = require('./Component')
 const LoadingIndicator = require('./LoadingIndicator')
 const ProxySearch = require('./ProxySearch')
@@ -24,7 +25,7 @@ class AnonProxies extends Component {
           <h3 class="title">Who do you trust to represent you?</h3>
           <div class="content">
             <p>
-              United lets you pick <strong>anyone</strong> to represent you.
+              ${APP_NAME} lets you pick <strong>anyone</strong> to represent you.
             </p><p>
               For any bill that you don't vote on directly, your personal proxy gets your extra vote. You can always override or replace them.
             </p><p>

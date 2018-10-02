@@ -1,3 +1,4 @@
+const { WWW_DOMAIN } = process.env
 const Component = require('./Component')
 
 module.exports = class VerifyOTP extends Component {
@@ -163,7 +164,7 @@ module.exports = class VerifyOTP extends Component {
     })
     .catch((api_error) => {
       if (~api_error.message.indexOf('expired')) return { error: 'Invalid or expired one-time sign in code.' }
-      return { error: `Something went wrong on our end.<br />Please contact support@united.vote and help us fix it.` }
+      return { error: `Something went wrong on our end.<br />Please contact support@${WWW_DOMAIN} and help us fix it.` }
     })
   }
   render() {

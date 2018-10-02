@@ -1,3 +1,4 @@
+const { APP_NAME } = process.env
 const Component = require('./Component')
 const JoinForm = require('./JoinForm')
 const YourLegislators = require('./YourLegislators')
@@ -145,7 +146,7 @@ module.exports = class Home extends Component {
             <br />
             <br />
             <br />
-            <h2 class="subtitle is-3 is-size-4-mobile reveal">United makes a new kind of democracy possible:</h2>
+            <h2 class="subtitle is-3 is-size-4-mobile reveal">${APP_NAME} makes a new kind of democracy possible:</h2>
             <br />
             <br />
             <br />
@@ -178,7 +179,7 @@ module.exports = class Home extends Component {
             <br />
             <br />
             <div class="reveal">
-              <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">Phase 1 - United Scorecards</h3>
+              <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">Phase 1 - ${APP_NAME} Scorecards</h3>
               <h4 class="subtitle is-5 is-size-4-desktop">Politicians are <em>automatically graded</em> for how much they follow their constituents' votes.</h4>
               ${YourLegislators.for(this)}
               <style>
@@ -268,7 +269,7 @@ module.exports = class Home extends Component {
             <h3 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Want liquid democracy beyond Congress?</h3>
             <br />
             <br />
-            <h4 class="subtitle is-4 is-size-3-desktop is-size-5-mobile reveal"><a href="/new_legislatures" class="has-text-info has-text-weight-bold">Learn about</a> bringing <strong>United</strong> to new legislatures.</h4>
+            <h4 class="subtitle is-4 is-size-3-desktop is-size-5-mobile reveal"><a href="/new_legislatures" class="has-text-info has-text-weight-bold">Learn about</a> bringing <strong>${APP_NAME}</strong> to new legislatures.</h4>
             <br />
           </div>
         </div>

@@ -1,4 +1,4 @@
-const { GOOGLE_GEOCODER_KEY } = process.env
+const { GOOGLE_GEOCODER_KEY, WWW_DOMAIN } = process.env
 const Component = require('./Component')
 const fetch = require('isomorphic-fetch')
 const GoogleAddressAutocompleteScript = require('./GoogleAddressAutocompleteScript')
@@ -22,11 +22,11 @@ module.exports = class ChangeAddressPage extends Component {
               lon: location.lng,
             })
           }
-          return { error: { address: true, message: 'There was a problem processing your address. Please contact support@united.vote and let us know.' } }
+          return { error: { address: true, message: `There was a problem processing your address. Please contact support@${WWW_DOMAIN} and let us know.` } }
         })
         .catch(error => {
           console.log(error)
-          return { error: { address: true, message: 'There was a problem processing your address. Please contact support@united.vote and let us know.' } }
+          return { error: { address: true, message: `There was a problem processing your address. Please contact support@${WWW_DOMAIN} and let us know.` } }
         })
     }
 

@@ -1,3 +1,4 @@
+const { APP_NAME } = process.env
 const Component = require('./Component')
 
 module.exports = class SettingsPage extends Component {
@@ -52,7 +53,7 @@ class Settings extends Component {
           <div class="content">
             <form method="POST" onsubmit=${this} action=${this}>
               <p>
-                Would you like to receive email updates about what your legislators have been voting on, how much they’re listening to constituents, and general updates about United?
+                Would you like to receive email updates about what your legislators have been voting on, how much they’re listening to constituents, and general updates about ${APP_NAME}?
               </p>
               <div class="field">
                 <div class="control">

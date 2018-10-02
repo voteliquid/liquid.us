@@ -1,3 +1,4 @@
+const { APP_NAME } = process.env
 const fetch = require('isomorphic-fetch')
 const Component = require('./Component')
 
@@ -80,7 +81,7 @@ class AddProxyByEmailForm extends Component {
 
     return this.html`
       <form method="POST" onsubmit=${this} action=${this}>
-        <label for="add_proxy[search]" class="label has-text-weight-normal">Proxy to someone not on United via email:</label>
+        <label for="add_proxy[search]" class="label has-text-weight-normal">Proxy to someone not on ${APP_NAME} via email:</label>
         <div class="field is-horizontal">
           <div class="field-body">
             <div class="field">
@@ -185,7 +186,7 @@ class AddProxyByTwitterForm extends Component {
     const { error = {} } = this.state
     return this.html`
       <form method="POST" onsubmit=${this} action=${this}>
-        <label for="add_proxy[search]" class="label has-text-weight-normal">Proxy to someone not on United by adding their Twitter username:</label>
+        <label for="add_proxy[search]" class="label has-text-weight-normal">Proxy to someone not on ${APP_NAME} by adding their Twitter username:</label>
         <div class="field is-horizontal">
           <div class="field-body">
             <div class="field is-grouped">
@@ -250,7 +251,7 @@ class AddProxyBySearchForm extends Component {
         }
       </script>
       <form method="POST" onsubmit=${this} action=${this}>
-        <label for="add_proxy[search]" class="label has-text-weight-normal">Search for new proxies among public United profiles:</label>
+        <label for="add_proxy[search]" class="label has-text-weight-normal">Search for new proxies among public ${APP_NAME} profiles:</label>
         <div class="field has-addons">
           <div class="${`control is-expanded has-icons-left ${loading_proxies ? 'is-loading' : ''}`}">
             <input autocomplete="off" onkeypress="autoSubmitProxySearch()" name="add_proxy[search]" class=${`input ${error.email ? 'is-danger' : ''}`} type="text" placeholder="Name or @username" />

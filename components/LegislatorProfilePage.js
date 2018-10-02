@@ -1,3 +1,4 @@
+const { APP_NAME } = process.env
 const Component = require('./Component')
 const YourLegislators = require('./YourLegislators')
 const LegislatorScoreCard = require('./LegislatorScoreCard')
@@ -62,7 +63,7 @@ module.exports = class LegislatorProfilePage extends Component {
         <div class="container is-widescreen">
           ${isMyRep && !user ? [`
             <div class="notification is-info has-text-centered">
-              This looks like one of your reps. <a href="/join"><strong>Join United</strong></a> to begin holding them accountable.
+              This looks like one of your reps. <a href="/join"><strong>Join ${APP_NAME}</strong></a> to begin holding them accountable.
             </div>
           `] : []}
           ${isMyRep && user && !user.verified ? [`

@@ -1,3 +1,4 @@
+const { APP_NAME, WWW_DOMAIN } = process.env
 const Component = require('./Component')
 
 module.exports = class NewLegislatures extends Component {
@@ -11,7 +12,7 @@ module.exports = class NewLegislatures extends Component {
         <div class="container">
           <h1 class="title is-3">Liquid democracy can create better governance everywhere, not just in US Congress.</h1>
           <div class="content">
-            <p>We'd love to make <a href="/"><strong>United</strong></a> available for more legislatures.</p>
+            <p>We'd love to make <a href="/"><strong>${APP_NAME}</strong></a> available for more legislatures.</p>
             <h3 class="title is-4">To add new public legislatures, we need:</h3>
 
             <div class="control">
@@ -29,11 +30,11 @@ module.exports = class NewLegislatures extends Component {
             <div class="control">
               <label class="checkbox">
                 <input type="checkbox">
-                  A source of elected legislators and their voting records, to provide <a href="https://grades.united.vote"><strong>Liquid Scorecards</strong></a>
+                  A source of elected legislators and their voting records, to provide <a href="${`https://grades.${WWW_DOMAIN}`}"><strong>Liquid Scorecards</strong></a>
               </label>
             </div>
 
-            <h3 class="title is-4">What United already covers:</h3>
+            <h3 class="title is-4">What ${APP_NAME} already covers:</h3>
 
             <div class="control">
               <label class="checkbox">
@@ -56,7 +57,7 @@ module.exports = class NewLegislatures extends Component {
             <div class="control">
               <label class="checkbox">
                 <input type="checkbox" checked>
-                  <strong>Our secure <a href="https://secure.united.vote">Proof-of-Vote</a> cryptosystem for verifiable digital voting,</strong> that maintains voter privacy.
+                  <strong>Our secure <a href="${`https://secure.${WWW_DOMAIN}`}">Proof-of-Vote</a> cryptosystem for verifiable digital voting,</strong> that maintains voter privacy.
               </label>
             </div>
 
@@ -68,7 +69,7 @@ module.exports = class NewLegislatures extends Component {
 
             <h3 class="title is-4">We're also interested in piloting liquid democracy among private groups.</h3>
 
-            <p><a href="http://private.united.vote" target="_blank"><strong>Learn more</strong></a> about bringing better governance to your organization.</p>
+            <p><a href="${`http://private.${WWW_DOMAIN}`}" target="_blank"><strong>Learn more</strong></a> about bringing better governance to your organization.</p>
           </div>
         </div>
       </section>

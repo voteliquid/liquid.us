@@ -1,3 +1,4 @@
+const { APP_NAME } = process.env
 const { combineEffects, html, preventDefault } = require('../helpers')
 const fetch = require('isomorphic-fetch')
 
@@ -111,7 +112,7 @@ const contactWidgetForm = ({ contactSubmitted, user }, dispatch) => {
               `]}
               <div class="field">
                 <div class="control">
-                  <textarea class="textarea" name="message" placeholder="Share any questions or comments. \n\nHow can we improve United?"></textarea>
+                  <textarea class="textarea" name="message" placeholder="${`Share any questions or comments. \n\nHow can we improve ${APP_NAME}?`}"></textarea>
                 </div>
               </div>
               <div class="field">

@@ -1,3 +1,4 @@
+const { WWW_URL, WWW_DOMAIN } = process.env
 const Component = require('./Component')
 
 module.exports = class EditProfilePage extends Component {
@@ -55,7 +56,7 @@ class EditProfile extends Component {
     })
   }
   render() {
-    const { config, editing_form, error, loading_edit_profile, user } = this.state
+    const { editing_form, error, loading_edit_profile, user } = this.state
     const about = user.about || ''
     const intro_video_url = user.intro_video_url || ''
     const about_length = typeof this.state.about_length === 'number' ? this.state.about_length : about.length
@@ -83,7 +84,7 @@ class EditProfile extends Component {
             <button class="${`button is-primary ${loading_edit_profile ? 'is-loading' : ''}`}" disabled=${!editing_form || loading_edit_profile} type="submit">${editing_form ? 'Save' : 'Saved'}</button>
           </form>
           <br />
-          <p>View your profile at <strong><a href="${`${config.WWW_URL}/${user.username}`}">united.vote/${user.username}</a></strong></p>
+          <p>View your profile at <strong><a href="${`${WWW_URL}/${user.username}`}">${WWW_DOMAIN}/${user.username}</a></strong></p>
           <p class="has-text-grey">
             <a onclick=${this}>Reach out</a> if you'd like to change your username or display name.
           </p>

@@ -1,4 +1,4 @@
-const { ASSETS_URL, WWW_URL } = process.env
+const { APP_NAME, ASSETS_URL, WWW_URL } = process.env
 const { html, mapEffect, mapEvent, preventDefault } = require('../helpers')
 const Search = require('./Search')
 
@@ -33,7 +33,7 @@ module.exports = {
           ${[style]}
           <div class="navbar-brand">
             <a class="navbar-item" href="/">
-              <img src=${`${ASSETS_URL}/united-vote-logo-100px.png`} alt="United.vote" />
+              <img src=${`${ASSETS_URL}/united-vote-logo-100px.png`} alt="${APP_NAME}" />
             </a>
 
             <div role="button" href="#" aria-label="menu" aria-expanded="${hamburgerVisible ? 'true' : 'false'}" class="${`navbar-burger burger ${hamburgerVisible ? 'is-active' : ''}`}" onclick=${(event) => dispatch({ type: 'hamburgerClicked', event })}>

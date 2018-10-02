@@ -11,6 +11,7 @@ const plugins = [
       ASSETS_URL: process.env.ASSETS_URL,
       WWW_NAME: process.env.WWW_NAME,
       WWW_URL: process.env.WWW_URL,
+      WWW_DOMAIN: process.env.WWW_DOMAIN,
     }),
   }),
 ]
