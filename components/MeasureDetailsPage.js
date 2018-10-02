@@ -131,7 +131,7 @@ module.exports = class MeasureDetailsPage extends Component {
     const order = query.order || 'most_recent'
     const position = query.position || 'all'
     const orders = {
-      most_recent: 'updated_at.desc',
+      most_recent: 'created_at.desc',
       vote_power: 'proxy_vote_count.desc.nullslast,created_at.desc',
     }
     const positions = {
