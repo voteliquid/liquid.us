@@ -43,7 +43,7 @@ exports.loadPage = (url, status = 200, dispatch, scroll = true) => {
     url,
   }
 
-  const page_title = matched.title ? `${matched.title} ★ ${APP_NAME}` : `${APP_NAME} ★ Liquid Democracy for America`
+  const page_title = matched.title ? `${matched.title} ★ ${APP_NAME}` : `Liquid US | Digital Democracy Voting Platform`
 
   if (typeof window === 'object') {
     if (pathname === window.location.pathname) {
