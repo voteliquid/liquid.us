@@ -35,6 +35,12 @@ module.exports = class VerificationRouter extends Component {
 
   finishOrSkip() {
     const { redirect } = this.location
+    const endorsed_url = this.storage.get('endorsed_url')
+    if (endorsed_url) {
+      this.storage.unset('endorsed_url')
+      return redirect(endorsed_url)
+    }
+
     if (this.storage.get('proxied_user_id')) {
       return this.api(`/user_profiles?select=user_id,username&user_id=eq.${this.storage.get('proxied_user_id')}`)
         .then(users => {

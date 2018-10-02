@@ -27,6 +27,8 @@ module.exports = class SignIn extends Component {
     const email = formData.email.toLowerCase().trim()
     const proxying_user_id = this.storage.get('proxying_user_id')
     const vote_position = this.storage.get('vote_position')
+    const endorsed_vote_id = this.storage.get('endorsed_vote_id')
+    const endorsed_measure_id = this.storage.get('endorsed_measure_id')
     const device_desc = this.location.userAgent || 'Unknown'
 
     return this.api('/totp?select=device_id,first_seen', {
@@ -107,6 +109,18 @@ module.exports = class SignIn extends Component {
               })
             }
 
+            if (endorsed_vote_id) {
+              return this.api(`/endorsements?user_id=eq.${user_id}`, {
+                method: 'POST',
+                body: JSON.stringify({ user_id, vote_id: endorsed_vote_id, measure_id: endorsed_measure_id }),
+              })
+              .then(() => {
+                this.storage.unset('endorsed_vote_id')
+                this.storage.unset('endorsed_measure_id')
+                return this.location.redirect(303, '/get_started')
+              })
+            }
+
             if (vote_position) {
               return this.api('/rpc/vote', {
                 method: 'POST',
@@ -157,6 +171,7 @@ module.exports = class SignIn extends Component {
   render() {
     const proxying_user_id = this.storage.get('proxying_user_id')
     const vote_position = this.storage.get('vote_position')
+    const endorsed_vote_id = this.storage.get('endorsed_vote_id')
     const { error, req_proxy_profile } = this.state
 
     return this.html`
@@ -171,6 +186,9 @@ module.exports = class SignIn extends Component {
             <div class="notification has-text-centered is-info">
               Sign in to proxy to ${req_proxy_profile.first_name} ${req_proxy_profile.last_name}.
             </div>
+          `] : []}
+          ${endorsed_vote_id ? [`
+            <div class="notification has-text-centered is-info">Sign in to save your endorsement.</div>
           `] : []}
           ${vote_position ? [`
             <div class="notification has-text-centered is-info">Sign in to save your vote and hold your representatives accountable.</div>

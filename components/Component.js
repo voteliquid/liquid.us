@@ -83,14 +83,6 @@ module.exports = class Component extends hyperloopComponent {
       return res.json()
     })
   }
-  isLiquidTeam(user) {
-    return ~[
-      'talk@alexmingoia.com',
-      'david@dsernst.com',
-      'joshua.krafchin@gmail.com',
-      'dallasjcole@gmail.com',
-    ].indexOf(user && user.email)
-  }
   avatarURL({ gravatar_hash, bioguide_id, twitter_avatar, twitter_username }) {
     if (twitter_avatar) return `https://avatars.io/twitter/${twitter_username}`
     if (bioguide_id) return `https://theunitedstates.io/images/congress/225x275/${bioguide_id}.jpg`

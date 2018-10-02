@@ -14,11 +14,14 @@ module.exports = class Comment extends Component {
   }
   endorse() {
     const { measures = {}, reps = [], user } = this.state
-    if (!user) {
-      return this.location.redirect('/join')
-    }
     const { short_id, id: vote_id } = this.props
     const measure = measures[short_id]
+    if (!user) {
+      this.storage.set('endorsed_vote_id', vote_id)
+      this.storage.set('endorsed_measure_id', measure.id)
+      this.storage.set('endorsed_url', `/legislation/${measure.short_id}/votes/${vote_id}`)
+      return this.location.redirect('/join')
+    }
     const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
     const officeId = repsInChamber[0] && repsInChamber[0].office_id
     return this.api(`/endorsements?user_id=eq.${user.id}`, {
@@ -235,8 +238,8 @@ module.exports = class Comment extends Component {
                   <a target="_blank" title="Share on Twitter" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-twitter"></i></span></a>
                   <a target="_blank" title="Permalink" href="${comment_url}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-link"></i></span></a>
                 `] : ''}
-                <span class="${`has-text-grey-lighter ${this.isLiquidTeam(user) && user.id !== user_id ? '' : 'is-hidden'}`}">&bullet;</span>
-                <a href="#" onclick=${this} class="${`has-text-grey-light endorse ${this.isLiquidTeam(user) && user.id !== user_id ? '' : 'is-hidden'}`}">
+                <span class="has-text-grey-lighter">&bullet;</span>
+                <a href="#" onclick=${this} class="has-text-grey-light endorse">
                   <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
                 </a>
               </span>

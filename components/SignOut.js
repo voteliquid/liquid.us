@@ -21,6 +21,9 @@ module.exports = class SignOut extends Component {
     this.storage.unset('vote_bill_id')
     this.storage.unset('vote_bill_short_id')
     this.storage.unset('vote_comment')
+    this.storage.unset('endorsed_vote_id')
+    this.storage.unset('endorsed_measure_id')
+    this.storage.unset('endorsed_url')
 
     this.setState({ user: null }, false)
 

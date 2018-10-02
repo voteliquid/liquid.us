@@ -44,6 +44,7 @@ module.exports = class JoinForm extends Component {
     const { query } = this.location
     const proxy_to = this.storage.get('proxying_user_id') || this.location.query.proxy_to
     const vote_position = this.storage.get('vote_position')
+    const endorsed_vote_id = this.storage.get('endorsed_vote_id')
 
     return this.html`
       <div>
@@ -51,6 +52,9 @@ module.exports = class JoinForm extends Component {
           <div class="notification has-text-centered is-info">
             Join ${APP_NAME} to proxy to ${req_proxy_profile.first_name} ${req_proxy_profile.last_name}.
           </div>
+        `] : []}
+        ${endorsed_vote_id ? [`
+          <div class="notification -inline-block has-text-centered is-info">Create your account to save your endorsement.</div>
         `] : []}
         ${vote_position ? [`
           <div class="notification has-text-centered is-info">Enter your email to save your vote and hold your representatives accountable.</div>

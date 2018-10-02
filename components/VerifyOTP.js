@@ -106,6 +106,8 @@ module.exports = class VerifyOTP extends Component {
       const proxying_user_id = this.storage.get('proxying_user_id')
       const redirect_to = this.storage.get('redirect_to')
       const vote_position = this.storage.get('vote_position')
+      const endorsed_vote_id = this.storage.get('endorsed_vote_id')
+      const endorsed_measure_id = this.storage.get('endorsed_measure_id')
 
       if (proxying_user_id) {
         return this.api('/delegations', {
@@ -126,6 +128,18 @@ module.exports = class VerifyOTP extends Component {
         .catch(error => {
           console.log(error)
           return redirect(303, `/get_started`)
+        })
+      }
+
+      if (endorsed_vote_id) {
+        return this.api(`/endorsements?user_id=eq.${user_id}`, {
+          method: 'POST',
+          body: JSON.stringify({ user_id, vote_id: endorsed_vote_id, measure_id: endorsed_measure_id }),
+        })
+        .then(() => {
+          this.storage.unset('endorsed_vote_id')
+          this.storage.unset('endorsed_measure_id')
+          return this.location.redirect(303, '/get_started')
         })
       }
 

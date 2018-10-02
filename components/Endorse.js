@@ -115,11 +115,14 @@ class Unendorsed extends Component {
   onclick(event) {
     event.preventDefault()
     const { measures = {}, reps = [], user } = this.state
-    if (!user) {
-      return this.location.redirect('/join')
-    }
     const { short_id, id: vote_id } = this.props
     const measure = measures[short_id]
+    if (!user) {
+      this.storage.set('endorsed_vote_id', vote_id)
+      this.storage.set('endorsed_measure_id', measure.id)
+      this.storage.set('endorsed_url', `/legislation/${measure.short_id}/votes/${vote_id}`)
+      return this.location.redirect('/join')
+    }
     const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
     const officeId = repsInChamber[0] && repsInChamber[0].office_id
     return this.api(`/endorsements?user_id=eq.${user.id}`, {
