@@ -9,6 +9,7 @@ const plugins = [
       API_URL: process.env.API_URL,
       APP_NAME: process.env.APP_NAME,
       ASSETS_URL: process.env.ASSETS_URL,
+      APP_LOGO: process.env.APP_LOGO,
       WWW_NAME: process.env.WWW_NAME,
       WWW_URL: process.env.WWW_URL,
       WWW_DOMAIN: process.env.WWW_DOMAIN,

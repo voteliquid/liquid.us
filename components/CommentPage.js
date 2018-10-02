@@ -122,7 +122,7 @@ class CommentDetailPage extends Component {
                 </a>
               </div>
               ${Comment.for(this, l.comment)}
-              ${this.isUnitedUser(user) ? Endorse.for(this, { vote: l.comment, vote_position: l.vote_position, user }) : ''}
+              ${this.isLiquidTeam(user) ? Endorse.for(this, { vote: l.comment, vote_position: l.vote_position, user }) : ''}
               <br />
               <div>
                 <a class="is-size-7 has-text-grey button is-text" href="${url}">

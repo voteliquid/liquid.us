@@ -1,3 +1,4 @@
+const { APP_NAME } = process.env
 const Component = require('../../Component')
 
 module.exports = class IneligiblePage extends Component {
@@ -9,7 +10,7 @@ module.exports = class IneligiblePage extends Component {
             <div class="content">
               <h2 class="subtitle">You said: <strong>I'm not eligible to vote.</strong></h2>
               <h4 class="subtitle is-5">
-                You can still participate on United.
+                You can still participate on ${APP_NAME}.
               </h4>
               <p>
                 In the future, we plan to verify Voter Registration status, and unregistered people won't be included by default in <strong>Liquid Scorecards</strong>.

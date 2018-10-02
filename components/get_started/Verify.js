@@ -1,4 +1,4 @@
-const { WWW_URL } = process.env
+const { WWW_URL, WWW_DOMAIN } = process.env
 const fetch = require('isomorphic-fetch')
 const { api, combineEffects, html, preventDefault, redirect } = require('../../helpers')
 
@@ -80,7 +80,7 @@ module.exports = {
           ${error ? [`
             <div class="notification is-warning">
               <p>${error}</p>
-              <p>Please contact support@united.vote if you need assistance.</p>
+              <p>Please contact support@${WWW_DOMAIN} if you need assistance.</p>
             </div>
           `] : ''}
           ${showVerifyOtpForm

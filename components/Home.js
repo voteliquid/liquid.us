@@ -1,4 +1,4 @@
-const { APP_NAME } = process.env
+const { APP_NAME, WWW_DOMAIN } = process.env
 const Component = require('./Component')
 const JoinForm = require('./JoinForm')
 const YourLegislators = require('./YourLegislators')
@@ -211,7 +211,7 @@ module.exports = class Home extends Component {
               <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">Phase 2 — Liquid Candidates</h3>
               <h4 class="subtitle is-5 is-size-4-desktop">Pledged to vote on everything as directed by their local liquid democracy.</h4>
               <h4 class="subtitle is-5 is-size-4-desktop">Voters can elect this upgraded representation, <em>when we're ready</em>, one seat at a time.</h4>
-              <h4 class="subtitle is-5 is-size-4-desktop"><a href="https://2018.united.vote" target="_blank"><span class="icon"><i class="fa fa-star"></i></span>&nbsp; <span>Meet the <strong>2018 Liquid Candidates</strong></span></a>.</h4>
+              <h4 class="subtitle is-5 is-size-4-desktop"><a href="${`https://2018.${WWW_DOMAIN}`}" target="_blank"><span class="icon"><i class="fa fa-star"></i></span>&nbsp; <span>Meet the <strong>2018 Liquid Candidates</strong></span></a>.</h4>
             </div>
             <br />
             <br />
@@ -232,20 +232,20 @@ module.exports = class Home extends Component {
               <div class="column">
                 <section class="section space-out-multiline">
                   <h4 class="title is-4 reveal">Introduction</h4>
-                  <p class="reveal"><a href="https://blog.united.vote/2016/09/21/what-is-liquid-democracy/" target="_blank">What is Liquid Democracy?</a></p>
-                  <p class="reveal"><a href="https://blog.united.vote/2017/11/06/announcing-united-vote/" target="_blank">Introducing United.vote: Help Build a Democracy We Can Trust</a></p>
-                  <p class="reveal"><a href="https://blog.united.vote/2017/07/04/running-liquid-democracy-candidates/" target="_blank">Liquid Democracy Candidates: How to Upgrade Our Legislature, One Seat at a Time</a></p>
+                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2016/09/21/what-is-liquid-democracy/`}" target="_blank">What is Liquid Democracy?</a></p>
+                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/11/06/announcing-united-vote/`}" target="_blank">Introducing ${WWW_DOMAIN}: Help Build a Democracy We Can Trust</a></p>
+                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/07/04/running-liquid-democracy-candidates/`}" target="_blank">Liquid Democracy Candidates: How to Upgrade Our Legislature, One Seat at a Time</a></p>
                 </section>
 
                 <section class="section space-out-multiline">
                   <h4 class="title is-4 reveal">Further Reading</h4>
-                  <p class="reveal"><a href="https://blog.united.vote/2017/03/06/how-to-move-past-two-parties/" target="_blank">How to Move Past A Two Party System</a></p>
-                  <p class="reveal"><a href="https://blog.united.vote/2017/10/23/democracy-vs-corruption/" target="_blank">Democracy vs. Corruption: How to Really Drain the Swamp</a></p>
-                  <p class="reveal"><a href="https://blog.united.vote/2017/04/17/liquid-democracy-and-a-free-political-economy/" target="_blank">Liquid Democracy and A Free Political Economy</a></p>
-                  <p class="reveal"><a href="https://blog.united.vote/2017/05/12/liquid-democracy-can-completely-eliminate-gerrymandering/" target="_blank">Liquid Democracy Can Completely Eliminate Gerrymandering</a></p>
-                  <p class="reveal"><a href="https://blog.united.vote/2017/10/27/liquid-democracy-is-not-direct-democracy/" target="_blank">Liquid Democracy Is Not Direct Democracy, and That's a Good Thing</a></p>
-                  <p class="reveal"><a href="https://blog.united.vote/2016/10/13/dont-care-about-politics/" target="_blank">Don't Care About Politics? Liquid Democracy Is Easier for You Too</a></p>
-                  <p class="reveal"><a href="http://secure.united.vote" target="_blank">Secure Internet Voting</a></p>
+                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/03/06/how-to-move-past-two-parties/`}" target="_blank">How to Move Past A Two Party System</a></p>
+                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/10/23/democracy-vs-corruption/`}" target="_blank">Democracy vs. Corruption: How to Really Drain the Swamp</a></p>
+                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/04/17/liquid-democracy-and-a-free-political-economy/`}" target="_blank">Liquid Democracy and A Free Political Economy</a></p>
+                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/05/12/liquid-democracy-can-completely-eliminate-gerrymandering/`}" target="_blank">Liquid Democracy Can Completely Eliminate Gerrymandering</a></p>
+                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/10/27/liquid-democracy-is-not-direct-democracy/`}" target="_blank">Liquid Democracy Is Not Direct Democracy, and That's a Good Thing</a></p>
+                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2016/10/13/dont-care-about-politics/`}" target="_blank">Don't Care About Politics? Liquid Democracy Is Easier for You Too</a></p>
+                  <p class="reveal"><a href="${`http://secure.${WWW_DOMAIN}`}" target="_blank">Secure Internet Voting</a></p>
                 </section>
                 <style>
                   .space-out-multiline p {

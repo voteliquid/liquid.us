@@ -83,7 +83,7 @@ module.exports = class Component extends hyperloopComponent {
       return res.json()
     })
   }
-  isUnitedUser(user) {
+  isLiquidTeam(user) {
     return ~[
       'talk@alexmingoia.com',
       'david@dsernst.com',

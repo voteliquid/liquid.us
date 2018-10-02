@@ -1,4 +1,4 @@
-const { ASSETS_URL } = process.env
+const { APP_NAME, ASSETS_URL, WWW_DOMAIN } = process.env
 
 module.exports = (htmlHead) => {
   return function errorHandler(error, req, res, next) { // eslint-disable-line no-unused-vars
@@ -16,10 +16,10 @@ module.exports = (htmlHead) => {
               <div class="hero-body has-text-centered">
                 <div class="container">
                   <a href="/">
-                    <img src=${`${ASSETS_URL}/unitedvote_mark.png`} alt="United.vote" width="45" height="45" />
+                    <img src=${`${ASSETS_URL}/unitedvote_mark.png`} alt="${APP_NAME}" width="45" height="45" />
                   </a>
                   <h1 class="title">We are experiencing technical difficulties</h1>
-                  <h2 class="subtitle">Please contact <a href="mailto:support@united.vote">support@united.vote</a> if the problem persists</h2>
+                  <h2 class="subtitle">Please contact <a href="${`mailto:support@${WWW_DOMAIN}`}">support@${WWW_DOMAIN}</a> if the problem persists</h2>
                 </div>
               </div>
             </div>

@@ -1,3 +1,4 @@
+const { WWW_DOMAIN } = process.env
 const Component = require('../../Component')
 
 module.exports = class EligibleToRegisterPage extends Component {
@@ -12,7 +13,7 @@ module.exports = class EligibleToRegisterPage extends Component {
                 Not a problem.
               </p>
               <p>
-                In the future, we will need to verify voter registration status to be included in your elected reps' <strong><a href="https://blog.united.vote/2017/12/08/give-your-rep-an-f-introducing-united-legislator-grades/" target="_blank">Scorecards</a></strong>.
+                In the future, we will need to verify voter registration status to be included in your elected reps' <strong><a href="${`https://blog.${WWW_DOMAIN}/2017/12/08/give-your-rep-an-f-introducing-united-legislator-grades/`}" target="_blank">Scorecards</a></strong>.
               </p>
               <p>
                 We can help you register at that time.

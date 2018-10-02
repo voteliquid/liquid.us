@@ -1,3 +1,4 @@
+const { WWW_DOMAIN } = process.env
 const Component = require('../Component')
 const routes = require('../../routes')
 
@@ -83,7 +84,7 @@ module.exports = class PickUsernamePage extends Component {
                     <div class="field has-addons">
                       <p class="control">
                         <a class="button is-static">
-                          united.vote/
+                          ${WWW_DOMAIN}/
                         </a>
                       </p>
                       <div class="control has-icons-left is-expanded">

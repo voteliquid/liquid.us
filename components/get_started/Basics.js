@@ -1,3 +1,4 @@
+const { APP_NAME, WWW_DOMAIN } = process.env
 const Component = require('../Component')
 const fetch = require('isomorphic-fetch')
 const GoogleAddressAutocompleteScript = require('../GoogleAddressAutocompleteScript')
@@ -52,11 +53,11 @@ class GetStartedBasicsPage extends Component {
               lon: location.lng,
             })
           }
-          return { loading: false, error: { address: true, message: 'There was a problem processing your address. Please contact support@united.vote and let us know.' } }
+          return { loading: false, error: { address: true, message: `There was a problem processing your address. Please contact support@${WWW_DOMAIN} and let us know.` } }
         })
         .catch(error => {
           console.log(error)
-          return { loading: false, error: { address: true, message: 'There was a problem processing your address. Please contact support@united.vote and let us know.' } }
+          return { loading: false, error: { address: true, message: `There was a problem processing your address. Please contact support@${WWW_DOMAIN} and let us know.` } }
         })
     }
 
@@ -221,9 +222,9 @@ class GetStartedBasicsPage extends Component {
               <p class="help is-small has-text-grey">All of your information is kept strictly private.</p>
               <div class="expandable">
                 <a onclick=${expand} href="#" class="is-size-7">Not in the US?</a>
-                <p>As Americans, we're focused on our own democracy first, but we've heard many international requests to bring United to other countries.</p>
+                <p>As Americans, we're focused on our own democracy first, but we've heard many international requests to bring ${APP_NAME} to other countries.</p>
                 <p>We want to make this much easier in the future.</p>
-                <p>Write to us at <a href="mailto:international@united.vote" >international@united.vote</a> and tell us where you're from. We'd love to hear from you.</p>
+                <p>Write to us at <a href="${`mailto:international@${WWW_DOMAIN}`}" >international@${WWW_DOMAIN}</a> and tell us where you're from. We'd love to hear from you.</p>
                 <p />
               </div>
               <style>
