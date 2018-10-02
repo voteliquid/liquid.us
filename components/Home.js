@@ -211,7 +211,7 @@ module.exports = class Home extends Component {
               <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">Phase 2 — Liquid Candidates</h3>
               <h4 class="subtitle is-5 is-size-4-desktop">Pledged to vote on everything as directed by their local liquid democracy.</h4>
               <h4 class="subtitle is-5 is-size-4-desktop">Voters can elect this upgraded representation, <em>when we're ready</em>, one seat at a time.</h4>
-              <h4 class="subtitle is-5 is-size-4-desktop"><a href="${`https://2018.${WWW_DOMAIN}`}" target="_blank"><span class="icon"><i class="fa fa-star"></i></span>&nbsp; <span>Meet the <strong>2018 Liquid Candidates</strong></span></a>.</h4>
+              <h4 class="subtitle is-5 is-size-4-desktop"><a href="https://liquidcandidates.com" target="_blank"><span class="icon"><i class="fa fa-star"></i></span>&nbsp; <span>Meet the <strong>growing list of Digital Democracy Candidates</strong></span></a>.</h4>
             </div>
             <br />
             <br />
@@ -233,7 +233,7 @@ module.exports = class Home extends Component {
                 <section class="section space-out-multiline">
                   <h4 class="title is-4 reveal">Introduction</h4>
                   <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2016/09/21/what-is-liquid-democracy/`}" target="_blank">What is Liquid Democracy?</a></p>
-                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/11/06/announcing-united-vote/`}" target="_blank">Introducing ${WWW_DOMAIN}: Help Build a Democracy We Can Trust</a></p>
+                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/11/06/announcing-united-vote/`}" target="_blank">Introducing United.vote: Help Build a Democracy We Can Trust</a></p>
                   <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/07/04/running-liquid-democracy-candidates/`}" target="_blank">Liquid Democracy Candidates: How to Upgrade Our Legislature, One Seat at a Time</a></p>
                 </section>
 
