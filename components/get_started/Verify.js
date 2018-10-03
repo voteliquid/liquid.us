@@ -188,7 +188,7 @@ const requestOtpForm = ({ error, loading, skipWarning }, dispatch) => {
 
           <input name="phone" class="${`input ${error ? 'is-danger' : ''}`}" type="tel" placeholder="(415) 123-1234" />
           <span class="icon is-left"><i class="fa fa-mobile-alt"></i></span>
-          <p class="help">We won't share or sell your number it to anyone.</p>
+          <p class="help">We won't share your number with anyone.</p>
         </div>
       </div>
       <div class="field is-grouped">
