@@ -63,7 +63,7 @@ module.exports = {
           ...state,
           page_title: event.page_title || state.page_title,
           location: { ...state.location, ...event.location },
-          navbar: { ...state.navbar, location: event.location },
+          navbar: { ...state.navbar, location: event.location, hamburgerVisible: false },
           contactWidget: { ...state.contactWidget, url: event.location.url },
           routeProgram: event.program,
           route: { ...state.location, ...state.route, storage: state.storage },
