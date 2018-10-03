@@ -73,7 +73,7 @@ module.exports = {
           navbar: { ...state.navbar, location: event.location, hamburgerVisible: false },
           contactWidget: { ...state.contactWidget, url: event.location.url },
           routeProgram: event.program,
-          routeLoaded: routeInitEffect ? event.loaded : true,
+          routeLoaded: routeInitEffect ? event.loaded : !!event.program,
           route: { ...state.location, ...state.route, storage: state.storage, ...routeInitState },
         }, combineEffects(
           routeInitEffect,
