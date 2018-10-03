@@ -44,6 +44,7 @@ require('babel-register')({
 })
 
 const webpackConfig = require('./webpack.config')
+const twitterAvatarProxy = require('./middleware/twitter_avatar_proxy')
 const errorHandler = require('./middleware/error_handler')
 const geoip = require('./middleware/geoip')
 const eztextingWebhook = require('./middleware/eztexting_webhook')
@@ -151,6 +152,7 @@ function startAppServer() {
     .use('/assets', serveStatic(path.join(__dirname, 'public'))) // TODO serve using CDN in production
     .get('/rpc/healthcheck', (req, res) => res.status(200).end())
     .get('/rpc/geoip/:ip', geoip)
+    .get('/rpc/avatarsio/:username', twitterAvatarProxy)
     .post('/rpc/verify_phone_number', bodyParser.json(), verifyPhoneNumber)
     .get('/rpc/eztexting_webhook', eztextingWebhook)
     .post('/rpc/twitter_username_search', bodyParser.json(), twitterUsernameSearch)

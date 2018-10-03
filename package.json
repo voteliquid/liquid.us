@@ -43,6 +43,7 @@
     "pretty-bytes": "^4.0.2",
     "qs": "^6.5.1",
     "raj": "^1.0.0",
+    "request": "^2.88.0",
     "resolve-from": "^4.0.0",
     "timeago.js": "^3.0.2",
     "twilio": "^3.19.2",

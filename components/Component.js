@@ -1,3 +1,4 @@
+const { WWW_URL } = process.env
 const fetch = require('isomorphic-fetch')
 const { hyperloopComponent } = require('../helpers')
 
@@ -84,7 +85,7 @@ module.exports = class Component extends hyperloopComponent {
     })
   }
   avatarURL({ gravatar_hash, bioguide_id, twitter_avatar, twitter_username }) {
-    if (twitter_avatar) return `https://avatars.io/twitter/${twitter_username}`
+    if (twitter_avatar) return `${WWW_URL}/rpc/avatarsio/${twitter_username}`
     if (bioguide_id) return `https://theunitedstates.io/images/congress/225x275/${bioguide_id}.jpg`
     return `https://www.gravatar.com/avatar/${gravatar_hash}?d=mm&s=200`
   }
