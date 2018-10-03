@@ -35,7 +35,7 @@ runtime({
   },
   view: (state, dispatch) => {
     // Wait for route view to load (async chunked JS) before rendering.
-    if (starting && state.routeProgram) {
+    if (starting && state.routeLoaded) {
       starting = false
       return hyperhtml.bind(document.getElementById('application'))`${App.view(state, dispatch)}`
     }

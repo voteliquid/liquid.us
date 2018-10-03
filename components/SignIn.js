@@ -177,21 +177,46 @@ module.exports = class SignIn extends Component {
     return this.html`
       <section class="section">
         <div class="container has-text-centered">
+          ${this.location.query.notification === 'verify' ? [`
+            <div class="columns is-centered is-gapless">
+              <div class="column is-half">
+                <div class="notification has-text-centered is-info">
+                  Sign in to finish verifying.
+                </div>
+              </div>
+            </div>
+          `] : []}
           ${this.location.query.notification === 'propose-legislation' ? [`
-            <div class="notification has-text-centered is-info">
-              You must sign in before proposing legislation.
+            <div class="columns is-centered is-gapless">
+              <div class="column is-half">
+                <div class="notification has-text-centered is-info">
+                  You must sign in before proposing legislation.
+                </div>
+              </div>
             </div>
           `] : []}
           ${proxying_user_id && req_proxy_profile ? [`
-            <div class="notification has-text-centered is-info">
-              Sign in to proxy to ${req_proxy_profile.first_name} ${req_proxy_profile.last_name}.
+            <div class="columns is-centered is-gapless">
+              <div class="column is-half">
+                <div class="notification has-text-centered is-info">
+                  Sign in to proxy to ${req_proxy_profile.first_name} ${req_proxy_profile.last_name}.
+                </div>
+              </div>
             </div>
           `] : []}
           ${endorsed_vote_id ? [`
-            <div class="notification has-text-centered is-info">Sign in to save your endorsement.</div>
+            <div class="columns is-centered is-gapless">
+              <div class="column is-half">
+                <div class="notification has-text-centered is-info">Sign in to save your endorsement.</div>
+              </div>
+            </div>
           `] : []}
           ${vote_position ? [`
-            <div class="notification has-text-centered is-info">Sign in to save your vote and hold your representatives accountable.</div>
+            <div class="columns is-centered is-gapless">
+              <div class="column is-half">
+                <div class="notification has-text-centered is-info">Sign in to save your vote and hold your representatives accountable.</div>
+              </div>
+            </div>
           `] : []}
           <h1 class="title">Sign in</h1>
           <div class="level">

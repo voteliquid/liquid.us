@@ -149,7 +149,7 @@ function startAppServer() {
   }
 
   server
-    .use('/assets', serveStatic(path.join(__dirname, 'public'))) // TODO serve using CDN in production
+    .use('/assets', serveStatic(path.join(__dirname, 'public')))
     .get('/rpc/healthcheck', (req, res) => res.status(200).end())
     .get('/rpc/geoip/:ip', geoip)
     .get('/rpc/avatarsio/:username', twitterAvatarProxy)
@@ -231,7 +231,11 @@ function runApp(req, res, done) {
       return [appState, combineEffects(setHyperloopState(appState), appEffect)]
     },
     view: (state, dispatch) => {
-      if (res.running && state.routeProgram && !hyperloop.redirected) {
+      if (res.running && state.routeLoaded && !hyperloop.redirected) {
+        if (state.location.path !== req.path) {
+          hyperloop.redirected = true
+          return res.redirect(state.location.url)
+        }
         res.running = false
         const appHtml = App.view(state, dispatch)
         const pageHtml = htmlWrapper(state, appHtml, `${webpackConfig.output.publicPath}${webpackStats.compilation.hash}.js`)

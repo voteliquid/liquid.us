@@ -59,15 +59,24 @@ module.exports = {
           mapEffect('navbarEvent', navbarEffect),
         ]
       case 'pageChanged':
+        const [routeInitState, routeInitEffect] =
+          event.program && event.program.init
+            ? typeof event.program.init === 'function'
+              ? event.program.init(state.location, state.storage, state.user)
+              : event.program.init
+            : []
         return [{
           ...state,
+          error: undefined,
           page_title: event.page_title || state.page_title,
           location: { ...state.location, ...event.location },
           navbar: { ...state.navbar, location: event.location, hamburgerVisible: false },
           contactWidget: { ...state.contactWidget, url: event.location.url },
           routeProgram: event.program,
-          route: { ...state.location, ...state.route, storage: state.storage },
+          routeLoaded: routeInitEffect ? event.loaded : true,
+          route: { ...state.location, ...state.route, storage: state.storage, ...routeInitState },
         }, combineEffects(
+          routeInitEffect,
           changePageTitle(event.page_title || state.page_title),
           stopNProgress(),
           scrollToTop(event.scroll),
@@ -337,6 +346,7 @@ const initHyperloop = (context, location, Component) => (dispatch) => {
     dispatch({
       type: 'pageChanged',
       location,
+      loaded: true,
       program: { view: () => html },
     })
     if (context.root.onpagechange && context.root.initialized) {
