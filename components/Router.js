@@ -1,4 +1,3 @@
-const { APP_NAME } = process.env
 const routes_ = require('../routes')
 const pathToRegexp = require('path-to-regexp')
 
@@ -43,15 +42,13 @@ exports.loadPage = (url, status = 200, dispatch, scroll = true) => {
     url,
   }
 
-  const page_title = matched.title ? `${matched.title} ★ ${APP_NAME}` : `Liquid US | Digital Democracy Voting Platform`
-
   if (typeof window === 'object') {
     if (pathname === window.location.pathname) {
       window.history.replaceState({}, null, url)
     }
   }
 
-  dispatch({ type: 'pageChanged', location, page_title, scroll })
+  dispatch({ type: 'pageChanged', location, page_title: matched.title, scroll })
 
   if (matched.loader) {
     const loader = typeof matched.loader === 'function' ? matched.loader.call(this) : matched.loader

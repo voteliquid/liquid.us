@@ -1,4 +1,4 @@
-const { APP_NAME, ASSETS_URL, WWW_DOMAIN } = process.env
+const { ASSETS_URL, WWW_DOMAIN } = process.env
 const { avatarURL } = require('../helpers')
 const fs = require('fs')
 const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
@@ -6,7 +6,7 @@ const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
 module.exports = (state, html, bundleUrl) => {
   const { page_description, page_title, selected_bill, selected_profile } = state
   const description = page_description || `A new democracy for the modern world.`
-  const title = page_title ? `${page_title} | ${APP_NAME}` : `Liquid US | Digital Democracy Voting Platform`
+  const title = page_title ? `${page_title} | Liquid US` : `Liquid US | Digital Democracy Voting Platform`
   const profile_image_url = selected_profile ? avatarURL(selected_profile) : ''
   const measure_image_url = selected_bill && selected_bill.image_name ? `${ASSETS_URL}/measure-images/${selected_bill.image_name}` : ''
 

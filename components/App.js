@@ -307,7 +307,7 @@ const listeners = (dispatch) => ({
 
 const changePageTitle = (newTitle) => () => {
   if (typeof window === 'object') {
-    document.title = newTitle || document.title
+    document.title = newTitle ? `${newTitle} | Liquid US` : document.title
   }
 }
 
