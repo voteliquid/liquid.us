@@ -2,13 +2,15 @@ const { APP_NAME, NODE_ENV } = process.env
 const { html } = require('../helpers')
 const quotes = require('../quotes')
 
+function selectQuote(dispatch) {
+  dispatch({
+    type: 'quoteSelected',
+    quote: quotes[Math.floor(Math.random() * quotes.length)],
+  })
+}
+
 module.exports = {
-  randomQuote: (dispatch) => {
-    dispatch({
-      type: 'quoteSelected',
-      quote: quotes[Math.floor(Math.random() * quotes.length)],
-    })
-  },
+  selectQuote,
   init: [{
     randomQuote: quotes[Math.floor(Math.random() * quotes.length)],
   }],

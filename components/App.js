@@ -79,8 +79,7 @@ module.exports = {
           routeInitEffect,
           changePageTitle(event.page_title || state.page_title),
           stopNProgress(),
-          scrollToTop(event.scroll),
-          mapEffect('footerEvent', Footer.randomQuote)
+          scrollToTop(event.scroll)
         )]
       case 'repsRequested':
         return [state]
@@ -279,8 +278,10 @@ const scrollToTop = (scroll) => () => {
 }
 
 const listeners = (dispatch) => ({
-  popstate: () =>
-    loadPage(window.location.pathname + window.location.search, 200, dispatch, false),
+  popstate: () => {
+    Footer.selectQuote(mapEvent('footerEvent', dispatch))
+    loadPage(window.location.pathname + window.location.search, 200, dispatch, false)
+  },
   redirect: (event) => {
     const status = event.detail.status || 302
     if (status === 303) {
@@ -288,6 +289,7 @@ const listeners = (dispatch) => ({
     } else {
       window.history.replaceState({}, null, event.detail.url)
     }
+    Footer.selectQuote(mapEvent('footerEvent', dispatch))
     loadPage(event.detail.url, status, dispatch)
   },
   click: (event) => {
@@ -300,6 +302,7 @@ const listeners = (dispatch) => ({
     if (!event.metaKey && href && href[0] === '/' && href !== url) {
       event.preventDefault()
       window.history.pushState({}, null, href)
+      Footer.selectQuote(mapEvent('footerEvent', dispatch))
       loadPage(href, 200, dispatch)
     }
   },
