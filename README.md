@@ -1,5 +1,6 @@
-# united.vote
-The future of democracy
+# liquid.us
+
+The future of democracy.
 
 ### Install
 
@@ -7,7 +8,7 @@ The future of democracy
     - [git](https://git-scm.com/)
     - [node](https://nodejs.org/)
 2. Fork this repo.
-3. Clone down: `git clone https://github.com/YOU/united.vote.git`
+3. Clone down: `git clone https://github.com/YOU/liquid.us.git`
 4. Install required node modules: `npm install`
 
 ### Development
