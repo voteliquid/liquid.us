@@ -228,7 +228,7 @@ class MeasureVoteForm extends Component {
                 <span>${v.id ? 'Save' : 'Publish'}</span>
               </button>
             </div>
-            <div class="control">
+            <div class="control" style="flex-shrink: 1;">
               <label class="checkbox">
                 <input onclick=${this} type="checkbox" name="public" value="true" checked=${public_checked ? 'checked' : ''} />
                 Public
