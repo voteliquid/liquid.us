@@ -103,8 +103,9 @@ class MeasureVoteForm extends Component {
     .then(() => fetchComments.call(this, measure.id, measure.short_id))
     .then(() => fetchTopComments.call(this, measure.id, measure.short_id))
     .then(() => fetchConstituentVotes.call(this, measure.id, measure.short_id, officeId))
-    .then(() => {
+    .then(() => this.api(`/votes?measure_id=eq.${measure.id}&user_id=eq.${user.id}&delegate_rank=eq.-1`).then(votes => {
       if (this.isBrowser && window._loq) window._loq.push(['tag', 'Voted'])
+      const my_vote = votes[0]
       this.setState({
         measures: {
           ...this.state.measures,
@@ -113,26 +114,20 @@ class MeasureVoteForm extends Component {
             vote_position: form.vote_position,
             delegate_rank: -1,
             delegate_name: null,
-            my_vote: {
-              ...this.state.measures[measure.short_id].my_vote,
-              vote_position: form.vote_position,
-              comment: form.comment || null,
-              public: form.public === 'true',
-              delegate_rank: -1,
-              delegate_name: null,
-            },
+            my_vote,
           },
         },
         saving_vote: false,
         showMeasureVoteForm: !this.state.showMeasureVoteForm,
       })
       if (!prev_vote || this.location.path.match(/^\/(nominations|legislation)\/[\w-]+\/vote$/)) {
+        const commentParam = form.comment ? `/votes/${my_vote.id}` : ''
         if (measure.type === 'PN') {
-          return redirect(303, `/nominations/${measure.short_id}`)
+          return redirect(303, `/nominations/${measure.short_id}${commentParam}`)
         }
-        return redirect(303, `/legislation/${measure.short_id}`)
+        return redirect(303, `/legislation/${measure.short_id}${commentParam}`)
       }
-    })
+    }))
     .catch((error) => {
       return this.setState({ error: error.message, saving_vote: false })
     })
