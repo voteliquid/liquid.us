@@ -39,7 +39,7 @@ module.exports = class MeasureDetailsPage extends Component {
       this.setState({
         loading_measure: false,
         page_title: title,
-        page_description: `Vote directly on federal bills and nominations. We'll notify your representatives and grade them for how well they listen to their constituents.`,
+        page_description: `Vote directly on federal, state, and local bills and nominations. We'll notify your representatives and grade them for how well they listen to their constituents.`,
         measures: {
           ...this.state.measures,
           [measure.short_id]: {
