@@ -64,21 +64,19 @@ module.exports = class MeasureDetailsPage extends Component {
     })
   }
   fetchConstituentVotes(id, short_id, office_id) {
-    if (office_id) {
-      return this.api(`/measure_votes?measure_id=eq.${id}&or=(office_id.eq.${office_id},office_id.is.null)`)
-        .then((results) => {
-          const votes = results[0] || {}
-          this.setState({
-            measures: {
-              ...this.state.measures,
-              [short_id]: {
-                ...this.state.measures[short_id],
-                ...votes
-              },
-            },
-          })
-        })
-    }
+    const officeParam = office_id ? `&office_id=eq.${office_id}` : '&limit=1'
+    return this.api(`/measure_votes?measure_id=eq.${id}${officeParam}`).then((results) => {
+      const votes = results[0] || {}
+      this.setState({
+        measures: {
+          ...this.state.measures,
+          [short_id]: {
+            ...this.state.measures[short_id],
+            ...votes
+          },
+        },
+      })
+    })
   }
   fetchTopComments(id, short_id) {
     const order = `order=proxy_vote_count.desc.nullslast,created_at.desc`
