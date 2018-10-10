@@ -188,11 +188,11 @@ class MeasureVoteForm extends Component {
               <div class="control">
                 <label class="radio">
                   <input onclick=${this} type="radio" name="vote_position" value="yea" checked=${vote_position === 'yea' ? 'checked' : ''} />
-                  In Favor
+                  Yea
                 </label>
                 <label class="radio">
                   <input onclick=${this} type="radio" name="vote_position" value="nay" checked=${vote_position === 'nay' ? 'checked' : ''} />
-                  Against
+                  Nay
                 </label>
                 <label class="radio">
                   <input onclick=${this} type="radio" name="vote_position" value="abstain" checked=${vote_position === 'abstain' ? 'checked' : ''} />
