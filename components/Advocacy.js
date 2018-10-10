@@ -1,9 +1,13 @@
 const { APP_NAME } = process.env
-const Component = require('./Component')
+const { html } = require('../helpers')
 
-module.exports = class AdvocacyPage extends Component {
-  render() {
-    return this.html`
+module.exports = {
+  init: [{}],
+  update: (event, state) => {
+    return [state]
+  },
+  view: () => {
+    return html()`
     <style>
         .is-horizontal-center {
             justify-content: center;

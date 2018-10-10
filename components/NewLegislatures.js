@@ -1,13 +1,17 @@
 const { APP_NAME, WWW_DOMAIN } = process.env
-const Component = require('./Component')
+const { html } = require('../helpers')
 
-module.exports = class NewLegislatures extends Component {
-  onclick(event) {
-    event.preventDefault()
-    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
-  }
-  render() {
-    return this.html`
+module.exports = {
+  init: [{}],
+  update: (event, state) => {
+    switch (event.type) {
+      case 'contactWidgetOpened':
+      default:
+        return [state]
+    }
+  },
+  view: (state, dispatch) => {
+    return html()`
       <section class="section">
         <div class="container">
           <h1 class="title is-3">Liquid democracy can create better governance everywhere, not just in US Congress.</h1>
@@ -63,7 +67,7 @@ module.exports = class NewLegislatures extends Component {
 
             <br />
             <br />
-            <p><a onclick=${this}><strong>Reach out</strong></a> if you can help bring new legislatures online.</p>
+            <p><a onclick=${(event) => dispatch({ type: 'contactWidgetOpened', event })}><strong>Reach out</strong></a> if you can help bring new legislatures online.</p>
             <br />
             <br />
 
