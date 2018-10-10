@@ -6,7 +6,7 @@ module.exports = class Endorse extends Component {
   render() {
     const { user, vote, vote_position } = this.props
     return this.html`
-      <div>
+      <div class="endorse">
         ${user && user.id === vote.user_id
           ? YourVote.for(this, vote)
           : vote_position
