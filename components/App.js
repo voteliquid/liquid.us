@@ -30,7 +30,7 @@ module.exports = {
   update: (event, state) => {
     switch (event.type) {
       case 'contactWidgetEvent':
-        const [contactWidgetState, contactWidgetEffect] = ContactWidget.update(event.event, state.contactWidget)
+        const [contactWidgetState, contactWidgetEffect] = ContactWidget.update(event.event, { ...state.contactWidget, user: state.user })
         return [{ ...state, contactWidget: contactWidgetState }, mapEffect('contactWidgetEvent', contactWidgetEffect)]
       case 'footerEvent':
         const [footerState, footerEffect] = Footer.update(event.event, state.footer)
@@ -53,18 +53,13 @@ module.exports = {
       case 'legislaturesRequested':
         return [state]
       case 'navbarEvent':
-        const [navbarState, navbarEffect] = Navbar.update(event.event, state.navbar)
+        const [navbarState, navbarEffect] = Navbar.update(event.event, { ...state.navbar, user: state.user })
         return [
           { ...state, navbar: navbarState },
           mapEffect('navbarEvent', navbarEffect),
         ]
       case 'pageChanged':
-        const [routeInitState, routeInitEffect] =
-          event.program && event.program.init
-            ? typeof event.program.init === 'function'
-              ? event.program.init(state.location, state.storage, state.user)
-              : event.program.init
-            : []
+        const [routeInitState, routeInitEffect] = event.program && event.program.init ? event.program.init : []
         return [{
           ...state,
           error: undefined,
@@ -74,9 +69,9 @@ module.exports = {
           contactWidget: { ...state.contactWidget, url: event.location.url },
           routeProgram: event.program,
           routeLoaded: routeInitEffect ? event.loaded : !!event.program,
-          route: { ...state.location, ...state.route, storage: state.storage, ...routeInitState },
+          route: { ...routeInitState, ...state.location, ...state.route },
         }, combineEffects(
-          routeInitEffect,
+          mapEffect('routeEvent', routeInitEffect),
           changePageTitle(event.page_title || state.page_title),
           stopNProgress(),
           scrollToTop(event.scroll)
@@ -94,14 +89,20 @@ module.exports = {
         console.log(event.error)
         return [state]
       case 'routeEvent':
-        const [routeState, effect] = state.routeProgram.update(event.event, state.route)
+        const [routeState, effect] = state.routeProgram.update(event.event, { ...state.route, user: state.user, reps: state.reps, storage: state.storage })
         switch (event.event.type) {
           case 'contactWidgetOpened':
             return [{ ...state, contactWidget: { ...state.contactWidget, isOpen: true } }]
+          case 'legislaturesUpdated':
+            return [{ ...state, legislatures: event.legislatures }]
           case 'verified':
             return [{ ...state, route: routeState, user: { ...state.user, verified: true } }, effect]
           case 'redirected':
             return [{ ...state, route: routeState }, effect]
+          case 'repsUpdated':
+            return [{ ...state, reps: event.reps }]
+          case 'userUpdated':
+            return [{ ...state, user: { ...state.user, ...event.event.user } }]
           default:
             return [{ ...state, route: routeState }, mapEffect('routeEvent', effect)]
         }
@@ -134,16 +135,16 @@ module.exports = {
         return [state]
     }
   },
-  view: ({ contactWidget, footer, route, routeProgram, navbar }, dispatch) => {
+  view: ({ contactWidget, footer, route, routeProgram, navbar, user, storage, reps }, dispatch) => {
     return html()`
       <div id="wrapper">
-        ${Navbar.view(navbar, mapEvent('navbarEvent', dispatch))}
+        ${Navbar.view({ ...navbar, user }, mapEvent('navbarEvent', dispatch))}
         <div class="router">
-          ${routeProgram ? routeProgram.view(route, mapEvent('routeEvent', dispatch)) : loadingIndicator()}
+          ${routeProgram ? routeProgram.view({ ...route, user, storage, reps }, mapEvent('routeEvent', dispatch)) : loadingIndicator()}
         </div>
       </div>
       <div>${Footer.view(footer, mapEvent('footerEvent', dispatch))}</div>
-      ${ContactWidget.view(contactWidget, mapEvent('contactWidgetEvent', dispatch))}
+      ${ContactWidget.view({ ...contactWidget, user }, mapEvent('contactWidgetEvent', dispatch))}
     `
   },
 }

@@ -1,4 +1,5 @@
 const { APP_NAME, WWW_DOMAIN } = process.env
+const { raj } = require('../helpers')
 const Component = require('./Component')
 const JoinForm = require('./JoinForm')
 const YourLegislators = require('./YourLegislators')
@@ -177,7 +178,10 @@ module.exports = class Home extends Component {
             <div class="reveal">
               <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">Phase 1 - ${APP_NAME} Scorecards</h3>
               <h4 class="subtitle is-5 is-size-4-desktop">Politicians are <em>automatically graded</em> for how much they follow their constituents' votes.</h4>
-              ${YourLegislators.for(this)}
+              ${raj({
+                ...YourLegislators,
+                init: [this.state],
+              })}
               <style>
                 .YourLegislators {
                   border: 1px solid hsla(0, 0%, 100%, 0.5);
@@ -250,7 +254,7 @@ module.exports = class Home extends Component {
                 </style>
               </div>
               <div class="column">
-                ${Video.for(this)}
+                ${Video()}
               </div>
             </div>
           </div>

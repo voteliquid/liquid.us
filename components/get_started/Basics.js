@@ -2,7 +2,6 @@ const { APP_NAME, WWW_DOMAIN } = process.env
 const Component = require('../Component')
 const fetch = require('isomorphic-fetch')
 const GoogleAddressAutocompleteScript = require('../GoogleAddressAutocompleteScript')
-const YourLegislators = require('../YourLegislators')
 const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = class PageOrRedirect extends Component {
@@ -107,7 +106,11 @@ class GetStartedBasicsPage extends Component {
     }))
     .then(() => {
       this.setState({ reps: [], user: { ...user, voter_status, first_name, last_name, address: { address, city, state } } })
-      return Promise.resolve(YourLegislators.prototype.fetchElectedLegislators.call(this, true))
+      return this.api('/rpc/user_offices', {
+        method: 'POST',
+        body: JSON.stringify({ user_id: user.id }),
+      })
+      .then((reps) => this.setState({ reps: reps || [], reps_loaded: true }))
     })
     .then(() => {
       return this.api(`/legislatures?or=(short_name.eq.${city},short_name.eq.${state},short_name.eq.US-Congress)`).then((legislatures) => {
@@ -193,7 +196,7 @@ class GetStartedBasicsPage extends Component {
                   <input name="address[lon]" id="address_lon" type="hidden" />
                   <input name="address[city]" id="city" type="hidden" />
                   <input name="address[state]" id="state" type="hidden" />
-                  ${GoogleAddressAutocompleteScript.for(this)}
+                  ${GoogleAddressAutocompleteScript()}
                   ${error.address
                     ? [`<span class="icon is-small is-left"><i class="fa fa-warning"></i></span>`]
                     : [`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`]

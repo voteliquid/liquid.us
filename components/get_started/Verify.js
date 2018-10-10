@@ -3,14 +3,14 @@ const fetch = require('isomorphic-fetch')
 const { api, combineEffects, html, preventDefault, redirect } = require('../../helpers')
 
 module.exports = {
-  init: (location, storage, user) => [{
+  init: [{
     error: null,
     loading: false,
     showVerifyOtpForm: false,
     skipWarning: false,
-    storage,
-    user,
-  }, !user && redirect('/sign_in?notification=verify')],
+    storage: null,
+    user: null,
+  }, (dispatch) => dispatch({ type: 'initialized' })],
   update: (event, state) => {
     switch (event.type) {
       case 'contactWidgetOpened':
@@ -45,8 +45,10 @@ module.exports = {
         return [{ ...state, error: event.error.message, loading: false }]
       case 'sentOtp':
         return [{ ...state, loading: false, showVerifyOtpForm: true }]
+      case 'initialized':
+        return [state, !state.user && ((dispatch) => dispatch({ type: 'redirected', url: '/sign_in?notification=verify' }))]
       case 'redirected':
-        if (!state.skipWarning) {
+        if (!state.skipWarning && state.user) {
           return [{ ...state, skipWarning: true }]
         }
         return [{ ...state, skipWarning: false }, redirect(event.url)]

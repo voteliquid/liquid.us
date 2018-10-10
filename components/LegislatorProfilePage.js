@@ -1,12 +1,8 @@
 const { APP_NAME } = process.env
 const Component = require('./Component')
-const YourLegislators = require('./YourLegislators')
 const LegislatorScoreCard = require('./LegislatorScoreCard')
 
 module.exports = class LegislatorProfilePage extends Component {
-  oninit() {
-    return YourLegislators.prototype.fetchElectedLegislators.call(this)
-  }
   onsubmit(event) {
     event.preventDefault()
 

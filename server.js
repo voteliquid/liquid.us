@@ -66,7 +66,6 @@ const config = {
   ASSETS_URL: process.env.ASSETS_URL,
   GOOGLE_GEOCODER_KEY: process.env.GOOGLE_GEOCODER_KEY,
   NODE_ENV: process.env.NODE_ENV,
-  STRIPE_API_PUBLIC_KEY: process.env.STRIPE_API_PUBLIC_KEY,
   WWW_URL: process.env.WWW_URL,
 }
 
