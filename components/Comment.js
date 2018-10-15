@@ -244,7 +244,7 @@ module.exports = class Comment extends Component {
                   <a target="_blank" title="Permalink" href="${comment_url}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-link"></i></span></a>
                 `] : ''}
                 <span class="has-text-grey-lighter">&bullet;</span>
-                <a href="#" onclick=${this} class="has-text-grey-light endorse">
+                <a href="#" onclick=${this} class="has-text-weight-bold has-text-grey-light endorse">
                   <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
                 </a>
               </span>

@@ -94,7 +94,7 @@ class Endorsed extends Component {
         <div class="level">
           <div class="level-left">
             <div class="has-text-centered has-text-left-mobile">
-              <p class="has-text-left">
+              <p class="has-text-left has-text-weight-bold">
                 Share ${possessive(fullname && username ? fullname : 'Anonymous')} position to build support.
               </p>
               ${VoteShareButtons.for(this, this.props)}
@@ -151,7 +151,8 @@ class Unendorsed extends Component {
         <div class="level">
           <div class="level-left">
             <p class="has-text-left">
-              You haven't voted on this bill.<br />Let your reps know you agree with ${fullname && username ? fullname : 'Anonymous'}.
+              <span class="has-text-weight-bold">You haven't voted on this bill.</span><br />
+              <span>Let your reps know you agree with ${fullname && username ? fullname : 'Anonymous'}.</span>
             </p>
           </div>
           <div class="level-right">
@@ -203,7 +204,8 @@ class AlreadyVoted extends Component {
         <div class="level">
           <div class="level-left">
             <p class="has-text-left">
-              You already voted ${this.capitalize(vote_position)} on this bill.<br />Endorse ${possessive(fullname && username ? fullname : 'Anonymous')} position instead?
+              <span class="has-text-weight-bold">You already voted ${this.capitalize(vote_position)} on this bill.</span><br />
+              <span>Endorse ${possessive(fullname && username ? fullname : 'Anonymous')} position instead?</span>
             </p>
           </div>
           <div class="level-right">
@@ -224,7 +226,7 @@ class YourVote extends Component {
         <div class="level">
           <div class="level-left">
             <div class="has-text-centered has-text-left-mobile">
-              <p class="has-text-left">
+              <p class="has-text-left has-text-weight-bold">
                 Encourage others to endorse your position.
               </p>
               ${VoteShareButtons.for(this, this.props)}
