@@ -1,3 +1,4 @@
+const { APP_NAME } = process.env
 const Component = require('./Component')
 const LoadingIndicator = require('./LoadingIndicator')
 
@@ -26,8 +27,9 @@ module.exports = class LegislationList extends Component {
     const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
 
     const orders = {
-      upcoming: '&failed_lower_at=is.null&passed_lower_at=is.null&order=legislature_name.desc,next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
-      new: '&order=introduced_at.desc',
+      upcoming: '&introduced_at=not.is.null&failed_lower_at=is.null&passed_lower_at=is.null&order=legislature_name.desc,next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
+      new: '&introduced_at=not.is.null&order=introduced_at.desc',
+      proposed: '&published=is.true&introduced_at=is.null&order=created_at.desc',
     }
 
     const order = orders[query.order || 'upcoming']
@@ -41,10 +43,10 @@ module.exports = class LegislationList extends Component {
       'title', 'number', 'type', 'short_id', 'id', 'status',
       'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
       'introduced_at', 'last_action_at', 'next_agenda_begins_at', 'next_agenda_action_at',
-      'summary', 'legislature_name', 'published'
+      'summary', 'legislature_name', 'published', 'created_at', 'author_first_name', 'author_last_name', 'author_username',
     ]
     if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-    const api_url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&type=not.eq.PN&introduced_at=not.is.null${order}&limit=40`
+    const api_url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&type=not.eq.PN${order}&limit=40`
 
     return this.api(api_url)
       .then(legislation => ({ legislation_query: url, legislation, loading_legislation: false }))
@@ -180,6 +182,7 @@ class FilterTabs extends Component {
     const orderDescriptions = {
       upcoming: 'Bills upcoming for a vote in the legislature.',
       new: 'Bills recently introduced.',
+      proposed: `Bills introduced on ${APP_NAME}`,
     }
 
     return this.html`
@@ -187,6 +190,7 @@ class FilterTabs extends Component {
         <ul>
           <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('upcoming')}`}">Upcoming for vote</a></li>
           <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('new')}`}">Recently introduced</a></li>
+          <li class="${query.order === 'proposed' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('proposed')}`}">Introduced on ${APP_NAME}</a></li>
         </ul>
       </div>
       <div class="columns">
@@ -212,6 +216,7 @@ class LegislationListRow extends Component {
           <div class="columns">
             <div class="column">
               <h3><a href="${`/legislation/${s.short_id}`}">${s.title}</a></h3>
+              ${s.introduced_at ? [`
               <div class="is-size-7 has-text-grey">
                 <strong class="has-text-grey">${s.type} ${s.number}</strong>
                 &mdash;
@@ -230,6 +235,14 @@ class LegislationListRow extends Component {
                 `]}
                 <strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}
               </div>
+              `] : [`
+                <div class="is-size-7 has-text-grey">
+                  ${s.author_username
+                    ? `Authored by <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>`
+                    : `Authored by Anonymous`}
+                  on ${(new Date(s.created_at)).toLocaleDateString()}
+                </div>
+              `]}
             </div>
             <div class="column is-one-quarter has-text-right-tablet has-text-left-mobile">
               ${VoteButton.for(this, s, `votebutton-${s.id}`)}
