@@ -57,6 +57,11 @@ class MeasureVoteBox extends Component {
 }
 
 class MeasureVoteForm extends Component {
+  onconnected() {
+    if (this.location.hash === '#measure-vote-form') {
+      window.scrollTo(0, document.getElementById('measure-vote-form').getBoundingClientRect().top)
+    }
+  }
   onsubmit(event, form) {
     event.preventDefault()
 
@@ -164,7 +169,10 @@ class MeasureVoteForm extends Component {
     const public_checked = v.hasOwnProperty('public') ? v.public : last_vote_public
     const vote_position = v.vote_position || l.vote_position
     return this.html`
-      <form method="POST" style="margin-bottom: 2rem;" onsubmit=${this} action=${this}>
+      <form id="measure-vote-form" method="POST" style="margin-bottom: 2rem;" onsubmit=${this} action=${this} onconnected=${this}>
+        <div class="field">
+          <h4 class="title is-size-6">${!v.comment ? 'Add your argument' : 'Edit your argument'}:</h4>
+        </div>
         ${v.id && !v.comment
         ? l.vote_power > 1
           ? [`

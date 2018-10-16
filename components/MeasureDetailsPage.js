@@ -38,6 +38,7 @@ module.exports = class MeasureDetailsPage extends Component {
       }
       this.setState({
         loading_measure: false,
+        showMeasureVoteForm: this.location.hash === '#measure-vote-form',
         page_title: title,
         page_description: `Vote directly on federal, state, and local bills and nominations. We'll notify your representatives and grade them for how well they listen to their constituents.`,
         measures: {

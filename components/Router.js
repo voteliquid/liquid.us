@@ -27,8 +27,10 @@ const match = (url) => {
 }
 
 exports.loadPage = (url, status = 200, dispatch, scroll = true) => {
-  const pathname = url.split('?')[0]
-  const search = url.split('?')[1]
+  const urlWithoutHash = url.split('#')[0]
+  const hash = url.split('#')[1] || ''
+  const pathname = urlWithoutHash.split('?')[0]
+  const search = urlWithoutHash.split('?')[1]
   const matched = match(pathname)
   const location = {
     params: matched.params,
@@ -40,6 +42,7 @@ exports.loadPage = (url, status = 200, dispatch, scroll = true) => {
     }, {}),
     status: matched.status || status,
     url,
+    hash,
   }
 
   if (typeof window === 'object') {
@@ -48,7 +51,7 @@ exports.loadPage = (url, status = 200, dispatch, scroll = true) => {
     }
   }
 
-  dispatch({ type: 'pageChanged', location, page_title: matched.title, scroll })
+  dispatch({ type: 'pageChanged', location, page_title: matched.title, scroll: hash ? false : scroll })
 
   if (matched.loader) {
     const loader = typeof matched.loader === 'function' ? matched.loader.call(this) : matched.loader

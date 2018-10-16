@@ -145,15 +145,20 @@ class Unendorsed extends Component {
     .catch((error) => console.log(error))
   }
   render() {
-    const { fullname, username } = this.props
+    const { fullname, short_id, type, username } = this.props
+    const measureUrl = `/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}#measure-vote-form`
     return this.html`
       <div class="box" style="max-width: 600px;">
         <div class="level">
           <div class="level-left">
-            <p class="has-text-left">
-              <span class="has-text-weight-bold">You haven't voted on this bill.</span><br />
-              <span>Let your reps know you agree with ${fullname && username ? fullname : 'Anonymous'}.</span>
-            </p>
+            <div>
+              <p class="has-text-left">
+                <span class="has-text-weight-bold">You haven't voted on this bill.</span><br />
+                <span>Let your reps know you agree with ${fullname && username ? fullname : 'Anonymous'},</span>
+                <br />
+                <span>or <a href="${measureUrl}">add your own argument</a>.</span>
+              </p>
+            </div>
           </div>
           <div class="level-right">
             <a onclick=${this} href="#" class="button is-primary">
