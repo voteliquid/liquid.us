@@ -3,14 +3,21 @@ const timeAgo = require('timeago.js')
 
 module.exports = class Comment extends Component {
   onclick(event) {
-    event.preventDefault()
-    if (~event.currentTarget.className.indexOf('privacy-indicator')) {
-      return console.log('foo')
+    if (~event.currentTarget.className.indexOf('endorse')) {
+      event.preventDefault()
+      if (this.props.endorsed) {
+        return this.unendorse()
+      }
+      return this.endorse()
     }
-    if (this.props.endorsed) {
-      return this.unendorse()
+    if (event.target.tagName.toUpperCase() !== 'A' && event.target.parentNode.tagName.toUpperCase() !== 'A') {
+      event.preventDefault()
+      const { id, short_id, type } = this.props
+      const commentUrl = `/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}/votes/${id}`
+      if (this.location.url !== commentUrl) {
+        this.location.redirect(303, commentUrl)
+      }
     }
-    return this.endorse()
   }
   endorse() {
     const { measures = {}, reps = [], user } = this.state
@@ -187,7 +194,7 @@ module.exports = class Comment extends Component {
         : `${fullname} granted you permission to see this vote. Don’t share it publicly.`
 
     return this.html`
-      <div class="comment">
+      <div onclick=${this} class="comment">
         <style>
           .comment:not(:last-child) {
             margin-bottom: 1.5rem;

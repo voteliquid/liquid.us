@@ -284,7 +284,7 @@ const listeners = (dispatch) => ({
     loadPage(window.location.pathname + window.location.search, 200, dispatch, false)
   },
   redirect: (event) => {
-    const status = event.detail.status || 302
+    const status = event.detail.code || event.detail.status || 302
     if (status === 303) {
       window.history.pushState({}, null, event.detail.url)
     } else {
