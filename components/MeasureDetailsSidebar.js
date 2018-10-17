@@ -163,7 +163,7 @@ class MeasureVoteCounts extends Component {
     const localLegislatureName = reps[0] && reps[0].office_short_name
     const chamberNames = {
       'U.S. Congress': { Upper: 'Senate', Lower: 'House' },
-      'California Congress': { Upper: 'Senate', Lower: 'Assembly' },
+      'CA': { Upper: 'Senate', Lower: 'Assembly' },
     }
 
     return this.html`
