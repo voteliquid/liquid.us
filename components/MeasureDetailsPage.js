@@ -101,9 +101,24 @@ module.exports = class MeasureDetailsPage extends Component {
   }
   fetchMeasure(short_id) {
     const type = ~short_id.indexOf('-pn') ? '&type=eq.PN' : '&or=(type.eq.HR,type.eq.S,type.eq.AB,type.eq.SB)'
+    const measureUrl = `/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
     const url = `/measures_detailed?short_id=eq.${short_id}${type}`
 
-    return this.api(url).then((results) => results[0])
+    return this.api(url).then((results) => {
+      const measure = results[0]
+      const notFoundError = new Error('Not found')
+      notFoundError.status = 404
+      if (measure.author_id && !this.props.params.username) {
+        if (new Date(measure.created_at) > new Date('2018-10-16')) {
+          return Promise.reject(notFoundError)
+        }
+        return this.location.redirect(301, `/${measure.author_username}${measureUrl}`)
+      }
+      if (!measure.author_id && this.props.params.username) {
+        return Promise.reject(notFoundError)
+      }
+      return measure
+    })
   }
   fetchProxyVotes(measure_id, short_id, user) {
     if (user) {

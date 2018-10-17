@@ -1,3 +1,4 @@
+const { WWW_URL } = process.env
 const Component = require('./Component')
 
 module.exports = class LegislationShareButtons extends Component {
@@ -9,17 +10,15 @@ module.exports = class LegislationShareButtons extends Component {
     setTimeout(() => this.setProps({ copied2clipboard: false }).render(), 2000)
   }
   render() {
-    const { config } = this.state
     const { author_username, copied2clipboard, number, short_id, title, type, vote_position } = this.props
     const share_url = author_username
-      ? `${config.WWW_URL}/${author_username}/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
-      : `${config.WWW_URL}/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
+      ? `${WWW_URL}/${author_username}/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
+      : `${WWW_URL}/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
     const twitter_bill_title = type && number && type !== 'PN' ? `${type} ${number}` : title.replace(/\.$/, '')
-    const twitter_share_text = vote_position && vote_position !== 'abstain'
-      ? `Join me in voting ${vote_position} ${type === 'PN' ? 'on the confirmation of' : 'on'} ${twitter_bill_title} at ${share_url}`
-      : `Join me in voting ${type === 'PN' ? 'on the confirmation of' : 'on'} ${twitter_bill_title} at ${share_url}`
-      ? `Join me in voting ${vote_position} ${type === 'PN' ? 'on the confirmation of' : 'on'} ${twitter_bill_title}`
-      : `Join me in voting ${type === 'PN' ? 'on the confirmation of' : 'on'} ${twitter_bill_title}`
+    const twitter_share_text =
+      vote_position && vote_position !== 'abstain'
+        ? `Join me in voting ${vote_position} ${type === 'PN' ? 'on the confirmation of' : 'on'} ${twitter_bill_title} at ${share_url}`
+        : `Join me in voting ${type === 'PN' ? 'on the confirmation of' : 'on'} ${twitter_bill_title} at ${share_url}`
     const twitter_url = `https://twitter.com/intent/tweet?text=${twitter_share_text}`
     const facebook_url = `https://www.facebook.com/sharer/sharer.php?u=${share_url}`
 

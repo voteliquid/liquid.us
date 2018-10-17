@@ -18,6 +18,19 @@ module.exports = class CommentPage extends Component {
       const measure = results[0]
 
       if (measure) {
+        const voteUrl = `/${measure.type === 'PN' ? 'nominations' : 'legislation'}/${measure.short_id}/votes/${params.comment_id}`
+        if (measure.author_id && !params.username) {
+          if (new Date(measure.created_at) > new Date('2018-10-16')) {
+            this.location.setStatus(404)
+            return this.setState({ loading_measure: false })
+          }
+          return this.location.redirect(301, `/${measure.author_username}${voteUrl}`)
+        }
+        if (!measure.author_id && params.username) {
+          this.location.setStatus(404)
+          return this.setState({ loading_measure: false })
+        }
+
         this.setState({
           measures: {
             ...measures,
@@ -108,7 +121,7 @@ class CommentDetailPage extends Component {
     const { user } = this.state
     const { measure: l } = this.props
     const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
-    const url = `/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`
+    const url = `${l.author_username ? `/${l.author_username}/` : '/'}${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`
 
     return this.html`
       <section class="section">

@@ -1,3 +1,4 @@
+const { WWW_URL } = process.env
 const Component = require('./Component')
 const timeAgo = require('timeago.js')
 
@@ -12,8 +13,8 @@ module.exports = class Comment extends Component {
     }
     if (event.target.tagName.toUpperCase() !== 'A' && event.target.parentNode.tagName.toUpperCase() !== 'A') {
       event.preventDefault()
-      const { id, short_id, type } = this.props
-      const commentUrl = `/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}/votes/${id}`
+      const { author_username, id, short_id, type } = this.props
+      const commentUrl = `${author_username ? `/${author_username}/` : '/'}${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}/votes/${id}`
       if (this.location.url !== commentUrl) {
         this.location.redirect(303, commentUrl)
       }
@@ -177,12 +178,12 @@ module.exports = class Comment extends Component {
     })
   }
   render() {
-    const { comment, endorsed, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id, public: is_public } = this.props
-    const { config, selected_profile, user } = this.state
+    const { comment, author_username, endorsed, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id, public: is_public } = this.props
+    const { selected_profile, user } = this.state
     const avatarURL = this.avatarURL(this.props)
-    const measure_url = type === 'PN' ? `/nominations/${short_id}` : `/legislation/${short_id}`
-    const comment_url = type === 'PN' ? `/nominations/${short_id}/votes/${id}` : `/legislation/${short_id}/votes/${id}`
-    const share_url = type === 'PN' ? `${config.WWW_URL}${measure_url}` : `${config.WWW_URL}/legislation/${short_id}/votes/${id}`
+    const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
+    const comment_url = `${measure_url}/votes/${id}`
+    const share_url = `${WWW_URL}${comment_url}`
     const subject = fullname ? `${fullname} is` : 'People are'
     const measure_title = type && number ? `${type} ${number} — ${title}` : title
     const twitter_measure_title = type && number ? `${type} ${number}` : title
@@ -230,7 +231,7 @@ module.exports = class Comment extends Component {
             ${comment ? [`<div class="content" style="margin: .25rem 0 .75rem;">${this.linkifyUrls(comment)}</div>`] : ''}
             <div style="display: none;" class="notification is-size-7 has-text-centered is-marginless comment-tooltip"><button class="delete"></button>${[tooltip]}</div>
             <div class="is-size-7" style="position: relative;">
-              <a class="has-text-grey-light" title="Permalink" href="${comment_url}">${timeAgo().format(`${updated_at}Z`)}</a>
+              <a class="has-text-grey-light" title="Permalink" href="${share_url}">${timeAgo().format(`${updated_at}Z`)}</a>
               <span class="has-text-grey-light">
                 ${user && user.id === user_id ? [`
                   <span class="has-text-grey-lighter">&bullet;</span>
