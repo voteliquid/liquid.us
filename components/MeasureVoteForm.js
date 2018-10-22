@@ -21,7 +21,7 @@ class MeasureVoteBox extends Component {
     if (user) {
       this.setState({ loading: 'vote' })
       return this.api(`/votes?user_id=eq.${user.id}&delegate_rank=eq.-1&order=updated_at.desc`).then(votes => {
-        const last_vote_public = votes[0] && votes[0].public
+        const last_vote_public = votes[0] ? votes[0].public : true
         return this.api(`/votes?measure_id=eq.${measure.id}&user_id=eq.${user.id}&delegate_rank=eq.-1`).then(votes => {
           const my_vote = votes[0]
           return this.api(`/rpc/vote_power_for_measure`, {
