@@ -1,6 +1,7 @@
 const { WWW_URL } = process.env
 const Component = require('./Component')
 const timeAgo = require('timeago.js')
+const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = class Comment extends Component {
   onclick(event) {
@@ -24,6 +25,7 @@ module.exports = class Comment extends Component {
     const { measures = {}, reps = [], user } = this.state
     const { fullname, short_id, id: vote_id } = this.props
     const measure = measures[short_id]
+    const anonymousName = `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
     if (!user) {
       this.storage.set('endorsed_vote_id', vote_id)
       this.storage.set('endorsed_measure_id', measure.id)
@@ -31,7 +33,7 @@ module.exports = class Comment extends Component {
       return this.location.redirect('/join')
     }
     if (measure.vote_position) {
-      if (!window.confirm(`You've already voted. Endorse ${this.possessive(fullname || 'Anonymous')} vote instead?`)) {
+      if (!window.confirm(`You've already voted. Endorse ${this.possessive(fullname || anonymousName)} vote instead?`)) {
         return
       }
     }
@@ -179,13 +181,15 @@ module.exports = class Comment extends Component {
   }
   render() {
     const { comment, author_username, endorsed, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id, public: is_public } = this.props
-    const { selected_profile, user } = this.state
+    const { measures, selected_profile, user } = this.state
+    const measure = measures[short_id]
     const avatarURL = this.avatarURL(this.props)
     const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
     const comment_url = `${measure_url}/votes/${id}`
     const share_url = `${WWW_URL}${comment_url}`
     const subject = fullname ? `${fullname} is` : 'People are'
     const measure_title = type && number ? `${type} ${number} — ${title}` : title
+    const anonymousName = `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
     const twitter_measure_title = type && number ? `${type} ${number}` : title
     const twitter_share_text = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${twitter_measure_title}. See why: ${share_url}`
     const tooltip = is_public || !fullname
@@ -218,13 +222,13 @@ module.exports = class Comment extends Component {
           <div class="media-content" style="${`${show_bill ? '' : `border-left: 1px solid ${position === 'yea' ? 'hsl(141, 71%, 87%)' : 'hsl(348, 100%, 93%)'}; margin-left: -2rem; padding-left: 2rem;`}`}">
             ${[show_bill && selected_profile ? `
               <div>
-                <span class="has-text-weight-semibold">${username ? fullname : 'Anonymous'}</span>
+                <span class="has-text-weight-semibold">${username ? fullname : anonymousName}</span>
                 <span>voted <strong>${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${proxy_vote_count + 1}</span> people` : ''}</span>
               </div>
               <div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>
             ` : `
               <div>
-                <span class="has-text-weight-semibold">${username ? [`<a href="/${username}">${fullname}</a>`] : 'Anonymous'}</span>
+                <span class="has-text-weight-semibold">${username ? [`<a href="/${username}">${fullname}</a>`] : anonymousName}</span>
                 <span>voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${proxy_vote_count + 1}</span> people` : ''}</span>
               </div>
             `]}

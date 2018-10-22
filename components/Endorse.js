@@ -95,7 +95,7 @@ class Endorsed extends Component {
           <div class="level-left">
             <div class="has-text-centered has-text-left-mobile">
               <p class="has-text-left has-text-weight-bold">
-                Share ${possessive(fullname && username ? fullname : 'Anonymous')} position to build support.
+                Share ${possessive(fullname && username ? fullname : 'their')} position to build support.
               </p>
               ${VoteShareButtons.for(this, this.props)}
             </div>
@@ -154,7 +154,7 @@ class Unendorsed extends Component {
             <div>
               <p class="has-text-left">
                 <span class="has-text-weight-bold">You haven't voted on this bill.</span><br />
-                <span>Let your reps know you agree with ${fullname && username ? fullname : 'Anonymous'},</span>
+                <span>Let your reps know you agree with ${fullname && username ? fullname : 'them'},</span>
                 <br />
                 <span>or <a href="${measureUrl}">add your own argument</a>.</span>
               </p>
@@ -210,7 +210,7 @@ class AlreadyVoted extends Component {
           <div class="level-left">
             <p class="has-text-left">
               <span class="has-text-weight-bold">You already voted ${this.capitalize(vote_position)} on this bill.</span><br />
-              <span>Endorse ${possessive(fullname && username ? fullname : 'Anonymous')} position instead?</span>
+              <span>Endorse ${possessive(fullname && username ? fullname : 'their')} position instead?</span>
             </p>
           </div>
           <div class="level-right">
