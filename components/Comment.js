@@ -24,8 +24,10 @@ module.exports = class Comment extends Component {
   endorse() {
     const { measures = {}, reps = [], user } = this.state
     const { fullname, short_id, id: vote_id } = this.props
-    const measure = measures[short_id]
-    const anonymousName = `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
+    const measure = measures && measures[short_id]
+    const anonymousName = measure
+      ? `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
+      : 'Anonymous'
     if (!user) {
       this.storage.set('endorsed_vote_id', vote_id)
       this.storage.set('endorsed_measure_id', measure.id)
@@ -182,14 +184,16 @@ module.exports = class Comment extends Component {
   render() {
     const { comment, author_username, endorsed, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id, public: is_public } = this.props
     const { measures, selected_profile, user } = this.state
-    const measure = measures[short_id]
+    const measure = measures && measures[short_id]
     const avatarURL = this.avatarURL(this.props)
     const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
     const comment_url = `${measure_url}/votes/${id}`
     const share_url = `${WWW_URL}${comment_url}`
     const subject = fullname ? `${fullname} is` : 'People are'
     const measure_title = type && number ? `${type} ${number} — ${title}` : title
-    const anonymousName = `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
+    const anonymousName = measure
+      ? `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
+      : 'Anonymous'
     const twitter_measure_title = type && number ? `${type} ${number}` : title
     const twitter_share_text = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${twitter_measure_title}. See why: ${share_url}`
     const tooltip = is_public || !fullname
