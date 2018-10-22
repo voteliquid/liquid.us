@@ -229,11 +229,11 @@ class LegislationListRow extends Component {
                   <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
                 `] : []}
                 <p><strong class="has-text-grey">Status:</strong> ${s.status}</p>
-                ${next_action_at && [`
+                ${next_action_at ? [`
                   <strong class="has-text-grey">Next action:</strong>
                   Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
                   <br />
-                `]}
+                `] : ''}
                 <strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}
               </div>
               `] : [`
