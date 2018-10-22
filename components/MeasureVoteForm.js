@@ -58,7 +58,8 @@ class MeasureVoteBox extends Component {
 
 class MeasureVoteForm extends Component {
   onconnected() {
-    if (this.location.hash === '#measure-vote-form') {
+    console.log(this.location.query)
+    if (this.location.query.action === 'add-argument') {
       window.scrollTo(0, document.getElementById('measure-vote-form').getBoundingClientRect().top)
     }
   }

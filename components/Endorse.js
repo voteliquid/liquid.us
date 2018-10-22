@@ -146,7 +146,7 @@ class Unendorsed extends Component {
   }
   render() {
     const { fullname, short_id, type, username } = this.props
-    const measureUrl = `/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}#measure-vote-form`
+    const measureUrl = `/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}?action=add-argument`
     return this.html`
       <div class="box" style="max-width: 600px;">
         <div class="level">
