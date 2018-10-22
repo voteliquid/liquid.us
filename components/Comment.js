@@ -239,7 +239,7 @@ module.exports = class Comment extends Component {
               <span class="has-text-grey-light">
                 ${user && user.id === user_id ? [`
                   <span class="has-text-grey-lighter">&bullet;</span>
-                  <a href="${`${measure_url}/vote`}" class="has-text-grey-light">
+                  <a href="${`${measure_url}?action=add-argument`}" class="has-text-grey-light">
                     <span class="icon is-small"><i class="fas fa-pencil-alt"></i></span>
                     <span>Edit</span>
                   </a>
