@@ -12,14 +12,6 @@ module.exports = class Comment extends Component {
       }
       return this.endorse()
     }
-    if (window.getSelection().toString().length === 0 && event.target.tagName.toUpperCase() !== 'A' && event.target.parentNode.tagName.toUpperCase() !== 'A') {
-      event.preventDefault()
-      const { author_username, id, short_id, type } = this.props
-      const commentUrl = `${author_username ? `/${author_username}/` : '/'}${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}/votes/${id}`
-      if (this.location.url !== commentUrl) {
-        this.location.redirect(303, commentUrl)
-      }
-    }
   }
   endorse() {
     const { measures = {}, reps = [], user } = this.state
