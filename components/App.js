@@ -234,14 +234,14 @@ const fetchLegislatures = (storage, user, geoip = {}) => (dispatch) => {
   const city = user && user.address ? user.address.city : geoip.city
   const state = user && user.address ? user.address.state : geoip.region
   dispatch({ type: 'legislaturesRequested' })
-  return api(`/legislatures?or=(short_name.eq.${city},short_name.eq.${state},short_name.eq.US-Congress)`, {
+  return api(`/legislatures?or=(short_name.eq."${city}, ${state}",short_name.eq.${state},short_name.eq.US-Congress)`, {
     storage,
   }).then((legislatures) => {
     dispatch({
       type: 'legislaturesReceived',
       legislatures: (legislatures || []).sort((a, b) => {
-        if (a.short_name === city && b.short_name === state) return 1
-        if (a.short_name === state && b.short_name === city) return -1
+        if (a.short_name === `${city}, ${state}` && b.short_name === state) return 1
+        if (a.short_name === state && b.short_name === `${city}, ${state}`) return -1
         return 0
       }).map((legislature) => {
         legislature.abbr = legislature.name
