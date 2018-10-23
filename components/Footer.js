@@ -1,4 +1,4 @@
-const { APP_NAME, NODE_ENV } = process.env
+const { APP_NAME } = process.env
 const { html } = require('../helpers')
 const quotes = require('../quotes')
 
@@ -67,48 +67,6 @@ module.exports = {
           }
         </style>
       </footer>
-
-      <script src="/assets/outdatedbrowser.min.js"></script>
-      <script>
-        //event listener: DOM ready
-        function addLoadEvent(func) {
-            var oldonload = window.onload;
-            if (typeof window.onload != 'function') {
-                window.onload = func;
-            } else {
-                window.onload = function() {
-                    if (oldonload) {
-                        oldonload();
-                    }
-                    func();
-                }
-            }
-        }
-        //call plugin function after DOM ready
-        addLoadEvent(function(){
-            outdatedBrowser({
-                bgColor: '#f25648',
-                color: '#ffffff',
-                lowerThan: 'transform',
-                languagePath: '/assets/outdatedbrowser_en.html'
-            })
-        });
-
-        window.__lo_site_id = 119200;
-      </script>
-      <div>
-        ${[NODE_ENV === 'production' ? `
-          <script async src="https://d10lpsik1i8c69.cloudfront.net/w.js"></script>
-          <script async src="https://www.googletagmanager.com/gtag/js?id=UA-84279342-5"></script>
-          <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'UA-84279342-5');
-          </script>
-        ` : '']}
-      </div>
     `
   },
 }

@@ -1,4 +1,4 @@
-const { ASSETS_URL, WWW_DOMAIN } = process.env
+const { ASSETS_URL, NODE_ENV, WWW_DOMAIN } = process.env
 const { avatarURL } = require('../helpers')
 const fs = require('fs')
 const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
@@ -60,6 +60,55 @@ module.exports = (state, html, bundleUrl) => {
       </head>
       <body>
         <div id="application">${html}</div>
+
+        <script src="/assets/outdatedbrowser.min.js"></script>
+        <script>
+          //event listener: DOM ready
+          function addLoadEvent(func) {
+              var oldonload = window.onload;
+              if (typeof window.onload != 'function') {
+                  window.onload = func;
+              } else {
+                  window.onload = function() {
+                      if (oldonload) {
+                          oldonload();
+                      }
+                      func();
+                  }
+              }
+          }
+          //call plugin function after DOM ready
+          addLoadEvent(function(){
+              outdatedBrowser({
+                  bgColor: '#f25648',
+                  color: '#ffffff',
+                  lowerThan: 'transform',
+                  languagePath: '/assets/outdatedbrowser_en.html'
+              })
+          });
+
+          window.__lo_site_id = 119200;
+        </script>
+        <div id="google_translate_element" style="position: fixed; bottom: 0; right: 100px; z-index: 99;"></div>
+        <script type="text/javascript">
+          function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, gaTrack: true, gaId: 'UA-84279342-5'}, 'google_translate_element');
+          }
+        </script>
+        <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+        <div>
+          ${[NODE_ENV === 'production' ? `
+            <script async src="https://d10lpsik1i8c69.cloudfront.net/w.js"></script>
+            <script async src="https://www.googletagmanager.com/gtag/js?id=UA-84279342-5"></script>
+            <script>
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              gtag('config', 'UA-84279342-5');
+            </script>
+          ` : '']}
+        </div>
         <script src="${bundleUrl}"></script>
       </body>
     </html>
