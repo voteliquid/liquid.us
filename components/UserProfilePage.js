@@ -172,7 +172,7 @@ class PublicVotes extends Component {
             padding-bottom: 1rem;
           }
         </style>
-        ${public_votes.map(public_vote => Comment.for(this, { show_bill: true, ...public_vote, endorsements: false }, `vote-card-${public_vote.id}`))}
+        ${public_votes.map(public_vote => Comment.for(this, { show_bill: true, ...public_vote, truncated: true, endorsements: false }, `vote-card-${public_vote.id}`))}
       </div>
     `
   }

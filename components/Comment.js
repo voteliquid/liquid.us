@@ -174,7 +174,7 @@ module.exports = class Comment extends Component {
     })
   }
   render() {
-    const { comment, author_username, endorsed, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id, public: is_public } = this.props
+    const { comment, author_username, endorsed, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id, public: is_public, truncated } = this.props
     const { measures, selected_profile, user } = this.state
     const measure = measures && measures[short_id]
     const avatarURL = this.avatarURL(this.props)
@@ -228,7 +228,7 @@ module.exports = class Comment extends Component {
                 <span>voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${proxy_vote_count + 1}</span> people` : ''}</span>
               </div>
             `]}
-            ${comment ? [`<div class="content" style="margin: .25rem 0 .75rem;">${this.linkifyUrls(comment)}</div>`] : ''}
+            ${comment ? CommentContent.for(this, { comment, truncated }, `comment-context-${id}`) : ''}
             <div style="display: none;" class="notification is-size-7 has-text-centered is-marginless comment-tooltip"><button class="delete"></button>${[tooltip]}</div>
             <div class="is-size-7" style="position: relative;">
               <a class="has-text-grey-light" title="Permalink" href="${share_url}">${timeAgo().format(`${updated_at}Z`)}</a>
@@ -259,6 +259,33 @@ module.exports = class Comment extends Component {
             </div>
           </div>
         </div>
+      </div>
+    `
+  }
+}
+
+class CommentContent extends Component {
+  onclick(event) {
+    event.preventDefault()
+    this.setProps({ expanded: !this.props.expanded }).render(this.props)
+  }
+  breakOnWord(str) {
+    const truncated = str.slice(0, 300).replace(/ \w+$/, '')
+    if (truncated[truncated.length - 1] !== '.') {
+      return `${truncated}...`
+    }
+    return truncated
+  }
+  render({ comment = '', expanded = false, truncated = false }) {
+    const showExpander = truncated && comment.length > 300
+    return this.html`
+      <div class="content" style="margin: .25rem 0 .75rem;">
+        ${[this.linkifyUrls(expanded ? comment : this.breakOnWord(comment))]}
+        <span class="${showExpander ? '' : 'is-hidden'}">
+          <a href="#" onclick=${this} class="is-size-7">
+            <span>show ${expanded ? 'less' : 'more'}</span>
+          </a>
+        </span>
       </div>
     `
   }
