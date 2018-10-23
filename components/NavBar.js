@@ -73,6 +73,11 @@ const style = `
     }
 
     @media (max-width: 1087px) {
+      .navbar-brand .navbar-item img {
+        margin: 4px 0;
+        max-height: 40px;
+        padding-left: 12px;
+      }
       .navbar {
         padding: 0;
       }
