@@ -1,7 +1,5 @@
-const { html } = require('../helpers')
-
 module.exports = () => {
-  return html()`
+  return [`
     <div class="loader">
       <style>
         .loader,
@@ -50,5 +48,5 @@ module.exports = () => {
         }
       </style>
     </div>
-  `
+  `]
 }

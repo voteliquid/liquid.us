@@ -69,7 +69,7 @@ module.exports = {
           contactWidget: { ...state.contactWidget, url: event.location.url },
           routeProgram: event.program,
           routeLoaded: routeInitEffect ? event.loaded : !!event.program,
-          route: { ...routeInitState, ...state.location, ...state.route },
+          route: { ...routeInitState, ...state.location, ...event.location, ...state.route },
         }, combineEffects(
           mapEffect('routeEvent', routeInitEffect),
           changePageTitle(event.page_title || state.page_title),
@@ -110,7 +110,7 @@ module.exports = {
         const hyperloopOrRajPageChange =
           event.program.for
             ? (dispatch) => dispatch({ type: 'hyperloopRouteLoaded', location: event.location, component: event.program })
-            : (dispatch) => dispatch({ type: 'pageChanged', location: event.location, program: event.program })
+            : (dispatch) => dispatch({ type: 'pageChanged', location: event.location, program: event.program, loaded: true })
 
         return [state, runInSeries(
           startNProgress(),
