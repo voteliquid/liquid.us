@@ -280,7 +280,7 @@ class CommentContent extends Component {
     const showExpander = truncated && comment.length > 300
     return this.html`
       <div class="content" style="margin: .25rem 0 .75rem;">
-        ${[this.linkifyUrls(expanded ? comment : this.breakOnWord(comment))]}
+        ${[this.linkifyUrls(expanded || !truncated ? comment : this.breakOnWord(comment))]}
         <span class="${showExpander ? '' : 'is-hidden'}">
           <a href="#" onclick=${this} class="is-size-7">
             <span>show ${expanded ? 'less' : 'more'}</span>
