@@ -96,7 +96,7 @@ class Endorsed extends Component {
             <div class="level-left">
               <div class="has-text-centered has-text-left-mobile">
                 <p class="has-text-left has-text-weight-bold">
-                  Share ${possessive(fullname && username ? fullname : 'their')} position to build support.
+                  Share ${fullname && username ? possessive(fullname) : 'their'} position to build support.
                 </p>
                 ${VoteShareButtons.for(this, this.props)}
               </div>
@@ -215,7 +215,7 @@ class AlreadyVoted extends Component {
             <div class="level-left">
               <p class="has-text-left">
                 <span class="has-text-weight-bold">You already voted ${this.capitalize(vote_position)} on this bill.</span><br />
-                <span>Endorse ${possessive(fullname && username ? fullname : 'their')} position instead?</span>
+                <span>Endorse ${fullname && username ? possessive(fullname) : 'their'} position instead?</span>
               </p>
             </div>
             <div class="level-right">
