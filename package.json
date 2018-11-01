@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "www.united.vote",
+  "name": "www.liquid.us",
   "version": "1.0.0",
-  "description": "www.united.vote",
+  "description": "www.liquid.us",
   "scripts": {
     "start": "node server.js",
     "test": "eslint ."
