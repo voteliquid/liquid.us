@@ -47,6 +47,11 @@ module.exports = (state, html, bundleUrl) => {
           .router {
             min-height: 50vh;
           }
+
+          .content a {
+            display: inline-block;
+            word-break: break-all;
+          }
         </style>
         <meta property="og:title" content="${title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:description" content="${description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
