@@ -12,6 +12,8 @@ module.exports = class CommentPage extends Component {
 
     const url = `/measures_detailed?short_id=eq.${params.short_id}`
 
+    if (measures[params.short_id]) return
+
     this.setState({ loading_measure: true })
 
     return this.api(url).then((results) => {
