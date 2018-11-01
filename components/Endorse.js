@@ -90,20 +90,22 @@ class Endorsed extends Component {
   render() {
     const { fullname, username } = this.props
     return this.html`
-      <div class="box" style="max-width: 600px;">
-        <div class="level">
-          <div class="level-left">
-            <div class="has-text-centered has-text-left-mobile">
-              <p class="has-text-left has-text-weight-bold">
-                Share ${possessive(fullname && username ? fullname : 'their')} position to build support.
-              </p>
-              ${VoteShareButtons.for(this, this.props)}
+      <div class="box">
+        <div class="container">
+          <div class="level">
+            <div class="level-left">
+              <div class="has-text-centered has-text-left-mobile">
+                <p class="has-text-left has-text-weight-bold">
+                  Share ${possessive(fullname && username ? fullname : 'their')} position to build support.
+                </p>
+                ${VoteShareButtons.for(this, this.props)}
+              </div>
             </div>
-          </div>
-          <div class="level-right">
-            <a onclick=${this} href="#" class="button is-primary">
-              <span>Endorsed</span>
-            </a>
+            <div class="level-right">
+              <a onclick=${this} href="#" class="button is-primary">
+                <span>Endorsed</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -148,22 +150,24 @@ class Unendorsed extends Component {
     const { fullname, short_id, type, username } = this.props
     const measureUrl = `/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}?action=add-argument`
     return this.html`
-      <div class="box" style="max-width: 600px;">
-        <div class="level">
-          <div class="level-left">
-            <div>
-              <p class="has-text-left">
-                <span class="has-text-weight-bold">You haven't voted on this bill.</span><br />
-                <span>Let your reps know you agree with ${fullname && username ? fullname : 'them'},</span>
-                <br />
-                <span>or <a href="${measureUrl}">add your own argument</a>.</span>
-              </p>
+      <div class="box">
+        <div class="container">
+          <div class="level">
+            <div class="level-left">
+              <div>
+                <p class="has-text-left">
+                  <span class="has-text-weight-bold">You haven't voted on this bill.</span><br />
+                  <span>Let your reps know you agree with ${fullname && username ? fullname : 'them'},</span>
+                  <br />
+                  <span>or <a href="${measureUrl}">add your own argument</a>.</span>
+                </p>
+              </div>
             </div>
-          </div>
-          <div class="level-right">
-            <a onclick=${this} href="#" class="button is-primary">
-              <span>Endorse</span>
-            </a>
+            <div class="level-right">
+              <a onclick=${this} href="#" class="button is-primary">
+                <span>Endorse</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -205,18 +209,20 @@ class AlreadyVoted extends Component {
     const { vote, vote_position } = this.props
     const { fullname, username } = vote
     return this.html`
-      <div class="box" style="max-width: 600px;">
-        <div class="level">
-          <div class="level-left">
-            <p class="has-text-left">
-              <span class="has-text-weight-bold">You already voted ${this.capitalize(vote_position)} on this bill.</span><br />
-              <span>Endorse ${possessive(fullname && username ? fullname : 'their')} position instead?</span>
-            </p>
-          </div>
-          <div class="level-right">
-            <a onclick=${this} href="#" class="button is-primary">
-              <span>Endorse</span>
-            </a>
+      <div class="box">
+        <div class="container">
+          <div class="level">
+            <div class="level-left">
+              <p class="has-text-left">
+                <span class="has-text-weight-bold">You already voted ${this.capitalize(vote_position)} on this bill.</span><br />
+                <span>Endorse ${possessive(fullname && username ? fullname : 'their')} position instead?</span>
+              </p>
+            </div>
+            <div class="level-right">
+              <a onclick=${this} href="#" class="button is-primary">
+                <span>Endorse</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -227,14 +233,16 @@ class AlreadyVoted extends Component {
 class YourVote extends Component {
   render() {
     return this.html`
-      <div class="box" style="max-width: 600px;">
-        <div class="level">
-          <div class="level-left">
-            <div class="has-text-centered has-text-left-mobile">
-              <p class="has-text-left has-text-weight-bold">
-                Encourage others to endorse your position.
-              </p>
-              ${VoteShareButtons.for(this, this.props)}
+      <div class="box">
+        <div class="container">
+          <div class="level">
+            <div class="level-left">
+              <div class="has-text-centered has-text-left-mobile">
+                <p class="has-text-left has-text-weight-bold">
+                  Encourage others to endorse your position.
+                </p>
+                ${VoteShareButtons.for(this, this.props)}
+              </div>
             </div>
           </div>
         </div>

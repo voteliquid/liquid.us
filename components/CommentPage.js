@@ -137,17 +137,12 @@ class CommentDetailPage extends Component {
                 </a>
               </div>
               <style>
-                @media (max-width: 768px) {
-                  .endorse {
-                    position: fixed;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    z-index: 9999;
-                  }
-                  .endorse .box {
-                    max-width: none !important;
-                  }
+                .endorse {
+                  position: fixed;
+                  bottom: 0;
+                  left: 0;
+                  right: 0;
+                  z-index: 9999;
                 }
               </style>
               ${Comment.for(this, l.comment)}
