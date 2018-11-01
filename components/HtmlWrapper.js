@@ -52,6 +52,10 @@ module.exports = (state, html, bundleUrl) => {
             display: inline-block;
             word-break: break-all;
           }
+
+          a.has-text-grey-light:hover {
+            color: hsl(0, 0%, 48%)!important;
+          }
         </style>
         <meta property="og:title" content="${title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:description" content="${description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
