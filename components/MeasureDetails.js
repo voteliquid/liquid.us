@@ -18,7 +18,7 @@ module.exports = class MeasureDetails extends Component {
             <p class="notification is-info">
               <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
               <strong>Help hold your reps accountable!</strong><br />
-              Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
+              Your vote has been saved, and we'll send it to your elected reps, but it won't be counted publicly until you <a href="/get_started">verify your identity</a>.
             </p>
           `] : ''}
           <div class="columns">
