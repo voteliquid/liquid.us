@@ -28,7 +28,7 @@ module.exports = class MeasureDetails extends Component {
               ${TopComments.for(this, { measure: l, yea: l.top_yea, nay: l.top_nay })}
               ${Votes.for(this, { measure: l })}
             </div>
-            <div class="${l.introduced_at ? `column is-one-third-tablet is-one-quarter-desktop` : ''}">
+            <div class="${`column ${l.introduced_at ? `column is-one-third-tablet is-one-quarter-desktop` : ''}`}">
               ${Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`)}
             </div>
           </div>
