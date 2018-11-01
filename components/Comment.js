@@ -267,6 +267,10 @@ module.exports = class Comment extends Component {
                     bottom: 4px;
                     left: 2px;
                   }
+
+                  .comment .endorse.is-light {
+                    border-color: #cecece;
+                  }
                 </style>
               </span>
             </div>
