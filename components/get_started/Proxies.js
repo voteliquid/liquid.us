@@ -34,7 +34,7 @@ module.exports = class ChooseFirstProxyPage extends Component {
                 <div class="control">
                   ${proxies.length
                     ? [`<a class="button is-primary" href="/get_started/updates"><strong>Done</strong></a>`]
-                    : [`<a style="margin-top: 6rem; margin-left: 3rem;" class="button" href="/get_started/updates?skipped_proxies=true">Skip</a>`]
+                    : [`<a style="margin-top: 6rem; margin-left: 3rem;" class="button" href="/get_started/updates">Skip</a>`]
                   }
                 </div>
               </div>
