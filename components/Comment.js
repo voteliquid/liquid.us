@@ -174,7 +174,7 @@ module.exports = class Comment extends Component {
     })
   }
   render() {
-    const { comment, author_username, endorsed, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id, public: is_public, truncated } = this.props
+    const { comment, author_username, endorsed, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id, public: is_public, truncated, twitter_username } = this.props
     const { measures, selected_profile, user } = this.state
     const measure = measures && measures[short_id]
     const avatarURL = this.avatarURL(this.props)
@@ -207,8 +207,8 @@ module.exports = class Comment extends Component {
           : [`
               <div class="media-left">
                 <div class="image is-32x32">
-                  ${username
-                    ? `<a href="/${username}">
+                  ${username || twitter_username
+                    ? `<a href="/${username || twitter_username}">
                         <img src="${avatarURL}" alt="avatar" class="round-avatar-img" />
                       </a>`
                     : `<img src="${avatarURL}" alt="avatar" class="round-avatar-img" />`}
@@ -218,14 +218,20 @@ module.exports = class Comment extends Component {
           <div class="media-content" style="${`${show_bill ? '' : `border-left: 1px solid ${position === 'yea' ? 'hsl(141, 71%, 87%)' : 'hsl(348, 100%, 93%)'}; margin-left: -2rem; padding-left: 2rem;`}`}">
             ${[show_bill && selected_profile ? `
               <div>
-                <span class="has-text-weight-semibold">${username ? fullname : anonymousName}</span>
+                <span class="has-text-weight-semibold">${username || twitter_username ? fullname : anonymousName}</span>
                 <span>voted <strong>${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${proxy_vote_count + 1}</span> people` : ''}</span>
+                ${twitter_username ? [`<span> via Twitter</span>`] : ''}
               </div>
               <div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>
             ` : `
               <div>
-                <span class="has-text-weight-semibold">${username ? [`<a href="/${username}">${fullname}</a>`] : anonymousName}</span>
+                <span class="has-text-weight-semibold">
+                  ${username || twitter_username
+                    ? [`<a href="/${twitter_username ? `twitter/${twitter_username}` : username}">${fullname}</a>`]
+                    : anonymousName}
+                </span>
                 <span>voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${proxy_vote_count + 1}</span> people` : ''}</span>
+                ${twitter_username ? [`<span> via Twitter</span>`] : ''}
               </div>
             `]}
             ${comment ? CommentContent.for(this, { comment, truncated }, `comment-context-${id}`) : ''}

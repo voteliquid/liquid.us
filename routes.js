@@ -7,6 +7,7 @@ module.exports = {
   '/legislation/propose': route('Propose New Legislation', () => import('./components/ProposeLegislationPage')),
   '/legislation/yours': route('Your Proposed Legislation', () => import('./components/YourProposedLegislationPage')),
   '/legislation/:short_id': route('Legislation', () => import('./components/MeasureDetailsPage')),
+  '/legislation/:short_id/import': route('Import Vote', () => import('./components/ImportVotePage')),
   '/nominations/:short_id': route('Legislation', () => import('./components/MeasureDetailsPage')),
   '/nominations/:short_id/vote': route('Legislation', () => import('./components/MeasureVotePage')),
   '/nominations/:short_id/votes/:comment_id': route('Nomination Comment', () => import('./components/CommentPage')),
