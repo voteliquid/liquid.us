@@ -30,7 +30,7 @@ module.exports = class ProfilePage extends Component {
       }
 
       if (this.isBrowser) {
-        const page_title = `${user.name} ★ ${config.APP_NAME}`
+        const page_title = `${user.name} | ${config.APP_NAME}`
         window.document.title = page_title
         window.history.replaceState(window.history.state, page_title, document.location)
       }

@@ -47,7 +47,7 @@ module.exports = class MeasureVotePage extends Component {
           }).then((measure_vote_power) => {
             measure.vote_power = measure_vote_power
             if (this.isBrowser) {
-              const page_title = `Vote on ${measure.title} ★ ${config.APP_NAME}`
+              const page_title = `Vote on ${measure.title} | ${config.APP_NAME}`
               window.document.title = page_title
               window.history.replaceState(window.history.state, page_title, document.location)
             }

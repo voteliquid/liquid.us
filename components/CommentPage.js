@@ -50,7 +50,7 @@ module.exports = class CommentPage extends Component {
 
             const page_title = `${this.possessive(comment.fullname || 'Anonymous')} vote on ${measure.title}`
             if (this.isBrowser) {
-              const page_title_with_appname = `${page_title} ★ ${config.APP_NAME}`
+              const page_title_with_appname = `${page_title} | ${config.APP_NAME}`
               window.document.title = page_title_with_appname
               window.history.replaceState(window.history.state, page_title_with_appname, document.location)
             }
