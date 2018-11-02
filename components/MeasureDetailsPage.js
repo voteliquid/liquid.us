@@ -9,6 +9,8 @@ module.exports = class MeasureDetailsPage extends Component {
     const { params } = this.props
     const measure = measures[params.short_id]
 
+    if (measures[params.short_id]) return
+
     this.setState({
       showMeasureVoteForm: false,
     })
