@@ -89,12 +89,11 @@ class VoteButtons extends Component {
 
     const saveVote = require('./MeasureVoteForm').MeasureVoteForm.prototype.onsubmit
     const { measure } = this.props
+    const { author_username, short_id, type } = measure
+    const measureUrl = `${author_username ? `/${author_username}/` : '/'}${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}/vote`
 
     if (measure.vote_position === form.vote_position) {
-      if (measure.type === 'PN') {
-        return this.location.redirect(303, `/nominations/${measure.short_id}/vote`)
-      }
-      return this.location.redirect(303, `/legislation/${measure.short_id}/vote`)
+      return this.location.redirect(303, measureUrl)
     }
 
     return saveVote.call(this, event, form)
@@ -102,13 +101,14 @@ class VoteButtons extends Component {
   render() {
     const { saving_vote } = this.state
     const { measure } = this.props
-    const { delegate_name, vote_position } = measure
+    const { author_username, delegate_name, vote_position } = measure
     const { my_vote = { vote_position } } = measure
+    const measureUrl = `${author_username ? `/${author_username}/` : '/'}${measure.type === 'PN' ? 'nominations' : 'legislation'}/${measure.short_id}/vote`
     return this.html`
       <div onconnected=${this} class="columns is-gapless is-multiline is-marginless">
         ${vote_position === 'abstain' ? [`
           <div class="column is-full">
-            <a href="${`/${measure.type === 'PN' ? 'nominations' : 'legislation'}/${measure.short_id}/vote`}" style="display: block; line-height: 100%; height: 100%; white-space: normal;" class="${`${saving_vote ? 'is-loading' : ''} button vote-button-yea is-outline has-text-weight-semibold is-fullwidth`}">
+            <a href="${measureUrl}" style="display: block; line-height: 100%; height: 100%; white-space: normal;" class="${`${saving_vote ? 'is-loading' : ''} button vote-button-yea is-outline has-text-weight-semibold is-fullwidth`}">
               <span class="icon is-small"><i class="far fa-circle"></i></span>
               <span>${delegate_name ? `Inherited Abstain vote from ${delegate_name}` : 'You Abstained'}</span>
             </a>
