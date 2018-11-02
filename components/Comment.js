@@ -236,7 +236,7 @@ module.exports = class Comment extends Component {
             `]}
             ${comment ? CommentContent.for(this, { comment, truncated }, `comment-context-${id}`) : ''}
             <div style="display: none;" class="notification is-size-7 has-text-centered is-marginless comment-tooltip"><button class="delete"></button>${[tooltip]}</div>
-            <div class="is-size-7" style="position: relative;">
+            <div class="is-size-7" style="position: relative; line-height: 25px;">
               <a class="has-text-grey-light" title="Permalink" href="${share_url}">${timeAgo().format(`${updated_at}Z`)}</a>
               <span class="has-text-grey-light">
                 ${user && user.id === user_id ? [`
@@ -257,17 +257,11 @@ module.exports = class Comment extends Component {
                   <a target="_blank" title="Share on Twitter" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-twitter"></i></span></a>
                   <a target="_blank" title="Permalink" href="${comment_url}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-link"></i></span></a>
                 `] : ''}
-                <span class="has-text-grey-lighter">&bullet;</span>
+                <span class="has-text-grey-lighter">&bullet;&nbsp;</span>
                 <a href="#" onclick=${this} class="${`has-text-weight-semibold has-text-grey endorse button is-small ${endorsed ? 'is-light' : ''}`}">
                   <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
                 </a>
                 <style>
-                  .comment .endorse {
-                    position: relative;
-                    bottom: 4px;
-                    left: 2px;
-                  }
-
                   .comment .endorse.is-light {
                     border-color: #cecece;
                   }
