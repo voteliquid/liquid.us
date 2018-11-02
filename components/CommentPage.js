@@ -12,69 +12,64 @@ module.exports = class CommentPage extends Component {
 
     const url = `/measures_detailed?short_id=eq.${params.short_id}`
 
-    if (measures[params.short_id]) return
-
-    this.setState({ loading_measure: true })
+    if (!measures[params.short_id]) {
+      this.setState({ loading_measure: true })
+    }
 
     return this.api(url).then((results) => {
       const measure = results[0]
 
-      if (measure) {
-        const voteUrl = `/${measure.type === 'PN' ? 'nominations' : 'legislation'}/${measure.short_id}/votes/${params.comment_id}`
-        if (measure.author_id && !params.username) {
-          if (new Date(measure.created_at) > new Date('2018-10-16')) {
+      if (!measure) {
+        this.location.setStatus(404)
+        return this.setState({ loading_measure: false })
+      }
+
+      const voteUrl = `/${measure.type === 'PN' ? 'nominations' : 'legislation'}/${measure.short_id}/votes/${params.comment_id}`
+
+      if (measure.author_id && !params.username) {
+        return this.location.redirect(301, `/${measure.author_username}${voteUrl}`)
+      }
+
+      if (!measure.author_id && params.username) {
+        this.location.setStatus(404)
+        return this.setState({ loading_measure: false })
+      }
+
+      const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
+      const officeId = repsInChamber[0] && repsInChamber[0].office_id
+      return fetchConstituentVotes.call(this, measure.id, measure.short_id, officeId).then(() => {
+        return this.fetchComment(params.comment_id, measure).then(comment => {
+          if (!comment) {
             this.location.setStatus(404)
             return this.setState({ loading_measure: false })
           }
-          return this.location.redirect(301, `/${measure.author_username}${voteUrl}`)
-        }
-        if (!measure.author_id && params.username) {
-          this.location.setStatus(404)
-          return this.setState({ loading_measure: false })
-        }
 
-        this.setState({
-          measures: {
-            ...measures,
-            [measure.short_id]: {
-              ...measures[measure.short_id],
-              ...measure
-            },
+          measure.comment = comment
+
+          const page_title = `${this.possessive(comment.fullname || 'Anonymous')} vote on ${measure.title}`
+          if (this.isBrowser) {
+            const page_title_with_appname = `${page_title} | ${config.APP_NAME}`
+            window.document.title = page_title_with_appname
+            window.history.replaceState(window.history.state, page_title_with_appname, document.location)
           }
-        })
-        const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-        const officeId = repsInChamber[0] && repsInChamber[0].office_id
-        return fetchConstituentVotes.call(this, measure.id, measure.short_id, officeId).then(() => {
-          return this.fetchComment(params.comment_id, measure).then(comment => {
-            measure.comment = comment
 
-            const page_title = `${this.possessive(comment.fullname || 'Anonymous')} vote on ${measure.title}`
-            if (this.isBrowser) {
-              const page_title_with_appname = `${page_title} | ${config.APP_NAME}`
-              window.document.title = page_title_with_appname
-              window.history.replaceState(window.history.state, page_title_with_appname, document.location)
-            }
-
-            return this.setState({
-              loading_measure: false,
-              page_title,
-              page_description: this.escapeHtml(comment.comment, { replaceAmp: true }),
-              measures: {
-                ...this.state.measures,
-                [measure.short_id]: {
-                  ...this.state.measures[measure.short_id],
-                  ...measure
-                },
+          return this.setState({
+            loading_measure: false,
+            page_title,
+            page_description: this.escapeHtml(comment.comment, { replaceAmp: true }),
+            measures: {
+              ...measures,
+              [measure.short_id]: {
+                ...measures[measure.short_id],
+                ...measure
               },
-            })
+            },
           })
         })
-      }
-
-      this.location.setStatus(404)
-      return this.setState({ loading_measure: false })
+      })
     })
     .catch((error) => {
+      console.log(error)
       this.location.setStatus(404)
       return this.setState({ error, loading_measure: false })
     })
@@ -96,7 +91,7 @@ module.exports = class CommentPage extends Component {
     return this.html`<div>${
       loading_measure
         ? LoadingIndicator.for(this)
-        : measure && measure.comment
+        : measure
           ? CommentDetailPage.for(this, { measure })
           : CommentNotFoundPage.for(this)
     }</div>`

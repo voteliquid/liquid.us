@@ -9,8 +9,6 @@ module.exports = class MeasureDetailsPage extends Component {
     const { params } = this.props
     const measure = measures[params.short_id]
 
-    if (measures[params.short_id]) return
-
     this.setState({
       showMeasureVoteForm: false,
     })
@@ -70,11 +68,12 @@ module.exports = class MeasureDetailsPage extends Component {
     const officeParam = office_id && short_id.slice(0, 2) === 'us' ? `&office_id=eq.${office_id}` : '&limit=1'
     return this.api(`/measure_votes?measure_id=eq.${id}${officeParam}`).then((results) => {
       const votes = results[0] || {}
+      const measures = this.state.measures || {}
       this.setState({
         measures: {
-          ...this.state.measures,
+          ...measures,
           [short_id]: {
-            ...this.state.measures[short_id],
+            ...measures[short_id],
             ...votes
           },
         },
