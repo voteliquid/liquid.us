@@ -48,6 +48,16 @@ module.exports = (state, html, bundleUrl) => {
             min-height: 50vh;
           }
 
+          .section {
+            padding: 2rem 1.5rem 3rem;
+          }
+
+          @media (max-width: 768px) {
+            .section {
+              padding-top: 1rem;
+            }
+          }
+
           .content a {
             display: inline-block;
             word-break: break-all;
