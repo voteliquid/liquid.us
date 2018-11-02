@@ -1,4 +1,4 @@
-const { api, combineEffects, html, preventDefault } = require('../helpers')
+const { api, combineEffects, html, preventDefault, redirect } = require('../helpers')
 
 module.exports = {
   init: [{
@@ -15,7 +15,8 @@ module.exports = {
         return [state, combineEffects(preventDefault(event.event), postImportedVote(state, event.event))]
       case 'receivedError':
         return [{ ...state, error: event.error }]
-      case 'voteImported':
+      case 'redirected':
+        return [state, redirect(event.url)]
       default:
         return [state]
     }
@@ -90,6 +91,6 @@ const postImportedVote = ({ params, storage }, event) => (dispatch) => {
     body: JSON.stringify({ ...formData, twitter_username, short_id }),
     storage,
   })
-  .then(() => dispatch({ type: 'importedVote' }))
+  .then(() => dispatch({ type: 'redirected', url: `${params.username ? `/${params.username}/` : '/'}legislation/${params.short_id}` }))
   .catch((error) => dispatch({ type: 'receivedError', error }))
 }

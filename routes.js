@@ -13,6 +13,7 @@ module.exports = {
   '/nominations/:short_id/votes/:comment_id': route('Nomination Comment', () => import('./components/CommentPage')),
   '/:username/legislation/:short_id': route('Legislation', () => import('./components/MeasureDetailsPage')),
   '/:username/legislation/:short_id/vote': route('Legislation', () => import('./components/MeasureVotePage')),
+  '/:username/legislation/:short_id/import': route('Import Vote', () => import('./components/ImportVotePage')),
   '/:username/legislation/:short_id/votes/:comment_id': route('Legislation', () => import('./components/CommentPage')),
   '/:username/legislation/:short_id/edit': route('Edit Legislation', () => import('./components/EditLegislationPage')),
   '/legislation/:short_id/vote': route('Vote', () => import('./components/MeasureVotePage')),
