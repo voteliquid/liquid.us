@@ -147,8 +147,8 @@ class Unendorsed extends Component {
     .catch((error) => console.log(error))
   }
   render() {
-    const { fullname, short_id, type, username } = this.props
-    const measureUrl = `/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}?action=add-argument`
+    const { fullname, short_id, type, username, author_username } = this.props
+    const measureUrl = `${author_username ? `/${author_username}/` : '/'}${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}/vote`
     return this.html`
       <div class="box">
         <div class="container">
