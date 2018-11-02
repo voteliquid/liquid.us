@@ -354,7 +354,7 @@ const initHyperloop = (context, location, Component) => (dispatch) => {
       program: { view: () => html },
     })
     if (context.root.onpagechange && context.root.initialized) {
-      context.root.onpagechange({ params: {}, query: {} })
+      context.root.onpagechange.call(context.root, { params: {}, query: {} })
     }
     context.root.initialized = true
   })
