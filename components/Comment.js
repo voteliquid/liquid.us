@@ -5,7 +5,12 @@ const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = class Comment extends Component {
   onclick(event) {
-    if (~event.currentTarget.className.indexOf('endorse')) {
+    if (~event.currentTarget.className.indexOf('privacy-indicator')) {
+      event.preventDefault()
+      this.setProps({ showPrivacyIndicator: true }).render(this.props)
+    } else if (~event.currentTarget.className.indexOf('delete')) {
+      this.setProps({ showPrivacyIndicator: false }).render(this.props)
+    } else if (~event.currentTarget.className.indexOf('endorse')) {
       event.preventDefault()
       if (this.props.endorsed) {
         return this.unendorse()
@@ -174,7 +179,7 @@ module.exports = class Comment extends Component {
     })
   }
   render() {
-    const { comment, author_username, endorsed, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id, public: is_public, truncated, twitter_username } = this.props
+    const { comment, author_username, endorsed, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id, public: is_public, truncated, twitter_username, showPrivacyIndicator } = this.props
     const { measures, selected_profile, user } = this.state
     const measure = measures && measures[short_id]
     const avatarURL = this.avatarURL(this.props)
@@ -235,7 +240,7 @@ module.exports = class Comment extends Component {
               </div>
             `]}
             ${comment ? CommentContent.for(this, { comment, truncated }, `comment-context-${id}`) : ''}
-            <div style="display: none;" class="notification is-size-7 has-text-centered is-marginless comment-tooltip"><button class="delete"></button>${[tooltip]}</div>
+            <div class="${`notification is-size-7 has-text-centered comment-tooltip ${showPrivacyIndicator ? '' : 'is-hidden'}`}"><button onclick=${this} class="delete"></button>${[tooltip]}</div>
             <div class="is-size-7" style="position: relative; line-height: 25px;">
               <a class="has-text-grey-light" title="Permalink" href="${share_url}">${timeAgo().format(`${updated_at}Z`)}</a>
               <span class="has-text-grey-light">
@@ -246,8 +251,8 @@ module.exports = class Comment extends Component {
                     <span>Edit</span>
                   </a>
                 `] : ''}
-                <span class="has-text-grey-lighter">&bullet;</span>
-                <a href="#" onclick=${this} class="has-text-grey-light privacy-indicator">
+                <span class="${`has-text-grey-lighter ${!is_public && fullname ? '' : 'is-hidden'}`}">&bullet;</span>
+                <a href="#" onclick=${this} class="${`has-text-grey-light privacy-indicator ${!is_public && fullname ? '' : 'is-hidden'}`}">
                   <span class="icon is-small"><i class="${`${is_public || !fullname ? 'fa fa-globe-americas' : 'far fa-address-book'}`}"></i></span>
                   <span>${is_public || !fullname ? 'Public' : 'Private'}</span>
                 </a>
