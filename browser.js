@@ -21,6 +21,7 @@ runtime({
   init: [{
     ...initState,
     hyperloop: new HyperloopContext(window.__app_state || {}),
+    routeLoaded: false,
     routeProgram: null,
     storage: {
       get: cookies.get,

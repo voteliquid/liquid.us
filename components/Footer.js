@@ -2,7 +2,13 @@ const { APP_NAME } = process.env
 const { html } = require('../helpers')
 const quotes = require('../quotes')
 
+let firstPageLoad = true
+
 function selectQuote(dispatch) {
+  if (typeof window === 'object' && firstPageLoad) {
+    return (firstPageLoad = false)
+  }
+
   dispatch({
     type: 'quoteSelected',
     quote: quotes[Math.floor(Math.random() * quotes.length)],

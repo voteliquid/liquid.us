@@ -2,8 +2,7 @@ const { NODE_ENV, WWW_URL } = process.env
 const fetch = require('isomorphic-fetch')
 const stateNames = require('datasets-us-states-abbr-names')
 
-const { api, html, runInSeries, combineEffects, mapEffect, mapEvent } = require('../helpers')
-const { loadPage } = require('./Router')
+const { api, combineEffects, html, loadPage, mapEffect, mapEvent, runInSeries } = require('../helpers')
 const Navbar = require('./NavBar')
 const Footer = require('./Footer')
 const ContactWidget = require('./ContactWidget')
@@ -22,6 +21,7 @@ module.exports = {
     },
     navbar: Navbar.init[0],
     route: {},
+    routeLoaded: false,
     routeProgram: null,
     storage: {},
     user: null,
@@ -35,8 +35,14 @@ module.exports = {
       case 'footerEvent':
         const [footerState, footerEffect] = Footer.update(event.event, state.footer)
         return [{ ...state, footer: footerState }, mapEffect('footerEvent', footerEffect)]
+      case 'hyperloopInitialized':
+        return [{
+          ...state,
+          routeLoaded: true,
+          routeProgram: event.program,
+        }]
       case 'hyperloopRouteLoaded':
-        return [state, initHyperloop(state.hyperloop, event.location, event.component)]
+        return [state, initHyperloop(state.hyperloop, state.location, event.component)]
       case 'hyperloopStateChanged':
         return [{
           ...state,
@@ -59,7 +65,6 @@ module.exports = {
           mapEffect('navbarEvent', navbarEffect),
         ]
       case 'pageChanged':
-        const [routeInitState, routeInitEffect] = event.program && event.program.init ? event.program.init : []
         return [{
           ...state,
           error: undefined,
@@ -67,14 +72,11 @@ module.exports = {
           location: { ...state.location, ...event.location },
           navbar: { ...state.navbar, location: event.location, hamburgerVisible: false },
           contactWidget: { ...state.contactWidget, url: event.location.url },
-          routeProgram: event.program,
-          routeLoaded: routeInitEffect ? event.loaded : !!event.program,
-          route: { ...routeInitState, ...state.location, ...event.location, ...state.route },
         }, combineEffects(
-          mapEffect('routeEvent', routeInitEffect),
           changePageTitle(event.page_title || state.page_title),
-          stopNProgress(),
-          scrollToTop(event.scroll)
+          startNProgress(),
+          scrollToTop(event.scroll),
+          mapEffect('footerEvent', Footer.selectQuote),
         )]
       case 'repsRequested':
         return [state]
@@ -107,15 +109,20 @@ module.exports = {
             return [{ ...state, route: routeState }, mapEffect('routeEvent', effect)]
         }
       case 'routeLoaded':
-        const hyperloopOrRajPageChange =
-          event.program.for
-            ? (dispatch) => dispatch({ type: 'hyperloopRouteLoaded', location: event.location, component: event.program })
-            : (dispatch) => dispatch({ type: 'pageChanged', location: event.location, program: event.program, loaded: true })
+        const [routeInitState, routeInitEffect] = event.program && event.program.init ? event.program.init : []
+        const isHyperloop = !!event.program.for
+        const hyperloopEffect = (dispatch) => dispatch({ type: 'hyperloopRouteLoaded', component: event.program })
 
-        return [state, runInSeries(
-          startNProgress(),
+        return [{
+          ...state,
+          routeProgram: event.program.view && event.program,
+          routeLoaded: !event.program.for,
+          route: { ...routeInitState, ...state.route, ...state.location },
+        }, runInSeries(
+          stopNProgress(),
           fetchUserAndRepsAndLegislatures(state),
-          hyperloopOrRajPageChange
+          !isHyperloop && mapEffect('routeEvent', routeInitEffect),
+          isHyperloop && hyperloopEffect
         )]
       case 'userRequested':
         return [state]
@@ -348,9 +355,7 @@ const initHyperloop = (context, location, Component) => (dispatch) => {
     }
     dispatch({ type: 'hyperloopStateChanged', state: context.state })
     dispatch({
-      type: 'pageChanged',
-      location,
-      loaded: true,
+      type: 'hyperloopInitialized',
       program: { view: () => html },
     })
     if (context.root.onpagechange && context.root.initialized) {

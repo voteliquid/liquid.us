@@ -1,4 +1,4 @@
-const { api, combineEffects, html, preventDefault, redirect } = require('../helpers')
+const { api, combineEffects, html, preventDefault } = require('../helpers')
 const ActivityIndicator = require('./ActivityIndicator')
 
 module.exports = {
@@ -27,8 +27,6 @@ module.exports = {
             ? fetchUnsubscribes(user, storage)
             : (dispatch) => dispatch({ type: 'redirected', url: '/sign_in' })
         ]
-      case 'redirected':
-        return [state, redirect(event.url)]
       case 'submitted':
         const formData = require('parse-form').parse(event.event.target).body
 

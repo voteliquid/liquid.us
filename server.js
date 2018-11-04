@@ -43,6 +43,7 @@ require('babel-register')({
   ]
 })
 
+const { serverHyperloopContext: HyperloopContext, combineEffects, loadPage } = require('./helpers')
 const webpackConfig = require('./webpack.config')
 const twitterAvatarProxy = require('./middleware/twitter_avatar_proxy')
 const errorHandler = require('./middleware/error_handler')
@@ -52,9 +53,7 @@ const redirects = require('./middleware/redirects')
 const twitterUsernameSearch = require('./middleware/twitter_username_search')
 const verifyPhoneNumber = require('./middleware/verify_phone_number')
 const htmlWrapper = require('./components/HtmlWrapper')
-const { loadPage } = require('./components/Router')
 let App = require('./components/App')
-const { serverHyperloopContext: HyperloopContext, combineEffects } = require('./helpers')
 
 const port = PORT || WWW_PORT
 
