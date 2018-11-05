@@ -26,8 +26,8 @@ module.exports = {
       <section class="section">
         <div class="container is-widescreen">
           <h2 class="title is-size-5">Import Vote</h2>
-          ${!user.is_admin ? [`<div class="notification is-danger">You do not have permission to import votes.</div>`] : ''}
-          <form onsubmit=${(event) => dispatch({ type: 'formSubmitted', event })} class=${user.is_admin ? '' : 'is-hidden'}>
+          ${!user || !user.is_admin ? [`<div class="notification is-danger">You do not have permission to import votes.</div>`] : ''}
+          <form onsubmit=${(event) => dispatch({ type: 'formSubmitted', event })} class=${user && user.is_admin ? '' : 'is-hidden'}>
             ${error ? [`<div class="notification is-danger">${error.message}</div>`] : ''}
             <div class="field">
               <label class="label">Position:</label>
