@@ -19,7 +19,7 @@ module.exports = class LegislationList extends Component {
     const { legislation_query, user } = this.state
     const { query, url } = this.location
 
-    if (url === legislation_query) return
+    if (url === legislation_query) return Promise.resolve()
 
     this.setState({ loading_legislation: true })
 
@@ -49,11 +49,17 @@ module.exports = class LegislationList extends Component {
     const api_url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&type=not.eq.PN${order}&limit=40`
 
     return this.api(api_url)
-      .then(legislation => ({ legislation_query: url, legislation, loading_legislation: false }))
+      .then((measures) => this.setState({
+        legislation_query: url,
+        legislationList: measures.map(({ short_id }) => short_id),
+        loading_legislation: false,
+        measures: measures.reduce((b, a) => Object.assign(b, { [a.short_id]: a }), {}),
+      }))
       .catch(error => ({ error, loading_legislation: false }))
   }
   render() {
-    const { loading_legislation, legislation, legislatures } = this.state
+    const { loading_legislation, legislationList = [], legislatures, measures } = this.state
+    const legislation = legislationList.map((short_id) => measures[short_id])
 
     return this.html`
       <div class="section">
