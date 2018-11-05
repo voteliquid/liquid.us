@@ -12,7 +12,7 @@ module.exports = class CommentPage extends Component {
 
     const url = `/measures_detailed?short_id=eq.${params.short_id}`
 
-    if (!measures[params.short_id]) {
+    if (!measures[params.short_id] || !measures[params.short_id].comment) {
       this.setState({ loading_measure: true })
     }
 
