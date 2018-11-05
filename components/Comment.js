@@ -241,7 +241,7 @@ module.exports = class Comment extends Component {
             `]}
             ${comment ? CommentContent.for(this, { comment, truncated }, `comment-context-${id}`) : ''}
             <div class="${`notification is-size-7 has-text-centered comment-tooltip ${showPrivacyIndicator ? '' : 'is-hidden'}`}"><button onclick=${this} class="delete"></button>${[tooltip]}</div>
-            <div class="is-size-7" style="position: relative; line-height: 25px;">
+            <div class="is-size-7" style="position: relative; line-height: 25px; margin-top: 0.2rem;">
               <a class="has-text-grey-light" title="Permalink" href="${share_url}">${timeAgo().format(`${updated_at}Z`)}</a>
               <span class="has-text-grey-light">
                 ${user && user.id === user_id ? [`
