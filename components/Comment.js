@@ -287,7 +287,7 @@ class CommentContent extends Component {
   }
   breakOnWord(str) {
     const truncated = str.slice(0, 300).replace(/ \w+$/, '')
-    if (truncated[truncated.length - 1] !== '.') {
+    if (str.length > truncated.length) {
       return `${truncated}...`
     }
     return truncated
