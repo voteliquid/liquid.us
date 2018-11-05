@@ -63,17 +63,8 @@ exports.loadPage = (url, status = 200, dispatch, scroll = true) => {
     location,
     page_title: matched.title,
     scroll: hash ? false : scroll,
+    loader: typeof matched.loader === 'function' ? matched.loader.call(this) : matched.loader,
   })
-
-  if (matched.loader) {
-    const loader = typeof matched.loader === 'function' ? matched.loader.call(this) : matched.loader
-    if (loader.then) {
-      return loader.then((loaded) => {
-        dispatch({ type: 'routeLoaded', program: loaded.default || loaded })
-      })
-    }
-    dispatch({ type: 'routeLoaded', program: loader.default || loader })
-  }
 }
 
 exports.avatarURL = ({ gravatar_hash, bioguide_id, twitter_username }) => {

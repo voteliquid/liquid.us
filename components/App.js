@@ -77,6 +77,10 @@ module.exports = {
           startNProgress(),
           scrollToTop(event.scroll),
           mapEffect('footerEvent', Footer.selectQuote),
+          runInSeries(
+            fetchUserAndRepsAndLegislatures(state),
+            loadRoute(event.loader)
+          )
         )]
       case 'repsRequested':
         return [state]
@@ -120,7 +124,6 @@ module.exports = {
           route: { ...routeInitState, ...state.route, ...state.location },
         }, runInSeries(
           stopNProgress(),
-          fetchUserAndRepsAndLegislatures(state),
           !isHyperloop && mapEffect('routeEvent', routeInitEffect),
           isHyperloop && hyperloopEffect
         )]
@@ -154,6 +157,15 @@ module.exports = {
       ${ContactWidget.view({ ...contactWidget, user }, mapEvent('contactWidgetEvent', dispatch))}
     `
   },
+}
+
+const loadRoute = (loader) => (dispatch) => {
+  if (loader.then) {
+    return loader.then((loaded) => {
+      dispatch({ type: 'routeLoaded', program: loaded.default || loaded })
+    })
+  }
+  dispatch({ type: 'routeLoaded', program: loader.default || loader })
 }
 
 const fetchUserAndRepsAndLegislatures = ({ geoip, legislatures, location, storage, reps, user }) => (dispatch) => {
