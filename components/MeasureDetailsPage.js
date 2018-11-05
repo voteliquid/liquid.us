@@ -122,11 +122,7 @@ module.exports = class MeasureDetailsPage extends Component {
   }
   fetchProxyVotes(measure_id, short_id) {
     if (this.state.user) {
-      return this.api(`/delegations_detailed?from_id=eq.${this.state.user.id}&order=delegate_rank.asc`)
-        .then((proxies) => {
-          const proxyIds = proxies.map(({ to_id }) => to_id)
-          return this.api(`/public_votes?measure_id=eq.${measure_id}&user_id=in.(${proxyIds.join(',')})&order=proxy_vote_count.desc,created_at.desc`)
-        })
+      return this.api(`/proxy_votes?measure_id=eq.${measure_id}&order=proxy_vote_count.desc,created_at.desc`)
         .then((proxyVotes) => {
           this.setState({
             measures: {
