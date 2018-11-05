@@ -27,7 +27,7 @@ module.exports = class MeasureDetails extends Component {
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
               ${l.type !== 'PN' ? MeasureSummary.for(this, { measure: l }) : ''}
               ${TopComments.for(this, { measure: l, yea: l.top_yea, nay: l.top_nay })}
-              ${MeasureProxyVotes.for(this, { measure: l })}
+              ${user ? MeasureProxyVotes.for(this, { measure: l }) : ''}
               ${Votes.for(this, { measure: l })}
             </div>
             <div class="${`column ${l.introduced_at ? `column is-one-third-tablet is-one-quarter-desktop` : ''}`}">
