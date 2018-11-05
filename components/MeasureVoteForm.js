@@ -94,7 +94,7 @@ class MeasureVoteForm extends Component {
 
     this.setState({ saving_vote: true })
 
-    this.setProps({ params: { username: user.username, short_id: measure.short_id } })
+    this.setProps({ params: { username: measure.author_username, short_id: measure.short_id } })
 
     return this.api('/rpc/vote', {
       method: 'POST',
@@ -136,6 +136,7 @@ class MeasureVoteForm extends Component {
       }
     }))
     .catch((error) => {
+      console.error(error)
       return this.setState({ error: error.message, saving_vote: false })
     })
   }

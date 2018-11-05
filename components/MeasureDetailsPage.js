@@ -101,9 +101,8 @@ module.exports = class MeasureDetailsPage extends Component {
     })
   }
   fetchMeasure(short_id) {
-    const type = ~short_id.indexOf('-pn') ? '&type=eq.PN' : '&or=(type.eq.HR,type.eq.S,type.eq.AB,type.eq.SB)'
-    const measureUrl = `/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
-    const url = `/measures_detailed?short_id=eq.${short_id}${type}`
+    const measureUrl = `/${~short_id.indexOf('-pn') ? 'nominations' : 'legislation'}/${short_id}`
+    const url = `/measures_detailed?short_id=eq.${short_id}`
 
     return this.api(url).then((results) => {
       const measure = results[0]

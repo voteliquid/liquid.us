@@ -69,7 +69,7 @@ module.exports = {
           ...state,
           error: undefined,
           page_title: event.page_title || state.page_title,
-          location: { ...state.location, ...event.location },
+          location: event.location,
           navbar: { ...state.navbar, location: event.location, hamburgerVisible: false },
           contactWidget: { ...state.contactWidget, url: event.location.url },
         }, combineEffects(
