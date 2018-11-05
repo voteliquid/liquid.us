@@ -20,52 +20,56 @@ module.exports = class Comment extends Component {
   }
   endorse() {
     const { measures = {}, reps = [], user } = this.state
-    const { fullname, short_id, id: vote_id } = this.props
-    const measure = measures && measures[short_id]
-    const anonymousName = measure
-      ? `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
-      : 'Anonymous'
+    const { fullname, measure_id, short_id, id: vote_id, position } = this.props
     if (!user) {
       this.storage.set('endorsed_vote_id', vote_id)
-      this.storage.set('endorsed_measure_id', measure.id)
-      this.storage.set('endorsed_url', `/legislation/${measure.short_id}/votes/${vote_id}`)
+      this.storage.set('endorsed_measure_id', measure_id)
+      this.storage.set('endorsed_url', `/legislation/${short_id}/votes/${vote_id}`)
       return this.location.redirect('/join')
     }
-    if (measure.vote_position) {
-      if (!window.confirm(`You've already voted. Endorse ${this.possessive(fullname || anonymousName)} vote instead?`)) {
+    if (position) {
+      if (!window.confirm(`You've already voted. Endorse ${fullname ? this.possessive(fullname) : 'this'} vote instead?`)) {
         return
       }
     }
-    const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-    const officeId = repsInChamber[0] && repsInChamber[0].office_id
     return this.api(`/endorsements?user_id=eq.${user.id}`, {
       method: 'POST',
-      body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id }),
+      body: JSON.stringify({ user_id: user.id, vote_id, measure_id }),
     })
-    .then(() => this.fetchMeasure(short_id).then((measure) => {
+    .then(() => this.fetchMeasure(short_id))
+    .then((measure) => {
       this.setState({
         measures: {
-          ...this.state.measures,
+          ...measures,
           [short_id]: {
-            ...this.state.measures[short_id],
+            ...measures[short_id],
             ...measure,
           }
         }
       })
-    }))
-    .then(() => this.fetchConstituentVotes(measure.id, short_id, officeId))
-    .then(() => this.fetchTopComments(measure.id, short_id))
-    .then(() => this.fetchComments(measure.id, short_id))
+      const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
+      const officeId = repsInChamber[0] && repsInChamber[0].office_id
+      this.fetchConstituentVotes(measure.id, measure.short_id, officeId)
+    })
+    .then(() => this.fetchTopComments(measure_id, short_id))
+    .then(() => this.fetchComments(measure_id, short_id))
     .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
     .then((votes) => {
+      if (typeof window === 'object' && window._loq) window._loq.push(['tag', 'Voted'], ['tag', 'Endorsed'])
       this.setState({
         measures: {
-          ...this.state.measures,
+          ...measures,
           [short_id]: {
-            ...this.state.measures[short_id],
-            comment: votes[0] || this.state.measures[short_id].comment,
+            ...measures[short_id],
+            comment: votes[0] || measures[short_id].comment,
           }
-        }
+        },
+        selected_profile: {
+          ...this.state.selected_profile,
+          public_votes: this.state.selected_profile.public_votes.map((vote) => {
+            return vote.id === vote_id ? votes[0] : vote
+          })
+        },
       })
     })
     .catch((error) => console.log(error))
@@ -75,37 +79,43 @@ module.exports = class Comment extends Component {
     if (!user) {
       return this.location.redirect('/join')
     }
-    const { short_id, id: vote_id } = this.props
-    const measure = measures[short_id]
-    const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-    const officeId = repsInChamber[0] && repsInChamber[0].office_id
+    const { measure_id, short_id, id: vote_id } = this.props
     return this.api(`/endorsements?user_id=eq.${user.id}&vote_id=eq.${vote_id}`, {
       method: 'DELETE',
     })
-    .then(() => this.fetchMeasure(short_id).then((measure) => {
+    .then(() => this.fetchMeasure(short_id))
+    .then((measure) => {
       this.setState({
         measures: {
-          ...this.state.measures,
+          ...measures,
           [short_id]: {
-            ...this.state.measures[short_id],
+            ...measures[short_id],
             ...measure,
           }
         }
       })
-    }))
-    .then(() => this.fetchConstituentVotes(measure.id, short_id, officeId))
-    .then(() => this.fetchTopComments(measure.id, short_id))
-    .then(() => this.fetchComments(measure.id, short_id))
+      const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
+      const officeId = repsInChamber[0] && repsInChamber[0].office_id
+      return this.fetchConstituentVotes(measure.id, measure.short_id, officeId)
+    })
+    .then(() => this.fetchTopComments(measure_id, short_id))
+    .then(() => this.fetchComments(measure_id, short_id))
     .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
     .then((votes) => {
       this.setState({
         measures: {
-          ...this.state.measures,
+          ...measures,
           [short_id]: {
-            ...this.state.measures[short_id],
-            comment: votes[0] || this.state.measures[short_id].comment,
+            ...measures[short_id],
+            comment: votes[0] || measures[short_id].comment,
           }
-        }
+        },
+        selected_profile: {
+          ...this.state.selected_profile,
+          public_votes: this.state.selected_profile.public_votes.map((vote) => {
+            return vote.id === vote_id ? votes[0] : vote
+          })
+        },
       })
     })
     .catch((error) => console.log(error))
