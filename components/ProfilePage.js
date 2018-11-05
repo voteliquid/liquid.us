@@ -9,7 +9,14 @@ module.exports = class ProfilePage extends Component {
     const username = this.props.params.username.toLowerCase()
     const { path } = this.location
 
-    if (profiles[username]) return
+    if (profiles[username]) {
+      if (this.isBrowser) {
+        const page_title = `${profiles[username].name} | ${config.APP_NAME}`
+        window.document.title = page_title
+        window.history.replaceState(window.history.state, page_title, document.location)
+      }
+      return Promise.resolve()
+    }
 
     let url = `/user_profiles?username=eq.${username}`
     if (path.slice(0, 8) === '/twitter') {
