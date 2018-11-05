@@ -134,6 +134,7 @@ class Unendorsed extends Component {
     .then(() => fetchConstituentVotes.call(this, measure.id, short_id, officeId))
     .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
     .then((votes) => {
+      if (typeof window === 'object' && window._loq) window._loq.push(['tag', 'Voted'], ['tag', 'Endorsed'])
       this.setState({
         measures: {
           ...this.state.measures,
