@@ -53,7 +53,7 @@ module.exports = {
               </div>
             </div>
             <div class="field">
-              <label class="label">Tweet URL:</label>
+              <label class="label">Source URL:</label>
               <div class="control">
                 <input name="source_url" required class="input" />
               </div>
