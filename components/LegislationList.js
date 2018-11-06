@@ -144,7 +144,7 @@ class FilterForm extends Component {
   }
   render() {
     const { legislatures } = this.props
-    const { geoip, reps = [], user } = this.state
+    const { geoip, user } = this.state
     const { query } = this.location
     const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
 
@@ -169,7 +169,7 @@ class FilterForm extends Component {
           </div>
           <button type="submit" class="filter-submit is-hidden">Update</button>
         </div>
-        ${geoip && reps && reps.length ? [AddAddressNotification({ geoip, user })] : []}
+        ${geoip ? [AddAddressNotification({ geoip, user })] : []}
       </form>
     `
   }
@@ -178,8 +178,8 @@ class FilterForm extends Component {
 const AddAddressNotification = ({ geoip = {}, user }) => {
   return `
     <p class="help">
-      We selected your reps by guessing your location in <strong>${geoip.city}, ${geoip.regionName}.</strong><br />
-      But this is only right about half the time. <strong><a href="${user ? '/get_started/basics' : '/join'}">${user ? 'Go here' : 'Join'} to set your address</a></strong>.
+      We guessed your location is <strong>${geoip.city}, ${geoip.regionName}.</strong><br />
+      But this is only an approximation. <strong><a href="${user ? '/get_started/basics' : '/join'}">${user ? 'Go here' : 'Join'} to set your address</a></strong>.
     </p>
   `
 }
