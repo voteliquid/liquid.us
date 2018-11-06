@@ -223,7 +223,7 @@ module.exports = class Comment extends Component {
               <div class="media-left">
                 <div class="image is-32x32">
                   ${username || twitter_username
-                    ? `<a href="/${username || twitter_username}">
+                    ? `<a href="/${twitter_username ? `twitter/${twitter_username}` : username}">
                         <img src="${avatarURL}" alt="avatar" class="round-avatar-img" />
                       </a>`
                     : `<img src="${avatarURL}" alt="avatar" class="round-avatar-img" />`}
