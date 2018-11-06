@@ -208,13 +208,6 @@ module.exports = class Comment extends Component {
       : user && user.id === user_id
         ? `This is your vote. Only <a href="/proxies/requests">people you've approved</a> will see your identity.`
         : `${fullname} granted you permission to see this vote. Don’t share it publicly.`
-    const source = source_url
-      ? ~source_url.indexOf('twitter')
-        ? 'Twitter'
-        : ~source_url.indexOf('facebook')
-          ? 'Facebook'
-          : source_url.split('/')[0]
-      : ''
 
     return this.html`
       <div onclick=${this} class="comment">
@@ -242,7 +235,7 @@ module.exports = class Comment extends Component {
               <div>
                 <span class="has-text-weight-semibold">${username || twitter_username ? fullname : anonymousName}</span>
                 <span>voted <strong>${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${proxy_vote_count + 1}</span> people` : ''}</span>
-                ${source ? [`<span> via ${source}</span>`] : ''}
+                ${source_url ? [`<span> via <a href="${source_url}" target="_blank">${source_url.split('/')[2]}</a></span>`] : ''}
               </div>
               <div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>
             ` : `
@@ -253,7 +246,7 @@ module.exports = class Comment extends Component {
                     : anonymousName}
                 </span>
                 <span>voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${proxy_vote_count + 1}</span> people` : ''}</span>
-                ${source ? [`<span> via ${source}</span>`] : ''}
+                ${source_url ? [`<span> via <a href="${source_url}" target="_blank">${source_url.split('/')[2]}</a></span>`] : ''}
               </div>
             `]}
             ${comment ? CommentContent.for(this, { comment, truncated }, `comment-context-${id}`) : ''}
