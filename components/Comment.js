@@ -270,7 +270,7 @@ module.exports = class Comment extends Component {
                   <span class="has-text-grey-lighter">&bullet;</span>
                   <a title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-facebook"></i></span></a>
                   <a target="_blank" title="Share on Twitter" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-twitter"></i></span></a>
-                  <a target="_blank" title="Permalink" href="${comment_url}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-link"></i></span></a>
+                  <a target="_blank" title="Permalink" href="${share_url}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-link"></i></span></a>
                 `] : ''}
                 <span class="has-text-grey-lighter">&bullet;&nbsp;</span>
                 <a href="#" onclick=${this} class="${`has-text-weight-semibold has-text-grey endorse button is-small ${endorsed ? 'is-light' : ''}`}">

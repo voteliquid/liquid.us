@@ -4,12 +4,18 @@ const Component = require('./Component')
 module.exports = class LegislationShareButtons extends Component {
   onclick(event) {
     event.preventDefault()
-    document.querySelector('.copy2clipboard').select()
-    document.execCommand('copy')
-    this.setProps({ copied2clipboard: true }).render()
-    setTimeout(() => this.setProps({ copied2clipboard: false }).render(), 2000)
+    const ClipboardJS = require('clipboard')
+    const clipboard = new ClipboardJS('.permalink')
+    clipboard.on('success', () => {
+      this.setProps({ copied2clipboard: true }).render()
+      setTimeout(() => this.setProps({ copied2clipboard: false }).render(), 2000)
+    })
+    clipboard.on('error', (error) => {
+      console.log(error)
+    })
   }
   render() {
+    const ClipboardJS = typeof window === 'object' && require('clipboard')
     const { author_username, copied2clipboard, number, short_id, title, type, vote_position } = this.props
     const share_url = author_username
       ? `${WWW_URL}/${author_username}/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
@@ -31,15 +37,15 @@ module.exports = class LegislationShareButtons extends Component {
       </a>
       <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
       <a
-        class="${`tooltip is-small ${copied2clipboard ? 'is-tooltip-active is-tooltip-info' : ''}`}"
+        class="${`permalink is-small ${ClipboardJS && ClipboardJS.isSupported() ? 'tooltip' : ''} ${copied2clipboard ? 'is-tooltip-active is-tooltip-info' : ''}`}"
         data-tooltip="${copied2clipboard ? 'Copied URL to clipboard' : 'Copy URL to clipboard'}"
+        data-clipboard-text="${share_url}"
         href="${share_url}"
         title="Permalink"
         onclick=${this}
       >
         <span class="icon"><i class="fa fa-link"></i></span><span>Permalink</span>
       </a>
-      <textarea class="copy2clipboard" style="position: absolute; left: -9999px;" readonly>${share_url}</textarea>
     `
   }
 }

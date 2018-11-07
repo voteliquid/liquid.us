@@ -23,6 +23,7 @@
     "browser-cookies": "^1.2.0",
     "caller-path": "^2.0.0",
     "check-node-version": "^3.2.0",
+    "clipboard": "^2.0.1",
     "compression": "^1.7.1",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",

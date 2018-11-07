@@ -1,3 +1,4 @@
+const { WWW_URL } = process.env
 const Component = require('./Component')
 const possessive = require('./Component').prototype.possessive
 const { fetchConstituentVotes } = require('./MeasureDetailsPage').prototype
@@ -22,37 +23,44 @@ module.exports = class Endorse extends Component {
 class VoteShareButtons extends Component {
   onclick(event) {
     event.preventDefault()
-    document.querySelector('.copy2clipboard').select()
-    document.execCommand('copy')
-    this.setProps({ copied2clipboard: true }).render()
-    setTimeout(() => this.setProps({ copied2clipboard: false }).render(), 2000)
+    const ClipboardJS = require('clipboard')
+    const clipboard = new ClipboardJS('.permalink')
+    clipboard.on('success', () => {
+      this.setProps({ copied2clipboard: true }).render()
+      setTimeout(() => this.setProps({ copied2clipboard: false }).render(), 2000)
+    })
+    clipboard.on('error', (error) => {
+      console.log(error)
+    })
   }
   render() {
+    const ClipboardJS = typeof window === 'object' && require('clipboard')
     const { user } = this.state
     const { copied2clipboard, position, title, short_id, id, user_id, fullname, number, type } = this.props
     const subject = fullname ? `${fullname} is` : 'People are'
     const comment_url = type === 'PN' ? `/nominations/${short_id}/votes/${id}` : `/legislation/${short_id}/votes/${id}`
+    const share_url = `${WWW_URL}${comment_url}`
     const twitter_measure_title = type && number ? `${type} ${number}` : title
-    const twitter_share_text = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${twitter_measure_title}. See why: ${comment_url}`
+    const twitter_share_text = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${twitter_measure_title}. See why: ${share_url}`
     return this.html`
       <div style="margin: .5rem 0;">
         <a class="is-small" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" title="Share on Twitter">
           <span class="icon"><i class="fab fa-twitter"></i></span><span>Twitter</span>
         </a>
-        <a class="is-small" href="${`https://www.facebook.com/sharer/sharer.php?u=${comment_url}`}" title="Share on Facebook">
+        <a class="is-small" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" title="Share on Facebook">
           <span class="icon"><i class="fab fa-facebook"></i></span><span>Facebook</span>
         </a>
         <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
         <a
-          class="${`tooltip is-small ${copied2clipboard ? 'is-tooltip-active is-tooltip-info' : ''}`}"
+          class="${`permalink ${ClipboardJS && ClipboardJS.isSupported() ? 'tooltip' : ''} is-small ${copied2clipboard ? 'is-tooltip-active is-tooltip-info' : ''}`}"
           data-tooltip="${copied2clipboard ? 'Copied URL to clipboard' : 'Copy URL to clipboard'}"
-          href="${comment_url}"
+          data-clipboard-text="${share_url}"
+          href="${share_url}"
           title="Permalink"
           onclick=${this}
         >
           <span class="icon"><i class="fa fa-link"></i></span><span>Permalink</span>
         </a>
-        <textarea class="copy2clipboard" style="position: absolute; left: -9999px;" readonly>${comment_url}</textarea>
       </div>
     `
   }
