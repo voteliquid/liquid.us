@@ -58,9 +58,9 @@ module.exports = class CommentPage extends Component {
             page_title,
             page_description: this.escapeHtml(comment.comment, { replaceAmp: true }),
             measures: {
-              ...measures,
+              ...this.state.measures,
               [measure.short_id]: {
-                ...measures[measure.short_id],
+                ...this.state.measures[measure.short_id],
                 ...measure
               },
             },
@@ -150,7 +150,7 @@ class CommentDetailPage extends Component {
               </div>
             </div>
             <div class="column is-one-quarter">
-              ${Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`)}
+              ${Sidebar.for(this, { ...l, user }, `commentpage-sidebar-${l.id}`)}
             </div>
           </div>
         </div>
