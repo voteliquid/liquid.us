@@ -106,17 +106,11 @@ module.exports = class MeasureDetailsPage extends Component {
 
     return this.api(url).then((results) => {
       const measure = results[0]
-      const notFoundError = new Error('Not found')
-      notFoundError.status = 404
-      if (measure.author_id && !this.props.params.username) {
-        if (new Date(measure.created_at) > new Date('2018-10-16')) {
-          return Promise.reject(notFoundError)
-        }
+      if (measure && measure.author_id && !this.props.params.username) {
+        if (new Date(measure.created_at) > new Date('2018-10-16')) return null
         return this.location.redirect(301, `/${measure.author_username}${measureUrl}`)
       }
-      if (!measure.author_id && this.props.params.username) {
-        return Promise.reject(notFoundError)
-      }
+      if (!measure || (!measure.author_id && this.props.params.username)) return null
       return measure
     })
   }
