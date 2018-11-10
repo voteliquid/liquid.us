@@ -73,7 +73,7 @@ module.exports = {
           navbar: { ...state.navbar, location: event.location, hamburgerVisible: false },
           contactWidget: { ...state.contactWidget, url: event.location.url },
         }, combineEffects(
-          changePageTitle(event.page_title || state.page_title),
+          changePageTitle(event.page_title),
           startNProgress(),
           scrollToTop(event.scroll),
           mapEffect('footerEvent', Footer.selectQuote),
@@ -109,6 +109,8 @@ module.exports = {
             return [{ ...state, reps: event.reps }]
           case 'userUpdated':
             return [{ ...state, user: { ...state.user, ...event.event.user } }]
+          case 'signedOut':
+            return [{ ...state, user: null }]
           default:
             return [{ ...state, route: routeState }, mapEffect('routeEvent', effect)]
         }
@@ -330,7 +332,7 @@ const listeners = (dispatch) => ({
 
 const changePageTitle = (newTitle) => () => {
   if (typeof window === 'object') {
-    document.title = newTitle ? `${newTitle} | Liquid US` : document.title
+    document.title = newTitle ? `${newTitle} | Liquid US` : 'Liquid US | Digital Democracy Voting Platform'
   }
 }
 
