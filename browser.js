@@ -26,7 +26,7 @@ runtime({
     storage: {
       get: cookies.get,
       set: cookies.set,
-      unset: cookies.unset,
+      unset: cookies.erase,
     },
   }, App.init[1]],
   update: (event, state) => {
