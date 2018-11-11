@@ -66,7 +66,8 @@ module.exports = class LegislationList extends Component {
         <div class="container is-widescreen">
           <div class="has-text-right has-text-left-mobile">${ProposeButton.for(this)}</div>
           ${FilterTabs.for(this, { legislatures })}
-          ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(bill => LegislationListRow.for(this, { bill, legislatures }, `billitem-${bill.id}`))}
+          ${loading_legislation ? LoadingIndicator.for(this) :
+            (!legislation.length ? NoBills.for(this) : legislation.map(bill => LegislationListRow.for(this, { bill, legislatures }, `billitem-${bill.id}`)))}
           <style>
             .highlight-hover:hover {
               background: #f6f8fa;
@@ -155,10 +156,10 @@ class FilterForm extends Component {
           <div class="${`control ${user ? '' : 'is-hidden'}`}">
             <label class="checkbox has-text-grey">
               <input onclick=${this} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
-              Hide direct votes
+              Hide voted
             </label>
           </div>
-          <div class=${`control ${legislatures.length > 1 ? '' : 'is-hidden'}`}>
+          <div class="control" style="margin-left: 10px; margin-right: 0;">
             <div class="select">
               <select autocomplete="off" name="legislature" onchange=${this.autosubmit}>
                 ${legislatures.map(({ abbr, name }) => {
@@ -209,7 +210,7 @@ class FilterTabs extends Component {
           <li class="${query.order === 'proposed' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('proposed')}`}">Introduced on ${APP_NAME}</a></li>
         </ul>
       </div>
-      <div class="columns">
+      <div class="columns" style="line-height: 34px;">
         <div class="column">
           <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
         </div>
@@ -334,6 +335,34 @@ class SummaryTooltipButton extends Component {
           <div class="summary-tooltip-arrow"></div>
         </span>
       </a>
+    `
+  }
+}
+
+class NoBills extends Component {
+  makeQuery(order) {
+    const query = this.location.query
+    const newQuery = Object.assign({}, query, { order, terms: query.terms || '' })
+    return Object.keys(newQuery).map(key => {
+      return `${key}=${newQuery[key]}`
+    }).join('&')
+  }
+  render() {
+    return this.html`
+      <div>
+        ${this.location.query.order !== 'proposed' ? [`
+          <p class="is-size-5">Liquid doesn't have this location's bill list yet,
+            <a href="${`/legislation?${this.makeQuery('proposed')}`}">
+            click here to view manually added items.
+            </a>
+          </p>
+        `] : [`
+          <a href="/legislation/propose" class="button is-primary has-text-weight-semibold">
+            <span class="icon"><i class="fa fa-file"></i></span>
+            <span>Add the first policy proposal</span>
+          </a>
+        `]}
+      </div>
     `
   }
 }
