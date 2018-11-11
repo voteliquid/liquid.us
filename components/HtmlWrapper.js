@@ -74,7 +74,7 @@ module.exports = (state, html, bundleUrl) => {
         ${responsiveTableStyle}
         ${roundAvatarStyle}
         <script>
-          window.__app_state = ${JSON.stringify({ ...state, hyperloop: undefined }).replace(/<\//g, '<\\/')};
+          window.__app_state = ${JSON.stringify({ ...state, route: undefined, hyperloop: undefined }).replace(/<\//g, '<\\/')};
         </script>
       </head>
       <body>

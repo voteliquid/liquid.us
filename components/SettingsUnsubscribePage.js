@@ -1,23 +1,20 @@
 const { api, html } = require('../helpers')
 
 module.exports = {
-  init: [{
+  init: ({ location }) => [{
     error: null,
     query: {
-      list: null,
-      id: null,
+      list: location.query.list,
+      id: location.query.id,
     },
-  }, (dispatch) => dispatch({ type: 'initialized' })],
+  }, initialize(location.query.id, location.query.list)],
   update: (event, state) => {
-    const { query = {} } = state
-    const { list, id: user_id } = query
     switch (event.type) {
-      case 'initialized':
-        return [state, user_id && list && postUnsubscribe(user_id, list)]
       case 'unsubscribed':
         return [{ ...state, unsubscribed: true }]
-      case 'apiError':
+      case 'error':
         return [{ ...state, error: event.error }]
+      case 'loaded':
       default:
         return [state]
     }
@@ -45,17 +42,19 @@ module.exports = {
   },
 }
 
-const postUnsubscribe = (user_id, list) => (dispatch) => {
+const initialize = (user_id, list) => (dispatch) => {
   api('/unsubscribes', {
     method: 'POST',
     headers: { 'Prefer': 'return=minimal' },
     body: JSON.stringify({ user_id, list }),
   })
-  .then(() => dispatch({ type: 'unsubscribed' }))
   .catch((error) => {
     console.log(error)
     if (error && error.message && !~error.message.indexOf('duplicate')) {
-      dispatch({ type: 'apiError', error })
+      dispatch({ type: 'error', error })
     }
+  })
+  .then(() => {
+    dispatch({ type: 'loaded' })
   })
 }

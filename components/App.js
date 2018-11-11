@@ -8,7 +8,7 @@ const Footer = require('./Footer')
 const ContactWidget = require('./ContactWidget')
 const loadingIndicator = require('./ActivityIndicator')
 
-module.exports = {
+const App = module.exports = {
   init: [{
     footer: Footer.init[0],
     location: {
@@ -32,6 +32,9 @@ module.exports = {
       case 'contactWidgetEvent':
         const [contactWidgetState, contactWidgetEffect] = ContactWidget.update(event.event, { ...state.contactWidget, user: state.user })
         return [{ ...state, contactWidget: contactWidgetState }, mapEffect('contactWidgetEvent', contactWidgetEffect)]
+      case 'error':
+        console.log(event.error)
+        return [state]
       case 'footerEvent':
         const [footerState, footerEffect] = Footer.update(event.event, state.footer)
         return [{ ...state, footer: footerState }, mapEffect('footerEvent', footerEffect)]
@@ -51,13 +54,8 @@ module.exports = {
           navbar: { ...state.navbar, user: event.state.user || state.user },
           legislatures: event.state.legislatures || state.legislatures,
         }]
-      case 'legislaturesReceivedError':
-        console.error(event.error)
-        return [state]
       case 'legislaturesReceived':
         return [{ ...state, legislatures: event.legislatures }]
-      case 'legislaturesRequested':
-        return [state]
       case 'navbarEvent':
         const [navbarState, navbarEffect] = Navbar.update(event.event, { ...state.navbar, user: state.user })
         return [
@@ -69,33 +67,32 @@ module.exports = {
           ...state,
           error: undefined,
           page_title: event.page_title || state.page_title,
-          location: event.location,
+          location: { ...event.location, ip: state.location.ip, userAgent: state.location.userAgent },
           navbar: { ...state.navbar, location: event.location, hamburgerVisible: false },
           contactWidget: { ...state.contactWidget, url: event.location.url },
         }, combineEffects(
-          changePageTitle(event.page_title || state.page_title),
+          changePageTitle(event.page_title),
           startNProgress(),
-          scrollToTop(event.scroll),
           mapEffect('footerEvent', Footer.selectQuote),
           runInSeries(
             fetchUserAndRepsAndLegislatures(state),
             loadRoute(event.loader)
           )
         )]
-      case 'repsRequested':
-        return [state]
       case 'repsReceived':
         return [{
           ...state,
           geoip: event.geoip || state.geoip,
-          route: { ...state.route, reps: event.reps },
           reps: event.reps,
         }]
-      case 'repsReceivedError':
-        console.log(event.error)
-        return [state]
       case 'routeEvent':
-        const [routeState, effect] = state.routeProgram.update(event.event, { ...state.route, user: state.user, reps: state.reps, storage: state.storage })
+        const [routeState, effect] = state.routeProgram.update(event.event, {
+          ...state.route,
+          location: state.location,
+          storage: state.storage,
+          user: state.user,
+          reps: state.reps,
+        })
         switch (event.event.type) {
           case 'contactWidgetOpened':
             return [{ ...state, contactWidget: { ...state.contactWidget, isOpen: true } }]
@@ -103,54 +100,62 @@ module.exports = {
             return [{ ...state, legislatures: event.legislatures }]
           case 'verified':
             return [{ ...state, route: routeState, user: { ...state.user, verified: true } }, effect]
+          case 'loaded':
+            return [{ ...state, routeLoaded: true }]
           case 'redirected':
             return [{ ...state, route: routeState }, effect]
+          case 'pageChanged':
+            return App.update(event.event, state)
+          case 'repsLoaded':
           case 'repsUpdated':
-            return [{ ...state, reps: event.reps }]
+            return [{ ...state, reps: event.reps }, mapEffect('routeEvent', effect)]
           case 'userUpdated':
             return [{ ...state, user: { ...state.user, ...event.event.user } }]
+          case 'signedOut':
+            return [{ ...state, user: null }]
+          case 'error':
           default:
             return [{ ...state, route: routeState }, mapEffect('routeEvent', effect)]
         }
       case 'routeLoaded':
-        const [routeInitState, routeInitEffect] = event.program && event.program.init ? event.program.init : []
+        const [routeInitState, routeInitEffect] =
+          (event.program && event.program.init)
+            ? typeof event.program.init === 'function'
+              ? event.program.init(state)
+              : event.program.init
+            : []
         const isHyperloop = !!event.program.for
         const hyperloopEffect = (dispatch) => dispatch({ type: 'hyperloopRouteLoaded', component: event.program })
 
         return [{
           ...state,
           routeProgram: event.program.view && event.program,
-          routeLoaded: !event.program.for,
-          route: { ...routeInitState, ...state.route, ...state.location },
+          routeLoaded: !event.program.for && !routeInitEffect,
+          route: routeInitState,
         }, runInSeries(
           stopNProgress(),
+          scrollToTop(true),
           !isHyperloop && mapEffect('routeEvent', routeInitEffect),
           isHyperloop && hyperloopEffect
         )]
-      case 'userRequested':
-        return [state]
       case 'userReceived':
         const user = { ...event.user, jwt: state.storage.get('jwt') }
         return [{
           ...state,
-          contactWidget: { ...state.contactWidget, user },
-          navbar: { ...state.navbar, user },
-          route: { ...state.route, user },
           user,
         }]
-      case 'userReceivedError':
-        console.log(event.error)
-        return [state]
       default:
         return [state]
     }
   },
-  view: ({ contactWidget, footer, route, routeProgram, navbar, user, storage, reps }, dispatch) => {
+  view: (state, dispatch) => {
+    const { contactWidget, geoip, footer, location, route, routeProgram, navbar, reps, storage, user } = state
+    const routeState = { ...route, geoip, location, reps, storage, user }
     return html()`
       <div id="wrapper">
         ${Navbar.view({ ...navbar, user }, mapEvent('navbarEvent', dispatch))}
         <div class="router">
-          ${routeProgram ? routeProgram.view({ ...route, user, storage, reps }, mapEvent('routeEvent', dispatch)) : loadingIndicator()}
+          ${routeProgram ? routeProgram.view(routeState, mapEvent('routeEvent', dispatch)) : loadingIndicator()}
         </div>
       </div>
       <div>${Footer.view(footer, mapEvent('footerEvent', dispatch))}</div>
@@ -193,7 +198,7 @@ const fetchReps = ({ location, storage, user }) => (dispatch) => {
         storage,
       })
       .then((reps) => dispatch({ type: 'repsReceived', reps: reps || [] }))
-      .catch((error) => dispatch({ type: 'repsReceivedError', error }))
+      .catch((error) => dispatch({ type: 'error', error }))
     }
 
     let ip = location.ip
@@ -224,7 +229,7 @@ const fetchReps = ({ location, storage, user }) => (dispatch) => {
     })
     .catch((error) => {
       console.error(error)
-      dispatch({ type: 'repsReceivedError', error })
+      dispatch({ type: 'error', error })
     })
 }
 
@@ -244,7 +249,7 @@ const fetchUser = (storage) => (dispatch) => {
     })
     .catch((error) => {
       console.log(error)
-      dispatch({ type: 'userReceivedError', error })
+      dispatch({ type: 'error', error })
     })
   }
 }
@@ -269,25 +274,18 @@ const fetchLegislatures = (storage, user, geoip = {}) => (dispatch) => {
       }),
     })
   })
-  .catch((error) => dispatch({ type: 'legislaturesReceivedError', error }))
+  .catch((error) => dispatch({ type: 'error', error }))
 }
 
 const startNProgress = () => () => {
   if (typeof window === 'object') {
-    if (window.nprogressTimeout) clearTimeout(window.nprogressTimeout)
-    window.nprogressTimeout = setTimeout(() => require('nprogress').start(), 750)
+    require('nprogress').start()
   }
 }
 
 const stopNProgress = () => () => {
   if (typeof window === 'object') {
-    if (window.nprogressTimeout) {
-      clearTimeout(window.nprogressTimeout)
-    }
-    setTimeout(() => {
-      if (window.nprogressTimeout) clearTimeout(window.nprogressTimeout)
-      require('nprogress').done()
-    }, 1000)
+    require('nprogress').done()
   }
 }
 
@@ -330,7 +328,7 @@ const listeners = (dispatch) => ({
 
 const changePageTitle = (newTitle) => () => {
   if (typeof window === 'object') {
-    document.title = newTitle ? `${newTitle} | Liquid US` : document.title
+    document.title = newTitle ? `${newTitle} | Liquid US` : 'Liquid US | Digital Democracy Voting Platform'
   }
 }
 

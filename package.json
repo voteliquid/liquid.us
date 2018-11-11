@@ -46,6 +46,7 @@
     "raj": "^1.0.0",
     "request": "^2.88.0",
     "resolve-from": "^4.0.0",
+    "scrollreveal": "^4.0.5",
     "timeago.js": "^3.0.2",
     "twilio": "^3.19.2",
     "twitter": "^1.7.1",

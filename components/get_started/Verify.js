@@ -3,14 +3,14 @@ const fetch = require('isomorphic-fetch')
 const { api, combineEffects, html, preventDefault, redirect } = require('../../helpers')
 
 module.exports = {
-  init: [{
+  init: ({ storage, user }) => [{
     error: null,
     loading: false,
     showVerifyOtpForm: false,
     skipWarning: false,
-    storage: null,
-    user: null,
-  }, (dispatch) => dispatch({ type: 'initialized' })],
+    storage,
+    user,
+  }, initialize(user)],
   update: (event, state) => {
     switch (event.type) {
       case 'contactWidgetOpened':
@@ -45,8 +45,6 @@ module.exports = {
         return [{ ...state, error: event.error.message, loading: false }]
       case 'sentOtp':
         return [{ ...state, loading: false, showVerifyOtpForm: true }]
-      case 'initialized':
-        return [state, !state.user && ((dispatch) => dispatch({ type: 'redirected', url: '/sign_in?notification=verify' }))]
       case 'redirected':
         if (!state.skipWarning && state.user) {
           return [{ ...state, skipWarning: true }]
@@ -64,6 +62,7 @@ module.exports = {
           preventDefault(event.event),
           verifyOTP(otpInput.value || '', state.user, state.phoneNum, state.storage)
         )]
+      case 'loaded':
       default:
         return [state]
     }
@@ -92,6 +91,14 @@ module.exports = {
       </div>
     `
   },
+}
+
+const initialize = (user) => (dispatch) => {
+  if (!user) {
+    dispatch({ type: 'redirected', url: '/sign_in?notification=verify' })
+  } else {
+    dispatch({ type: 'loaded' })
+  }
 }
 
 const requestOTP = (phone_number, user, storage) => (dispatch) => {
@@ -140,7 +147,7 @@ const signupMsg = () => {
 
 const alreadyVerifiedMsg = () => {
   return html()`
-    <div class="notification is-link">
+    <div class="notification is-info">
       You've already verified! Good job.
     </div>
   `

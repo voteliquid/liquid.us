@@ -15,6 +15,7 @@ let starting = true
 
 // Use state sent from server, if available.
 const initState = window.__app_state || { ...App.init[0] }
+const memoryStore = {}
 
 runtime({
   ...App,
@@ -24,9 +25,17 @@ runtime({
     routeLoaded: false,
     routeProgram: null,
     storage: {
-      get: cookies.get,
-      set: cookies.set,
-      unset: cookies.unset,
+      get: (...args) => {
+        return cookies.get(...args) || memoryStore[args[0]]
+      },
+      set: (...args) => {
+        memoryStore[args[0]] = args[1]
+        return cookies.set(...args)
+      },
+      unset: (key) => {
+        memoryStore[key] = null
+        return cookies.erase(key)
+      },
     },
   }, App.init[1]],
   update: (event, state) => {

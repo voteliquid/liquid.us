@@ -185,6 +185,7 @@ function initAppState(App, req, res) {
     location: {
       ...App.init[0].location,
       ip: req.ip,
+      userAgent: req.get('User-Agent') || 'Unknown',
     },
     storage: {
       get: (key) => {
@@ -197,12 +198,14 @@ function initAppState(App, req, res) {
         }
       },
       set: (key, val, opts) => {
+        store[key] = { val, ...opts }
         if (res.running) {
           res.cookie(key, val, opts)
         }
         return val
       },
       unset: (key) => {
+        store[key] = null
         if (res.running) {
           res.clearCookie(key)
         }
