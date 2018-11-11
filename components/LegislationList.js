@@ -66,7 +66,8 @@ module.exports = class LegislationList extends Component {
         <div class="container is-widescreen">
           <div class="has-text-right has-text-left-mobile">${ProposeButton.for(this)}</div>
           ${FilterTabs.for(this, { legislatures })}
-          ${loading_legislation ? LoadingIndicator.for(this) : legislation.map(bill => LegislationListRow.for(this, { bill, legislatures }, `billitem-${bill.id}`))}
+          ${loading_legislation ? LoadingIndicator.for(this) :
+            (!legislation.length ? NoBills.for(this) : legislation.map(bill => LegislationListRow.for(this, { bill, legislatures }, `billitem-${bill.id}`)))}
           <style>
             .highlight-hover:hover {
               background: #f6f8fa;
@@ -334,6 +335,34 @@ class SummaryTooltipButton extends Component {
           <div class="summary-tooltip-arrow"></div>
         </span>
       </a>
+    `
+  }
+}
+
+class NoBills extends Component {
+  makeQuery(order) {
+    const query = this.location.query
+    const newQuery = Object.assign({}, query, { order, terms: query.terms || '' })
+    return Object.keys(newQuery).map(key => {
+      return `${key}=${newQuery[key]}`
+    }).join('&')
+  }
+  render() {
+    return this.html`
+      <div>
+        ${this.location.query.order !== 'proposed' ? [`
+          <p class="is-size-5">Liquid doesn't have this location's bill list yet,
+            <a href="${`/legislation?${this.makeQuery('proposed')}`}">
+            click here to view manually added items.
+            </a>
+          </p>
+        `] : [`
+          <a href="/legislation/propose" class="button is-primary has-text-weight-semibold">
+            <span class="icon"><i class="fa fa-file"></i></span>
+            <span>Add the first policy proposal</span>
+          </a>
+        `]}
+      </div>
     `
   }
 }
