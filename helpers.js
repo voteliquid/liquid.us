@@ -53,6 +53,7 @@ exports.loadPage = (url, status = 200, dispatch, scroll = true) => {
   }
 
   if (typeof window === 'object') {
+    location.userAgent = window.navigator.userAgent || 'Unknown'
     if (pathname === window.location.pathname) {
       window.history.replaceState({}, null, url)
     }

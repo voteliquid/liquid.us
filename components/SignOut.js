@@ -2,14 +2,12 @@ const { api, html, redirect } = require('../helpers')
 const ActivityIndicator = require('./ActivityIndicator')
 
 module.exports = {
-  init: [{
-    storage: null,
-    user: null,
-  }, (dispatch) => dispatch({ type: 'initialized' })],
+  init: ({ storage, user }) => [{
+    storage,
+    user,
+  }, signOut(storage)],
   update: (event, state) => {
     switch (event.type) {
-      case 'initialized':
-        return [state, signOut(state.storage)]
       case 'redirected':
         return [state, redirect(event.url)]
       case 'signedOut':
@@ -53,9 +51,11 @@ const signOut = (storage) => (dispatch) => {
         method: 'DELETE',
         storage,
       })
+      .catch((error) => {
+        console.error(error)
+      })
       .then(() => dispatch({ type: 'signedOut' }))
       .then(() => dispatch({ type: 'redirected', url: '/' }))
-      .catch((error) => console.error(error))
     }
 
     dispatch({ type: 'signedOut' })

@@ -1,56 +1,44 @@
-const Component = require('./Component')
-const SignIn = require('./SignIn')
+const { APP_NAME } = process.env
+const { api, html, redirect } = require('../helpers')
+const { signIn } = require('./SignIn')
 
-module.exports = class JoinForm extends Component {
-  oninit() {
-    // If they got here from attempting to proxy from profile page
-    return Promise.resolve(this.fetchProxyingProfile()).then(() => this.fetchSignupMetrics())
-  }
-  onclick(event) {
-    event.preventDefault()
-    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
-  }
-  onsubmit(event, formData) {
-    return SignIn.prototype.onsubmit.call(this, event, formData)
-  }
-  fetchProxyingProfile() {
-    const proxying_user_id = this.storage.get('proxying_user_id')
-    const proxying_username = this.location.query.proxy_to
-    if (proxying_user_id) {
-      return this.api(`/user_profiles?select=user_id,first_name,last_name&user_id=eq.${proxying_user_id}`)
-        .then(users => this.setState({ req_proxy_profile: users[0] }))
+module.exports = {
+  init: ({ location, storage, user }) => [{
+    error: null,
+    loading: false,
+    location,
+    storage,
+    showTitle: true,
+    usersCount: null,
+    user,
+  }, initialize(location, storage)],
+  update: (event, state) => {
+    switch (event.type) {
+      case 'formSubmitted':
+        return [{ ...state, loading: true }, signIn(event.event, state.location, state.storage)]
+      case 'metricsReceived':
+        return [{ ...state, usersCount: event.usersCount }]
+      case 'proxyProfileReceived':
+        return [{ ...state, proxyProfile: event.proxyProfile }]
+      case 'redirected':
+        return [state, redirect(event.url, 302)]
+      case 'error':
+        return [{ ...state, error: event.error, loading: false }]
+      case 'loaded':
+      default:
+        return [state]
     }
-    if (proxying_username) {
-      return this.api(`/user_profiles?select=user_id,first_name,last_name&username=eq.${proxying_username}`)
-        .then(users => {
-          this.storage.set('proxying_user_id', users[0].user_id)
-          this.setState({ req_proxy_profile: users[0] })
-        })
-    }
-  }
-  fetchSignupMetrics() {
-    const { show_title } = this.props
-    const { users_count } = this.state
-    if (!users_count && show_title !== false) {
-      return this.api('/metrics?select=users_count')
-        .then((metrics) => this.setState({ users_count: metrics[0] ? metrics[0].users_count : 0 }))
-        .catch(() => this.setState({ users_count: 0 }))
-    }
-  }
-  render() {
-    const { config, email, error, req_proxy_profile, users_count } = this.state
-    const { APP_NAME } = config
-    const { show_title } = this.props
-    const { query } = this.location
-    const proxy_to = this.storage.get('proxying_user_id') || this.location.query.proxy_to
-    const vote_position = this.storage.get('vote_position')
-    const endorsed_vote_id = this.storage.get('endorsed_vote_id')
+  },
+  view: ({ error, loading, location, proxyProfile, showTitle, usersCount, storage }, dispatch) => {
+    const proxy_to = storage.get('proxying_user_id') || location.query.proxy_to
+    const vote_position = storage.get('vote_position')
+    const endorsed_vote_id = storage.get('endorsed_vote_id')
 
-    return this.html`
+    return html()`
       <div>
-        ${proxy_to && req_proxy_profile ? [`
+        ${proxy_to && proxyProfile ? [`
           <div class="notification has-text-centered is-info">
-            Join ${APP_NAME} to proxy to ${req_proxy_profile.first_name} ${req_proxy_profile.last_name}.
+            Join ${APP_NAME} to proxy to ${proxyProfile.first_name} ${proxyProfile.last_name}.
           </div>
         `] : []}
         ${endorsed_vote_id ? [`
@@ -59,13 +47,13 @@ module.exports = class JoinForm extends Component {
         ${vote_position ? [`
           <div class="notification has-text-centered is-info">Enter your email to save your vote and hold your representatives accountable.</div>
         `] : []}
-        ${query.notification === 'rep_not_found' ? [`
+        ${location.query.notification === 'rep_not_found' ? [`
           <div class="notification has-text-centered is-info">We could not automatically locate your representative. Join ${APP_NAME} to set your address.</div>
         `] : []}
-        ${show_title !== false ? [`
+        ${showTitle ? [`
           <h2 class="title has-text-centered">
-            ${users_count
-              ? `Join ${users_count} people for healthier democracy`
+            ${usersCount
+              ? `Join ${usersCount} people for healthier democracy`
               : `Join for healthier democracy`
             }
           </h2>
@@ -75,8 +63,8 @@ module.exports = class JoinForm extends Component {
         <style>.center-on-small-widths { display: flex; }</style>
         <div class="columns is-centered center-on-small-widths">
           <div class="column" style="max-width: 500px;">
-            <form class="box has-text-centered" method="POST" onsubmit=${this} action=${this}>
-              <input name="phone_user_id" type="hidden" value="${this.location.query.sms || ''}" />
+            <form class="box has-text-centered" method="POST" onsubmit="${(event) => dispatch({ type: 'formSubmitted', event })}">
+              <input name="phone_user_id" type="hidden" value="${location.query.sms || ''}" />
 
               <div class="field">
                 <label for="email">Enter your email to get started:</label>
@@ -89,7 +77,7 @@ module.exports = class JoinForm extends Component {
 
               <div class="field has-addons join-input-field">
                 <div class="${`control is-expanded has-icons-left ${error ? 'has-icons-right' : ''}`}">
-                  <input name="email" class="${`input ${error ? 'is-danger' : ''}`}" type="text" placeholder="you@example.com" value=${email || ''} />
+                  <input name="email" class="${`input ${error ? 'is-danger' : ''}`}" type="text" placeholder="you@example.com" />
                   <span class="icon is-small is-left">
                     <i class="fa fa-user"></i>
                   </span>
@@ -101,10 +89,10 @@ module.exports = class JoinForm extends Component {
                 ${/* use shorter submit button text for small screens */''}
                 <div class="control">
                   <div class="is-hidden-touch">
-                    <button class="button is-primary" type="submit"><strong>Create Account</strong></button>
+                    <button class="${`button is-primary ${loading ? 'is-loading' : ''}`}" disabled=${loading} type="submit"><strong>Create Account</strong></button>
                   </div>
                   <div class="is-hidden-desktop">
-                    <button class="button is-primary" type="submit"><strong>Join</strong></button>
+                    <button class="${`button is-primary ${loading ? 'is-loading' : ''}`}" disabled=${loading} type="submit"><strong>Join</strong></button>
                   </div>
                 </div>
               </div>
@@ -124,4 +112,32 @@ module.exports = class JoinForm extends Component {
       </div>
     `
   }
+}
+
+const initialize = (location, storage) => (dispatch) => {
+  fetchSignupMetrics(dispatch)
+    .then(() => fetchProxyingProfile(location, storage)(dispatch))
+    .then(() => dispatch({ type: 'loaded' }))
+}
+
+const fetchProxyingProfile = (location, storage) => (dispatch) => {
+  const proxying_user_id = storage.get('proxying_user_id')
+  const proxying_username = location.query.proxy_to
+  if (proxying_user_id) {
+    return api(`/user_profiles?select=user_id,first_name,last_name&user_id=eq.${proxying_user_id}`)
+      .then(users => dispatch({ type: 'proxyProfileReceived', proxyProfile: users[0] }))
+  }
+  if (proxying_username) {
+    return api(`/user_profiles?select=user_id,first_name,last_name&username=eq.${proxying_username}`)
+      .then(users => {
+        storage.set('proxying_user_id', users[0].user_id)
+        dispatch({ type: 'proxyProfileReceived', proxyProfile: users[0] })
+      })
+  }
+}
+
+const fetchSignupMetrics = (dispatch) => {
+  return api('/metrics?select=users_count')
+    .then((metrics) => dispatch({ type: 'metricsReceived', usersCount: metrics[0] ? metrics[0].users_count : 0 }))
+    .catch(() => dispatch({ type: 'metricsReceived', usersCount: 0 }))
 }

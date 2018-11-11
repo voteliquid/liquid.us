@@ -1,13 +1,13 @@
-const { api, combineEffects, html, preventDefault } = require('../helpers')
+const { api, combineEffects, html, preventDefault, redirect } = require('../helpers')
 const ActivityIndicator = require('./ActivityIndicator')
 
 module.exports = {
-  init: [{
+  init: ({ storage, user }) => [{
     loaded: false,
-    updateChecked: false,
-    user: null,
-    storage: null,
-  }, (dispatch) => dispatch({ type: 'initialized' })],
+    updateChecked: user && user.update_emails_preference !== 'never',
+    user,
+    storage,
+  }, initialize(user, storage)],
   update: (event, state) => {
     const { storage, user } = state
     switch (event.type) {
@@ -17,16 +17,8 @@ module.exports = {
         return [{ ...state, settings_unsaved: selected !== saved }]
       case 'clicked':
         return [{ ...state, updateChecked: !state.updateChecked }]
-      case 'initialized':
-        return [
-          {
-            ...state,
-            updateChecked: user && user.update_emails_preference !== 'never',
-          },
-          user
-            ? fetchUnsubscribes(user, storage)
-            : (dispatch) => dispatch({ type: 'redirected', url: '/sign_in' })
-        ]
+      case 'redirected':
+        return [state, redirect(event.url, event.status)]
       case 'submitted':
         const formData = require('parse-form').parse(event.event.target).body
 
@@ -45,6 +37,7 @@ module.exports = {
           unsubscribed_drip: event.unsubs.some(({ list }) => list === 'drip'),
           unsubscribed_lifecycle: event.unsubs.some(({ list }) => list === 'lifecycle'),
         }]
+      case 'loaded':
       default:
         return [state]
     }
@@ -113,9 +106,15 @@ module.exports = {
   },
 }
 
-const fetchUnsubscribes = (user, storage) => (dispatch) => {
-  return api(`/unsubscribes?user_id=eq.${user.id}`, { storage })
-    .then((unsubs) => dispatch({ type: 'unsubsReceived', unsubs }))
+const initialize = (user, storage) => (dispatch) => {
+  if (user) {
+    api(`/unsubscribes?user_id=eq.${user.id}`, { storage }).then((unsubs) => {
+      dispatch({ type: 'unsubsReceived', unsubs })
+      dispatch({ type: 'loaded' })
+    })
+  } else {
+    dispatch({ type: 'redirected', url: '/sign_in', status: 403 })
+  }
 }
 
 const patchUserPrefs = (formData, user, storage) => () => {
