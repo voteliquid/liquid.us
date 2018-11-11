@@ -20,7 +20,9 @@ module.exports = class Comment extends Component {
   }
   endorse() {
     const { measures = {}, reps = [], user } = this.state
-    const { fullname, measure_id, short_id, id: vote_id, position } = this.props
+    const { fullname, measure_id, short_id, id: vote_id } = this.props
+    const measure = measures[short_id]
+    const position = measure && measure.vote_position
     if (!user) {
       this.storage.set('endorsed_vote_id', vote_id)
       this.storage.set('endorsed_measure_id', measure_id)
