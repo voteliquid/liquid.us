@@ -147,7 +147,7 @@ function startAppServer() {
   }
 
   server
-    .use('/assets', serveStatic(path.join(__dirname, 'public')))
+    .use('/assets', serveStatic(path.join(__dirname, 'public'), { maxAge: '4h' }))
     .get('/rpc/healthcheck', (req, res) => res.status(200).end())
     .get('/rpc/geoip/:ip', geoip)
     .get('/rpc/avatarsio/:username', twitterAvatarProxy)
