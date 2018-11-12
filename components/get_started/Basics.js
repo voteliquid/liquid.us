@@ -7,7 +7,6 @@ const stateNames = require('datasets-us-states-abbr-names')
 module.exports = {
   init: ({ location, storage, user }) => [{
     error: null,
-    expand: false,
     loading: false,
     location,
     storage,

@@ -20,7 +20,7 @@ const App = module.exports = {
       url: '/',
     },
     navbar: Navbar.init[0],
-    route: {},
+    routeState: {},
     routeLoaded: false,
     routeProgram: null,
     storage: {},
@@ -87,7 +87,7 @@ const App = module.exports = {
         }]
       case 'routeEvent':
         const [routeState, effect] = state.routeProgram.update(event.event, {
-          ...state.route,
+          ...state.routeState,
           location: state.location,
           storage: state.storage,
           user: state.user,
@@ -99,23 +99,34 @@ const App = module.exports = {
           case 'legislaturesUpdated':
             return [{ ...state, legislatures: event.legislatures }]
           case 'verified':
-            return [{ ...state, route: routeState, user: { ...state.user, verified: true } }, effect]
+            return [{ ...state, routeState, user: { ...state.user, verified: true } }, effect]
           case 'loaded':
-            return [{ ...state, routeLoaded: true }]
+            return [{ ...state, routeLoaded: true, routeState: { ...routeState, loaded: true } }]
           case 'redirected':
-            return [{ ...state, route: routeState }, effect]
+            return [{ ...state, routeState }, effect]
           case 'pageChanged':
             return App.update(event.event, state)
+          case 'receivedMeasures':
+            return [{
+              ...state,
+              measures: { ...state.routeState.measures, ...routeState.measures },
+              measuresList: routeState.measuresList,
+              measuresQuery: state.location.url,
+              routeState,
+            }, effect]
           case 'repsLoaded':
           case 'repsUpdated':
-            return [{ ...state, reps: event.reps }, mapEffect('routeEvent', effect)]
+            return [{ ...state, routeState, reps: event.reps }, mapEffect('routeEvent', effect)]
           case 'userUpdated':
-            return [{ ...state, user: { ...state.user, ...event.event.user } }]
+            return [{ ...state, routeState, user: { ...state.user, ...event.event.user } }]
           case 'signedOut':
             return [{ ...state, user: null }]
           case 'error':
           default:
-            return [{ ...state, route: routeState }, mapEffect('routeEvent', effect)]
+            return [{
+              ...state,
+              routeState: { ...routeState, loading: false },
+            }, mapEffect('routeEvent', effect)]
         }
       case 'routeLoaded':
         const [routeInitState, routeInitEffect] =
@@ -131,7 +142,7 @@ const App = module.exports = {
           ...state,
           routeProgram: event.program.view && event.program,
           routeLoaded: !event.program.for && !routeInitEffect,
-          route: routeInitState,
+          routeState: routeInitState,
         }, runInSeries(
           stopNProgress(),
           scrollToTop(true),
@@ -149,13 +160,13 @@ const App = module.exports = {
     }
   },
   view: (state, dispatch) => {
-    const { contactWidget, geoip, footer, location, route, routeProgram, navbar, reps, storage, user } = state
-    const routeState = { ...route, geoip, location, reps, storage, user }
+    const { contactWidget, geoip, footer, location, routeState, routeProgram, navbar, reps, storage, user } = state
+    const viewRouteState = { ...routeState, geoip, location, reps, storage, user }
     return html()`
       <div id="wrapper">
         ${Navbar.view({ ...navbar, user }, mapEvent('navbarEvent', dispatch))}
         <div class="router">
-          ${routeProgram ? routeProgram.view(routeState, mapEvent('routeEvent', dispatch)) : loadingIndicator()}
+          ${routeProgram ? routeProgram.view(viewRouteState, mapEvent('routeEvent', dispatch)) : loadingIndicator()}
         </div>
       </div>
       <div>${Footer.view(footer, mapEvent('footerEvent', dispatch))}</div>

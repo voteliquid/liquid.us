@@ -1,73 +1,45 @@
 const { APP_NAME } = process.env
-const Component = require('./Component')
-const LoadingIndicator = require('./LoadingIndicator')
+const { api, html, preventDefault } = require('../helpers')
+const activityIndicator = require('./ActivityIndicator')
 
-module.exports = class LegislationList extends Component {
-  oninit() {
-    if (!this.state.legislation) {
-      return this.fetchLegislation().then((newState) => this.setState(newState))
+module.exports = {
+  init: ({ legislatures, location, measures = {}, measuresList = [], measuresQuery, storage, user }) => [{
+    location,
+    legislatures,
+    loading: true,
+    measures,
+    measuresList,
+    measuresQuery,
+  }, initialize(measuresQuery, location, storage, user)],
+  update: (event, state) => {
+    switch (event.type) {
+      case 'error':
+        return [{ ...state, loading: false }]
+      case 'filterFormSubmitted':
+        return [{ ...state, loading: true }, preventDefault(event.event)]
+      case 'receivedMeasures':
+        return [{
+          ...state,
+          loading: false,
+          measures: { ...state.measures, ...event.measures },
+          measuresList: event.measuresList,
+          measuresQuery: state.location.url,
+        }]
+      case 'loaded':
+      default:
+        return [{ ...state, loading: false }]
     }
-  }
-  onpagechange(oldProps) {
-    if (oldProps.url !== this.props.url) {
-      Promise.resolve(this.fetchLegislation()).then((newState) => this.setState(newState))
-    }
-  }
-  fetchLegislation(event) {
-    if (event) event.preventDefault()
-
-    const { legislation_query, user } = this.state
-    const { query, url } = this.location
-
-    if (url === legislation_query) return Promise.resolve()
-
-    this.setState({ loading_legislation: true })
-
-    const terms = query.terms && query.terms.replace(/[^\w\d ]/g, '').replace(/(hr|s) (\d+)/i, '$1$2').replace(/(\S)\s+(\S)/g, '$1 & $2')
-    const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
-
-    const orders = {
-      upcoming: '&introduced_at=not.is.null&failed_lower_at=is.null&passed_lower_at=is.null&order=legislature_name.desc,next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
-      new: '&introduced_at=not.is.null&order=introduced_at.desc',
-      proposed: '&published=is.true&introduced_at=is.null&order=created_at.desc',
-    }
-
-    const order = orders[query.order || 'upcoming']
-
-    const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
-    const hide_direct_votes_query = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
-
-    const legislature = `&legislature_name=eq.${query.legislature || 'U.S. Congress'}`
-
-    const fields = [
-      'title', 'number', 'type', 'short_id', 'id', 'status',
-      'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
-      'introduced_at', 'last_action_at', 'next_agenda_begins_at', 'next_agenda_action_at',
-      'summary', 'legislature_name', 'published', 'created_at', 'author_first_name', 'author_last_name', 'author_username',
-    ]
-    if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-    const api_url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&type=not.eq.PN${order}&limit=40`
-
-    return this.api(api_url)
-      .then((measures) => this.setState({
-        legislation_query: url,
-        legislationList: measures.map(({ short_id }) => short_id),
-        loading_legislation: false,
-        measures: measures.reduce((b, a) => Object.assign(b, { [a.short_id]: a }), {}),
-      }))
-      .catch(error => ({ error, loading_legislation: false }))
-  }
-  render() {
-    const { loading_legislation, legislationList = [], legislatures, measures } = this.state
-    const legislation = legislationList.map((short_id) => measures[short_id])
-
-    return this.html`
+  },
+  view: (state) => {
+    const { loading, measuresList, location, measures } = state
+    const { query } = location
+    return html()`
       <div class="section">
         <div class="container is-widescreen">
-          <div class="has-text-right has-text-left-mobile">${ProposeButton.for(this)}</div>
-          ${FilterTabs.for(this, { legislatures })}
-          ${loading_legislation ? LoadingIndicator.for(this) :
-            (!legislation.length ? NoBills.for(this) : legislation.map(bill => LegislationListRow.for(this, { bill, legislatures }, `billitem-${bill.id}`)))}
+          <div class="has-text-right has-text-left-mobile">${proposeButton()}</div>
+          ${filterTabs(state)}
+          ${loading ? activityIndicator() :
+            (!measuresList.length ? noBillsMsg(query.order, query) : measuresList.map((short_id) => measureListRow(measures[short_id])))}
           <style>
             .highlight-hover:hover {
               background: #f6f8fa;
@@ -123,60 +95,55 @@ module.exports = class LegislationList extends Component {
         </div>
       </div>
     `
-  }
+  },
 }
 
-class FilterForm extends Component {
-  autosubmit() {
-    document.querySelector('.filter-submit').click()
-  }
-  onclick(event) {
-    const btn = document.querySelector('.filter-submit')
-    if (btn.disabled) {
-      event.preventDefault()
+const autoSubmit = () => document.querySelector('.filter-submit').click()
+
+const toggleDirectVotes = (storage) => (event) => {
+  const btn = document.querySelector('.filter-submit')
+  if (btn.disabled) {
+    event.preventDefault()
+  } else {
+    if (event.currentTarget && event.currentTarget.checked) {
+      storage.set('hide_direct_votes', 'on')
     } else {
-      if (event.target && event.target.checked) {
-        this.storage.set('hide_direct_votes', 'on')
-      } else {
-        this.storage.unset('hide_direct_votes')
-      }
-      btn.click()
+      storage.unset('hide_direct_votes')
     }
-  }
-  render() {
-    const { legislatures } = this.props
-    const { geoip, user } = this.state
-    const { query } = this.location
-    const hide_direct_votes = query.hide_direct_votes || this.storage.get('hide_direct_votes')
-
-    return this.html`
-      <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation">
-        <input name="order" type="hidden" value="${query.order || 'upcoming'}" />
-        <div class="field is-grouped is-grouped-right">
-          <div class="${`control ${user ? '' : 'is-hidden'}`}">
-            <label class="checkbox has-text-grey">
-              <input onclick=${this} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
-              Hide voted
-            </label>
-          </div>
-          <div class="control" style="margin-left: 10px; margin-right: 0;">
-            <div class="select">
-              <select autocomplete="off" name="legislature" onchange=${this.autosubmit}>
-                ${legislatures.map(({ abbr, name }) => {
-                  return `<option value="${abbr}" ${abbr === query.legislature ? 'selected' : ''}>${name}</option>`
-                })}
-              </select>
-            </div>
-          </div>
-          <button type="submit" class="filter-submit is-hidden">Update</button>
-        </div>
-        ${geoip ? [AddAddressNotification({ geoip, user })] : []}
-      </form>
-    `
+    btn.click()
   }
 }
 
-const AddAddressNotification = ({ geoip = {}, user }) => {
+const filterForm = (geoip, legislatures, storage, query, user) => {
+  const hide_direct_votes = query.hide_direct_votes || storage.get('hide_direct_votes')
+
+  return html()`
+    <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation">
+      <input name="order" type="hidden" value="${query.order || 'upcoming'}" />
+      <div class="field is-grouped is-grouped-right">
+        <div class="${`control ${user ? '' : 'is-hidden'}`}">
+          <label class="checkbox has-text-grey">
+            <input onclick=${toggleDirectVotes(storage)} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
+            Hide voted
+          </label>
+        </div>
+        <div class="control" style="margin-left: 10px; margin-right: 0;">
+          <div class="select">
+            <select autocomplete="off" name="legislature" onchange=${autoSubmit}>
+              ${legislatures.map(({ abbr, name }) => {
+                return `<option value="${abbr}" ${abbr === query.legislature ? 'selected' : ''}>${name}</option>`
+              })}
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="filter-submit is-hidden">Update</button>
+      </div>
+      ${geoip ? [addAddressNotification(geoip, user)] : []}
+    </form>
+  `
+}
+
+const addAddressNotification = (geoip = {}, user) => {
   return `
     <p class="help">
       We guessed your location is <strong>${geoip.city}, ${geoip.regionName}.</strong><br />
@@ -185,184 +152,203 @@ const AddAddressNotification = ({ geoip = {}, user }) => {
   `
 }
 
-class FilterTabs extends Component {
-  makeQuery(order) {
-    const query = this.location.query
-    const newQuery = Object.assign({}, query, { order, terms: query.terms || '' })
-    return Object.keys(newQuery).map(key => {
-      return `${key}=${newQuery[key]}`
-    }).join('&')
-  }
-  render() {
-    const { query } = this.location
-
-    const orderDescriptions = {
-      upcoming: 'Bills upcoming for a vote in the legislature.',
-      new: 'Bills recently introduced.',
-      proposed: `Bills introduced on ${APP_NAME}`,
-    }
-
-    return this.html`
-      <div class="tabs">
-        <ul>
-          <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('upcoming')}`}">Upcoming for vote</a></li>
-          <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('new')}`}">Recently introduced</a></li>
-          <li class="${query.order === 'proposed' ? 'is-active' : ''}"><a href="${`/legislation?${this.makeQuery('proposed')}`}">Introduced on ${APP_NAME}</a></li>
-        </ul>
-      </div>
-      <div class="columns" style="line-height: 34px;">
-        <div class="column">
-          <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
-        </div>
-        <div class="column has-text-right has-text-left-mobile">
-          ${FilterForm.for(this, { legislatures: this.props.legislatures })}
-        </div>
-      </div>
-    `
-  }
+const makeFilterQuery = (order, query) => {
+  const newQuery = Object.assign({}, query, { order, terms: (query.terms || '') })
+  return Object.keys(newQuery).filter((key) => key).map(key => {
+    return `${key}=${newQuery[key]}`
+  }).join('&')
 }
 
-class LegislationListRow extends Component {
-  render() {
-    const { bill: s } = this.props
-    const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
-    const measureUrl = s.author_username ? `/${s.author_username}/legislation/${s.short_id}` : `/legislation/${s.short_id}`
+const filterTabs = ({ geoip, legislatures, location, storage, user }) => {
+  const { query } = location
+  const orderDescriptions = {
+    upcoming: 'Bills upcoming for a vote in the legislature.',
+    new: 'Bills recently introduced.',
+    proposed: `Bills introduced on ${APP_NAME}`,
+  }
 
-    return this.html`
-      <div class="card highlight-hover">
-        <div class="card-content">
-          <div class="columns">
-            <div class="column">
-              <h3><a href="${measureUrl}">${s.title}</a></h3>
-              ${s.introduced_at ? [`
+  return html()`
+    <div class="tabs">
+      <ul>
+        <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('upcoming', query)}`}">Upcoming for vote</a></li>
+        <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('new', query)}`}">Recently introduced</a></li>
+        <li class="${query.order === 'proposed' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('proposed', query)}`}">Introduced on ${APP_NAME}</a></li>
+      </ul>
+    </div>
+    <div class="columns" style="line-height: 34px;">
+      <div class="column">
+        <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
+      </div>
+      <div class="column has-text-right has-text-left-mobile">
+        ${filterForm(geoip, legislatures, storage, query, user)}
+      </div>
+    </div>
+  `
+}
+
+const measureListRow = (s) => {
+  const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
+  const measureUrl = s.author_username ? `/${s.author_username}/legislation/${s.short_id}` : `/legislation/${s.short_id}`
+
+  return html(`measures-list-row-${s.id}`)`
+    <div class="card highlight-hover">
+      <div class="card-content">
+        <div class="columns">
+          <div class="column">
+            <h3><a href="${measureUrl}">${s.title}</a></h3>
+            ${s.introduced_at ? [`
+            <div class="is-size-7 has-text-grey">
+              <strong class="has-text-grey">${s.type} ${s.number}</strong>
+              &mdash;
+              ${s.sponsor_first_name
+                ? [`Introduced by&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
+                : [`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
+              }
+              ${s.summary ? [`
+                <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
+              `] : []}
+              <p><strong class="has-text-grey">Status:</strong> ${s.status}</p>
+              ${next_action_at ? [`
+                <strong class="has-text-grey">Next action:</strong>
+                Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
+                <br />
+              `] : ''}
+              <strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}
+            </div>
+            `] : [`
               <div class="is-size-7 has-text-grey">
-                <strong class="has-text-grey">${s.type} ${s.number}</strong>
-                &mdash;
-                ${s.sponsor_first_name
-                  ? [`Introduced by&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
-                  : [`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
-                }
-                ${s.summary ? [`
-                  <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
-                `] : []}
-                <p><strong class="has-text-grey">Status:</strong> ${s.status}</p>
-                ${next_action_at ? [`
-                  <strong class="has-text-grey">Next action:</strong>
-                  Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
-                  <br />
-                `] : ''}
-                <strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}
+                ${s.author_username
+                  ? `Authored by <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>`
+                  : `Authored by Anonymous`}
+                on ${(new Date(s.created_at)).toLocaleDateString()}
               </div>
-              `] : [`
-                <div class="is-size-7 has-text-grey">
-                  ${s.author_username
-                    ? `Authored by <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>`
-                    : `Authored by Anonymous`}
-                  on ${(new Date(s.created_at)).toLocaleDateString()}
-                </div>
-              `]}
-            </div>
-            <div class="column is-one-quarter has-text-right-tablet has-text-left-mobile">
-              ${VoteButton.for(this, s, `votebutton-${s.id}`)}
-              ${s.summary ? SummaryTooltipButton.for(this, s, `summarybutton-${s.id}`) : ''}
-            </div>
+            `]}
+          </div>
+          <div class="column is-one-quarter has-text-right-tablet has-text-left-mobile">
+            ${voteButton(s)}
+            ${s.summary ? summaryTooltipButton(s.id, s.short_id, s.summary) : ''}
           </div>
         </div>
       </div>
-    `
-  }
+    </div>
+  `
 }
 
-function votePositionClass(position) {
+const initialize = (prevQuery, location, storage, user) => (dispatch) => {
+  const { query, url } = location
+
+  if (prevQuery === url) return dispatch({ type: 'loaded' })
+
+  const terms = query.terms && query.terms.replace(/[^\w\d ]/g, '').replace(/(hr|s) (\d+)/i, '$1$2').replace(/(\S)\s+(\S)/g, '$1 & $2')
+  const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
+
+  const orders = {
+    upcoming: '&status=not.eq.Introduced&introduced_at=not.is.null&failed_lower_at=is.null&passed_lower_at=is.null&order=legislature_name.desc,next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
+    new: '&introduced_at=not.is.null&order=introduced_at.desc',
+    proposed: '&published=is.true&introduced_at=is.null&order=created_at.desc',
+  }
+
+  const order = orders[query.order || 'upcoming']
+
+  const hide_direct_votes = query.hide_direct_votes || storage.get('hide_direct_votes')
+  const hide_direct_votes_query = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
+
+  const legislature = `&legislature_name=eq.${query.legislature || 'U.S. Congress'}`
+
+  const fields = [
+    'title', 'number', 'type', 'short_id', 'id', 'status',
+    'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
+    'introduced_at', 'last_action_at', 'next_agenda_begins_at', 'next_agenda_action_at',
+    'summary', 'legislature_name', 'published', 'created_at', 'author_first_name', 'author_last_name', 'author_username',
+  ]
+  if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
+  const api_url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&type=not.eq.PN${order}&limit=40`
+
+  return api(api_url, { storage }).then((measures) => dispatch({
+    type: 'receivedMeasures',
+    measures: measures.reduce((b, a) => Object.assign(b, { [a.short_id]: a }), {}),
+    measuresList: measures.map(({ short_id }) => short_id),
+  }))
+  .catch(error => {
+    console.log(error)
+    dispatch({ type: 'error', error })
+  })
+  .then(() => dispatch({ type: 'loaded' }))
+}
+
+const votePositionClass = (position) => {
   if (position === 'yea') return 'is-success'
   if (position === 'nay') return 'is-danger'
   return ''
 }
 
-class VoteButton extends Component {
-  render() {
-    const s = this.props
-    let voteBtnTxt = 'Vote'
-    let voteBtnClass = 'button is-small is-outlined is-primary'
-    let voteBtnIcon = 'fas fa-edit'
-    if (s.vote_position) {
-      const position = `${s.vote_position[0].toUpperCase()}${s.vote_position.slice(1)}`
-      if (s.vote_position === 'yea') voteBtnIcon = 'fa fa-check'
-      if (s.vote_position === 'nay') voteBtnIcon = 'fa fa-times'
-      if (s.vote_position === 'abstain') voteBtnIcon = 'far fa-circle'
-      if (s.delegate_rank > -1) {
-        if (s.delegate_name) {
-          voteBtnTxt = `Inherited ${position} vote from ${s.delegate_name}`
-        } else {
-          voteBtnTxt = `Inherited ${position} vote from proxy`
-        }
-        voteBtnClass = `button is-small is-outlined ${votePositionClass(s.vote_position)}`
+const voteButton = (s) => {
+  let voteBtnTxt = 'Vote'
+  let voteBtnClass = 'button is-small is-outlined is-primary'
+  let voteBtnIcon = 'fas fa-edit'
+  if (s.vote_position) {
+    const position = `${s.vote_position[0].toUpperCase()}${s.vote_position.slice(1)}`
+    if (s.vote_position === 'yea') voteBtnIcon = 'fa fa-check'
+    if (s.vote_position === 'nay') voteBtnIcon = 'fa fa-times'
+    if (s.vote_position === 'abstain') voteBtnIcon = 'far fa-circle'
+    if (s.delegate_rank > -1) {
+      if (s.delegate_name) {
+        voteBtnTxt = `Inherited ${position} vote from ${s.delegate_name}`
+      } else {
+        voteBtnTxt = `Inherited ${position} vote from proxy`
       }
-      if (s.delegate_rank === -1) {
-        voteBtnTxt = `You voted ${position}`
-        voteBtnClass = `button is-small ${votePositionClass(s.vote_position)}`
-      }
+      voteBtnClass = `button is-small is-outlined ${votePositionClass(s.vote_position)}`
     }
-    return this.html`<a style="white-space: inherit; height: auto;" class=${voteBtnClass} href=${`/legislation/${s.short_id}`}>
-      <span class="icon" style="align-self: flex-start;"><i class=${voteBtnIcon}></i></span>
-      <span class="has-text-weight-semibold">${voteBtnTxt}</span>
-    </a>`
+    if (s.delegate_rank === -1) {
+      voteBtnTxt = `You voted ${position}`
+      voteBtnClass = `button is-small ${votePositionClass(s.vote_position)}`
+    }
   }
+  return html(`votebutton-${s.id}`)`<a style="white-space: inherit; height: auto;" class=${voteBtnClass} href=${`/legislation/${s.short_id}`}>
+    <span class="icon" style="align-self: flex-start;"><i class=${voteBtnIcon}></i></span>
+    <span class="has-text-weight-semibold">${voteBtnTxt}</span>
+  </a>`
 }
 
-class ProposeButton extends Component {
-  render() {
-    return this.html`
-      <a class="button is-primary" href="/legislation/propose">
+const proposeButton = () => html()`
+  <a class="button is-primary" href="/legislation/propose">
+    <span class="icon"><i class="fa fa-file"></i></span>
+    <span class="has-text-weight-semibold">Propose Legislation</span>
+  </a>
+`
+
+const summaryTooltipButton = (id, short_id, summary) => html(`summarybutton-${id}`)`
+  <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">
+    <br />
+    <br />
+    <span class="icon summary-tooltip">
+      <i class="fa fa-lg fa-info-circle has-text-grey-lighter"></i>
+      <div class="summary-tooltip-content">${[summary]}</div>
+      <div class="summary-tooltip-arrow"></div>
+    </span>
+  </a>
+`
+
+const noBillsMsg = (order, query) => html()`
+  <div>
+    ${order !== 'proposed' ? [`
+      <p class="is-size-5">Liquid doesn't have this location's bill list yet,
+        <a href="${`/legislation?${makeQuery('proposed', query)}`}">
+        click here to view manually added items.
+        </a>
+      </p>
+    `] : [`
+      <a href="/legislation/propose" class="button is-primary has-text-weight-semibold">
         <span class="icon"><i class="fa fa-file"></i></span>
-        <span class="has-text-weight-semibold">Propose Legislation</span>
+        <span>Add the first policy proposal</span>
       </a>
-    `
-  }
-}
+    `]}
+  </div>
+`
 
-class SummaryTooltipButton extends Component {
-  render() {
-    const { short_id, summary } = this.props
-
-    return this.html`
-      <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">
-        <br />
-        <br />
-        <span class="icon summary-tooltip">
-          <i class="fa fa-lg fa-info-circle has-text-grey-lighter"></i>
-          <div class="summary-tooltip-content">${[summary]}</div>
-          <div class="summary-tooltip-arrow"></div>
-        </span>
-      </a>
-    `
-  }
-}
-
-class NoBills extends Component {
-  makeQuery(order) {
-    const query = this.location.query
-    const newQuery = Object.assign({}, query, { order, terms: query.terms || '' })
-    return Object.keys(newQuery).map(key => {
-      return `${key}=${newQuery[key]}`
-    }).join('&')
-  }
-  render() {
-    return this.html`
-      <div>
-        ${this.location.query.order !== 'proposed' ? [`
-          <p class="is-size-5">Liquid doesn't have this location's bill list yet,
-            <a href="${`/legislation?${this.makeQuery('proposed')}`}">
-            click here to view manually added items.
-            </a>
-          </p>
-        `] : [`
-          <a href="/legislation/propose" class="button is-primary has-text-weight-semibold">
-            <span class="icon"><i class="fa fa-file"></i></span>
-            <span>Add the first policy proposal</span>
-          </a>
-        `]}
-      </div>
-    `
-  }
+const makeQuery = (order, query) => {
+  const newQuery = Object.assign({}, query, { order, terms: query.terms || '' })
+  return Object.keys(newQuery).map(key => {
+    return `${key}=${newQuery[key]}`
+  }).join('&')
 }
