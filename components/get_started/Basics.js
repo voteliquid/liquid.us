@@ -260,7 +260,7 @@ const upsertAddressAndContinue = (formData, { storage, user }, dispatch) => {
   })
   .then(() => {
     if (!storage.get('proxying_user_id')) {
-      return dispatch({ type: 'redirected', url: '/get_started/proxies' })
+      return dispatch({ type: 'redirected', url: '/get_started/verification' })
     }
 
     return api('/delegations', {
@@ -276,16 +276,16 @@ const upsertAddressAndContinue = (formData, { storage, user }, dispatch) => {
     .then(() => {
       storage.set('proxied_user_id', storage.get('proxying_user_id'))
       storage.unset('proxying_user_id')
-      return dispatch({ type: 'redirected', url: '/get_started/proxies' })
+      return dispatch({ type: 'redirected', url: '/get_started/verification' })
     })
     .catch(error => {
       console.log(error)
-      return dispatch({ type: 'redirected', url: '/get_started/proxies' })
+      return dispatch({ type: 'redirected', url: '/get_started/verification' })
     })
   })
   .catch((error) => {
     console.log(error)
-    return dispatch({ type: 'redirected', url: '/get_started/proxies' })
+    return dispatch({ type: 'redirected', url: '/get_started/verification' })
   })
 }
 
