@@ -12,6 +12,7 @@ module.exports = {
     user,
   }, initialize(user)],
   update: (event, state) => {
+    console.log(event)
     switch (event.type) {
       case 'contactWidgetOpened':
         return [state, preventDefault(event.event)]
@@ -207,7 +208,7 @@ const requestOtpForm = ({ error, loading, skipWarning }, dispatch) => {
           </button>
         </div>
         <div class="control">
-          <a class="is-size-7" onclick=${(event) => dispatch({ type: 'skipChosen', event })}>
+          <a class="is-size-7" onclick=${(event) => dispatch({ type: 'redirected', url: '/get_started?skip=t', event })}>
             ${skipWarning ? 'Confirm s' : 'S'}kip verification for now<br />
             ${skipWarning
               ? [`<p class="is-size-7">Are you sure? Your votes can't be counted until you verify.</p>`]
