@@ -12,7 +12,6 @@ module.exports = {
     user,
   }, initialize(user)],
   update: (event, state) => {
-    console.log(event)
     switch (event.type) {
       case 'contactWidgetOpened':
         return [state, preventDefault(event.event)]

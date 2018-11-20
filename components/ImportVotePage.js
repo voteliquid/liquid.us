@@ -1,13 +1,11 @@
 const { api, combineEffects, html, preventDefault, redirect } = require('../helpers')
 
 module.exports = {
-  init: [{
+  init: ({ location, user, storage }) => [{
     error: null,
-    params: {
-      short_id: null,
-    },
-    user: null,
-    storage: null,
+    location,
+    user,
+    storage,
   }],
   update: (event, state) => {
     switch (event.type) {
@@ -82,8 +80,8 @@ module.exports = {
   },
 }
 
-const postImportedVote = ({ params, storage }, event) => (dispatch) => {
-  const { short_id } = params
+const postImportedVote = ({ location, storage }, event) => (dispatch) => {
+  const { short_id, username } = location.params
   const formData = require('parse-form').parse(event.target).body
   const twitter_username = (formData.twitter_username || '').replace('@', '')
   api('/rpc/import_vote', {
@@ -91,6 +89,6 @@ const postImportedVote = ({ params, storage }, event) => (dispatch) => {
     body: JSON.stringify({ ...formData, twitter_username, short_id }),
     storage,
   })
-  .then(() => dispatch({ type: 'redirected', url: `${params.username ? `/${params.username}/` : '/'}legislation/${params.short_id}` }))
+  .then(() => dispatch({ type: 'redirected', url: `${username ? `/${username}/` : '/'}legislation/${short_id}` }))
   .catch((error) => dispatch({ type: 'receivedError', error }))
 }
