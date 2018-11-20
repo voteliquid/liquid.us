@@ -236,7 +236,7 @@ module.exports = class Comment extends Component {
             ${[show_bill && selected_profile ? `
               <div>
                 <span class="has-text-weight-semibold">${username || twitter_username ? fullname : anonymousName}</span>
-                <span>voted <strong>${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${proxy_vote_count + 1}</span> people` : ''}</span>
+                <span>voted <strong>${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${username && !twitter_username ? (proxy_vote_count + 1) : proxy_vote_count}</span> people` : ''}</span>
                 ${source_url ? [`<span class="is-size-7"> via <a href="${source_url}" target="_blank">${source_url.split('/')[2]}</a></span>`] : ''}
               </div>
               <div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>
@@ -247,7 +247,7 @@ module.exports = class Comment extends Component {
                     ? [`<a href="/${twitter_username ? `twitter/${twitter_username}` : username}">${fullname}</a>`]
                     : anonymousName}
                 </span>
-                <span>voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${proxy_vote_count + 1}</span> people` : ''}</span>
+                <span>voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${proxy_vote_count ? ` on behalf of <span class="has-text-weight-semibold">${username && !twitter_username ? (proxy_vote_count + 1) : proxy_vote_count}</span> people` : ''}</span>
                 ${source_url ? [`<span class="is-size-7"> via <a href="${source_url}" target="_blank">${source_url.split('/')[2]}</a></span>`] : ''}
               </div>
             `]}
