@@ -41,6 +41,7 @@ module.exports = class MeasureDetailsPage extends Component {
         showMeasureVoteForm: this.location.query.action === 'add-argument',
         page_title: title,
         page_description: `Vote directly on federal, state, and local bills and nominations. We'll notify your representatives and grade them for how well they listen to their constituents.`,
+        selected_bill: measure,
         measures: {
           ...this.state.measures,
           [measure.short_id]: {
