@@ -37,7 +37,7 @@ module.exports = class CommentPage extends Component {
 
       const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
       const officeId = repsInChamber[0] && repsInChamber[0].office_id
-      return fetchConstituentVotes.call(this, measure.id, measure.short_id, officeId).then(() => {
+      return fetchConstituentVotes.call(this, measure, officeId).then(() => {
         return this.fetchComment(params.comment_id, measure).then(comment => {
           if (!comment) {
             this.location.setStatus(404)

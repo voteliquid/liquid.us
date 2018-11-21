@@ -80,7 +80,7 @@ class Endorsed extends Component {
     return this.api(`/endorsements?user_id=eq.${user.id}&vote_id=eq.${vote_id}`, {
       method: 'DELETE',
     })
-    .then(() => fetchConstituentVotes.call(this, measure.id, short_id, officeId))
+    .then(() => fetchConstituentVotes.call(this, measure, officeId))
     .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
     .then((votes) => {
       this.setState({
@@ -139,7 +139,7 @@ class Unendorsed extends Component {
       method: 'POST',
       body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id }),
     })
-    .then(() => fetchConstituentVotes.call(this, measure.id, short_id, officeId))
+    .then(() => fetchConstituentVotes.call(this, measure, officeId))
     .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
     .then((votes) => {
       if (typeof window === 'object' && window._loq) window._loq.push(['tag', 'Voted'], ['tag', 'Endorsed'])
@@ -199,7 +199,7 @@ class AlreadyVoted extends Component {
       method: 'POST',
       body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id }),
     })
-    .then(() => fetchConstituentVotes.call(this, measure.id, short_id, officeId))
+    .then(() => fetchConstituentVotes.call(this, measure, officeId))
     .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
     .then((votes) => {
       this.setState({

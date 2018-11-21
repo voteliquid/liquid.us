@@ -51,7 +51,7 @@ module.exports = class Comment extends Component {
       })
       const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
       const officeId = repsInChamber[0] && repsInChamber[0].office_id
-      this.fetchConstituentVotes(measure.id, measure.short_id, officeId)
+      this.fetchConstituentVotes(measure, officeId)
     })
     .then(() => this.fetchTopComments(measure_id, short_id))
     .then(() => this.fetchComments(measure_id, short_id))
@@ -98,7 +98,7 @@ module.exports = class Comment extends Component {
       })
       const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
       const officeId = repsInChamber[0] && repsInChamber[0].office_id
-      return this.fetchConstituentVotes(measure.id, measure.short_id, officeId)
+      return this.fetchConstituentVotes(measure, officeId)
     })
     .then(() => this.fetchTopComments(measure_id, short_id))
     .then(() => this.fetchComments(measure_id, short_id))
@@ -128,22 +128,22 @@ module.exports = class Comment extends Component {
 
     return this.api(url).then((results) => results[0])
   }
-  fetchConstituentVotes(id, short_id, office_id) {
-    if (office_id) {
-      return this.api(`/measure_votes?measure_id=eq.${id}&or=(office_id.eq.${office_id},office_id.is.null)`)
-        .then((results) => {
-          const votes = results[0] || {}
-          this.setState({
-            measures: {
-              ...this.state.measures,
-              [short_id]: {
-                ...this.state.measures[short_id],
-                ...votes
-              },
-            },
-          })
-        })
-    }
+  fetchConstituentVotes(measure, office_id) {
+    const { id, short_id } = measure
+    const officeParam = office_id && measure.legislature_name === 'U.S. Congress' ? `&office_id=eq.${office_id}` : '&limit=1'
+    return this.api(`/measure_votes?measure_id=eq.${id}${officeParam}`).then((results) => {
+      const votes = results[0] || {}
+      const measures = this.state.measures || {}
+      this.setState({
+        measures: {
+          ...measures,
+          [short_id]: {
+            ...measures[short_id],
+            ...votes
+          },
+        },
+      })
+    })
   }
   fetchTopComments(id, short_id) {
     const order = `order=proxy_vote_count.desc.nullslast,created_at.desc`

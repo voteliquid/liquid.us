@@ -55,7 +55,7 @@ module.exports = class MeasureDetailsPage extends Component {
       const officeId = repsInChamber[0] && repsInChamber[0].office_id
 
       return this.fetchComments(measure.id, measure.short_id)
-        .then(() => this.fetchConstituentVotes(measure.id, measure.short_id, officeId))
+        .then(() => this.fetchConstituentVotes(measure, officeId))
         .then(() => this.fetchTopComments(measure.id, measure.short_id))
         .then(() => this.fetchProxyVotes(measure.id, measure.short_id))
     })
@@ -65,8 +65,8 @@ module.exports = class MeasureDetailsPage extends Component {
       return { error, loading_measure: false }
     })
   }
-  fetchConstituentVotes(id, short_id, office_id) {
-    const measure = this.state.measures[short_id]
+  fetchConstituentVotes(measure, office_id) {
+    const { id, short_id } = measure
     const officeParam = office_id && measure.legislature_name === 'U.S. Congress' ? `&office_id=eq.${office_id}` : '&limit=1'
     return this.api(`/measure_votes?measure_id=eq.${id}${officeParam}`).then((results) => {
       const votes = results[0] || {}

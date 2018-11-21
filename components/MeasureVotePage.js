@@ -26,7 +26,7 @@ module.exports = class MeasureVotePage extends Component {
         },
       })
 
-      return fetchVoteCount.call(this, measure.id, params.short_id, officeId).then(() => {
+      return fetchVoteCount.call(this, measure, officeId).then(() => {
         return this.fetchVote(measure)
       })
     })

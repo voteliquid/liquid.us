@@ -109,7 +109,7 @@ class MeasureVoteForm extends Component {
     .then(() => fetchMeasure.call(this, measure.short_id))
     .then(() => fetchComments.call(this, measure.id, measure.short_id))
     .then(() => fetchTopComments.call(this, measure.id, measure.short_id))
-    .then(() => fetchConstituentVotes.call(this, measure.id, measure.short_id, officeId))
+    .then(() => fetchConstituentVotes.call(this, measure, officeId))
     .then(() => this.api(`/votes?measure_id=eq.${measure.id}&user_id=eq.${user.id}&delegate_rank=eq.-1`).then(votes => {
       if (this.isBrowser && window._loq) window._loq.push(['tag', 'Voted'])
       const my_vote = votes[0]
