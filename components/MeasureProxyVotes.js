@@ -10,7 +10,7 @@ module.exports = class MeasureProxyVotes extends Component {
     return this.html`
       <div>
         <h4 class="title is-size-6 has-text-grey has-text-weight-semibold">
-          Your Proxy's Votes
+          Votes by your proxies
         </h4>
         <div>${!votes ? LoadingIndicator.for(this, 'yourproxyvotes-indicator') : ProxyVotesLoaded.for(this, { votes })}</div>
         <hr />
