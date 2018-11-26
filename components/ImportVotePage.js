@@ -1,4 +1,5 @@
 const { api, combineEffects, html, preventDefault, redirect } = require('../helpers')
+const fetch = require('isomorphic-fetch')
 
 module.exports = {
   init: ({ location, user, storage }) => [{
@@ -84,10 +85,39 @@ const postImportedVote = ({ location, storage }, event) => (dispatch) => {
   const { short_id, username } = location.params
   const formData = require('parse-form').parse(event.target).body
   const twitter_username = (formData.twitter_username || '').replace('@', '')
-  api('/rpc/import_vote', {
+  fetch('/rpc/twitter_username_search', {
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
     method: 'POST',
-    body: JSON.stringify({ ...formData, twitter_username, short_id }),
-    storage,
+    body: JSON.stringify({ twitter_username }),
+  })
+  .then(res => {
+    if (res.status === 404) {
+      return res.json().then(json => {
+        return Promise.reject(new Error(json.message))
+      })
+    }
+    return res.json()
+  })
+  .then((twitterApiResult) => {
+    if (!twitterApiResult) {
+      return Promise.reject(new Error('No Twitter user found'))
+    }
+
+    return api('/rpc/import_vote', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...formData,
+        twitter_username: twitterApiResult.twitter_username.replace(/@/g, ''),
+        twitter_displayname: twitterApiResult.name,
+        twitter_avatar: twitterApiResult.avatar,
+        twitter_bio: twitterApiResult.description,
+        short_id,
+      }),
+      storage,
+    })
   })
   .then(() => dispatch({ type: 'redirected', url: `${username ? `/${username}/` : '/'}legislation/${short_id}` }))
   .catch((error) => dispatch({ type: 'receivedError', error }))
