@@ -145,7 +145,7 @@ class CommentDetailPage extends Component {
               <br />
               <div>
                 <a class="is-size-7 has-text-grey button is-text" href="${url}">
-                  <span>See all arguments for this ${l.type === 'PN' ? 'nomination' : 'bill'}</span>
+                  <span>See all arguments</span>
                 </a>
               </div>
             </div>

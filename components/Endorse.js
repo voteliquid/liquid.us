@@ -165,7 +165,7 @@ class Unendorsed extends Component {
             <div class="level-left">
               <div>
                 <p class="has-text-left">
-                  <span class="has-text-weight-bold">You haven't voted on this bill.</span><br />
+                  <span class="has-text-weight-bold">You haven't voted on this item.</span><br />
                   <span>Let your reps know you agree with ${fullname && username ? fullname : 'them'},</span>
                   <br />
                   <span>or <a href="${measureUrl}">add your own argument</a>.</span>
@@ -223,7 +223,7 @@ class AlreadyVoted extends Component {
           <div class="level">
             <div class="level-left">
               <p class="has-text-left">
-                <span class="has-text-weight-bold">You already voted ${this.capitalize(vote_position)} on this bill.</span><br />
+                <span class="has-text-weight-bold">You already voted ${this.capitalize(vote_position)} on this item.</span><br />
                 <span>Endorse ${fullname && username ? possessive(fullname) : 'their'} position instead?</span>
               </p>
             </div>

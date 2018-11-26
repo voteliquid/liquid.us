@@ -29,7 +29,7 @@ module.exports = class MeasureDetailsSidebar extends Component {
         ${reps && reps.length ? MeasureRepsPanel.for(this, { measure: l, reps }) : ''}
         ${PanelTitleBlock.for(this, { title: 'Votes' }, 'title-votes')}
         ${MeasureVoteCounts.for(this, { measure: l, reps })}
-        ${PanelTitleBlock.for(this, { title: `${l.type === 'PN' ? 'Nomination' : 'Bill'} Info` }, 'title-info')}
+        ${PanelTitleBlock.for(this, { title: 'Info' }, 'title-info')}
         ${MeasureInfoPanel.for(this, { measure: l, showStatusTracker })}
         ${MeasureActionsPanel.for(this, { measure: l, user })}
       </nav>
