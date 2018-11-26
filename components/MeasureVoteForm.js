@@ -44,6 +44,7 @@ class MeasureVoteBox extends Component {
         })
       })
     }
+    this.setState({ last_vote_public: true })
   }
   render() {
     const { loading } = this.state
