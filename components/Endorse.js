@@ -5,10 +5,10 @@ const { fetchConstituentVotes } = require('./MeasureDetailsPage').prototype
 
 module.exports = class Endorse extends Component {
   render() {
-    const { user, vote, vote_position } = this.props
+    const { user, vote = {}, vote_position } = this.props
     return this.html`
       <div class="endorse">
-        ${user && user.id === vote.user_id
+        ${user && vote && user.id === vote.user_id
           ? YourVote.for(this, vote)
           : vote_position
             ? vote.endorsed
@@ -26,8 +26,8 @@ class VoteShareButtons extends Component {
     const ClipboardJS = require('clipboard')
     const clipboard = new ClipboardJS('.permalink')
     clipboard.on('success', () => {
-      this.setProps({ copied2clipboard: true }).render()
-      setTimeout(() => this.setProps({ copied2clipboard: false }).render(), 2000)
+      this.setProps({ copied2clipboard: true }).render(this.props)
+      setTimeout(() => this.setProps({ copied2clipboard: false }).render(this.props), 2000)
     })
     clipboard.on('error', (error) => {
       console.log(error)

@@ -53,7 +53,7 @@ module.exports = class CommentPage extends Component {
             window.history.replaceState(window.history.state, page_title_with_appname, document.location)
           }
 
-          return this.setState({
+          this.setState({
             loading_measure: false,
             page_title,
             page_description: this.escapeHtml(comment.comment, { replaceAmp: true }),
@@ -141,7 +141,7 @@ class CommentDetailPage extends Component {
                 }
               </style>
               ${Comment.for(this, l.comment)}
-              ${Endorse.for(this, { vote: l.comment, vote_position: l.vote_position, user })}
+              ${l.comment ? Endorse.for(this, { vote: l.comment, vote_position: l.vote_position, user }) : ''}
               <br />
               <div>
                 <a class="is-size-7 has-text-grey button is-text" href="${url}">
