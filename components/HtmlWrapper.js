@@ -66,6 +66,23 @@ module.exports = (state, html, bundleUrl) => {
           a.has-text-grey-light:hover {
             color: hsl(0, 0%, 48%)!important;
           }
+
+          .responsive-video-wrapper {
+            overflow:hidden;
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+          }
+
+          .responsive-video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            max-height: 315px;
+            max-width: 560px;
+          }
         </style>
         <meta property="og:title" content="${title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:description" content="${description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />

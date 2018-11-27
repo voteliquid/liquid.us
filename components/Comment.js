@@ -259,7 +259,7 @@ module.exports = class Comment extends Component {
               <span class="has-text-grey-light">
                 ${user && user.id === user_id ? [`
                   <span class="has-text-grey-lighter">&bullet;</span>
-                  <a href="${`${measure_url}?action=add-argument`}" class="has-text-grey-light">
+                  <a href="${`${measure_url}/vote`}" class="has-text-grey-light">
                     <span class="icon is-small"><i class="fas fa-pencil-alt"></i></span>
                     <span>Edit</span>
                   </a>
@@ -299,7 +299,17 @@ class CommentContent extends Component {
     this.setProps({ expanded: !this.props.expanded }).render(this.props)
   }
   breakOnWord(str) {
-    const truncated = str.slice(0, 300).replace(/ \w+$/, '')
+    let len = 0
+    const truncated = str.split('\n').reduce((b, a) => {
+      if (len > 300) return b
+      len += 1
+      const words = a.split(' ').reduce((line, word) => {
+        if (len > 300) return line
+        len += word.length + 1
+        return `${line} ${word}`
+      }, '')
+      return `${b}\n${words}`
+    })
     if (str.length > truncated.length) {
       return `${truncated}...`
     }
@@ -308,8 +318,8 @@ class CommentContent extends Component {
   render({ comment = '', expanded = false, truncated = false }) {
     const showExpander = truncated && comment.length > 300
     return this.html`
-      <div class="content" style="margin: .25rem 0 .75rem;">
-        ${[this.linkifyUrls(expanded || !truncated ? comment : this.breakOnWord(comment))]}
+      <div class="content" style="margin: .25rem 0 .75rem; word-break: break-all;">
+        ${[this.linkifyUrls(expanded || !showExpander ? comment : this.breakOnWord(comment))]}
         <span class="${showExpander ? '' : 'is-hidden'}">
           <a href="#" onclick=${this} class="is-size-7">
             <span>show ${expanded ? 'less' : 'more'}</span>

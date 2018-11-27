@@ -73,6 +73,7 @@ const App = module.exports = {
         }, combineEffects(
           changePageTitle(event.page_title),
           startNProgress(),
+          scrollToTop(event.location.path !== state.location.path),
           mapEffect('footerEvent', Footer.selectQuote),
           runInSeries(
             fetchUserAndRepsAndLegislatures(state),
@@ -145,7 +146,6 @@ const App = module.exports = {
           routeState: routeInitState,
         }, runInSeries(
           stopNProgress(),
-          scrollToTop(true),
           !isHyperloop && mapEffect('routeEvent', routeInitEffect),
           isHyperloop && hyperloopEffect
         )]
