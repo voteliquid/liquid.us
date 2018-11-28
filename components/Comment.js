@@ -318,7 +318,7 @@ class CommentContent extends Component {
   render({ comment = '', expanded = false, truncated = false }) {
     const showExpander = truncated && comment.length > 300
     return this.html`
-      <div class="content" style="margin: .25rem 0 .75rem; word-break: break-all;">
+      <div class="content" style="margin: .25rem 0 .75rem;">
         ${[this.linkifyUrls(expanded || !showExpander ? comment : this.breakOnWord(comment))]}
         <span class="${showExpander ? '' : 'is-hidden'}">
           <a href="#" onclick=${this} class="is-size-7">
