@@ -1,5 +1,4 @@
 const { api, html, redirect } = require('../../helpers')
-const ActivityIndicator = require('./../ActivityIndicator')
 
 module.exports = {
   init: ({ location, storage, user }) => [{
@@ -14,7 +13,7 @@ module.exports = {
     }
   },
   view: () => {
-    return html()`${ActivityIndicator()}`
+    return html()`<div></div>`
   },
 }
 
