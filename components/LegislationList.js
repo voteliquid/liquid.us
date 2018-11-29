@@ -1,9 +1,9 @@
 const { APP_NAME } = process.env
-const { api, html, preventDefault } = require('../helpers')
+const { api, html, preventDefault, redirect } = require('../helpers')
 const activityIndicator = require('./ActivityIndicator')
 
 module.exports = {
-  init: ({ legislatures, location, measures = {}, measuresList = [], measuresQuery, storage, user }) => [{
+  init: ({ legislatures, location = {}, measures = {}, measuresList = [], measuresQuery, storage, user }) => [{
     location,
     legislatures,
     loading: true,
@@ -25,19 +25,21 @@ module.exports = {
           measuresList: event.measuresList,
           measuresQuery: state.location.url,
         }]
+      case 'redirected':
+        return [state, redirect(event.url, event.status)]
       case 'loaded':
       default:
         return [{ ...state, loading: false }]
     }
   },
-  view: (state) => {
+  view: (state, dispatch) => {
     const { loading, measuresList, location, measures } = state
     const { query } = location
     return html()`
       <div class="section">
         <div class="container is-widescreen">
           <div class="has-text-right has-text-left-mobile">${proposeButton()}</div>
-          ${filterTabs(state)}
+          ${filterTabs(state, dispatch)}
           ${loading ? activityIndicator() :
             (!measuresList.length ? noBillsMsg(query.order, query) : measuresList.map((short_id) => measureListRow(measures[short_id])))}
           <style>
@@ -114,12 +116,22 @@ const toggleDirectVotes = (storage) => (event) => {
   }
 }
 
-const filterForm = (geoip, legislatures, storage, query, user) => {
-  const hide_direct_votes = query.hide_direct_votes || storage.get('hide_direct_votes')
+const updateFilter = (event, location, dispatch) => {
+  event.preventDefault()
+  const formData = require('parse-form').parse(event.target).body
+  const formUrl = `${location.path}?${Object.keys(formData).map((key) => {
+    return `${key}=${formData[key]}`
+  }).join('&')}`
+  dispatch({ type: 'redirected', url: formUrl })
+}
+
+const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
+  const hide_direct_votes = location.query.hide_direct_votes || storage.get('hide_direct_votes')
+  const legislatureQuery = decodeURIComponent(location.query.legislature).replace(/\+/g, ' ')
 
   return html()`
-    <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation">
-      <input name="order" type="hidden" value="${query.order || 'upcoming'}" />
+    <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
+      <input name="order" type="hidden" value="${location.query.order || 'upcoming'}" />
       <div class="field is-grouped is-grouped-right">
         <div class="${`control ${user ? '' : 'is-hidden'}`}">
           <label class="checkbox has-text-grey">
@@ -131,7 +143,7 @@ const filterForm = (geoip, legislatures, storage, query, user) => {
           <div class="select">
             <select autocomplete="off" name="legislature" onchange=${autoSubmit}>
               ${legislatures.map(({ abbr, name }) => {
-                return `<option value="${abbr}" ${abbr === query.legislature ? 'selected' : ''}>${name}</option>`
+                return `<option value="${abbr}" ${abbr === legislatureQuery ? 'selected' : ''}>${name}</option>`
               })}
             </select>
           </div>
@@ -159,7 +171,7 @@ const makeFilterQuery = (order, query) => {
   }).join('&')
 }
 
-const filterTabs = ({ geoip, legislatures, location, storage, user }) => {
+const filterTabs = ({ geoip, legislatures, location, storage, user }, dispatch) => {
   const { query } = location
   const orderDescriptions = {
     upcoming: 'Bills upcoming for a vote in the legislature.',
@@ -180,7 +192,7 @@ const filterTabs = ({ geoip, legislatures, location, storage, user }) => {
         <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
       </div>
       <div class="column has-text-right has-text-left-mobile">
-        ${filterForm(geoip, legislatures, storage, query, user)}
+        ${filterForm(geoip, legislatures, storage, location, user, dispatch)}
       </div>
     </div>
   `
