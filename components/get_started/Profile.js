@@ -4,9 +4,7 @@ const routes = require('../../routes')
 
 module.exports = class PickUsernamePage extends Component {
   oninit() {
-    if (this.isServer) {
-      return this.redirectIfUnauthorized()
-    }
+    return this.redirectIfUnauthorized()
   }
 
   onpagechange(oldProps) {

@@ -46,7 +46,7 @@ module.exports = {
       case 'sentOtp':
         return [{ ...state, loading: false, showVerifyOtpForm: true }]
       case 'redirected':
-        if (!state.skipWarning && state.user) {
+        if (!state.skipWarning && state.user && !event.skipWarning) {
           return [{ ...state, skipWarning: true }]
         }
         return [{ ...state, skipWarning: false }, redirect(event.url)]
@@ -96,6 +96,8 @@ module.exports = {
 const initialize = (user) => (dispatch) => {
   if (!user) {
     dispatch({ type: 'redirected', url: '/sign_in?notification=verify' })
+  } else if (user && (!user.first_name || !user.last_name)) {
+    dispatch({ type: 'redirected', url: '/get_started/basics', skipWarning: true })
   } else {
     dispatch({ type: 'loaded' })
   }
