@@ -14,7 +14,7 @@ module.exports = class MeasureDetailsPage extends Component {
     })
 
     if (measure) {
-      const title = measure.introduced_at ? `${measure.type} ${measure.number} – ${measure.title}` : measure.title
+      const title = `${measure.legislature_name}: ${measure.title}`
       if (this.isBrowser) {
         const page_title = `${title} | ${config.APP_NAME}`
         window.document.title = page_title
@@ -30,7 +30,7 @@ module.exports = class MeasureDetailsPage extends Component {
         return this.setState({ loading_measure: false })
       }
 
-      const title = measure.introduced_at ? `${measure.type} ${measure.number} – ${measure.title}` : measure.title
+      const title = `${measure.legislature_name}: ${measure.title}`
       if (this.isBrowser) {
         const page_title = `${title} | ${config.APP_NAME}`
         window.document.title = page_title
