@@ -4,7 +4,7 @@ const fs = require('fs')
 const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
 
 module.exports = (state, html, bundleUrl) => {
-  const { page_description, page_title, selected_bill, selected_profile } = state
+  const { page_description, page_title, og_image_url, selected_bill, selected_profile } = state
   const description = page_description || `A new democracy for the modern world.`
   const title = page_title ? `${page_title} | Liquid US` : `Liquid US | Digital Democracy Voting Platform`
   const profile_image_url = selected_profile ? avatarURL(selected_profile) : ''
@@ -86,7 +86,7 @@ module.exports = (state, html, bundleUrl) => {
         </style>
         <meta property="og:title" content="${title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:description" content="${description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
-        <meta property="og:image" content="${profile_image_url || measure_image_url || `https://blog.${WWW_DOMAIN}/assets/twitter_large.png`}" />
+        <meta property="og:image" content="${og_image_url || profile_image_url || measure_image_url || `https://blog.${WWW_DOMAIN}/assets/twitter_large.png`}" />
         <meta property="og:type" content="website" />
         ${responsiveTableStyle}
         ${roundAvatarStyle}

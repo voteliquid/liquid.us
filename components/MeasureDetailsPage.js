@@ -1,3 +1,4 @@
+const { ASSETS_URL } = process.env
 const Component = require('./Component')
 const LoadingIndicator = require('./LoadingIndicator')
 const MeasureDetails = require('./MeasureDetails')
@@ -36,12 +37,14 @@ module.exports = class MeasureDetailsPage extends Component {
         window.document.title = page_title
         window.history.replaceState(window.history.state, page_title, document.location)
       }
+      const measureImage = measure.legislature_name === 'WI' ? `${ASSETS_URL}/${measure.legislature_name}.png` : ''
       this.setState({
         loading_measure: false,
         showMeasureVoteForm: this.location.query.action === 'add-argument',
         page_title: title,
         page_description: `Vote directly on federal, state, and local bills and nominations. We'll notify your representatives and grade them for how well they listen to their constituents.`,
         selected_bill: measure,
+        og_image_url: measureImage,
         measures: {
           ...this.state.measures,
           [measure.short_id]: {
