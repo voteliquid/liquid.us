@@ -36,12 +36,13 @@ class VoteShareButtons extends Component {
   render() {
     const ClipboardJS = typeof window === 'object' && require('clipboard')
     const { user } = this.state
-    const { copied2clipboard, position, title, short_id, id, user_id, fullname, number, type } = this.props
-    const subject = fullname ? `${fullname} is` : 'People are'
+    const { copied2clipboard, position, short_id, id, user_id, type } = this.props
     const comment_url = type === 'PN' ? `/nominations/${short_id}/votes/${id}` : `/legislation/${short_id}/votes/${id}`
     const share_url = `${WWW_URL}${comment_url}`
-    const twitter_measure_title = type && number ? `${type} ${number}` : title
-    const twitter_share_text = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${twitter_measure_title}. See why: ${share_url}`
+    let twitter_share_text = `Good argument! Click to show your support or explain why you disagree. ${share_url}`
+    if (user && user.id === user_id) {
+      twitter_share_text = `I'm voting ${position}. See why: ${share_url}`
+    }
     return this.html`
       <div style="margin: .5rem 0;">
         <a class="is-small" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" title="Share on Twitter">

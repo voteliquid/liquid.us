@@ -198,13 +198,14 @@ module.exports = class Comment extends Component {
     const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
     const comment_url = `${measure_url}/votes/${id}`
     const share_url = `${WWW_URL}${comment_url}`
-    const subject = fullname ? `${fullname} is` : 'People are'
     const measure_title = type && number ? `${type} ${number} — ${title}` : title
     const anonymousName = measure
       ? `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
       : 'Anonymous'
-    const twitter_measure_title = type && number ? `${type} ${number}` : title
-    const twitter_share_text = `${user && user.id === user_id ? `I'm` : subject} voting ${position === 'yea' ? 'in favor' : 'against'} ${twitter_measure_title}. See why: ${share_url}`
+    let twitter_share_text = `Good argument! Click to show your support or explain why you disagree. ${share_url}`
+    if (user && user.id === user_id) {
+      twitter_share_text = `I'm voting ${position}. See why: ${share_url}`
+    }
     const tooltip = is_public || !fullname
       ? `This vote is public. Anyone can see it.`
       : user && user.id === user_id
