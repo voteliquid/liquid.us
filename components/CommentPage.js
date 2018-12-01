@@ -4,6 +4,7 @@ const LoadingIndicator = require('./LoadingIndicator')
 const Sidebar = require('./MeasureDetailsSidebar')
 const Endorse = require('./Endorse')
 const { fetchConstituentVotes } = require('./MeasureDetailsPage').prototype
+const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = class CommentPage extends Component {
   oninit() {
@@ -46,7 +47,9 @@ module.exports = class CommentPage extends Component {
 
           measure.comment = comment
 
-          const page_title = `${this.possessive(comment.fullname || 'Anonymous')} vote on ${measure.title}`
+          const anonymousName = `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
+
+          const page_title = `${comment.fullname || anonymousName} voted ${comment.position} on ${measure.title}`
           if (this.isBrowser) {
             const page_title_with_appname = `${page_title} | ${config.APP_NAME}`
             window.document.title = page_title_with_appname
