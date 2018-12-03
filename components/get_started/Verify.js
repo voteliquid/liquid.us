@@ -26,9 +26,9 @@ module.exports = {
             error: 'Phone number must be 10-digit US number. Example: 111-222-3333'
           }, preventDefault(event.event)]
         }
-        return [{ ...state, phoneNum: phoneInput.value || '', error: null }, combineEffects(
+        return [{ ...state, phoneNum, error: null }, combineEffects(
           preventDefault(event.event),
-          requestOTP(phoneInput.value || '', state.user, state.storage)
+          requestOTP(phoneNum || '', state.user, state.storage)
         )]
       case 'requestedOtp':
       case 'requestedVerification':
@@ -103,7 +103,7 @@ const initialize = (user) => (dispatch) => {
   }
 }
 
-const requestOTP = (phone_number, user, storage) => (dispatch) => {
+const requestOTP = (phone_number = '', user, storage) => (dispatch) => {
   dispatch({ type: 'requestedOtp' })
   fetch(`${WWW_URL}/rpc/verify_phone_number`, {
     method: 'POST',
