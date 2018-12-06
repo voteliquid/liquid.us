@@ -272,7 +272,7 @@ class YourProfileNotification extends Component {
             <span class="icon"><i class="fa fa-camera"></i></span> Change your photo by signing in to <a href="https://www.gravatar.com"><strong>Gravatar</strong></a> with your same email.
           </div>
           <div class="column is-half">
-            <span class="icon"><i class="fa fa-edit"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
+            <span class="icon"><i class="fa fa-edit"></i></span> Check <em>Signed</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
           </div>
           <div class="column is-half">
             <span class="icon"><i class="fas fa-user-circle"></i></span> <a href="/edit_profile"><strong>Edit Profile</strong></a> to add an intro video or bio to your page.

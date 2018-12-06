@@ -172,6 +172,9 @@ class MeasureVoteForm extends Component {
     const { my_vote: v = {} } = l
     const public_checked = v.hasOwnProperty('public') ? v.public : last_vote_public
     const vote_position = v.vote_position || l.vote_position
+    const anonymousName = l
+      ? `${l.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[l.legislature_name] || l.legislature_name)} Resident`
+      : 'Anonymous'
     return this.html`
       <form id="measure-vote-form" method="POST" style="margin-bottom: 2rem;" onsubmit=${this} action=${this} onconnected=${this}>
         <div class="field">
@@ -238,12 +241,12 @@ class MeasureVoteForm extends Component {
             <div class="control" style="flex-shrink: 1;">
               <label class="checkbox">
                 <input onclick=${this} type="checkbox" name="public" value="true" checked=${public_checked ? 'checked' : ''} />
-                Public
+                Signed
               </label>
               <p class="is-size-7 has-text-grey">
                 ${public_checked
-                  ? 'Your comment will be published with your name. It will also be listed on your profile.'
-                  : 'Your comment will be published anonymously (your name will not be shown).'
+                  ? 'Your comment will be signed with your name and listed on your profile.'
+                  : `Your comment will be signed "${anonymousName}" and will not be shown on your public profile.`
                 }
               </p>
             </div>
