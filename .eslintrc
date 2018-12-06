@@ -21,6 +21,7 @@
     function-paren-newline: 0,
     import/no-extraneous-dependencies: 0,
     indent: [0, 2, { MemberExpression: 0 } ],
+    linebreak-style: 0,
     no-shadow: 0,
     no-use-before-define: 0,
     object-curly-newline: 0,
