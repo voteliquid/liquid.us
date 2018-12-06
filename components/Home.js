@@ -1,26 +1,50 @@
 const { APP_NAME, WWW_DOMAIN } = process.env
-const { raj } = require('../helpers')
-const Component = require('./Component')
+const { combineEffects, html, mapEffect, mapEvent } = require('../helpers')
 const JoinForm = require('./JoinForm')
 const YourLegislators = require('./YourLegislators')
 const Video = require('./Video')
 
-module.exports = class Home extends Component {
-  onload() {
-    window.sr = window.ScrollReveal({ duration: 800 }) // eslint-disable-line no-undef
-    window.sr.reveal('.reveal')
-  }
-  render() {
-    const { user } = this.state
+const initialize = (state) => combineEffects(
+  mapEffect('yourLegislatorsEvent', YourLegislators.init(state)[1]),
+  mapEffect('joinFormEvent', JoinForm.init(state)[1])
+)
 
-    return this.html`
-      <script onload=${this} src="//unpkg.com/scrollreveal/dist/scrollreveal.min.js"></script>
-
+module.exports = {
+  init: ({ location, storage, user }) => [{
+    location,
+    joinForm: JoinForm.init({ location, storage, user })[0],
+    storage,
+    user,
+  }, initialize({ location, storage, user })],
+  update: (event, state) => {
+    switch (event.type) {
+      case 'connected':
+        return [state, activateScrollReveal]
+      case 'yourLegislatorsEvent':
+        const [yourLegislatorsState, yourLegislatorsEffect] = YourLegislators.update(event.event, state)
+        if (event.event.type === 'repsLoaded') {
+          return [state, (dispatch) => dispatch({ type: 'loaded' })]
+        }
+        return [{ ...state, ...yourLegislatorsState }, mapEffect('yourLegislatorsEffect', yourLegislatorsEffect)]
+      case 'joinFormEvent':
+        const [joinFormState, joinFormEffect] = JoinForm.update(event.event, { ...state, ...state.joinForm })
+        if (event.event.type === 'redirected') {
+          return [state, joinFormEffect]
+        }
+        return [{ ...state, joinForm: joinFormState }, mapEffect('joinFormEvent', joinFormEffect)]
+      case 'contactWidgetOpened':
+      case 'loaded':
+      default:
+        return [state]
+    }
+  },
+  view: (state, dispatch) => {
+    return html()`
       <style>
         .reveal { visibility: hidden; }
       </style>
 
-      <section onconnected=${this} class="hero is-link is-bold is-fullheight subtract-toolbar">
+      <section onconnected="${() => dispatch({ type: 'connected' })}" class="hero is-link is-bold is-fullheight subtract-toolbar">
         <div class="hero-body">
           <div class="container reveal">
             <h2 class="title is-2 is-size-1-desktop is-size-3-mobile delayed">Healthier democracy for the modern world</h2>
@@ -32,7 +56,7 @@ module.exports = class Home extends Component {
             <br />
             <br />
             <div class="delayed2 has-text-centered-mobile">
-              ${!user ? [`
+              ${!state.user ? [`
                 <a class="button is-link is-inverted is-medium" href="/join">
                   <span class="icon"><i class="fa fa-star"></i></span>
                   <span><strong>Create your free account</strong></span>
@@ -178,10 +202,7 @@ module.exports = class Home extends Component {
             <div class="reveal">
               <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">Phase 1 - ${APP_NAME} Scorecards</h3>
               <h4 class="subtitle is-5 is-size-4-desktop">Politicians are <em>automatically graded</em> for how much they follow their constituents' votes.</h4>
-              ${raj({
-                ...YourLegislators,
-                init: [this.state],
-              })}
+              ${YourLegislators.view(state, mapEvent('yourLegislatorsEvent', dispatch))}
               <style>
                 .YourLegislators {
                   border: 1px solid hsla(0, 0%, 100%, 0.5);
@@ -220,7 +241,7 @@ module.exports = class Home extends Component {
         </div>
       </section>
 
-      ${!user ? JoinSection.for(this) : []}
+      ${!state.user ? JoinSection(state, dispatch) : []}
 
       <section class="hero is-medium">
         <div class="hero-body">
@@ -254,40 +275,40 @@ module.exports = class Home extends Component {
                 </style>
               </div>
               <div class="column">
-                ${Video()}
+                ${Video({ url: 'https://www.youtube.com/embed/XMrRrzYXav8' })}
               </div>
             </div>
           </div>
         </div>
       </section>
     `
-  }
+  },
 }
 
-const JoinSection = class JoinSection extends Component {
-  onclick(event) {
-    event.preventDefault()
-    return { isContactWidgetVisible: !this.state.isContactWidgetVisible }
-  }
+const activateScrollReveal = () => {
+  const ScrollReveal = require('scrollreveal').default
+  const sr = ScrollReveal({ duration: 800 }) // eslint-disable-line no-undef
+  sr.reveal('.reveal')
+}
 
-  render() {
-    return this.html`
-      <section class="hero is-medium">
-        <div class="hero-body">
-          ${JoinForm.for(this)}
-        </div>
-      </section>
-      <section class="hero is-medium no-vertical-padding">
-        <div class="hero-body">
-          <p class="subtitle is-4 has-text-centered reveal">Or ask a question: <strong><a onclick=${this}>click here</a></strong> to send us a message.</p>
-        </div>
-      </section>
-      <style>
-        .hero.is-medium.no-vertical-padding .hero-body {
-          padding-top: 0;
-          padding-bottom: 0;
-        }
-      </style>
-    `
-  }
+const JoinSection = (state, dispatch) => {
+  return html()`
+    <section class="hero is-medium">
+      <div class="hero-body">
+        ${JoinForm.view({ ...state, ...state.joinForm }, mapEvent('joinFormEvent', dispatch))}
+      </div>
+    </section>
+    <section class="hero is-medium no-vertical-padding">
+      <div class="hero-body">
+        <p class="subtitle is-4 has-text-centered reveal">Or ask a question: <strong>
+        <a onclick=${(event) => dispatch({ type: 'contactWidgetOpened', event })}>click here</a></strong> to send us a message.</p>
+      </div>
+    </section>
+    <style>
+      .hero.is-medium.no-vertical-padding .hero-body {
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+    </style>
+  `
 }

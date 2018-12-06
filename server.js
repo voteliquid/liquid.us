@@ -43,6 +43,7 @@ require('babel-register')({
   ]
 })
 
+const { serverHyperloopContext: HyperloopContext, combineEffects, loadPage } = require('./helpers')
 const webpackConfig = require('./webpack.config')
 const twitterAvatarProxy = require('./middleware/twitter_avatar_proxy')
 const errorHandler = require('./middleware/error_handler')
@@ -52,9 +53,7 @@ const redirects = require('./middleware/redirects')
 const twitterUsernameSearch = require('./middleware/twitter_username_search')
 const verifyPhoneNumber = require('./middleware/verify_phone_number')
 const htmlWrapper = require('./components/HtmlWrapper')
-const { loadPage } = require('./components/Router')
 let App = require('./components/App')
-const { serverHyperloopContext: HyperloopContext, combineEffects } = require('./helpers')
 
 const port = PORT || WWW_PORT
 
@@ -148,7 +147,7 @@ function startAppServer() {
   }
 
   server
-    .use('/assets', serveStatic(path.join(__dirname, 'public')))
+    .use('/assets', serveStatic(path.join(__dirname, 'public'), { maxAge: '4h' }))
     .get('/rpc/healthcheck', (req, res) => res.status(200).end())
     .get('/rpc/geoip/:ip', geoip)
     .get('/rpc/avatarsio/:username', twitterAvatarProxy)
@@ -186,6 +185,7 @@ function initAppState(App, req, res) {
     location: {
       ...App.init[0].location,
       ip: req.ip,
+      userAgent: req.get('User-Agent') || 'Unknown',
     },
     storage: {
       get: (key) => {
@@ -198,12 +198,14 @@ function initAppState(App, req, res) {
         }
       },
       set: (key, val, opts) => {
+        store[key] = { val, ...opts }
         if (res.running) {
           res.cookie(key, val, opts)
         }
         return val
       },
       unset: (key) => {
+        store[key] = null
         if (res.running) {
           res.clearCookie(key)
         }

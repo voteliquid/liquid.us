@@ -84,8 +84,8 @@ module.exports = class Component extends hyperloopComponent {
       return res.json()
     })
   }
-  avatarURL({ gravatar_hash, bioguide_id, twitter_avatar, twitter_username }) {
-    if (twitter_avatar) return `${WWW_URL}/rpc/avatarsio/${twitter_username}`
+  avatarURL({ gravatar_hash, bioguide_id, twitter_username }) {
+    if (twitter_username) return `${WWW_URL}/rpc/avatarsio/${twitter_username}`
     if (bioguide_id) return `https://theunitedstates.io/images/congress/225x275/${bioguide_id}.jpg`
     return `https://www.gravatar.com/avatar/${gravatar_hash}?d=mm&s=200`
   }
@@ -108,7 +108,21 @@ module.exports = class Component extends hyperloopComponent {
   }
   linkifyUrls(text = '') {
     return this.escapeHtml(text)
-      .replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/ig, (url) => {
+      .replace(/(\bhttps?:\/\/[-A-Z0-9+&@()#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/ig, (url) => {
+        const videoMatch = (url || '').match(/(http:|https:|)\/\/(player.|www.)?(vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/)
+        if (videoMatch) {
+          if (videoMatch[3].slice(0, 5) === 'youtu') {
+            url = `https://www.youtube.com/embed/${videoMatch[6]}`
+          } else {
+            url = `https://player.vimeo.com/video/${videoMatch[6]}`
+          }
+          return `
+            <div style="max-height: 315px;"><div class="responsive-video-wrapper"><iframe width="560" height="315" src="${url}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></div></div>
+          `
+        }
+        if (url.match(/\.(png|jpg|jpeg|gif)$/i)) {
+          return `<div class="responsive-image" style="max-width: 560px;"><a href="${url}"><img alt="${url}" src="${url}" style="max-height: 315px; max-width: 100%; height: auto;" /></a></div>`
+        }
         return `<a href="${url}">${url}</a>`
       })
       .replace(/\n/g, '<br />')

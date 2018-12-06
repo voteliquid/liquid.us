@@ -4,19 +4,17 @@ const fetch = require('isomorphic-fetch')
 const RepCard = require('./RepCard')
 
 module.exports = {
-  init: [{
+  init: ({ location, storage, user }) => [{
+    location,
     geoip: null,
-    location: null,
     reps: null,
-    user: null,
-    storage: null,
-  }, (dispatch) => dispatch({ type: 'initialized' })],
+    user,
+    storage,
+  }, fetchReps(location, storage, user)],
   update: (event, state) => {
     switch (event.type) {
-      case 'apiError':
+      case 'error':
         return [{ ...state, reps_loaded: true, reps: [] }]
-      case 'initialized':
-        return [state, fetchReps(state)]
       case 'repsLoaded':
       default:
         return [state]
@@ -41,9 +39,7 @@ module.exports = {
   },
 }
 
-const fetchReps = ({ location, reps_loaded, refresh, storage, user }) => (dispatch) => {
-  if (!refresh && reps_loaded) return
-
+const fetchReps = (location, storage, user) => (dispatch) => {
   const address = user && user.address
 
   if (address) {
@@ -84,7 +80,7 @@ const fetchReps = ({ location, reps_loaded, refresh, storage, user }) => (dispat
   })
   .catch((error) => {
     console.error(error)
-    dispatch({ type: 'apiError', error })
+    dispatch({ type: 'error', error })
   })
 }
 

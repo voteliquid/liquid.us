@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "www.united.vote",
+  "name": "www.liquid.us",
   "version": "1.0.0",
-  "description": "www.united.vote",
+  "description": "www.liquid.us",
   "scripts": {
     "start": "node server.js",
     "test": "eslint ."
@@ -23,6 +23,7 @@
     "browser-cookies": "^1.2.0",
     "caller-path": "^2.0.0",
     "check-node-version": "^3.2.0",
+    "clipboard": "^2.0.1",
     "compression": "^1.7.1",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
@@ -45,6 +46,7 @@
     "raj": "^1.0.0",
     "request": "^2.88.0",
     "resolve-from": "^4.0.0",
+    "scrollreveal": "^4.0.5",
     "timeago.js": "^3.0.2",
     "twilio": "^3.19.2",
     "twitter": "^1.7.1",

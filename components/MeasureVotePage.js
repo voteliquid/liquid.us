@@ -3,35 +3,33 @@ const LoadingIndicator = require('./LoadingIndicator')
 const MeasureVoteForm = require('./MeasureVoteForm')
 const Sidebar = require('./MeasureDetailsSidebar')
 const fetchMeasure = require('./MeasureDetailsPage').prototype.fetchMeasure
+const fetchVoteCount = require('./MeasureDetailsPage').prototype.fetchConstituentVotes
 
 module.exports = class MeasureVotePage extends Component {
   oninit() {
-    const { measures = {} } = this.state
+    const { measures = {}, reps = [] } = this.state
     const { params } = this.props
-    const measure = measures[params.short_id]
 
-    if (measure) {
-      if (!measure.my_vote) {
-        return this.fetchVote(measure)
-      }
-    } else {
+    if (!measures[params.short_id]) {
       this.setState({ loading_measure: true })
-      return fetchMeasure.call(this, params.short_id).then((measure) => {
-        this.setState({
-          loading_measure: false,
-          measures: {
-            ...measures,
-            [measure.short_id]: measure,
-          },
-        })
+    }
+
+    return fetchMeasure.call(this, params.short_id).then((measure) => {
+      const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
+      const officeId = repsInChamber[0] && repsInChamber[0].office_id
+
+      this.setState({
+        loading_measure: false,
+        measures: {
+          ...measures,
+          [measure.short_id]: measure,
+        },
+      })
+
+      return fetchVoteCount.call(this, measure, officeId).then(() => {
         return this.fetchVote(measure)
       })
-    }
-  }
-  onpagechange(oldProps) {
-    if (oldProps.url !== this.props.url) {
-      this.oninit()
-    }
+    })
   }
   fetchVote(measure) {
     const { config, measures, user } = this.state
@@ -47,7 +45,7 @@ module.exports = class MeasureVotePage extends Component {
           }).then((measure_vote_power) => {
             measure.vote_power = measure_vote_power
             if (this.isBrowser) {
-              const page_title = `Vote on ${measure.title} ★ ${config.APP_NAME}`
+              const page_title = `Vote on ${measure.title} | ${config.APP_NAME}`
               window.document.title = page_title
               window.history.replaceState(window.history.state, page_title, document.location)
             }

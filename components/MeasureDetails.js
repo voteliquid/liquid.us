@@ -1,4 +1,5 @@
 const Component = require('./Component')
+const MeasureProxyVotes = require('./MeasureProxyVotes')
 const Sidebar = require('./MeasureDetailsSidebar')
 const TopComments = require('./MeasureTopComments')
 const Votes = require('./MeasureVotes')
@@ -18,7 +19,7 @@ module.exports = class MeasureDetails extends Component {
             <p class="notification is-info">
               <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
               <strong>Help hold your reps accountable!</strong><br />
-              Your vote has been recorded, and we'll send it to your elected reps, but it won't be included in their Representation Grade until you <a href="/get_started">verify your identity</a>.
+              Your vote has been saved, and we'll send it to your elected reps, but it won't be counted publicly until you <a href="/get_started">verify your identity</a>.
             </p>
           `] : ''}
           <div class="columns">
@@ -26,9 +27,10 @@ module.exports = class MeasureDetails extends Component {
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
               ${l.type !== 'PN' ? MeasureSummary.for(this, { measure: l }) : ''}
               ${TopComments.for(this, { measure: l, yea: l.top_yea, nay: l.top_nay })}
+              ${user ? MeasureProxyVotes.for(this, { measure: l }) : ''}
               ${Votes.for(this, { measure: l })}
             </div>
-            <div class="${l.introduced_at ? `column is-one-third-tablet is-one-quarter-desktop` : ''}">
+            <div class="${`column ${l.introduced_at ? `column is-one-third-tablet is-one-quarter-desktop` : ''}`}">
               ${Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`)}
             </div>
           </div>
@@ -67,8 +69,11 @@ class MeasureSummary extends Component {
 
     return this.html`
       <style>
-        .summary {
+        .measureDescription {
           margin-bottom: 1.5rem;
+        }
+
+        .summary {
           position: relative;
           overflow: hidden;
         }
@@ -95,7 +100,7 @@ class MeasureSummary extends Component {
           left: 0;
         }
       </style>
-      <div class=${`${expanded || !summary ? '' : 'summary'}`} style=${!expanded && summary && summary.length > 512 ? 'max-height: 10rem;' : ''}>
+      <div class=${`${expanded || !summary ? '' : 'summary'} measureDescription`} style=${!expanded && summary && summary.length > 512 ? 'max-height: 10rem;' : ''}>
         <div class="content">
           ${[summary ? summary.replace(/\n/g, '<br />') : `<p>A summary is in progress. <a href="https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text" target="_blank">Read full text of the bill at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
         </div>

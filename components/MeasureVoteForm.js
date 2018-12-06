@@ -44,6 +44,7 @@ class MeasureVoteBox extends Component {
         })
       })
     }
+    this.setState({ last_vote_public: true })
   }
   render() {
     const { loading } = this.state
@@ -94,7 +95,7 @@ class MeasureVoteForm extends Component {
 
     this.setState({ saving_vote: true })
 
-    this.setProps({ params: { username: user.username, short_id: measure.short_id } })
+    this.setProps({ params: { username: measure.author_username, short_id: measure.short_id } })
 
     return this.api('/rpc/vote', {
       method: 'POST',
@@ -109,7 +110,7 @@ class MeasureVoteForm extends Component {
     .then(() => fetchMeasure.call(this, measure.short_id))
     .then(() => fetchComments.call(this, measure.id, measure.short_id))
     .then(() => fetchTopComments.call(this, measure.id, measure.short_id))
-    .then(() => fetchConstituentVotes.call(this, measure.id, measure.short_id, officeId))
+    .then(() => fetchConstituentVotes.call(this, measure, officeId))
     .then(() => this.api(`/votes?measure_id=eq.${measure.id}&user_id=eq.${user.id}&delegate_rank=eq.-1`).then(votes => {
       if (this.isBrowser && window._loq) window._loq.push(['tag', 'Voted'])
       const my_vote = votes[0]
@@ -136,6 +137,7 @@ class MeasureVoteForm extends Component {
       }
     }))
     .catch((error) => {
+      console.error(error)
       return this.setState({ error: error.message, saving_vote: false })
     })
   }

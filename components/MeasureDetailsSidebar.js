@@ -19,7 +19,7 @@ module.exports = class MeasureDetailsSidebar extends Component {
         <div class="panel-heading has-text-centered">
           <h3 class="title has-text-weight-semibold is-size-5">
             <a href="${measureUrl}" class="has-text-dark">
-              ${l.introduced_at ? `${l.type} ${l.number}` : 'Proposed Legislation'}
+              ${l.introduced_at ? `${l.type} ${l.number}` : (l.short_id === 'should-nancy-pelosi-be-speaker' ? 'Proposed Nomination' : 'Proposed Legislation')}
             </a>
           </h3>
           <h4 class="subtitle is-size-7 has-text-grey is-uppercase has-text-weight-semibold">
@@ -29,7 +29,7 @@ module.exports = class MeasureDetailsSidebar extends Component {
         ${reps && reps.length ? MeasureRepsPanel.for(this, { measure: l, reps }) : ''}
         ${PanelTitleBlock.for(this, { title: 'Votes' }, 'title-votes')}
         ${MeasureVoteCounts.for(this, { measure: l, reps })}
-        ${PanelTitleBlock.for(this, { title: `${l.type === 'PN' ? 'Nomination' : 'Bill'} Info` }, 'title-info')}
+        ${PanelTitleBlock.for(this, { title: 'Info' }, 'title-info')}
         ${MeasureInfoPanel.for(this, { measure: l, showStatusTracker })}
         ${MeasureActionsPanel.for(this, { measure: l, user })}
       </nav>

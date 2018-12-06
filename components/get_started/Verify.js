@@ -3,14 +3,14 @@ const fetch = require('isomorphic-fetch')
 const { api, combineEffects, html, preventDefault, redirect } = require('../../helpers')
 
 module.exports = {
-  init: [{
+  init: ({ storage, user }) => [{
     error: null,
     loading: false,
     showVerifyOtpForm: false,
     skipWarning: false,
-    storage: null,
-    user: null,
-  }, (dispatch) => dispatch({ type: 'initialized' })],
+    storage,
+    user,
+  }, initialize(user)],
   update: (event, state) => {
     switch (event.type) {
       case 'contactWidgetOpened':
@@ -26,9 +26,9 @@ module.exports = {
             error: 'Phone number must be 10-digit US number. Example: 111-222-3333'
           }, preventDefault(event.event)]
         }
-        return [{ ...state, phoneNum: phoneInput.value || '', error: null }, combineEffects(
+        return [{ ...state, phoneNum, error: null }, combineEffects(
           preventDefault(event.event),
-          requestOTP(phoneInput.value || '', state.user, state.storage)
+          requestOTP(phoneNum || '', state.user, state.storage)
         )]
       case 'requestedOtp':
       case 'requestedVerification':
@@ -45,10 +45,8 @@ module.exports = {
         return [{ ...state, error: event.error.message, loading: false }]
       case 'sentOtp':
         return [{ ...state, loading: false, showVerifyOtpForm: true }]
-      case 'initialized':
-        return [state, !state.user && ((dispatch) => dispatch({ type: 'redirected', url: '/sign_in?notification=verify' }))]
       case 'redirected':
-        if (!state.skipWarning && state.user) {
+        if (!state.skipWarning && state.user && !event.skipWarning) {
           return [{ ...state, skipWarning: true }]
         }
         return [{ ...state, skipWarning: false }, redirect(event.url)]
@@ -64,6 +62,7 @@ module.exports = {
           preventDefault(event.event),
           verifyOTP(otpInput.value || '', state.user, state.phoneNum, state.storage)
         )]
+      case 'loaded':
       default:
         return [state]
     }
@@ -94,7 +93,17 @@ module.exports = {
   },
 }
 
-const requestOTP = (phone_number, user, storage) => (dispatch) => {
+const initialize = (user) => (dispatch) => {
+  if (!user) {
+    dispatch({ type: 'redirected', url: '/sign_in?notification=verify' })
+  } else if (user && (!user.first_name || !user.last_name)) {
+    dispatch({ type: 'redirected', url: '/get_started/basics', skipWarning: true })
+  } else {
+    dispatch({ type: 'loaded' })
+  }
+}
+
+const requestOTP = (phone_number = '', user, storage) => (dispatch) => {
   dispatch({ type: 'requestedOtp' })
   fetch(`${WWW_URL}/rpc/verify_phone_number`, {
     method: 'POST',
@@ -140,7 +149,7 @@ const signupMsg = () => {
 
 const alreadyVerifiedMsg = () => {
   return html()`
-    <div class="notification is-link">
+    <div class="notification is-info">
       You've already verified! Good job.
     </div>
   `
@@ -200,7 +209,7 @@ const requestOtpForm = ({ error, loading, skipWarning }, dispatch) => {
           </button>
         </div>
         <div class="control">
-          <a class="is-size-7" onclick=${(event) => dispatch({ type: 'skipChosen', event })}>
+          <a class="is-size-7" onclick=${(event) => dispatch({ type: 'redirected', url: '/get_started?skip=t', event })}>
             ${skipWarning ? 'Confirm s' : 'S'}kip verification for now<br />
             ${skipWarning
               ? [`<p class="is-size-7">Are you sure? Your votes can't be counted until you verify.</p>`]

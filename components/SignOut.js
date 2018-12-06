@@ -1,49 +1,64 @@
-const Component = require('./Component')
+const { api, html, redirect } = require('../helpers')
+const ActivityIndicator = require('./ActivityIndicator')
 
-module.exports = class SignOut extends Component {
-  oninit() {
-    return this.signOut()
-  }
-  onconnected() {
-    return this.signOut()
-  }
-  signOut() {
-    const refresh_token = this.storage.get('refresh_token')
-
-    this.storage.unset('device_id')
-    this.storage.unset('jwt')
-    this.storage.unset('refresh_token')
-    this.storage.unset('user_id')
-    this.storage.unset('role')
-    this.storage.unset('proxying_user_id')
-    this.storage.unset('proxied_user_id')
-    this.storage.unset('vote_position')
-    this.storage.unset('vote_bill_id')
-    this.storage.unset('vote_bill_short_id')
-    this.storage.unset('vote_comment')
-    this.storage.unset('endorsed_vote_id')
-    this.storage.unset('endorsed_measure_id')
-    this.storage.unset('endorsed_url')
-
-    this.setState({ user: null }, false)
-
-    if (refresh_token) {
-      return this.api(`/sessions?select=jwt&refresh_token=eq.${refresh_token}`, {
-        method: 'DELETE',
-      })
-      .then(() => this.location.redirect('/'))
-      .catch((error) => console.error(error))
+module.exports = {
+  init: ({ storage, user }) => [{
+    storage,
+    user,
+  }, signOut(storage)],
+  update: (event, state) => {
+    switch (event.type) {
+      case 'redirected':
+        return [state, redirect(event.url)]
+      case 'signedOut':
+        return [{ ...state, user: null }]
+      default:
+        return [state]
     }
-
-    this.location.redirect('/')
-  }
-  render() {
-    return this.html`
+  },
+  view: () => {
+    return html()`
       <section class="section hero">
-        <div class="hero-body">
-          <h1 class="title">Signing out...</h1>
+        <div class="hero-body has-text-centered">
+          ${ActivityIndicator()}
         </div>
       </div>
     `
+  },
+}
+
+const signOut = (storage) => (dispatch) => {
+  if (storage) {
+    const refresh_token = storage.get('refresh_token')
+
+    storage.unset('device_id')
+    storage.unset('jwt')
+    storage.unset('refresh_token')
+    storage.unset('user_id')
+    storage.unset('role')
+    storage.unset('proxying_user_id')
+    storage.unset('proxied_user_id')
+    storage.unset('vote_position')
+    storage.unset('vote_bill_id')
+    storage.unset('vote_bill_short_id')
+    storage.unset('vote_comment')
+    storage.unset('endorsed_vote_id')
+    storage.unset('endorsed_measure_id')
+    storage.unset('endorsed_url')
+
+    if (refresh_token) {
+      return api(`/sessions?select=jwt&refresh_token=eq.${refresh_token}`, {
+        method: 'DELETE',
+        storage,
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+      .then(() => dispatch({ type: 'signedOut' }))
+      .then(() => dispatch({ type: 'redirected', url: '/' }))
+    }
+
+    dispatch({ type: 'signedOut' })
+    dispatch({ type: 'redirected', url: '/' })
   }
 }

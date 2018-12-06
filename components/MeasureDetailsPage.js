@@ -1,3 +1,4 @@
+const { ASSETS_URL } = process.env
 const Component = require('./Component')
 const LoadingIndicator = require('./LoadingIndicator')
 const MeasureDetails = require('./MeasureDetails')
@@ -14,9 +15,9 @@ module.exports = class MeasureDetailsPage extends Component {
     })
 
     if (measure) {
-      const title = measure.introduced_at ? `${measure.type} ${measure.number} – ${measure.title}` : measure.title
+      const title = `${measure.legislature_name}: ${measure.title}`
       if (this.isBrowser) {
-        const page_title = `${title} ★ ${config.APP_NAME}`
+        const page_title = `${title} | ${config.APP_NAME}`
         window.document.title = page_title
         window.history.replaceState(window.history.state, page_title, document.location)
       }
@@ -30,17 +31,20 @@ module.exports = class MeasureDetailsPage extends Component {
         return this.setState({ loading_measure: false })
       }
 
-      const title = measure.introduced_at ? `${measure.type} ${measure.number} – ${measure.title}` : measure.title
+      const title = `${measure.legislature_name}: ${measure.title}`
       if (this.isBrowser) {
-        const page_title = `${title} ★ ${config.APP_NAME}`
+        const page_title = `${title} | ${config.APP_NAME}`
         window.document.title = page_title
         window.history.replaceState(window.history.state, page_title, document.location)
       }
+      const measureImage = measure.legislature_name === 'WI' ? `${ASSETS_URL}/${measure.legislature_name}.png` : ''
       this.setState({
         loading_measure: false,
         showMeasureVoteForm: this.location.query.action === 'add-argument',
         page_title: title,
         page_description: `Vote directly on federal, state, and local bills and nominations. We'll notify your representatives and grade them for how well they listen to their constituents.`,
+        selected_bill: measure,
+        og_image_url: measureImage,
         measures: {
           ...this.state.measures,
           [measure.short_id]: {
@@ -54,9 +58,9 @@ module.exports = class MeasureDetailsPage extends Component {
       const officeId = repsInChamber[0] && repsInChamber[0].office_id
 
       return this.fetchComments(measure.id, measure.short_id)
-        .then(() => this.fetchConstituentVotes(measure.id, measure.short_id, officeId))
+        .then(() => this.fetchConstituentVotes(measure, officeId))
         .then(() => this.fetchTopComments(measure.id, measure.short_id))
-        // .then(() => this.fetchProxyVotes(measure.id, measure.short_id, user))
+        .then(() => this.fetchProxyVotes(measure.id, measure.short_id))
     })
     .catch((error) => {
       console.log(error)
@@ -64,15 +68,17 @@ module.exports = class MeasureDetailsPage extends Component {
       return { error, loading_measure: false }
     })
   }
-  fetchConstituentVotes(id, short_id, office_id) {
-    const officeParam = office_id && short_id.slice(0, 2) === 'us' ? `&office_id=eq.${office_id}` : '&limit=1'
+  fetchConstituentVotes(measure, office_id) {
+    const { id, short_id } = measure
+    const officeParam = office_id && measure.legislature_name === 'U.S. Congress' ? `&office_id=eq.${office_id}` : '&limit=1'
     return this.api(`/measure_votes?measure_id=eq.${id}${officeParam}`).then((results) => {
       const votes = results[0] || {}
+      const measures = this.state.measures || {}
       this.setState({
         measures: {
-          ...this.state.measures,
+          ...measures,
           [short_id]: {
-            ...this.state.measures[short_id],
+            ...measures[short_id],
             ...votes
           },
         },
@@ -100,33 +106,22 @@ module.exports = class MeasureDetailsPage extends Component {
     })
   }
   fetchMeasure(short_id) {
-    const type = ~short_id.indexOf('-pn') ? '&type=eq.PN' : '&or=(type.eq.HR,type.eq.S,type.eq.AB,type.eq.SB)'
-    const measureUrl = `/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
-    const url = `/measures_detailed?short_id=eq.${short_id}${type}`
+    const measureUrl = `/${~short_id.indexOf('-pn') ? 'nominations' : 'legislation'}/${short_id}`
+    const url = `/measures_detailed?short_id=eq.${short_id}`
 
     return this.api(url).then((results) => {
       const measure = results[0]
-      const notFoundError = new Error('Not found')
-      notFoundError.status = 404
-      if (measure.author_id && !this.props.params.username) {
-        if (new Date(measure.created_at) > new Date('2018-10-16')) {
-          return Promise.reject(notFoundError)
-        }
+      if (measure && measure.author_id && !this.props.params.username) {
+        if (new Date(measure.created_at) > new Date('2018-10-16')) return null
         return this.location.redirect(301, `/${measure.author_username}${measureUrl}`)
       }
-      if (!measure.author_id && this.props.params.username) {
-        return Promise.reject(notFoundError)
-      }
+      if (!measure || (!measure.author_id && this.props.params.username)) return null
       return measure
     })
   }
-  fetchProxyVotes(measure_id, short_id, user) {
-    if (user) {
-      return this.api(`/delegations_detailed?from_id=eq.${user.id}&order=delegate_rank.asc`)
-        .then((proxies) => {
-          const proxyIds = proxies.map(({ to_id }) => to_id)
-          return this.api(`/public_votes?measure_id=eq.${measure_id}&user_id=in.(${proxyIds.join(',')})&order=proxy_vote_count.desc,created_at.desc`)
-        })
+  fetchProxyVotes(measure_id, short_id) {
+    if (this.state.user) {
+      return this.api(`/proxy_votes?measure_id=eq.${measure_id}&order=proxy_vote_count.desc,created_at.desc`)
         .then((proxyVotes) => {
           this.setState({
             measures: {
@@ -139,6 +134,7 @@ module.exports = class MeasureDetailsPage extends Component {
           })
         })
     }
+    return Promise.resolve()
   }
   fetchComments(measure_id, short_id) {
     const { query } = this.location

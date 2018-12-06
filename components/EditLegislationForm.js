@@ -48,17 +48,6 @@ module.exports = class EditLegislationForm extends Component {
         loading: false,
         yourLegislation: [proposed_bill].concat(this.state.yourLegislation || []),
       })
-
-      return this.api('/rpc/vote', {
-        method: 'POST',
-        body: JSON.stringify({
-          user_id: user.id,
-          measure_id: proposed_bill.id,
-          vote_position: 'yea',
-          comment: '',
-          public: true,
-        }),
-      })
     })
     .then(() => this.location.redirect(303, `/legislation/yours`))
     .catch((api_error) => this.handleError(api_error))

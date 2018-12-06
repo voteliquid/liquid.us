@@ -3,11 +3,73 @@ const { API_URL } = process.env
 const fetch = require('isomorphic-fetch')
 const { runtime } = require('raj')
 const { wire } = require('viperhtml')
+const pathToRegexp = require('path-to-regexp')
 const url = require('url')
-const { loadPage } = require('./components/Router')
 
-exports.avatarURL = ({ gravatar_hash, bioguide_id, twitter_avatar, twitter_username }) => {
-  if (twitter_avatar) return `https://avatars.io/twitter/${twitter_username}`
+const routes_ = require('./routes')
+
+const routes = Object.keys(routes_).map((path) => {
+  const keys = []
+  const regexp = pathToRegexp(path, keys)
+  return { keys, loader: routes_[path].fn, title: routes_[path].page_title, path, regexp }
+})
+
+routes.notFound = { ...routes[0], status: 404 }
+
+const match = (url) => {
+  for (let i = 0, l = routes.length; i < l; i++) {
+    const route = routes[i]
+    if (route.regexp.test(url)) {
+      const matches = route.regexp.exec(url)
+      route.params = matches.slice(1).reduce((b, a, i) => {
+        b[route.keys[i].name] = a
+        return b
+      }, {})
+      return route
+    }
+  }
+
+  const notFound = routes.notFound
+  return typeof notFound === 'function' ? notFound.call(this) : notFound
+}
+
+exports.loadPage = (url, status = 200, dispatch, scroll = true) => {
+  const urlWithoutHash = url.split('#')[0]
+  const hash = url.split('#')[1] || ''
+  const pathname = urlWithoutHash.split('?')[0]
+  const search = urlWithoutHash.split('?')[1]
+  const matched = match(pathname)
+  const location = {
+    params: matched.params,
+    path: pathname,
+    query: (search || '').split('&').reduce((b, a) => {
+      const [key, val] = a.split('=')
+      b[key] = val
+      return b
+    }, {}),
+    status: matched.status || status,
+    url,
+    hash,
+  }
+
+  if (typeof window === 'object') {
+    location.userAgent = window.navigator.userAgent || 'Unknown'
+    if (pathname === window.location.pathname) {
+      window.history.replaceState({}, null, url)
+    }
+  }
+
+  dispatch({
+    type: 'pageChanged',
+    location,
+    page_title: matched.title,
+    scroll: hash ? false : scroll,
+    loader: typeof matched.loader === 'function' ? matched.loader.call(this) : matched.loader,
+  })
+}
+
+exports.avatarURL = ({ gravatar_hash, bioguide_id, twitter_username }) => {
+  if (twitter_username) return `https://avatars.io/twitter/${twitter_username}`
   if (bioguide_id) return `https://theunitedstates.io/images/congress/225x275/${bioguide_id}.jpg`
   return `https://www.gravatar.com/avatar/${gravatar_hash}?d=mm&s=200`
 }
@@ -18,7 +80,7 @@ exports.redirect = (url, code) => (dispatch) => {
   if (typeof window === 'object') {
     window.history.pushState({}, null, url)
   }
-  loadPage(url, code || 303, dispatch)
+  exports.loadPage(url, code || 303, dispatch)
 }
 
 exports.preventDefault = (event) => () => {
