@@ -66,6 +66,7 @@ class MeasureSummary extends Component {
     const { measure, expanded } = this.props
     const { chamber, congress, number, type } = measure
     const summary = type === 'PN' && measure.summary ? `Confirmation of ${measure.summary}` : this.linkifyUrls(measure.summary)
+    const summaryLink = `<p>Learn more at <a href="https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text" target="_blank">congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`
 
     return this.html`
       <style>
@@ -100,11 +101,10 @@ class MeasureSummary extends Component {
           left: 0;
         }
       </style>
-      const summaryLink = `<p>Learn more at <a href="https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text" target="_blank">congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`
 
       <div class=${`${expanded || !summary ? '' : 'summary'} measureDescription`} style=${!expanded && summary && summary.length > 512 ? 'max-height: 10rem;' : ''}>
         <div class="content">
-          ${[summary ? summary.replace(/\n/g, '<br />') : `<p>A summary is in progress. <a href="https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text" target="_blank">Read full text of the bill at congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
+          ${[summary ? `${summary.replace(/\n/g, '<br />')} ${summaryLink}` : `<p>A summary is in progress. <a href="https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text" target="_blank">Read full text of the bill at congress.gov. <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`]}
         </div>
         <div class="${`read-more ${summary && summary.length > 512 ? '' : 'is-hidden'}`}"></div>
         <a class="${`read-more-link is-size-7 ${summary && summary.length > 512 ? '' : 'is-hidden'}`}" href="#" onclick=${this}>
