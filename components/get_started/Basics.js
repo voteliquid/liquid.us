@@ -41,7 +41,7 @@ module.exports = {
             `] : []}
             <h2 class="subtitle">Welcome.</h2>
             <h3 class="subtitle is-5">
-              Help us locate your elected representatives:
+            Help us locate your elected representatives:
             </h3>
             <form method="POST" onsubmit=${(event) => dispatch({ type: 'formSubmitted', event })}>
               <div class="field">
@@ -71,18 +71,7 @@ module.exports = {
                   ${error && error.address ? [`<p class="help is-danger">${error.message}</p>`] : ''}
                 </div>
               </div>
-              <div class="field">
-                <label class="label">Are you registered to vote at this address?</label>
-                <div class="control">
-                  <div class="select">
-                    <select name="address[voter_status]" required>
-                      <option>Pick one</option>
-                      <option value="Registered" selected=${user.voter_status === 'Registered'}>Registered to vote</option>
-                      <option value="Eligible" selected=${user.voter_status === 'Eligible'}>Not registered to vote</option>
-                      <option value="Ineligible" selected=${user.voter_status === 'Ineligible'}>Not eligible to vote</option>
-                    </select>
-                  </div>
-                </div>
+
               </div>
               <div class="field">
                 <div class="control">
@@ -130,7 +119,7 @@ const patchUser = (event, storage, user) => (dispatch) => {
 
   const formData = require('parse-form').parse(event.target).body
 
-  const { address, lat, lon, city, state, voter_status } = formData.address
+  const { address, lat, lon, city, state } = formData.address
 
   const name_pieces = formData.address.name.split(' ')
   const first_name = name_pieces[0]
@@ -152,7 +141,6 @@ const patchUser = (event, storage, user) => (dispatch) => {
             first_name,
             last_name,
             address: results[0].formatted_address || address,
-            voter_status,
             lat: location.lat,
             lon: location.lng,
           }, { storage, user }, dispatch)
@@ -175,11 +163,11 @@ const patchUser = (event, storage, user) => (dispatch) => {
       })
   }
 
-  return upsertAddressAndContinue({ first_name, last_name, address, voter_status, lat, lon, city, state }, { storage, user }, dispatch)
+  return upsertAddressAndContinue({ first_name, last_name, address, lat, lon, city, state }, { storage, user }, dispatch)
 }
 
 const upsertAddressAndContinue = (formData, { storage, user }, dispatch) => {
-  const { first_name, last_name, address, voter_status, lat, lon, city, state } = formData
+  const { first_name, last_name, address, lat, lon, city, state } = formData
 
   let addressUpsert
 
@@ -216,7 +204,6 @@ const upsertAddressAndContinue = (formData, { storage, user }, dispatch) => {
     body: JSON.stringify({
       first_name,
       last_name,
-      voter_status,
     }),
     storage,
   }))
@@ -225,7 +212,6 @@ const upsertAddressAndContinue = (formData, { storage, user }, dispatch) => {
       type: 'userUpdated',
       user: {
         ...user,
-        voter_status,
         first_name,
         last_name,
         address: { address, city, state },
