@@ -66,7 +66,7 @@ class MeasureSummary extends Component {
     const { measure, expanded } = this.props
     const { chamber, congress, number, type } = measure
     const summary = type === 'PN' && measure.summary ? `Confirmation of ${measure.summary}` : this.linkifyUrls(measure.summary)
-    const summaryLink = `<p>Learn more at <a href="https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text" target="_blank">congress.gov <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`
+    const summaryLink = `<p>Learn more at <a href="https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text" target="_blank">congress.gov. <span class="icon is-small"><i class="fa fa-external-link"></i></span></a>`
 
     return this.html`
       <style>
