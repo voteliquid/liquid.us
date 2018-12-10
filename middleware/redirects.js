@@ -15,6 +15,7 @@ server
   .all('/new-homepage', (req, res) => res.redirect(301, '/'))
   .all('/elon', (req, res) => res.redirect(301, '/twitter/elonmusk'))
   .all('/wisconsin', (req, res) => res.redirect(301, '/legislation?order=proposed&legislature=WI&terms='))
+  .all('/madison', (req, res) => res.redirect(301, '/legislation?order=proposed&legislature=Madison,%20WI&terms='))
 
   // Redirect from old to new get_started flow
   .all('/verification', (req, res) => res.redirect(301, '/get_started'))
