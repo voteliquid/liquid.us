@@ -150,7 +150,7 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
         </div>
         <button type="submit" class="filter-submit is-hidden">Update</button>
       </div>
-      ${geoip ? [addAddressNotification(geoip, user)] : []}
+      ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []}
     </form>
   `
 }
