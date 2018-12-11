@@ -36,12 +36,8 @@ module.exports = class MeasureDetailsPage extends Component {
         window.document.title = page_title
         window.history.replaceState(window.history.state, page_title, document.location)
       }
-      let checkIsCity = false
-      const comma = ','
-      if (measure.legislature_name.indexOf(comma) !== -1) {
-      checkIsCity = true
-    }
-      const measureImage = (!checkIsCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+      const isCity = ~measure.legislature_name.indexOf(',')
+      const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
       this.setState({
         loading_measure: false,
         showMeasureVoteForm: this.location.query.action === 'add-argument',
