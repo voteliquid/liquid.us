@@ -59,6 +59,7 @@ module.exports = class CommentPage extends Component {
 
           const measureImage = measure.legislature_name === 'WI' ? `${ASSETS_URL}/${measure.legislature_name}.png` : ''
           const authorImage = comment.username || comment.twitter_username ? this.avatarURL(comment) : null
+          const billImage = measure.title === 'Should the City of Madison develop a Bus Rapid Transit service?' ? `${ASSETS_URL}/madison-brt.png` : ''
           const ogImage = authorImage || measureImage
 
           this.setState({
