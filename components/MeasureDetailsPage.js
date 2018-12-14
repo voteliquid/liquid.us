@@ -24,7 +24,6 @@ module.exports = class MeasureDetailsPage extends Component {
     } else {
       this.setState({ loading_measure: true })
     }
-
     return this.fetchMeasure(params.short_id).then((measure) => {
       if (!measure) {
         this.location.setStatus(404)
@@ -37,7 +36,8 @@ module.exports = class MeasureDetailsPage extends Component {
         window.document.title = page_title
         window.history.replaceState(window.history.state, page_title, document.location)
       }
-      const measureImage = measure.legislature_name === 'WI' ? `${ASSETS_URL}/${measure.legislature_name}.png` : ''
+      const isCity = ~measure.legislature_name.indexOf(',')
+      const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
       this.setState({
         loading_measure: false,
         showMeasureVoteForm: this.location.query.action === 'add-argument',
