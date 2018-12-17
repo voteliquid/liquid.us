@@ -187,7 +187,7 @@ const filterTabs = ({ geoip, legislatures, location, storage, user }, dispatch) 
         <li class="${query.order === 'proposed' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('proposed', query)}`}">Introduced on ${APP_NAME}</a></li>
       </ul>
     </div>
-    <div class="columns" style="line-height: 34px;">
+    <div class="columns">
       <div class="column">
         <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
       </div>
