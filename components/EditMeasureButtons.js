@@ -51,7 +51,7 @@ class PublishButton extends Component {
     })
     .catch((error) => {
       console.error(error)
-      this.setState({ error: 'There was a problem published your legislation. Please contact support.', loading: false })
+      this.setState({ error: 'There was a problem publishing your legislation. Please contact support.', loading: false })
     })
   }
   onclick(event) {
