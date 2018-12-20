@@ -102,13 +102,13 @@ module.exports = class Component extends hyperloopComponent {
         if (opts.replaceAmp && char === '&') return '&amp;'
         return char
       })
-      .replace(/&lt;(\/?)(p|br|ul|ol|li|strong|a|b)&gt;/gi, (match, p1, p2) => {
+      .replace(/&lt;(\/?)(i|p|br|ul|ol|li|strong|a|b)&gt;/gi, (match, p1, p2) => {
         return `<${p1}${p2}>`
       })
   }
   linkifyUrls(text = '') {
     return this.escapeHtml(text)
-      .replace(/(\bhttps?:\/\/[-A-Z0-9+&@()#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/ig, (url) => {
+      .replace(/(\bhttps?:\/\/[-A-Z0-9+&@()#/%?=~_|!:,.;]*[-A-Z0-9+&()@#/%=~_|])/ig, (url) => {
         const videoMatch = (url || '').match(/(http:|https:|)\/\/(player.|www.)?(vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/)
         if (videoMatch) {
           if (videoMatch[3].slice(0, 5) === 'youtu') {
