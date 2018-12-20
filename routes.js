@@ -25,7 +25,6 @@ module.exports = {
   '/settings/unsubscribe': route('Settings', () => import('./components/SettingsUnsubscribePage')),
   '/proxies': route('Your Proxies', () => import('./components/Proxies')),
   '/jobs': route('Open Jobs', () => import('./components/JobsPage')),
-  '/proxies/requests': route('Proxy Requests', () => import('./components/ProxyRequests')),
   '/drip_emails/next': route('Next introductory email', () => import('./components/DripEmailRequestNextStage')),
   '/get_started': route('Get Started', () => import('./components/get_started')),
   '/get_started/basics': route('Get Started', () => import('./components/get_started/Basics')),
