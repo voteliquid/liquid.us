@@ -129,7 +129,6 @@ const navbarAuthed = ({ location, user }) => {
         ${[user.username
           ? `<a class=${`navbar-item ${path === '/edit_profile' ? 'is-active' : ''}`} href="/edit_profile">Edit Profile</a>`
           : '']}
-        <a class=${`navbar-item ${path === '/proxies/requests' ? 'is-active' : ''}`} href="/proxies/requests">Proxy Requests</a>
         <a class=${`navbar-item ${path === `/legislation/yours` ? 'is-active' : ''}`} href="/legislation/yours">Proposed Legislation</a>
         <a class=${`navbar-item ${path === '/settings' ? 'is-active' : ''}`} href="/settings">Settings</a>
         <a class=${`navbar-item ${path === '/sign_out' ? 'is-active' : ''}`} href=${`${WWW_URL}/sign_out`}>Sign out</a>

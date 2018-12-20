@@ -126,7 +126,7 @@ class Unendorsed extends Component {
   onclick(event) {
     event.preventDefault()
     const { measures = {}, reps = [], user } = this.state
-    const { short_id, id: vote_id } = this.props
+    const { short_id, id: vote_id, public: is_public } = this.props
     const measure = measures[short_id]
     if (!user) {
       this.storage.set('endorsed_vote_id', vote_id)
@@ -138,7 +138,7 @@ class Unendorsed extends Component {
     const officeId = repsInChamber[0] && repsInChamber[0].office_id
     return this.api(`/endorsements?user_id=eq.${user.id}`, {
       method: 'POST',
-      body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id }),
+      body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: is_public }),
     })
     .then(() => fetchConstituentVotes.call(this, measure, officeId))
     .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
@@ -192,13 +192,13 @@ class AlreadyVoted extends Component {
     if (!user) {
       return this.location.redirect('/join')
     }
-    const { short_id, id: vote_id } = this.props.vote
+    const { short_id, id: vote_id, public: is_public } = this.props.vote
     const measure = measures[short_id]
     const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
     const officeId = repsInChamber[0] && repsInChamber[0].office_id
     return this.api(`/endorsements?user_id=eq.${user.id}`, {
       method: 'POST',
-      body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id }),
+      body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: is_public }),
     })
     .then(() => fetchConstituentVotes.call(this, measure, officeId))
     .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
