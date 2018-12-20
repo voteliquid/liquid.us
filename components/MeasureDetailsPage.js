@@ -37,7 +37,9 @@ module.exports = class MeasureDetailsPage extends Component {
         window.history.replaceState(window.history.state, page_title, document.location)
       }
       const isCity = ~measure.legislature_name.indexOf(',')
-      const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+      const isCongress = ~measure.legislature_name.indexOf('.')
+
+      const measureImage = (!isCity) && (!isCongress) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
       this.setState({
         loading_measure: false,
         showMeasureVoteForm: this.location.query.action === 'add-argument',

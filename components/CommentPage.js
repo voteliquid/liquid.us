@@ -57,10 +57,11 @@ module.exports = class CommentPage extends Component {
             window.history.replaceState(window.history.state, page_title_with_appname, document.location)
           }
           const isCity = ~measure.legislature_name.indexOf(',')
-          const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+          const isCongress = ~measure.legislature_name.indexOf('.')
+
+          const measureImage = (!isCity) && (!isCongress) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
           const authorImage = comment.username || comment.twitter_username ? this.avatarURL(comment) : null
           const ogImage = authorImage || measureImage
-
           this.setState({
             loading_measure: false,
             page_title,
