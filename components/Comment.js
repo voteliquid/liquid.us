@@ -20,7 +20,7 @@ module.exports = class Comment extends Component {
   }
   endorse() {
     const { measures = {}, reps = [], user } = this.state
-    const { fullname, measure_id, short_id, id: vote_id } = this.props
+    const { fullname, measure_id, short_id, id: vote_id, public: is_public } = this.props
     const measure = measures[short_id]
     const position = measure && measure.vote_position
     if (!user) {
@@ -36,7 +36,7 @@ module.exports = class Comment extends Component {
     }
     return this.api(`/endorsements?user_id=eq.${user.id}`, {
       method: 'POST',
-      body: JSON.stringify({ user_id: user.id, vote_id, measure_id }),
+      body: JSON.stringify({ user_id: user.id, vote_id, measure_id, public: is_public }),
     })
     .then(() => this.fetchMeasure(short_id))
     .then((measure) => {
@@ -191,7 +191,12 @@ module.exports = class Comment extends Component {
     })
   }
   render() {
-    const { comment, author_username, endorsed, updated_at, fullname, id, number, proxy_vote_count, position, show_bill, short_id, title, type, username, user_id, public: is_public, truncated, twitter_username, showPrivacyIndicator, source_url } = this.props
+    const {
+      comment, author_username, endorsed, updated_at, fullname, id,
+      number, proxy_vote_count, position, show_bill, short_id, title, type,
+      username, user_id, public: is_public, truncated, twitter_username,
+      showPrivacyIndicator, source_url
+    } = this.props
     const { measures, selected_profile, user } = this.state
     const measure = measures && measures[short_id]
     const avatarURL = this.avatarURL(this.props)
@@ -206,11 +211,11 @@ module.exports = class Comment extends Component {
     if (user && user.id === user_id) {
       twitter_share_text = `I'm voting ${position}. See why: ${share_url}`
     }
-    const tooltip = is_public || !fullname
+    const tooltip = is_public
       ? `This vote is public. Anyone can see it.`
       : user && user.id === user_id
-        ? `This is your vote. Only <a href="/proxies/requests">people you've approved</a> will see your identity.`
-        : `${fullname} granted you permission to see this vote. Don’t share it publicly.`
+        ? `This is your vote. It's private, only you can see it.`
+        : `${fullname || 'Your proxy'} granted you permission to see this vote. Don’t share it publicly.`
     const onBehalfOfCount = username && !twitter_username ? (proxy_vote_count + 1) : proxy_vote_count
 
     return this.html`
@@ -276,10 +281,12 @@ module.exports = class Comment extends Component {
                   <a target="_blank" title="Share on Twitter" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-twitter"></i></span></a>
                   <a target="_blank" title="Permalink" href="${share_url}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-link"></i></span></a>
                 `] : ''}
-                <span class="has-text-grey-lighter">&bullet;&nbsp;</span>
-                <a href="#" onclick=${this} class="${`has-text-weight-semibold has-text-grey endorse button is-small ${endorsed ? 'is-light' : ''}`}">
-                  <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
-                </a>
+                <span class="${!is_public ? 'is-hidden' : ''}">
+                  <span class="has-text-grey-lighter">&bullet;&nbsp;</span>
+                  <a href="#" onclick=${this} class="${`has-text-weight-semibold has-text-grey endorse button is-small ${endorsed ? 'is-light' : ''}`}">
+                    <span>${endorsed || (user && user.id === user_id) ? 'Endorsed' : 'Endorse'}</span>
+                  </a>
+                </span>
                 <style>
                   .comment .endorse.is-light {
                     border-color: #cecece;
