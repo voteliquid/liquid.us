@@ -281,7 +281,7 @@ module.exports = class Comment extends Component {
                   <a target="_blank" title="Share on Twitter" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-twitter"></i></span></a>
                   <a target="_blank" title="Permalink" href="${share_url}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-link"></i></span></a>
                 `] : ''}
-                <span class="${!is_public ? 'is-hidden' : ''}">
+                <span class="${!is_public || (user && user.id === user_id) ? 'is-hidden' : ''}">
                   <span class="has-text-grey-lighter">&bullet;&nbsp;</span>
                   <a href="#" onclick=${this} class="${`has-text-weight-semibold has-text-grey endorse button is-small ${endorsed ? 'is-light' : ''}`}">
                     <span>${endorsed || (user && user.id === user_id) ? 'Endorsed' : 'Endorse'}</span>
