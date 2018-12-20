@@ -212,7 +212,7 @@ class MeasureVoteForm extends Component {
                 </label>
               </div>
             </div>
-            ${v.comment && l.vote_power > 1 ? [`
+            ${v.comment && public_checked && l.vote_power > 1 ? [`
             <div class="column">
               <div class="control has-text-right has-text-left-mobile has-text-grey">
                 <span class="icon"><i class="fa fa-users"></i></span>You are casting
@@ -242,8 +242,8 @@ class MeasureVoteForm extends Component {
               </label>
               <p class="is-size-7 has-text-grey">
                 ${public_checked
-                  ? 'Your comment will be published with your name. It will also be listed on your profile.'
-                  : 'Your comment will be published anonymously (your name will not be shown).'
+                  ? 'Your vote will be published with your name. It will also be listed on your profile.'
+                  : 'Your vote will be private. Only you can see it.'
                 }
               </p>
             </div>
