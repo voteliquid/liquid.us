@@ -85,6 +85,10 @@ module.exports = (state, html, bundleUrl) => {
             max-height: 315px;
             max-width: 560px;
           }
+
+          .endorse .is-light {
+            border-color: #cecece;
+          }
         </style>
         <meta property="og:title" content="${wi_image ? `Wisconsin Legislation` : title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:description" content="${wi_image ? `Vote now on extraordinary session bills.` : description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />

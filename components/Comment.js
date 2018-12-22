@@ -10,13 +10,40 @@ module.exports = class Comment extends Component {
       this.setProps({ showPrivacyIndicator: true }).render(this.props)
     } else if (~event.currentTarget.className.indexOf('delete')) {
       this.setProps({ showPrivacyIndicator: false }).render(this.props)
-    } else if (~event.currentTarget.className.indexOf('endorse')) {
+    } else if (~event.currentTarget.className.indexOf('endorse-btn')) {
       event.preventDefault()
       if (this.props.endorsed) {
         return this.unendorse()
       }
       return this.endorse()
     }
+  }
+  onchange(event) {
+    const { user } = this.state
+    const { measure_id, short_id, id: vote_id } = this.props
+    const is_public = event.target.value === 'true'
+
+    return this.api('/rpc/endorse', {
+      method: 'POST',
+      body: JSON.stringify({ user_id: user.id, vote_id, measure_id, public: is_public }),
+    })
+    .then(() => {
+      return this.api(`/public_votes?measure_id=eq.${measure_id}&id=eq.${vote_id}`)
+      .then(([comment]) => {
+        this.setState({
+          measures: {
+            ...this.state.measures,
+            [short_id]: {
+              ...this.state.measures[short_id],
+              comment,
+            },
+          },
+        })
+      })
+    })
+    .catch((error) => {
+      console.log(error)
+    })
   }
   endorse() {
     const { measures = {}, reps = [], user } = this.state
@@ -34,7 +61,7 @@ module.exports = class Comment extends Component {
         return
       }
     }
-    return this.api(`/endorsements?user_id=eq.${user.id}`, {
+    return this.api('/rpc/endorse', {
       method: 'POST',
       body: JSON.stringify({ user_id: user.id, vote_id, measure_id, public: is_public }),
     })
@@ -82,8 +109,9 @@ module.exports = class Comment extends Component {
       return this.location.redirect('/join')
     }
     const { measure_id, short_id, id: vote_id } = this.props
-    return this.api(`/endorsements?user_id=eq.${user.id}&vote_id=eq.${vote_id}`, {
-      method: 'DELETE',
+    return this.api('/rpc/unendorse', {
+      method: 'POST',
+      body: JSON.stringify({ vote_id }),
     })
     .then(() => this.fetchMeasure(short_id))
     .then((measure) => {
@@ -195,7 +223,7 @@ module.exports = class Comment extends Component {
       comment, author_username, endorsed, updated_at, fullname, id,
       number, proxy_vote_count, position, show_bill, short_id, title, type,
       username, user_id, public: is_public, truncated, twitter_username,
-      showPrivacyIndicator, source_url
+      showPrivacyIndicator, source_url, endorsement_public, endorsement_proxy_count
     } = this.props
     const { measures, selected_profile, user } = this.state
     const measure = measures && measures[short_id]
@@ -260,6 +288,17 @@ module.exports = class Comment extends Component {
             `]}
             ${comment ? CommentContent.for(this, { comment, truncated }, `comment-context-${id}`) : ''}
             <div class="${`notification is-size-7 has-text-centered comment-tooltip ${showPrivacyIndicator ? '' : 'is-hidden'}`}"><button onclick=${this} class="delete"></button>${[tooltip]}</div>
+            <div class="${`${!is_public ? 'is-hidden' : ''} endorse is-size-7`}">
+              <a href="#" onclick=${this} class="${`endorse-btn has-text-weight-semibold has-text-grey button is-small ${endorsed ? 'is-light' : ''}`}">
+                <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
+              </a>
+              <div class="${`select ${endorsed ? '' : 'is-hidden'}`}">
+                <select name="public" onchange=${this} class="has-text-grey is-light">
+                  <option selected=${endorsement_public} value="true">Public (Vote Power: ${endorsement_proxy_count || 1})</option>
+                  <option selected=${!endorsement_public} value="false">Private (Vote Power: 1)</option>
+                </select>
+              </div>
+            </div>
             <div class="is-size-7" style="position: relative; line-height: 25px; margin-top: 0.2rem;">
               <a class="has-text-grey-light" title="Permalink" href="${share_url}">${timeAgo().format(`${updated_at}Z`)}</a>
               <span class="has-text-grey-light">
@@ -281,17 +320,6 @@ module.exports = class Comment extends Component {
                   <a target="_blank" title="Share on Twitter" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-twitter"></i></span></a>
                   <a target="_blank" title="Permalink" href="${share_url}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-link"></i></span></a>
                 `] : ''}
-                <span class="${!is_public || (user && user.id === user_id) ? 'is-hidden' : ''}">
-                  <span class="has-text-grey-lighter">&bullet;&nbsp;</span>
-                  <a href="#" onclick=${this} class="${`has-text-weight-semibold has-text-grey endorse button is-small ${endorsed ? 'is-light' : ''}`}">
-                    <span>${endorsed || (user && user.id === user_id) ? 'Endorsed' : 'Endorse'}</span>
-                  </a>
-                </span>
-                <style>
-                  .comment .endorse.is-light {
-                    border-color: #cecece;
-                  }
-                </style>
               </span>
             </div>
           </div>

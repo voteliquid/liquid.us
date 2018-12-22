@@ -78,8 +78,9 @@ class Endorsed extends Component {
     const measure = measures[short_id]
     const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
     const officeId = repsInChamber[0] && repsInChamber[0].office_id
-    return this.api(`/endorsements?user_id=eq.${user.id}&vote_id=eq.${vote_id}`, {
-      method: 'DELETE',
+    return this.api('/rpc/unendorse', {
+      method: 'POST',
+      body: JSON.stringify({ vote_id }),
     })
     .then(() => fetchConstituentVotes.call(this, measure, officeId))
     .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
@@ -136,7 +137,7 @@ class Unendorsed extends Component {
     }
     const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
     const officeId = repsInChamber[0] && repsInChamber[0].office_id
-    return this.api(`/endorsements?user_id=eq.${user.id}`, {
+    return this.api('/rpc/endorse', {
       method: 'POST',
       body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: is_public }),
     })
@@ -196,7 +197,7 @@ class AlreadyVoted extends Component {
     const measure = measures[short_id]
     const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
     const officeId = repsInChamber[0] && repsInChamber[0].office_id
-    return this.api(`/endorsements?user_id=eq.${user.id}`, {
+    return this.api('/rpc/endorse', {
       method: 'POST',
       body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: is_public }),
     })
