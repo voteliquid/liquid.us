@@ -294,8 +294,8 @@ module.exports = class Comment extends Component {
               </a>
               <div class="${`select ${endorsed ? '' : 'is-hidden'}`}">
                 <select name="public" onchange=${this} class="has-text-grey is-light">
-                  <option selected=${endorsement_public} value="true">Public (Vote Power: ${endorsement_proxy_count || 1})</option>
-                  <option selected=${!endorsement_public} value="false">Private (Vote Power: 1)</option>
+                  <option selected=${endorsement_public} value="true">Public${endorsement_proxy_count !== null ? ` (Vote Power: ${endorsement_proxy_count || 1})` : ''}</option>
+                  <option selected=${!endorsement_public} value="false">Private${endorsement_proxy_count !== null ? ` (Vote Power: 1)` : ''}</option>
                 </select>
               </div>
             </div>
