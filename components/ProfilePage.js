@@ -79,8 +79,8 @@ module.exports = class ProfilePage extends Component {
     const { selected_profile } = this.state
 
     if (selected_profile && !selected_profile.elected_office_name) {
-      return this.api(`/public_votes?user_id=eq.${selected_profile.user_id}&published=is.true&order=created_at.desc`).then(public_votes => {
-        selected_profile.public_votes = public_votes
+      return this.api(`/public_actions?user_id=eq.${selected_profile.user_id}&order=created_at.desc&limit=25`).then(public_votes => {
+        selected_profile.public_votes = public_votes.map(({ endorsement, vote }) => Object.assign(vote, { endorsement }))
         this.setState({ selected_profile })
       })
     }
