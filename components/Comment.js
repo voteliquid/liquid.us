@@ -57,7 +57,14 @@ module.exports = class Comment extends Component {
       return this.location.redirect('/join')
     }
     if (position) {
-      if (!window.confirm(`You've already voted. Endorse ${fullname ? this.possessive(fullname) : 'this'} vote instead?`)) {
+      let confirmation_text = 'You\'ve already '
+      if (measure.cur_endorsement && measure.cur_endorsement.user_id !== user.id) {
+        confirmation_text += `endorsed ${this.possessive(measure.cur_endorsement.fullname)} ${position} argument`
+      } else {
+        confirmation_text += `voted ${position}`
+      }
+      confirmation_text += `. Endorse ${fullname ? this.possessive(fullname) : 'this'} vote instead?`
+      if (!window.confirm(confirmation_text)) {
         return
       }
     }
