@@ -86,7 +86,7 @@ module.exports = (state, html, bundleUrl) => {
             max-width: 560px;
           }
 
-          .endorse .is-light {
+          .endorse .is-light, .endorse .is-light:hover {
             border-color: #cecece;
           }
         </style>
