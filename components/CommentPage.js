@@ -84,7 +84,7 @@ module.exports = class CommentPage extends Component {
     })
   }
   fetchComment(id, measure) {
-    return this.api(`/public_votes?measure_id=eq.${measure.id}&id=eq.${id}`)
+    return this.api(`/votes_detailed?measure_id=eq.${measure.id}&id=eq.${id}`)
     .then(([comment]) => (comment))
   }
   onpagechange(oldProps) {

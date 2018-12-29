@@ -87,10 +87,10 @@ module.exports = class MeasureDetailsPage extends Component {
   }
   fetchTopComments(id, short_id) {
     const order = `order=proxy_vote_count.desc.nullslast,created_at.desc`
-    return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea&${order}`).then((comments) => {
+    return this.api(`/votes_detailed?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea&${order}`).then((comments) => {
       const yea = comments[0]
 
-      return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.nay&${order}`).then((comments) => {
+      return this.api(`/votes_detailed?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.nay&${order}`).then((comments) => {
         const nay = comments[0]
         this.setState({
           measures: {
@@ -121,7 +121,7 @@ module.exports = class MeasureDetailsPage extends Component {
   }
   fetchProxyVotes(measure_id, short_id) {
     if (this.state.user) {
-      return this.api(`/proxy_votes?measure_id=eq.${measure_id}&order=proxy_vote_count.desc,created_at.desc`)
+      return this.api(`/proxy_votes_detailed?measure_id=eq.${measure_id}&order=proxy_vote_count.desc,created_at.desc`)
         .then((proxyVotes) => {
           this.setState({
             measures: {
@@ -149,7 +149,7 @@ module.exports = class MeasureDetailsPage extends Component {
       yea: '&position=eq.yea',
       nay: '&position=eq.nay',
     }
-    return this.api(`/public_votes?measure_id=eq.${measure_id}&comment=not.is.null&comment=not.eq.&order=${orders[order]}${positions[position]}`).then((comments) => {
+    return this.api(`/votes_detailed?measure_id=eq.${measure_id}&comment=not.is.null&comment=not.eq.&order=${orders[order]}${positions[position]}`).then((comments) => {
       this.setState({
         measures: {
           ...this.state.measures,

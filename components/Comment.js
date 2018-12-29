@@ -5,6 +5,7 @@ const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = class Comment extends Component {
   onclick(event) {
+    const vote = this.props.endorsed_vote || this.props
     if (~event.currentTarget.className.indexOf('privacy-indicator')) {
       event.preventDefault()
       this.setProps({ showPrivacyIndicator: true }).render(this.props)
@@ -12,7 +13,7 @@ module.exports = class Comment extends Component {
       this.setProps({ showPrivacyIndicator: false }).render(this.props)
     } else if (~event.currentTarget.className.indexOf('endorse-btn')) {
       event.preventDefault()
-      if (this.props.endorsed) {
+      if (vote.endorsed) {
         return this.unendorse()
       }
       return this.endorse()
@@ -20,7 +21,7 @@ module.exports = class Comment extends Component {
   }
   onchange(event) {
     const { user } = this.state
-    const { measure_id, short_id, id: vote_id } = this.props
+    const { measure_id, short_id, id: vote_id } = this.props.endorsed_vote || this.props
     const is_public = event.target.value === 'true'
 
     return this.api('/rpc/endorse', {
@@ -28,7 +29,7 @@ module.exports = class Comment extends Component {
       body: JSON.stringify({ user_id: user.id, vote_id, measure_id, public: is_public }),
     })
     .then(() => {
-      return this.api(`/public_votes?measure_id=eq.${measure_id}&id=eq.${vote_id}`)
+      return this.api(`/votes_detailed?measure_id=eq.${measure_id}&id=eq.${vote_id}`)
       .then(([comment]) => {
         this.setState({
           measures: {
@@ -47,7 +48,7 @@ module.exports = class Comment extends Component {
   }
   endorse() {
     const { measures = {}, reps = [], user } = this.state
-    const { fullname, measure_id, short_id, id: vote_id, public: is_public } = this.props
+    const { fullname, measure_id, short_id, id: vote_id, public: is_public } = this.props.endorsed_vote || this.props
     const measure = measures[short_id]
     const position = measure && measure.vote_position
     if (!user) {
@@ -85,11 +86,12 @@ module.exports = class Comment extends Component {
       })
       const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
       const officeId = repsInChamber[0] && repsInChamber[0].office_id
-      this.fetchConstituentVotes(measure, officeId)
+      return this.fetchConstituentVotes(measure, officeId)
     })
     .then(() => this.fetchTopComments(measure_id, short_id))
     .then(() => this.fetchComments(measure_id, short_id))
-    .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
+    .then(() => this.fetchProxyVotes(measure.id, short_id))
+    .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
     .then((votes) => {
       if (typeof window === 'object' && window._loq) window._loq.push(['tag', 'Voted'], ['tag', 'Endorsed'])
       this.setState({
@@ -115,7 +117,7 @@ module.exports = class Comment extends Component {
     if (!user) {
       return this.location.redirect('/join')
     }
-    const { measure_id, short_id, id: vote_id } = this.props
+    const { measure_id, short_id, id: vote_id } = this.props.endorsed_vote || this.props
     return this.api('/rpc/unendorse', {
       method: 'POST',
       body: JSON.stringify({ vote_id }),
@@ -137,7 +139,8 @@ module.exports = class Comment extends Component {
     })
     .then(() => this.fetchTopComments(measure_id, short_id))
     .then(() => this.fetchComments(measure_id, short_id))
-    .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
+    .then(() => this.fetchProxyVotes(measure_id, short_id))
+    .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
     .then((votes) => {
       this.setState({
         measures: {
@@ -163,6 +166,23 @@ module.exports = class Comment extends Component {
 
     return this.api(url).then((results) => results[0])
   }
+  fetchProxyVotes(measure_id, short_id) {
+    if (this.state.user) {
+      return this.api(`/proxy_votes_detailed?measure_id=eq.${measure_id}&order=proxy_vote_count.desc,created_at.desc`)
+        .then((proxyVotes) => {
+          this.setState({
+            measures: {
+              ...this.state.measures,
+              [short_id]: {
+                ...this.state.measures[short_id],
+                proxyVotes,
+              },
+            },
+          })
+        })
+    }
+    return Promise.resolve()
+  }
   fetchConstituentVotes(measure, office_id) {
     const { id, short_id } = measure
     const officeParam = office_id && measure.legislature_name === 'U.S. Congress' ? `&office_id=eq.${office_id}` : '&limit=1'
@@ -182,10 +202,10 @@ module.exports = class Comment extends Component {
   }
   fetchTopComments(id, short_id) {
     const order = `order=proxy_vote_count.desc.nullslast,created_at.desc`
-    return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea&${order}`).then((comments) => {
+    return this.api(`/votes_detailed?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea&${order}`).then((comments) => {
       const yea = comments[0]
 
-      return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.nay&${order}`).then((comments) => {
+      return this.api(`/votes_detailed?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.nay&${order}`).then((comments) => {
         const nay = comments[0]
         this.setState({
           measures: {
@@ -205,7 +225,7 @@ module.exports = class Comment extends Component {
     const order = query.order || 'most_recent'
     const position = query.position || 'all'
     const orders = {
-      most_recent: 'updated_at.desc',
+      most_recent: 'created_at.desc',
       vote_power: 'proxy_vote_count.desc.nullslast,created_at.desc',
     }
     const positions = {
@@ -213,7 +233,7 @@ module.exports = class Comment extends Component {
       yea: '&position=eq.yea',
       nay: '&position=eq.nay',
     }
-    return this.api(`/public_votes?measure_id=eq.${measure_id}&comment=not.is.null&comment=not.eq.&order=${orders[order]}${positions[position]}`).then((comments) => {
+    return this.api(`/votes_detailed?measure_id=eq.${measure_id}&comment=not.is.null&comment=not.eq.&order=${orders[order]}${positions[position]}`).then((comments) => {
       this.setState({
         measures: {
           ...this.state.measures,
@@ -226,15 +246,18 @@ module.exports = class Comment extends Component {
     })
   }
   render() {
+    const endorsed_vote = this.props.endorsed_vote
+    const vote = this.props
     const {
       comment, author_username, endorsed, updated_at, fullname, id,
-      number, proxy_vote_count, position, show_bill, short_id, title, type,
+      number, proxy_vote_count, position, short_id, title, type,
       username, user_id, public: is_public, shouldTruncate, twitter_username,
       showPrivacyIndicator, source_url, endorsement_public, endorsement_proxy_count
-    } = this.props
-    const { measures, selected_profile, user } = this.state
+    } = endorsed_vote || vote
+    const { show_bill } = this.props
+    const { measures, user } = this.state
     const measure = measures && measures[short_id]
-    const avatarURL = this.avatarURL(this.props)
+    const avatarURL = this.avatarURL(endorsed_vote || vote)
     const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
     const comment_url = `${measure_url}/votes/${id}`
     const share_url = `${WWW_URL}${comment_url}`
@@ -254,45 +277,29 @@ module.exports = class Comment extends Component {
     const onBehalfOfCount = username && !twitter_username ? (proxy_vote_count + 1) : proxy_vote_count
 
     return this.html`
-      <div onclick=${this} class="comment">
-        <style>
-          .comment:not(:last-child) {
-            margin-bottom: 1.5rem;
-          }
-        </style>
+      <div onclick=${this} class="comment" style="margin-bottom: 1.5em;">
+        ${[endorsed_vote ? `<p class="is-size-7 has-text-grey" style="margin-bottom: 1em;">Endorsed by ${!show_bill ? 'your proxy ' : ''}<a href="/${vote.username}">${vote.fullname}</a>:</p>` : '']}
         <div class="media">
-          ${show_bill && selected_profile
-          ? ''
-          : [`
-              <div class="media-left">
-                <div class="image is-32x32">
-                  ${username || twitter_username
-                    ? `<a href="/${twitter_username ? `twitter/${twitter_username}` : username}">
-                        <img src="${avatarURL}" alt="avatar" class="round-avatar-img" />
-                      </a>`
-                    : `<img src="${avatarURL}" alt="avatar" class="round-avatar-img" />`}
-                </div>
-              </div>
-          `]}
-          <div class="media-content" style="${`${show_bill ? '' : `border-left: 1px solid ${position === 'yea' ? 'hsl(141, 71%, 87%)' : 'hsl(348, 100%, 93%)'}; margin-left: -2rem; padding-left: 2rem;`}`}">
-            ${[show_bill && selected_profile ? `
-              <div>
-                <span class="has-text-weight-semibold">${username || twitter_username ? fullname : anonymousName}</span>
-                <span>voted <strong>${position}</strong>${onBehalfOfCount ? ` on behalf of <span class="has-text-weight-semibold">${onBehalfOfCount}</span> ${onBehalfOfCount === 1 ? 'person' : 'people'}` : ''}</span>
-                ${source_url ? [`<span class="is-size-7"> via <a href="${source_url}" target="_blank">${source_url.split('/')[2] || source_url}</a></span>`] : ''}
-              </div>
-              <div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>
-            ` : `
-              <div>
-                <span class="has-text-weight-semibold">
-                  ${username || twitter_username
-                    ? [`<a href="/${twitter_username ? `twitter/${twitter_username}` : username}">${fullname}</a>`]
-                    : anonymousName}
-                </span>
-                <span>voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${onBehalfOfCount ? ` on behalf of <span class="has-text-weight-semibold">${onBehalfOfCount}</span> ${onBehalfOfCount === 1 ? 'person' : 'people'}` : ''}</span>
-                ${source_url ? [`<span class="is-size-7"> via <a href="${source_url}" target="_blank">${source_url.split('/')[2] || source_url}</a></span>`] : ''}
-              </div>
-            `]}
+          <div class="media-left">
+            <div class="image is-32x32">
+              ${[username || twitter_username
+                ? `<a href="/${twitter_username ? `twitter/${twitter_username}` : username}">
+                    <img src="${avatarURL}" alt="avatar" class="round-avatar-img" />
+                  </a>`
+                : `<img src="${avatarURL}" alt="avatar" class="round-avatar-img" />`]}
+            </div>
+          </div>
+          <div class="media-content" style="${`border-left: 1px solid ${position === 'yea' ? 'hsl(141, 71%, 87%)' : 'hsl(348, 100%, 93%)'}; margin-left: -2rem; padding-left: 2rem;`}">
+            <div>
+              <span class="has-text-weight-semibold">
+                ${username || twitter_username
+                  ? [`<a href="/${twitter_username ? `twitter/${twitter_username}` : username}">${fullname}</a>`]
+                  : anonymousName}
+              </span>
+              ${[`<span>voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${onBehalfOfCount ? ` on behalf of <span class="has-text-weight-semibold">${onBehalfOfCount}</span> ${onBehalfOfCount === 1 ? 'person' : 'people'}` : ''}</span>`]}
+              ${source_url ? [`<span class="is-size-7"> via <a href="${source_url}" target="_blank">${source_url.split('/')[2] || source_url}</a></span>`] : ''}
+            </div>
+            ${[show_bill ? `<div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>` : '']}
             ${comment ? CommentContent.for(this, { comment, shouldTruncate }, `comment-context-${id}`) : ''}
             <div class="${`notification is-size-7 has-text-centered comment-tooltip ${showPrivacyIndicator ? '' : 'is-hidden'}`}"><button onclick=${this} class="delete"></button>${[tooltip]}</div>
             <div class="${`${!is_public ? 'is-hidden' : ''} endorse is-size-7`}">

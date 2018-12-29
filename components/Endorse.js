@@ -83,7 +83,7 @@ class Endorsed extends Component {
       body: JSON.stringify({ vote_id }),
     })
     .then(() => fetchConstituentVotes.call(this, measure, officeId))
-    .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
+    .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
     .then((votes) => {
       this.setState({
         measures: {
@@ -142,7 +142,7 @@ class Unendorsed extends Component {
       body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: is_public }),
     })
     .then(() => fetchConstituentVotes.call(this, measure, officeId))
-    .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
+    .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
     .then((votes) => {
       if (typeof window === 'object' && window._loq) window._loq.push(['tag', 'Voted'], ['tag', 'Endorsed'])
       this.setState({
@@ -202,7 +202,7 @@ class AlreadyVoted extends Component {
       body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: is_public }),
     })
     .then(() => fetchConstituentVotes.call(this, measure, officeId))
-    .then(() => this.api(`/public_votes?id=eq.${vote_id}`))
+    .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
     .then((votes) => {
       this.setState({
         measures: {
