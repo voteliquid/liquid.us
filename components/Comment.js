@@ -229,7 +229,7 @@ module.exports = class Comment extends Component {
     const {
       comment, author_username, endorsed, updated_at, fullname, id,
       number, proxy_vote_count, position, show_bill, short_id, title, type,
-      username, user_id, public: is_public, truncated, twitter_username,
+      username, user_id, public: is_public, shouldTruncate, twitter_username,
       showPrivacyIndicator, source_url, endorsement_public, endorsement_proxy_count
     } = this.props
     const { measures, selected_profile, user } = this.state
@@ -293,7 +293,7 @@ module.exports = class Comment extends Component {
                 ${source_url ? [`<span class="is-size-7"> via <a href="${source_url}" target="_blank">${source_url.split('/')[2] || source_url}</a></span>`] : ''}
               </div>
             `]}
-            ${comment ? CommentContent.for(this, { comment, truncated }, `comment-context-${id}`) : ''}
+            ${comment ? CommentContent.for(this, { comment, shouldTruncate }, `comment-context-${id}`) : ''}
             <div class="${`notification is-size-7 has-text-centered comment-tooltip ${showPrivacyIndicator ? '' : 'is-hidden'}`}"><button onclick=${this} class="delete"></button>${[tooltip]}</div>
             <div class="${`${!is_public ? 'is-hidden' : ''} endorse is-size-7`}">
               <a href="#" onclick=${this} class="${`endorse-btn has-text-weight-semibold has-text-grey button is-small ${endorsed ? 'is-light' : ''}`}">
@@ -343,23 +343,25 @@ class CommentContent extends Component {
   }
   breakOnWord(str) {
     let len = 0
-    const truncated = str.split('\n').reduce((b, a) => {
-      if (len > 300) return b
+    const truncated = str.split('\n').reduce((memo, line, index) => {
+      if (len > 300) return memo
       len += 1
-      const words = a.split(' ').reduce((line, word) => {
-        if (len > 300) return line
+      const words = line.split(' ').reduce((memo2, word) => {
+        if (len > 300) return memo2
         len += word.length + 1
-        return `${line} ${word}`
+        return `${memo2} ${word}`
       }, '')
-      return `${b}\n${words}`
-    })
+      // Workaround for callback never called if initialValue is falsey.
+      if (index === 0) { return words }
+      return `${memo}\n${words}`
+    }, 'see comment about initialValue workaround')
     if (str.length > truncated.length) {
       return `${truncated}...`
     }
     return truncated
   }
-  render({ comment = '', expanded = false, truncated = false }) {
-    const showExpander = truncated && comment.length > 300
+  render({ comment = '', expanded = false, shouldTruncate = true }) {
+    const showExpander = shouldTruncate && comment.length > 300
     return this.html`
       <div class="content" style="margin: .25rem 0 .75rem;">
         ${[this.linkifyUrls(expanded || !showExpander ? comment : this.breakOnWord(comment))]}

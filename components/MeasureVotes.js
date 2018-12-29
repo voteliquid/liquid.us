@@ -72,7 +72,7 @@ module.exports = class MeasureVotes extends Component {
         </form>
         ${showMeasureVoteForm ? MeasureVoteForm.for(this, { measure }) : ''}
         ${comments.length
-          ? comments.map(c => Comment.for(this, { ...c, truncated: true }, `comment-${c.id}`))
+          ? comments.map(c => Comment.for(this, c, `comment-${c.id}`))
           : [`<p class="notification has-background-light has-text-grey">No ${position ? `${position} ` : ''}arguments.</p>`]
         }
       </div>

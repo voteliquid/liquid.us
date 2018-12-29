@@ -149,7 +149,7 @@ class CommentDetailPage extends Component {
                   z-index: 9999;
                 }
               </style>
-              ${Comment.for(this, l.comment)}
+              ${Comment.for(this, { ...l.comment, shouldTruncate: false })}
               ${l.comment ? Endorse.for(this, { vote: l.comment, vote_position: l.vote_position, user }) : ''}
               <br />
               <div>
