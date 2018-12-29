@@ -31,7 +31,7 @@ module.exports = class MeasureTopComments extends Component {
             <div style="padding: 1rem;">
               <h4 style="color: hsl(141, 80%, 38%); padding-bottom: 1rem;" class="${`${vote_position ? 'has-text-weight-semibold' : ''} has-text-centered`}">Top Argument In Favor</h4>
               ${yea
-              ? Comment.for(this, { ...yea, truncated: true }, `topcomment-yea-${yea.id}`)
+              ? Comment.for(this, yea, `topcomment-yea-${yea.id}`)
               : NoArgumentsMsg.for(this, { vote_position, position: 'yea' }, 'noarguments-yea')}
             </div>
           </div>
@@ -39,7 +39,7 @@ module.exports = class MeasureTopComments extends Component {
             <div style="padding: 1rem;">
               <h4 style="padding-bottom: 1rem;" class="${`${vote_position ? 'has-text-weight-semibold' : ''} has-text-centered has-text-danger`}">Top Argument Against</h4>
               ${nay
-              ? Comment.for(this, { ...nay, truncated: true }, `topcomment-nay-${nay.id}`)
+              ? Comment.for(this, nay, `topcomment-nay-${nay.id}`)
               : NoArgumentsMsg.for(this, { vote_position, position: 'nay' }, 'noarguments-nay')}
             </div>
           </div>

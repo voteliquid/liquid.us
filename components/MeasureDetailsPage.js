@@ -156,6 +156,7 @@ module.exports = class MeasureDetailsPage extends Component {
           [short_id]: {
             ...this.state.measures[short_id],
             comments,
+            cur_endorsement: comments.filter(c => c.endorsed)[0]
           },
         },
       })
