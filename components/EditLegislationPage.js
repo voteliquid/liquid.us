@@ -18,7 +18,7 @@ module.exports = class EditLegislationPage extends Component {
     const { params } = this.props
     return this.api(`/measures_detailed?author_id=eq.${user.id}&${editing_bill.id ? `id=eq.${editing_bill.id}` : `short_id=eq.${params.short_id}`}`)
       .then((legislation) => {
-        if (legislation[0] && legislation[0].published) {
+        if (legislation[0] && legislation[0].published && user.username !== 'dallascole' && user.username !== 'joshuakrafchin') {
           return this.location.redirect(302, `/legislation/${legislation[0].short_id}`)
         }
         return this.setState({ editing_bill: legislation[0] })
