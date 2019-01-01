@@ -124,10 +124,11 @@ class CommentNotFoundPage extends Component {
 
 class CommentDetailPage extends Component {
   render() {
-    const { user } = this.state
+    const { legislatures = [], user } = this.state
     const { measure: l } = this.props
     const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
     const url = `${l.author_username ? `/${l.author_username}/` : '/'}${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`
+    const userInJurisdiction = user && legislatures && legislatures.some(({ name }) => name === l.legislature_name)
 
     return this.html`
       <section class="section">
@@ -150,7 +151,7 @@ class CommentDetailPage extends Component {
                 }
               </style>
               ${Comment.for(this, { ...l.comment, shouldTruncate: false })}
-              ${l.comment ? Endorse.for(this, { vote: l.comment, vote_position: l.vote_position, user }) : ''}
+              ${l.comment && (!user || userInJurisdiction) ? Endorse.for(this, { vote: l.comment, vote_position: l.vote_position, user }) : ''}
               <br />
               <div>
                 <a class="is-size-7 has-text-grey button is-text" href="${url}">

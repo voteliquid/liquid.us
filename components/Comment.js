@@ -307,7 +307,7 @@ module.exports = class Comment extends Component {
             ${[show_bill ? `<div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>` : '']}
             ${comment ? CommentContent.for(this, { comment, shouldTruncate }, `comment-context-${id}`) : ''}
             <div class="${`notification is-size-7 has-text-centered comment-tooltip ${showPrivacyIndicator ? '' : 'is-hidden'}`}"><button onclick=${this} class="delete"></button>${[tooltip]}</div>
-            <div class="${`${!is_public ? 'is-hidden' : ''} endorse is-size-7`}">
+            <div class="${`${!is_public ? 'is-hidden' : ''} endorse-control is-size-7`}">
               <a href="#" onclick=${this} class="${`endorse-btn has-text-weight-semibold has-text-grey button is-small ${endorsed ? 'is-light' : ''}`}">
                 <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
               </a>
