@@ -166,7 +166,7 @@ const App = module.exports = {
       <div id="wrapper">
         ${Navbar.view({ ...navbar, user }, mapEvent('navbarEvent', dispatch))}
         <div class="router">
-          ${routeProgram ? routeProgram.view(viewRouteState, mapEvent('routeEvent', dispatch)) : loadingIndicator()}
+          ${routeProgram ? routeProgram.view(viewRouteState, mapEvent('routeEvent', dispatch)) : loadingIndicator({ size: 'large', margin: '2rem' })}
         </div>
       </div>
       <div>${Footer.view(footer, mapEvent('footerEvent', dispatch))}</div>

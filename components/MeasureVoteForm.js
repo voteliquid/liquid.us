@@ -126,14 +126,25 @@ class MeasureVoteForm extends Component {
           },
         },
         saving_vote: false,
-        showMeasureVoteForm: !this.state.showMeasureVoteForm,
+        showMeasureVoteForm: true,
       })
       if (!prev_vote || this.location.path.match(/^\/(nominations|legislation)\/[\w-]+\/vote$/)) {
         const commentParam = form.comment ? `/votes/${my_vote.id}` : ''
-        if (measure.type === 'PN') {
-          return redirect(303, `/nominations/${measure.short_id}${commentParam}`)
+        if (form.comment) {
+          if (measure.type === 'PN') {
+            return redirect(303, `/nominations/${measure.short_id}${commentParam}`)
+          }
+          return redirect(303, `/legislation/${measure.short_id}${commentParam}`)
         }
-        return redirect(303, `/legislation/${measure.short_id}${commentParam}`)
+        const elem = document.getElementById('measure-vote-form')
+        if (elem) {
+          const pos = elem.getBoundingClientRect()
+          if (pos) {
+            window.scrollTo(0, pos.y, { behavior: 'smooth' })
+          } else {
+            return redirect(303, `/legislation/${measure.short_id}`)
+          }
+        }
       }
     }))
     .catch((error) => {

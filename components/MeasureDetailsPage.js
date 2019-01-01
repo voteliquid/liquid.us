@@ -121,20 +121,40 @@ module.exports = class MeasureDetailsPage extends Component {
   }
   fetchProxyVotes(measure_id, short_id) {
     if (this.state.user) {
-      return this.api(`/proxy_votes_detailed?measure_id=eq.${measure_id}&order=proxy_vote_count.desc,created_at.desc`)
-        .then((proxyVotes) => {
+      return this.api(`/inherited_votes_detailed?measure_id=eq.${measure_id}`).then((inheritedVotes) => {
+        return this.api(`/proxy_votes_detailed?measure_id=eq.${measure_id}&order=proxy_vote_count.desc,created_at.desc`).then((proxyVotes) => {
           this.setState({
             measures: {
               ...this.state.measures,
               [short_id]: {
                 ...this.state.measures[short_id],
-                proxyVotes,
+                proxyVotes: this.dedupeVotes(inheritedVotes.map((vote) => {
+                  return {
+                    ...vote,
+                    ...vote.proxy,
+                    fullname: vote.proxy && `${vote.proxy.first_name} ${vote.proxy.last_name}`,
+                    endorsed_vote: vote.root_vote,
+                  }
+                }).concat(proxyVotes)),
               },
             },
           })
         })
+      })
     }
     return Promise.resolve()
+  }
+  dedupeVotes(votes) {
+    const ids = {}
+    const deduped = []
+    votes.forEach((item) => {
+      const id = item.endorsed_vote ? item.endorsed_vote.id : item.id
+      if (!ids[id]) {
+        ids[id] = item
+        deduped.push(item)
+      }
+    })
+    return deduped
   }
   fetchComments(measure_id, short_id) {
     const { query } = this.location

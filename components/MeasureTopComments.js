@@ -117,7 +117,7 @@ class VoteButtons extends Component {
         <div class="column is-half">
           <form action=${this} method="POST" onsubmit=${this} style="height: 100%;">
             <input type="hidden" name="vote_position" value="yea" />
-            <input type="hidden" name="public" value="${my_vote.public || 'false'}" />
+            <input type="hidden" name="public" value="${typeof my_vote.public === 'boolean' ? my_vote.public : 'true'}" />
             <input type="hidden" name="comment" value="${my_vote.comment || ''}" />
             <button type="submit" style="${`${vote_position && vote_position !== 'yea' ? 'opacity: .3;' : ''} display: block; line-height: 100%; height: 100%; white-space: normal;`}" class="${`${saving_vote ? 'is-loading' : ''} button vote-button-yea is-success has-text-weight-semibold is-fullwidth`}">
               <span class="icon is-small"><i class="fa fa-check"></i></span>

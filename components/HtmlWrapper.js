@@ -27,6 +27,7 @@ module.exports = (state, html, bundleUrl) => {
           ${nprogressStyle}
 
           body {
+            scroll-behavior: smooth;
             height: 100%;
           }
 

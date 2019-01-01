@@ -5,7 +5,7 @@ const Comment = require('./Comment')
 module.exports = class MeasureProxyVotes extends Component {
   render() {
     const { measure } = this.props
-    const { proxyVotes: votes } = measure
+    const votes = measure.proxyVotes
 
     return this.html`
       <div>

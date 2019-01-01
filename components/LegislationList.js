@@ -180,20 +180,23 @@ const filterTabs = ({ geoip, legislatures, location, storage, user }, dispatch) 
   }
 
   return html()`
-    <div class="tabs">
-      <ul>
-        <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('upcoming', query)}`}">Upcoming for vote</a></li>
-        <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('new', query)}`}">Recently introduced</a></li>
-        <li class="${query.order === 'proposed' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('proposed', query)}`}">Introduced on ${APP_NAME}</a></li>
-      </ul>
-    </div>
-    <div class="columns">
-      <div class="column">
-        <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
+    <div>
+      <div class="tabs">
+        <ul>
+          <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('upcoming', query)}`}">Upcoming for vote</a></li>
+          <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('new', query)}`}">Recently introduced</a></li>
+          <li class="${query.order === 'proposed' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('proposed', query)}`}">Introduced on ${APP_NAME}</a></li>
+        </ul>
       </div>
-      <div class="column has-text-right has-text-left-mobile">
-        ${filterForm(geoip, legislatures, storage, location, user, dispatch)}
+      <div class="columns">
+        <div class="column">
+          <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
+        </div>
+        <div class="column has-text-right has-text-left-mobile">
+          ${filterForm(geoip, legislatures, storage, location, user, dispatch)}
+        </div>
       </div>
+      <div></div>
     </div>
   `
 }
