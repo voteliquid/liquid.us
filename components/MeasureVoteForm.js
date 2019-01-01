@@ -126,7 +126,7 @@ class MeasureVoteForm extends Component {
           },
         },
         saving_vote: false,
-        showMeasureVoteForm: true,
+        showMeasureVoteForm: !this.state.showMeasureVoteForm,
       })
       if (!prev_vote || this.location.path.match(/^\/(nominations|legislation)\/[\w-]+\/vote$/)) {
         const commentParam = form.comment ? `/votes/${my_vote.id}` : ''

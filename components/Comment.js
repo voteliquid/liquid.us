@@ -5,7 +5,8 @@ const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = class Comment extends Component {
   onclick(event) {
-    const vote = this.props.endorsed_vote || this.props
+    const endorsed_vote = !(this.state.user && this.state.user.id === this.props.user_id && this.props.comment) && this.props.endorsed_vote
+    const vote = endorsed_vote || this.props
     if (~event.currentTarget.className.indexOf('privacy-indicator')) {
       event.preventDefault()
       this.setProps({ showPrivacyIndicator: true }).render(this.props)
@@ -21,7 +22,8 @@ module.exports = class Comment extends Component {
   }
   onchange(event) {
     const { user } = this.state
-    const { measure_id, short_id, id: vote_id } = this.props.endorsed_vote || this.props
+    const endorsed_vote = !(this.state.user && this.state.user.id === this.props.user_id && this.props.comment) && this.props.endorsed_vote
+    const { measure_id, short_id, id: vote_id } = endorsed_vote || this.props
     const is_public = event.target.value === 'true'
 
     return this.api('/rpc/endorse', {
@@ -48,7 +50,8 @@ module.exports = class Comment extends Component {
   }
   endorse() {
     const { measures = {}, reps = [], user } = this.state
-    const { fullname, measure_id, short_id, id: vote_id, public: is_public } = this.props.endorsed_vote || this.props
+    const endorsed_vote = !(this.state.user && this.state.user.id === this.props.user_id && this.props.comment) && this.props.endorsed_vote
+    const { fullname, measure_id, short_id, id: vote_id, public: is_public } = endorsed_vote || this.props
     const measure = measures[short_id]
     const position = measure && measure.vote_position
     if (!user) {
@@ -120,7 +123,8 @@ module.exports = class Comment extends Component {
     if (!window.confirm(`Are you sure you want to remove this endorsement?`)) {
       return
     }
-    const { measure_id, short_id, id: vote_id } = this.props.endorsed_vote || this.props
+    const endorsed_vote = !(this.state.user && this.state.user.id === this.props.user_id && this.props.comment) && this.props.endorsed_vote
+    const { measure_id, short_id, id: vote_id } = endorsed_vote || this.props
     return this.api('/rpc/unendorse', {
       method: 'POST',
       body: JSON.stringify({ vote_id }),
@@ -249,7 +253,7 @@ module.exports = class Comment extends Component {
     })
   }
   render() {
-    const endorsed_vote = this.props.endorsed_vote
+    const endorsed_vote = !(this.state.user && this.state.user.id === this.props.user_id && this.props.comment) && this.props.endorsed_vote
     const vote = this.props
     const {
       comment, author_username, endorsed, updated_at, fullname, id,
