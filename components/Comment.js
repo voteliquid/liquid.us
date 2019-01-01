@@ -292,11 +292,13 @@ module.exports = class Comment extends Component {
           <div class="media-content" style="${`border-left: 1px solid ${position === 'yea' ? 'hsl(141, 71%, 87%)' : 'hsl(348, 100%, 93%)'}; margin-left: -2rem; padding-left: 2rem;`}">
             <div>
               <span class="has-text-weight-semibold">
-                ${username || twitter_username
-                  ? [`<a href="/${twitter_username ? `twitter/${twitter_username}` : username}">${fullname}</a>`]
-                  : anonymousName}
+                ${!is_public && user && user_id === user.id
+                  ? 'You'
+                  : username || twitter_username
+                    ? [`<a href="/${twitter_username ? `twitter/${twitter_username}` : username}">${fullname}</a>`]
+                    : anonymousName}
               </span>
-              ${[`<span>voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${onBehalfOfCount ? ` on behalf of <span class="has-text-weight-semibold">${onBehalfOfCount}</span> ${onBehalfOfCount === 1 ? 'person' : 'people'}` : ''}</span>`]}
+              ${[`<span>voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${onBehalfOfCount > 2 ? ` on behalf of <span class="has-text-weight-semibold">${onBehalfOfCount}</span> people` : ''}${is_public ? '' : ' privately'}</span>`]}
               ${source_url ? [`<span class="is-size-7"> via <a href="${source_url}" target="_blank">${source_url.split('/')[2] || source_url}</a></span>`] : ''}
             </div>
             ${[show_bill ? `<div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>` : '']}
@@ -323,11 +325,6 @@ module.exports = class Comment extends Component {
                     <span>Edit</span>
                   </a>
                 `] : ''}
-                <span class="${`has-text-grey-lighter ${!is_public && fullname ? '' : 'is-hidden'}`}">&bullet;</span>
-                <a href="#" onclick=${this} class="${`has-text-grey-light privacy-indicator ${!is_public && fullname ? '' : 'is-hidden'}`}">
-                  <span class="icon is-small"><i class="${`${is_public || !fullname ? 'fa fa-globe-americas' : 'far fa-address-book'}`}"></i></span>
-                  <span>${is_public || !fullname ? 'Public' : 'Private'}</span>
-                </a>
                 ${is_public || !fullname ? [`
                   <span class="has-text-grey-lighter">&bullet;</span>
                   <a title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-facebook"></i></span></a>
