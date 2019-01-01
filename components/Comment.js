@@ -117,6 +117,9 @@ module.exports = class Comment extends Component {
     if (!user) {
       return this.location.redirect('/join')
     }
+    if (!window.confirm(`Are you sure you want to remove this endorsement?`)) {
+      return
+    }
     const { measure_id, short_id, id: vote_id } = this.props.endorsed_vote || this.props
     return this.api('/rpc/unendorse', {
       method: 'POST',

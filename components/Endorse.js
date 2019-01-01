@@ -74,6 +74,9 @@ class Endorsed extends Component {
     if (!user) {
       return this.location.redirect('/join')
     }
+    if (!window.confirm(`Are you sure you want to remove this endorsement?`)) {
+      return
+    }
     const { short_id, id: vote_id } = this.props
     const measure = measures[short_id]
     const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
