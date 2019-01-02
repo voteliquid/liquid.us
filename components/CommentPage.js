@@ -84,8 +84,7 @@ module.exports = class CommentPage extends Component {
     })
   }
   fetchComment(id, measure) {
-    return this.api(`/votes_detailed?measure_id=eq.${measure.id}&id=eq.${id}`)
-    .then(([comment]) => (comment))
+    return this.api(`/votes_detailed?measure_id=eq.${measure.id}&id=eq.${id}`).then(([comment]) => (comment))
   }
   onpagechange(oldProps) {
     if (this.props.url !== oldProps.url) {
@@ -100,7 +99,7 @@ module.exports = class CommentPage extends Component {
     return this.html`<div>${
       loading_measure
         ? LoadingIndicator.for(this)
-        : measure
+        : measure && measure.comment
           ? CommentDetailPage.for(this, { measure })
           : CommentNotFoundPage.for(this)
     }</div>`
