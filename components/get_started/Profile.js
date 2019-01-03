@@ -47,7 +47,7 @@ module.exports = class PickUsernamePage extends Component {
     return this.api(`/users?select=id&id=eq.${this.state.user.id}`, {
       method: 'PATCH',
       headers: { Prefer: 'return=representation' },
-      body: JSON.stringify({ username }),
+      body: JSON.stringify({ username, public_profile: true }),
     })
     .then(() => {
       if (this.isBrowser && window._loq) window._loq.push(['tag', 'Created Public Profile'])
