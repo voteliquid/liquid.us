@@ -70,7 +70,7 @@ class VoteShareButtons extends Component {
 class Endorsed extends Component {
   onclick(event) {
     event.preventDefault()
-    const { measures = {}, reps = [], user } = this.state
+    const { measures = {}, offices = [], user } = this.state
     if (!user) {
       return this.location.redirect('/join')
     }
@@ -79,8 +79,8 @@ class Endorsed extends Component {
     }
     const { short_id, id: vote_id } = this.props
     const measure = measures[short_id]
-    const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-    const officeId = repsInChamber[0] && repsInChamber[0].office_id
+    const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
+    const officeId = officesInChamber[0] && officesInChamber[0].id
     return this.api('/rpc/unendorse', {
       method: 'POST',
       body: JSON.stringify({ vote_id }),
@@ -129,7 +129,7 @@ class Endorsed extends Component {
 class Unendorsed extends Component {
   onclick(event) {
     event.preventDefault()
-    const { measures = {}, reps = [], user } = this.state
+    const { measures = {}, offices = [], user } = this.state
     const { short_id, id: vote_id, public: is_public } = this.props
     const measure = measures[short_id]
     if (!user) {
@@ -138,8 +138,8 @@ class Unendorsed extends Component {
       this.storage.set('endorsed_url', `/legislation/${measure.short_id}/votes/${vote_id}`)
       return this.location.redirect('/join')
     }
-    const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-    const officeId = repsInChamber[0] && repsInChamber[0].office_id
+    const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
+    const officeId = officesInChamber[0] && officesInChamber[0].id
     return this.api('/rpc/endorse', {
       method: 'POST',
       body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: is_public }),
@@ -192,14 +192,14 @@ class Unendorsed extends Component {
 class AlreadyVoted extends Component {
   onclick(event) {
     event.preventDefault()
-    const { measures = {}, reps = [], user } = this.state
+    const { measures = {}, offices = [], user } = this.state
     if (!user) {
       return this.location.redirect('/join')
     }
     const { short_id, id: vote_id, public: is_public } = this.props.vote
     const measure = measures[short_id]
-    const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-    const officeId = repsInChamber[0] && repsInChamber[0].office_id
+    const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
+    const officeId = officesInChamber[0] && officesInChamber[0].id
     return this.api('/rpc/endorse', {
       method: 'POST',
       body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: is_public }),

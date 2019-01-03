@@ -6,7 +6,7 @@ const NotFound = require('./NotFound')
 
 module.exports = class MeasureDetailsPage extends Component {
   oninit() {
-    const { config, measures = {}, reps = [] } = this.state
+    const { config, measures = {}, offices = [] } = this.state
     const { params } = this.props
     const measure = measures[params.short_id]
 
@@ -54,11 +54,11 @@ module.exports = class MeasureDetailsPage extends Component {
         },
       })
 
-      const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-      const officeId = repsInChamber[0] && repsInChamber[0].office_id
+      const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
+      const officeIds = officesInChamber.map((office) => office.id)
 
       return this.fetchComments(measure.id, measure.short_id)
-        .then(() => this.fetchConstituentVotes(measure, officeId))
+        .then(() => this.fetchConstituentVotes(measure, officeIds))
         .then(() => this.fetchTopComments(measure.id, measure.short_id))
         .then(() => this.fetchProxyVotes(measure.id, measure.short_id))
     })
@@ -68,9 +68,10 @@ module.exports = class MeasureDetailsPage extends Component {
       return { error, loading_measure: false }
     })
   }
-  fetchConstituentVotes(measure, office_id) {
+  fetchConstituentVotes(measure, office_ids) {
     const { id, short_id } = measure
-    const officeParam = office_id && measure.legislature_name === 'U.S. Congress' ? `&office_id=eq.${office_id}` : '&limit=1'
+    if (!Array.isArray(office_ids)) office_ids = [office_ids]
+    const officeParam = office_ids && measure.legislature_name === 'U.S. Congress' ? `&office_id=in.(${office_ids.join(',')})` : '&limit=1'
     return this.api(`/measure_votes?measure_id=eq.${id}${officeParam}`).then((results) => {
       const votes = results[0] || {}
       const measures = this.state.measures || {}

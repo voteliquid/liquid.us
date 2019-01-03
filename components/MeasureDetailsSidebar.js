@@ -8,7 +8,7 @@ module.exports = class MeasureDetailsSidebar extends Component {
   render() {
     const l = this.props
     const { user } = this.props
-    const reps = (this.state.reps || []).filter(({ office_chamber, legislature_name }) => office_chamber === l.chamber && legislature_name === l.legislature_name)
+    const reps = (this.state.reps || []).filter(({ chamber, legislature }) => chamber === l.chamber && legislature.name === l.legislature_name)
     const showStatusTracker = l.legislature_name === 'U.S. Congress' && l.introduced_at && (l.type === 'HR' || l.type === 'S')
     const measureUrl = l.author_username
       ? `/${l.author_username}/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`
@@ -28,7 +28,7 @@ module.exports = class MeasureDetailsSidebar extends Component {
         </div>
         ${reps && reps.length ? MeasureRepsPanel.for(this, { measure: l, reps }) : ''}
         ${PanelTitleBlock.for(this, { title: 'Votes' }, 'title-votes')}
-        ${MeasureVoteCounts.for(this, { measure: l, reps })}
+        ${MeasureVoteCounts.for(this, { measure: l, offices: this.state.offices })}
         ${PanelTitleBlock.for(this, { title: 'Info' }, 'title-info')}
         ${MeasureInfoPanel.for(this, { measure: l, showStatusTracker })}
         ${MeasureActionsPanel.for(this, { measure: l, user })}
@@ -154,13 +154,15 @@ class MeasureInfoPanel extends Component {
 class MeasureVoteCounts extends Component {
   render() {
     const { APP_NAME } = this.state.config
-    const { measure, reps = [] } = this.props
+    const { measure, offices = [] } = this.props
     const {
       type, constituent_yeas, constituent_nays, yeas, nays,
       legislature_name, chamber, delegate_name, vote_position, short_id
     } = measure
 
-    const localLegislatureName = reps[0] && reps[0].office_short_name
+    const localLegislatureName = offices
+      .filter((office) => office.legislature.name === measure.legislature_name && (!office.chamber || office.chamber === measure.chamber))
+      .map((office) => office.short_name).pop()
     const chamberNames = {
       'U.S. Congress': { Upper: 'Senate', Lower: 'House' },
       'CA': { Upper: 'Senate', Lower: 'Assembly' },
@@ -200,7 +202,7 @@ class MeasureVoteCounts extends Component {
                 <td class="has-text-right">${yeas || 0}</td>
                 <td class="has-text-right">${nays || 0}</td>
               </tr>
-              ${reps.length ? [`
+              ${offices.length && localLegislatureName ? [`
               <tr>
                 <td class="has-text-left has-text-grey">${localLegislatureName}</td>
                 <td class="has-text-right">${constituent_yeas || 0}</td>
@@ -260,7 +262,7 @@ class MeasureRepsPanel extends Component {
             ? `We told your rep${reps.length > 1 ? 's' : ''} to vote ${measure.vote_position}`
             : `Vote to tell your rep${reps.length > 1 ? 's' : ''}`}
           </h4>
-          ${reps.map((rep) => RepSnippet.for(this, { rep }, `sidebar-rep-${rep.user_id}`))}
+          ${reps.map((rep) => RepSnippet.for(this, { rep: rep.office_holder, office: rep }, `sidebar-rep-${rep.office_holder.user_id}`))}
         </div>
       </div>
     `
@@ -269,7 +271,7 @@ class MeasureRepsPanel extends Component {
 
 class RepSnippet extends Component {
   render() {
-    const { rep } = this.props
+    const { rep, office } = this.props
     return this.html`
       <div>
         <div class="media" style="margin-bottom: .5rem;">
@@ -284,7 +286,7 @@ class RepSnippet extends Component {
             <a href=${`/${rep.username}`}>
               <strong>${rep.first_name} ${rep.last_name}</strong>
             </a>
-            <p class="is-size-7">${rep.office_name}</p>
+            <p class="is-size-7">${office.name}</p>
           </div>
         </div>
       </div>

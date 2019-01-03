@@ -7,7 +7,7 @@ const fetchVoteCount = require('./MeasureDetailsPage').prototype.fetchConstituen
 
 module.exports = class MeasureVotePage extends Component {
   oninit() {
-    const { measures = {}, reps = [] } = this.state
+    const { measures = {}, offices = [] } = this.state
     const { params } = this.props
 
     if (!measures[params.short_id]) {
@@ -15,8 +15,8 @@ module.exports = class MeasureVotePage extends Component {
     }
 
     return fetchMeasure.call(this, params.short_id).then((measure) => {
-      const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-      const officeId = repsInChamber[0] && repsInChamber[0].office_id
+      const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
+      const officeId = officesInChamber[0] && officesInChamber[0].id
 
       this.setState({
         loading_measure: false,

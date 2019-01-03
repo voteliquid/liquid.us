@@ -9,7 +9,7 @@ const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = class CommentPage extends Component {
   oninit() {
-    const { config, measures = {}, reps = [] } = this.state
+    const { config, measures = {}, offices = [] } = this.state
     const { params } = this.props
 
     const url = `/measures_detailed?short_id=eq.${params.short_id}`
@@ -37,8 +37,8 @@ module.exports = class CommentPage extends Component {
         return this.setState({ loading_measure: false })
       }
 
-      const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-      const officeId = repsInChamber[0] && repsInChamber[0].office_id
+      const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
+      const officeId = officesInChamber[0] && officesInChamber[0].id
       return fetchConstituentVotes.call(this, measure, officeId).then(() => {
         return this.fetchComment(params.comment_id, measure).then(comment => {
           if (!comment) {

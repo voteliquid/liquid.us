@@ -72,11 +72,11 @@ class MeasureVoteForm extends Component {
     const fetchConstituentVotes = require('./MeasureDetailsPage').prototype.fetchConstituentVotes
 
     const { measure } = this.props
-    const { user, reps } = this.state
+    const { user, offices = [] } = this.state
     const { redirect } = this.location
     const { storage } = this
-    const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-    const officeId = repsInChamber[0] && repsInChamber[0].office_id
+    const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
+    const officeId = officesInChamber[0] && officesInChamber[0].id
 
     if (!form.vote_position) {
       return { error: 'You must choose a position.' }

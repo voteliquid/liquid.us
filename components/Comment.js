@@ -49,7 +49,7 @@ module.exports = class Comment extends Component {
     })
   }
   endorse() {
-    const { measures = {}, reps = [], user } = this.state
+    const { measures = {}, offices = [], user } = this.state
     const endorsed_vote = !(this.state.user && this.state.user.id === this.props.user_id && this.props.comment) && this.props.endorsed_vote
     const { fullname, measure_id, short_id, id: vote_id, public: is_public } = endorsed_vote || this.props
     const measure = measures[short_id]
@@ -87,8 +87,8 @@ module.exports = class Comment extends Component {
           }
         }
       })
-      const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-      const officeId = repsInChamber[0] && repsInChamber[0].office_id
+      const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
+      const officeId = officesInChamber[0] && officesInChamber[0].id
       return this.fetchConstituentVotes(measure, officeId)
     })
     .then(() => this.fetchTopComments(measure_id, short_id))
@@ -116,7 +116,7 @@ module.exports = class Comment extends Component {
     .catch((error) => console.log(error))
   }
   unendorse() {
-    const { measures = {}, reps = [], user } = this.state
+    const { measures = {}, offices = [], user } = this.state
     if (!user) {
       return this.location.redirect('/join')
     }
@@ -140,8 +140,8 @@ module.exports = class Comment extends Component {
           }
         }
       })
-      const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-      const officeId = repsInChamber[0] && repsInChamber[0].office_id
+      const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
+      const officeId = officesInChamber[0] && officesInChamber[0].id
       return this.fetchConstituentVotes(measure, officeId)
     })
     .then(() => this.fetchTopComments(measure_id, short_id))
