@@ -1,5 +1,5 @@
 const noop = () => {}
-const { API_URL } = process.env
+const { API_URL, WWW_URL } = process.env
 const fetch = require('isomorphic-fetch')
 const { runtime } = require('raj')
 const { wire } = require('viperhtml')
@@ -68,9 +68,8 @@ exports.loadPage = (url, status = 200, dispatch, scroll = true) => {
   })
 }
 
-exports.avatarURL = ({ gravatar_hash, bioguide_id, twitter_username }) => {
-  if (twitter_username) return `https://avatars.io/twitter/${twitter_username}`
-  if (bioguide_id) return `https://theunitedstates.io/images/congress/225x275/${bioguide_id}.jpg`
+exports.avatarURL = ({ gravatar_hash, twitter_username }) => {
+  if (twitter_username) return `${WWW_URL}/rpc/avatarsio/${twitter_username}`
   return `https://www.gravatar.com/avatar/${gravatar_hash}?d=mm&s=200`
 }
 
