@@ -257,9 +257,9 @@ const initialize = (prevQuery, location, storage, user) => (dispatch) => {
   const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
 
   const orders = {
-    upcoming: '&status=not.eq.Introduced&introduced_at=not.is.null&failed_lower_at=is.null&passed_lower_at=is.null&order=legislature_name.desc,next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
-    new: '&introduced_at=not.is.null&order=introduced_at.desc',
-    proposed: '&published=is.true&introduced_at=is.null&order=created_at.desc',
+    upcoming: '&status=not.eq.Introduced&introduced_at=not.is.null&failed_lower_at=is.null&passed_lower_at=is.null&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc',
+    new: '&introduced_at=not.is.null&order=introduced_at.desc,number.desc',
+    proposed: '&published=is.true&introduced_at=is.null&order=created_at.desc,title.asc',
   }
 
   const order = orders[query.order || 'upcoming']
