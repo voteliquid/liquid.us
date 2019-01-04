@@ -47,6 +47,11 @@ module.exports = (state, html, bundleUrl) => {
             position: relative;
           }
 
+          #guidelines {
+             display: inline-block;
+             align: center;
+           }
+
           .router {
             min-height: 50vh;
           }
@@ -90,6 +95,7 @@ module.exports = (state, html, bundleUrl) => {
           .endorse-control .is-light, .endorse-control .is-light:hover {
             border-color: #cecece;
           }
+
         </style>
         <meta property="og:title" content="${wi_image ? `Wisconsin Legislation` : title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:description" content="${wi_image ? `Vote now on extraordinary session bills.` : description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
