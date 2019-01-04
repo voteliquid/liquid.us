@@ -5,7 +5,7 @@ const Sidebar = require('./MeasureDetailsSidebar')
 const Endorse = require('./Endorse')
 const { fetchConstituentVotes } = require('./MeasureDetailsPage').prototype
 
-module.exports = class CommentPage extends Component {
+module.exports = class ReportCommentPage extends Component {
   oninit() {
     const { config, measures = {}, reps = [] } = this.state
     const { params } = this.props
@@ -108,7 +108,7 @@ module.exports = class CommentPage extends Component {
       headers: { Prefer: 'return=representation' },
       body: JSON.stringify({
         reporter_id: user.id,
-        author_id: vote.author_id,
+        comment_author_id: vote.author_id,
         vote_id: params.vote_id,
         explanation: form.explanation
       })

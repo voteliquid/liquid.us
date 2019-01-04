@@ -401,7 +401,7 @@ function checkReport(user, a, b) {
         return this.api(`/reports?reporter_id=eq.${user.id}`)
           .then((reports) => {
             const usersReports = reports.id
-            return (~usersReports.indexOf(a || b)) ? 'Reported' : 'Report'
+            return (~usersReports.indexOf(a)) || (~usersReports.indexOf(b)) ? 'Reported' : 'Report'
           })
       }
     }
