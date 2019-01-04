@@ -246,7 +246,7 @@ const fetchUser = (storage) => (dispatch) => {
   const jwt = storage.get('jwt')
   if (userId && jwt) {
     dispatch({ type: 'userRequested' })
-    return api(`/users?select=id,about,intro_video_url,email,first_name,last_name,username,verified,voter_status,update_emails_preference,is_admin,address:user_addresses(id,address,city,state)&id=eq.${userId}`, { storage })
+    return api(`/users?select=id,about,intro_video_url,email,first_name,last_name,username,verified,inherit_votes,voter_status,update_emails_preference,is_admin,address:user_addresses(id,address,city,state)&id=eq.${userId}`, { storage })
     .then(users => {
       const user = {
         ...users[0],
