@@ -64,6 +64,8 @@ module.exports = class Comment extends Component {
       let confirmation_text = 'You\'ve already '
       if (measure.cur_endorsement && measure.cur_endorsement.user_id !== user.id) {
         confirmation_text += `endorsed ${this.possessive(measure.cur_endorsement.fullname)} ${position} argument`
+      } else if (measure.comment) {
+        confirmation_text += `commented. This will remove your previous comment`
       } else {
         confirmation_text += `voted ${position}`
       }
