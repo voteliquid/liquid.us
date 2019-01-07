@@ -16,6 +16,7 @@ module.exports = {
   '/:username/legislation/:short_id/import': route('Import Vote', () => import('./components/ImportVotePage')),
   '/:username/legislation/:short_id/votes/:comment_id': route('Legislation', () => import('./components/CommentPage')),
   '/:username/legislation/:short_id/edit': route('Edit Legislation', () => import('./components/EditLegislationPage')),
+  '/:username/legislation/:short_id/update': route('Update Status', () => import('./components/EditStatusPage')),
   '/legislation/:short_id/vote': route('Vote', () => import('./components/MeasureVotePage')),
   '/legislation/:short_id/votes/:comment_id': route('Bill Comment', () => import('./components/CommentPage')),
   '/sign_in': route('Sign in', () => import('./components/SignIn')),

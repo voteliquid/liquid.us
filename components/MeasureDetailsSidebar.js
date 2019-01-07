@@ -3,6 +3,7 @@ const stateNames = require('datasets-us-states-abbr-names')
 const Component = require('./Component')
 const EditButtons = require('./EditMeasureButtons')
 const MeasureShareButtons = require('./MeasureShareButtons')
+const EditUpdateButton = require('./EditUpdateButton')
 
 module.exports = class MeasureDetailsSidebar extends Component {
   render() {
@@ -51,6 +52,9 @@ class MeasureActionsPanel extends Component {
     return this.html`
       <div class="panel-block is-size-7 has-background-light" style="justify-content: center;">
         ${user && user.id === l.author_id && !l.published ? EditButtons.for(this, l) : MeasureShareButtons.for(this, l)}
+      </div>
+      <div class="panel-block is-size-7 has-background-light" style="justify-content: center;">
+      ${user && user.id === l.author_id && !l.published ? '' : EditUpdateButton.for(this, 1)}
       </div>
     `
   }

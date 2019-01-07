@@ -3,8 +3,9 @@ const MeasureProxyVotes = require('./MeasureProxyVotes')
 const Sidebar = require('./MeasureDetailsSidebar')
 const TopComments = require('./MeasureTopComments')
 const Votes = require('./MeasureVotes')
+const EditStatusForm = require('./EditStatusForm')
 
-module.exports = class MeasureDetails extends Component {
+module.exports = class MeasureDetailsStatusUpdated extends Component {
   render() {
     const { user } = this.state
     const { measure: l } = this.props
@@ -25,8 +26,9 @@ module.exports = class MeasureDetails extends Component {
           <div class="columns">
             <div class="column is-two-thirds-tablet is-three-quarters-desktop">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
-                <h2 class="title has-text-weight-normal is-5">Status: ${l.status}</h2>
-                ${l.type !== 'PN' ? MeasureSummary.for(this, { measure: l }) : ''}
+              <h2 class="title is-5">Edit Status</h2>
+              ${this.state.loading === 'populating' ? ' ' : EditStatusForm.for(this)}
+              ${l.type !== 'PN' ? MeasureSummary.for(this, { measure: l }) : ''}
               ${TopComments.for(this, { measure: l, yea: l.top_yea, nay: l.top_nay })}
               ${user ? MeasureProxyVotes.for(this, { measure: l }) : ''}
               ${Votes.for(this, { measure: l })}
