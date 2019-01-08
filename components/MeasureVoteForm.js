@@ -118,6 +118,7 @@ class MeasureVoteForm extends Component {
           ...this.state.measures,
           [measure.short_id]: {
             ...this.state.measures[measure.short_id],
+            comment: form.comment || null,
             vote_position: form.vote_position,
             delegate_rank: -1,
             delegate_name: null,

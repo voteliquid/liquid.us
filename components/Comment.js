@@ -261,7 +261,7 @@ module.exports = class Comment extends Component {
       comment, author_username, endorsed, updated_at, fullname, id,
       number, proxy_vote_count, position, short_id, title, type,
       username, user_id, public: is_public, shouldTruncate, twitter_username,
-      showPrivacyIndicator, source_url, endorsement_public, endorsement_proxy_count
+      showPrivacyIndicator, source_url, endorsement_public
     } = endorsed_vote || vote
     const { show_bill } = this.props
     const { measures, user } = this.state
@@ -319,8 +319,8 @@ module.exports = class Comment extends Component {
               </a>
               <div class="${`select ${endorsed ? '' : 'is-hidden'}`}">
                 <select name="public" onchange=${this} class="has-text-grey is-light">
-                  <option selected=${endorsement_public} value="true">Public${endorsement_proxy_count !== null ? ` (Vote Power: ${endorsement_proxy_count || 1})` : ''}</option>
-                  <option selected=${!endorsement_public} value="false">Private${endorsement_proxy_count !== null ? ` (Vote Power: 1)` : ''}</option>
+                  <option selected=${endorsement_public} value="true">Public${measure && measure.vote_power ? ` (Vote Power: ${measure.vote_power || 1})` : ''}</option>
+                  <option selected=${!endorsement_public} value="false">Private${measure && measure.vote_power ? ` (Vote Power: 1)` : ''}</option>
                 </select>
               </div>
             </div>
