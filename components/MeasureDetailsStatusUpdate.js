@@ -5,7 +5,7 @@ const TopComments = require('./MeasureTopComments')
 const Votes = require('./MeasureVotes')
 const EditStatusForm = require('./EditStatusForm')
 
-module.exports = class MeasureDetailsStatusUpdated extends Component {
+module.exports = class MeasureDetailsStatusUpdate extends Component {
   render() {
     const { user } = this.state
     const { measure: l } = this.props

@@ -73,18 +73,7 @@ module.exports = class EditStatusPage extends Component {
       return { error, loading_measure: false }
     })
   }
-  onsubmit(event, form) {
-    event.preventDefault()
 
-    const { updating_status, loading } = this.state
-
-    if (!loading) {
-      if (updating_status.id) {
-        return this.updateLegislation(event, form)
-      }
-      return this.insertLegislation(event, form)
-    }
-  }
   fetchConstituentVotes(measure, office_id) {
     const { id, short_id } = measure
     const officeParam = office_id && measure.legislature_name === 'U.S. Congress' ? `&office_id=eq.${office_id}` : '&limit=1'
