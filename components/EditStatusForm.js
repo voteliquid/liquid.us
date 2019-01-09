@@ -13,24 +13,22 @@ module.exports = class EditStatusForm extends Component {
 
   }
   updateStatus(event, form) {
-    const { updating_last_action, measure } = this.state
+    const { updating_last_action, user } = this.state
     this.setState({ loading: 'saving' })
-    const url = `${measure.author_username ? `/${measure.author_username}/` : '/'}${measure.type === 'PN' ? 'nominations' : 'legislation'}/${measure.short_id}`
 
     return this.api(`/measures?id=eq.${updating_last_action.id}`, {
       method: 'PATCH',
       headers: { Prefer: 'return=representation' },
       body: JSON.stringify(form),
     })
-    .then((actions) => {
-      const action = actions[0]
+    .then((bills) => {
+      const bill = bills[0]
       this.setState({
         loading: false,
-        yourUpdate: (this.state.yourUpdate || []).map((old) => (old.id === updating_last_action.id ? action : old)),
+        yourUpdate: (this.state.yourUpdate || []).map((old) => (old.id === updating_last_action.id ? bill : old)),
       })
- this.location.redirect(303, `${url}`)
-
-    })
+      this.location.redirect(303, `/${user.username}/legislation/${bill.short_id}`)
+      })
     .catch((api_error) => this.handleError(api_error))
   }
   handleError(api_error) {
@@ -45,8 +43,7 @@ module.exports = class EditStatusForm extends Component {
   }
   render() {
     const { updating_last_action = {}, error, loading } = this.state
-    const { actions } = updating_last_action
-    const action = actions[0]
+    const { status } = updating_last_action
 
 
     return this.html`
@@ -55,7 +52,7 @@ module.exports = class EditStatusForm extends Component {
         <div class="field">
           <label for="Title" class="label has-text-grey">Status</label>
           <div class="control">
-            <input name="" class="input" type="text" autocomplete="off" placeholder="${action}" onkeyup=${this} onchange=${this} required value="${action || ''}" />
+            <input name="status" class="input" type="text" autocomplete="off" placeholder="${status}" onkeyup=${this} onchange=${this} required value="${status || ''}" />
           </div>
         </div>
         <div class="field is-grouped">
