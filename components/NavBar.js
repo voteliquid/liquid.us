@@ -72,7 +72,7 @@ const style = `
       padding-left: 3px;
     }
 
-    @media (max-width: 1087px) {
+    @media (max-width: 720px) {
       .navbar-brand .navbar-item img {
         margin: 4px 0;
         max-height: 40px;
