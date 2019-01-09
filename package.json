@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "www.liquid.us",
   "scripts": {
+    "css-build": "node-sass --omit-source-map-url styles.scss public/styles.css",
     "start": "node server.js",
     "test": "eslint ."
   },
@@ -61,10 +62,12 @@
   },
   "devDependencies": {
     "babel-eslint": "^8.2.3",
+    "bulma": "^0.7.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.11.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.7.0"
+    "eslint-plugin-react": "^7.7.0",
+    "node-sass": "^4.11.0"
   }
 }

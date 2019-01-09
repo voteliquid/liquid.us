@@ -26,7 +26,7 @@ module.exports = (state, html, bundleUrl) => {
         <link rel="icon" type="image/png" href=${`${ASSETS_URL}/favicon.png`} />
         <link rel="apple-touch-icon" sizes="180x180" href=${`${ASSETS_URL}/apple-touch-icon.png`}>
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+        <link rel="stylesheet" href=${`${ASSETS_URL}/styles.css`}>
         <style>
           ${nprogressStyle}
 
