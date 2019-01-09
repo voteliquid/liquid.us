@@ -9,7 +9,7 @@ const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = class CommentPage extends Component {
   oninit() {
-    const { config, measures = {}, reps = [] } = this.state
+    const { config, measures = {}, offices = [] } = this.state
     const { params } = this.props
 
     const url = `/measures_detailed?short_id=eq.${params.short_id}`
@@ -37,8 +37,8 @@ module.exports = class CommentPage extends Component {
         return this.setState({ loading_measure: false })
       }
 
-      const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-      const officeId = repsInChamber[0] && repsInChamber[0].office_id
+      const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
+      const officeId = officesInChamber[0] && officesInChamber[0].id
       return fetchConstituentVotes.call(this, measure, officeId).then(() => {
         return this.fetchComment(params.comment_id, measure).then(comment => {
           if (!comment) {
@@ -84,8 +84,7 @@ module.exports = class CommentPage extends Component {
     })
   }
   fetchComment(id, measure) {
-    return this.api(`/public_votes?measure_id=eq.${measure.id}&id=eq.${id}`)
-    .then(([comment]) => (comment))
+    return this.api(`/votes_detailed?measure_id=eq.${measure.id}&id=eq.${id}`).then(([comment]) => (comment))
   }
   onpagechange(oldProps) {
     if (this.props.url !== oldProps.url) {
@@ -100,7 +99,7 @@ module.exports = class CommentPage extends Component {
     return this.html`<div>${
       loading_measure
         ? LoadingIndicator.for(this)
-        : measure
+        : measure && measure.comment
           ? CommentDetailPage.for(this, { measure })
           : CommentNotFoundPage.for(this)
     }</div>`
@@ -124,10 +123,11 @@ class CommentNotFoundPage extends Component {
 
 class CommentDetailPage extends Component {
   render() {
-    const { user } = this.state
+    const { legislatures = [], user } = this.state
     const { measure: l } = this.props
     const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
     const url = `${l.author_username ? `/${l.author_username}/` : '/'}${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`
+    const userInJurisdiction = user && legislatures && legislatures.some(({ name }) => name === l.legislature_name)
 
     return this.html`
       <section class="section">
@@ -149,8 +149,8 @@ class CommentDetailPage extends Component {
                   z-index: 9999;
                 }
               </style>
-              ${Comment.for(this, l.comment)}
-              ${l.comment ? Endorse.for(this, { vote: l.comment, vote_position: l.vote_position, user }) : ''}
+              ${Comment.for(this, { ...l.comment, shouldTruncate: false })}
+              ${l.comment && (!user || userInJurisdiction) ? Endorse.for(this, { vote: l.comment, vote_position: l.vote_position, user }) : ''}
               <br />
               <div>
                 <a class="is-size-7 has-text-grey button is-text" href="${url}">

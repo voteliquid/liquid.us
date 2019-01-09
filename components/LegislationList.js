@@ -180,20 +180,23 @@ const filterTabs = ({ geoip, legislatures, location, storage, user }, dispatch) 
   }
 
   return html()`
-    <div class="tabs">
-      <ul>
-        <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('upcoming', query)}`}">Upcoming for vote</a></li>
-        <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('new', query)}`}">Recently introduced</a></li>
-        <li class="${query.order === 'proposed' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('proposed', query)}`}">Introduced on ${APP_NAME}</a></li>
-      </ul>
-    </div>
-    <div class="columns">
-      <div class="column">
-        <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
+    <div>
+      <div class="tabs">
+        <ul>
+          <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('upcoming', query)}`}">Upcoming for vote</a></li>
+          <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('new', query)}`}">Recently introduced</a></li>
+          <li class="${query.order === 'proposed' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('proposed', query)}`}">Introduced on ${APP_NAME}</a></li>
+        </ul>
       </div>
-      <div class="column has-text-right has-text-left-mobile">
-        ${filterForm(geoip, legislatures, storage, location, user, dispatch)}
+      <div class="columns">
+        <div class="column">
+          <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
+        </div>
+        <div class="column has-text-right has-text-left-mobile">
+          ${filterForm(geoip, legislatures, storage, location, user, dispatch)}
+        </div>
       </div>
+      <div></div>
     </div>
   `
 }
@@ -202,7 +205,7 @@ const measureListRow = (s) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
   const measureUrl = s.author_username ? `/${s.author_username}/legislation/${s.short_id}` : `/legislation/${s.short_id}`
 
-  return html(`measures-list-row-${s.id}`)`
+  return `
     <div class="card highlight-hover">
       <div class="card-content">
         <div class="columns">
@@ -254,9 +257,9 @@ const initialize = (prevQuery, location, storage, user) => (dispatch) => {
   const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
 
   const orders = {
-    upcoming: '&status=not.eq.Introduced&introduced_at=not.is.null&failed_lower_at=is.null&passed_lower_at=is.null&order=legislature_name.desc,next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast',
-    new: '&introduced_at=not.is.null&order=introduced_at.desc',
-    proposed: '&published=is.true&introduced_at=is.null&order=created_at.desc',
+    upcoming: '&status=not.eq.Introduced&introduced_at=not.is.null&failed_lower_at=is.null&passed_lower_at=is.null&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc',
+    new: '&introduced_at=not.is.null&order=introduced_at.desc,number.desc',
+    proposed: '&published=is.true&introduced_at=is.null&order=created_at.desc,title.asc',
   }
 
   const order = orders[query.order || 'upcoming']
@@ -315,30 +318,30 @@ const voteButton = (s) => {
       voteBtnClass = `button is-small ${votePositionClass(s.vote_position)}`
     }
   }
-  return html(`votebutton-${s.id}`)`<a style="white-space: inherit; height: auto;" class=${voteBtnClass} href=${`/legislation/${s.short_id}`}>
-    <span class="icon" style="align-self: flex-start;"><i class=${voteBtnIcon}></i></span>
+  return [`<a style="white-space: inherit; height: auto;" class="${voteBtnClass} href=${`/legislation/${s.short_id}`}">
+    <span class="icon" style="align-self: flex-start;"><i class="${voteBtnIcon}"></i></span>
     <span class="has-text-weight-semibold">${voteBtnTxt}</span>
-  </a>`
+  </a>`]
 }
 
-const proposeButton = () => html()`
+const proposeButton = () => [`
   <a class="button is-primary" href="/legislation/propose">
     <span class="icon"><i class="fa fa-file"></i></span>
     <span class="has-text-weight-semibold">Propose Legislation</span>
   </a>
-`
+`]
 
-const summaryTooltipButton = (id, short_id, summary) => html(`summarybutton-${id}`)`
+const summaryTooltipButton = (id, short_id, summary) => [`
   <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">
     <br />
     <br />
     <span class="icon summary-tooltip">
       <i class="fa fa-lg fa-info-circle has-text-grey-lighter"></i>
-      <div class="summary-tooltip-content">${[summary]}</div>
+      <div class="summary-tooltip-content">${summary}</div>
       <div class="summary-tooltip-arrow"></div>
     </span>
   </a>
-`
+`]
 
 const noBillsMsg = (order, query) => html()`
   <div>

@@ -22,7 +22,7 @@ module.exports = {
         return [state, activateScrollReveal]
       case 'yourLegislatorsEvent':
         const [yourLegislatorsState, yourLegislatorsEffect] = YourLegislators.update(event.event, state)
-        if (event.event.type === 'repsLoaded') {
+        if (event.event.type === 'officesLoaded') {
           return [state, (dispatch) => dispatch({ type: 'loaded' })]
         }
         return [{ ...state, ...yourLegislatorsState }, mapEffect('yourLegislatorsEffect', yourLegislatorsEffect)]

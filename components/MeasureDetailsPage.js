@@ -6,7 +6,7 @@ const NotFound = require('./NotFound')
 
 module.exports = class MeasureDetailsPage extends Component {
   oninit() {
-    const { config, measures = {}, reps = [] } = this.state
+    const { config, measures = {}, offices = [] } = this.state
     const { params } = this.props
     const measure = measures[params.short_id]
 
@@ -42,7 +42,7 @@ module.exports = class MeasureDetailsPage extends Component {
         loading_measure: false,
         showMeasureVoteForm: this.location.query.action === 'add-argument',
         page_title: title,
-        page_description: `Vote directly on federal, state, and local bills and nominations. We'll notify your representatives and grade them for how well they listen to their constituents.`,
+        page_description: `Discuss with your fellow voters & be heard by your elected officials.`,
         selected_bill: measure,
         og_image_url: measureImage,
         measures: {
@@ -54,11 +54,11 @@ module.exports = class MeasureDetailsPage extends Component {
         },
       })
 
-      const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-      const officeId = repsInChamber[0] && repsInChamber[0].office_id
+      const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
+      const officeIds = officesInChamber.map((office) => office.id)
 
       return this.fetchComments(measure.id, measure.short_id)
-        .then(() => this.fetchConstituentVotes(measure, officeId))
+        .then(() => this.fetchConstituentVotes(measure, officeIds))
         .then(() => this.fetchTopComments(measure.id, measure.short_id))
         .then(() => this.fetchProxyVotes(measure.id, measure.short_id))
     })
@@ -68,9 +68,10 @@ module.exports = class MeasureDetailsPage extends Component {
       return { error, loading_measure: false }
     })
   }
-  fetchConstituentVotes(measure, office_id) {
+  fetchConstituentVotes(measure, office_ids) {
     const { id, short_id } = measure
-    const officeParam = office_id && measure.legislature_name === 'U.S. Congress' ? `&office_id=eq.${office_id}` : '&limit=1'
+    if (!Array.isArray(office_ids)) office_ids = [office_ids]
+    const officeParam = office_ids && measure.legislature_name === 'U.S. Congress' ? `&office_id=in.(${office_ids.join(',')})` : '&limit=1'
     return this.api(`/measure_votes?measure_id=eq.${id}${officeParam}`).then((results) => {
       const votes = results[0] || {}
       const measures = this.state.measures || {}
@@ -87,10 +88,10 @@ module.exports = class MeasureDetailsPage extends Component {
   }
   fetchTopComments(id, short_id) {
     const order = `order=proxy_vote_count.desc.nullslast,created_at.desc`
-    return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea&${order}`).then((comments) => {
+    return this.api(`/votes_detailed?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea&${order}`).then((comments) => {
       const yea = comments[0]
 
-      return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.nay&${order}`).then((comments) => {
+      return this.api(`/votes_detailed?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.nay&${order}`).then((comments) => {
         const nay = comments[0]
         this.setState({
           measures: {
@@ -121,20 +122,40 @@ module.exports = class MeasureDetailsPage extends Component {
   }
   fetchProxyVotes(measure_id, short_id) {
     if (this.state.user) {
-      return this.api(`/proxy_votes?measure_id=eq.${measure_id}&order=proxy_vote_count.desc,created_at.desc`)
-        .then((proxyVotes) => {
+      return this.api(`/inherited_votes_detailed?measure_id=eq.${measure_id}`).then((inheritedVotes) => {
+        return this.api(`/proxy_votes_detailed?measure_id=eq.${measure_id}&order=proxy_vote_count.desc,created_at.desc`).then((proxyVotes) => {
           this.setState({
             measures: {
               ...this.state.measures,
               [short_id]: {
                 ...this.state.measures[short_id],
-                proxyVotes,
+                proxyVotes: this.dedupeVotes(inheritedVotes.map((vote) => {
+                  return {
+                    ...vote,
+                    ...vote.proxy,
+                    fullname: vote.proxy && `${vote.proxy.first_name} ${vote.proxy.last_name}`,
+                    endorsed_vote: vote.root_vote,
+                  }
+                }).concat(proxyVotes)),
               },
             },
           })
         })
+      })
     }
     return Promise.resolve()
+  }
+  dedupeVotes(votes) {
+    const ids = {}
+    const deduped = []
+    votes.forEach((item) => {
+      const id = item.endorsed_vote ? item.endorsed_vote.id : item.id
+      if (!ids[id]) {
+        ids[id] = item
+        deduped.push(item)
+      }
+    })
+    return deduped
   }
   fetchComments(measure_id, short_id) {
     const { query } = this.location
@@ -149,7 +170,7 @@ module.exports = class MeasureDetailsPage extends Component {
       yea: '&position=eq.yea',
       nay: '&position=eq.nay',
     }
-    return this.api(`/public_votes?measure_id=eq.${measure_id}&comment=not.is.null&comment=not.eq.&order=${orders[order]}${positions[position]}`).then((comments) => {
+    return this.api(`/votes_detailed?measure_id=eq.${measure_id}&comment=not.is.null&comment=not.eq.&order=${orders[order]}${positions[position]}`).then((comments) => {
       this.setState({
         measures: {
           ...this.state.measures,
