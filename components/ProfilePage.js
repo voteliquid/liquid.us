@@ -49,6 +49,7 @@ module.exports = class ProfilePage extends Component {
         selected_profile: { ...user, votes: [], public_votes: [] },
       })
     })
+    .then(() => this.fetchMaxVotePower())
     .then(() => this.fetchIsProxyingToProfile())
     .then(() => this.fetchPublicVotes())
     .then(() => this.fetchLegislatorVotes())
@@ -62,12 +63,23 @@ module.exports = class ProfilePage extends Component {
   onpagechange() {
     return this.oninit()
   }
+  fetchMaxVotePower() {
+    const { selected_profile } = this.state
+    if (selected_profile) {
+      return this.api(`/rpc/max_vote_power`, {
+        method: 'POST',
+        body: JSON.stringify({ user_id: selected_profile.user_id, since: new Date('1970').toISOString() }),
+      })
+      .then((max_vote_power) => {
+        this.setState({ selected_profile: Object.assign(selected_profile, { max_vote_power }) })
+      })
+    }
+  }
   fetchIsProxyingToProfile() {
     const { selected_profile, user } = this.state
 
     if (selected_profile && user) { // If logged in, check if already proxying
-      return this.api(`/delegations?from_id=eq.${user.id}&to_id=eq.${selected_profile.user_id}`)
-      .then((proxies) => {
+      return this.api(`/delegations?from_id=eq.${user.id}&to_id=eq.${selected_profile.user_id}`).then((proxies) => {
         if (proxies[0]) {
           selected_profile.proxied = true
           this.setState({ selected_profile })
@@ -79,7 +91,7 @@ module.exports = class ProfilePage extends Component {
     const { selected_profile } = this.state
 
     if (selected_profile && !selected_profile.elected_office_name) {
-      return this.api(`/public_votes?user_id=eq.${selected_profile.user_id}&published=is.true&order=created_at.desc`).then(public_votes => {
+      return this.api(`/votes_detailed?user_id=eq.${selected_profile.user_id}&order=created_at.desc&limit=25`).then(public_votes => {
         selected_profile.public_votes = public_votes
         this.setState({ selected_profile })
       })

@@ -2,7 +2,6 @@ const { APP_NAME, GOOGLE_GEOCODER_KEY, WWW_DOMAIN } = process.env
 const { api, html, redirect } = require('../../helpers')
 const fetch = require('isomorphic-fetch')
 const GoogleAddressAutocompleteScript = require('../GoogleAddressAutocompleteScript')
-const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = {
   init: ({ location, storage, user }) => [{
@@ -20,9 +19,8 @@ module.exports = {
         return [{ ...state, error: null, loading: true }, patchUser(event.event, state.storage, state.user)]
       case 'redirected':
         return [state, redirect(event.url, event.status)]
-      case 'legislaturesUpdated':
       case 'loaded':
-      case 'repsUpdated':
+      case 'officesUpdated':
       case 'userUpdated':
       default:
         return [{ ...state, error: null, loading: false }]
@@ -231,31 +229,8 @@ const upsertAddressAndContinue = (formData, { storage, user }, dispatch) => {
         address: { address, city, state },
       },
     })
-    return api('/rpc/user_offices', {
-      method: 'POST',
-      body: JSON.stringify({ user_id: user.id }),
-      storage,
-    })
-    .then((reps) => {
-      dispatch({ type: 'repsUpdated', reps: reps || [], reps_loaded: true })
-    })
-  })
-  .then(() => {
-    return api(`/legislatures?or=(short_name.eq.${city},short_name.eq.${state},short_name.eq.US-Congress)`, {
-      storage,
-    }).then((legislatures) => {
-      dispatch({
-        type: 'legislaturesUpdated',
-        legislatures: (legislatures || []).sort((a, b) => {
-          if (a.short_name === city && b.short_name === state) return 1
-          if (a.short_name === state && b.short_name === city) return -1
-          return 0
-        }).map((legislature) => {
-          legislature.abbr = legislature.name
-          legislature.name = stateNames[legislature.name] || legislature.name
-          return legislature
-        }),
-      })
+    return api('/user_offices', { storage }).then((offices) => {
+      dispatch({ type: 'officesUpdated', offices: offices || [], offices_loaded: true })
     })
   })
   .then(() => {

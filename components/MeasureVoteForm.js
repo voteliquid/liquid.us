@@ -72,12 +72,11 @@ class MeasureVoteForm extends Component {
     const fetchConstituentVotes = require('./MeasureDetailsPage').prototype.fetchConstituentVotes
 
     const { measure } = this.props
-    const { user, reps } = this.state
+    const { user, offices = [] } = this.state
     const { redirect } = this.location
     const { storage } = this
-    const prev_vote = measure.vote_position
-    const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-    const officeId = repsInChamber[0] && repsInChamber[0].office_id
+    const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
+    const officeId = officesInChamber[0] && officesInChamber[0].id
 
     if (!form.vote_position) {
       return { error: 'You must choose a position.' }
@@ -119,6 +118,7 @@ class MeasureVoteForm extends Component {
           ...this.state.measures,
           [measure.short_id]: {
             ...this.state.measures[measure.short_id],
+            comment: form.comment || null,
             vote_position: form.vote_position,
             delegate_rank: -1,
             delegate_name: null,
@@ -128,12 +128,28 @@ class MeasureVoteForm extends Component {
         saving_vote: false,
         showMeasureVoteForm: !this.state.showMeasureVoteForm,
       })
-      if (!prev_vote || this.location.path.match(/^\/(nominations|legislation)\/[\w-]+\/vote$/)) {
-        const commentParam = form.comment ? `/votes/${my_vote.id}` : ''
-        if (measure.type === 'PN') {
-          return redirect(303, `/nominations/${measure.short_id}${commentParam}`)
+
+      const type = measure.type === 'PN' ? 'nominations' : 'legislation'
+      const username = measure.author_username ? `/${measure.author_username}` : ''
+      const measureUrl = `${username}/${type}/${measure.short_id}`
+      const elem = document.getElementById('measure-vote-form')
+
+      // redirect back to measure page or vote page if on vote form page
+      if (this.location.path.match(/\/(nominations|legislation)\/[\w-]+\/vote$/)) {
+        if (form.comment) {
+          return redirect(303, `${measureUrl}/votes/${my_vote.id}`)
         }
-        return redirect(303, `/legislation/${measure.short_id}${commentParam}`)
+        return redirect(303, measureUrl)
+      }
+
+      // otherwise, scroll measure vote form into view (we are on measure page)
+      if (elem) {
+        const pos = elem.getBoundingClientRect()
+        if (pos) {
+          window.scrollTo(0, pos.y, { behavior: 'smooth' })
+        } else {
+          return redirect(303, measureUrl)
+        }
       }
     }))
     .catch((error) => {

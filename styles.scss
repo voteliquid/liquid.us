@@ -1,0 +1,5 @@
+// Fix navbar hamburgering too early
+$navbar-breakpoint: 720px; // when logged_in navbar items start overlapping
+
+// Extend from Bulma defaults
+@import "./node_modules/bulma/bulma.sass";
