@@ -318,7 +318,7 @@ const voteButton = (s) => {
       voteBtnClass = `button is-small ${votePositionClass(s.vote_position)}`
     }
   }
-  return [`<a style="white-space: inherit; height: auto;" class="${voteBtnClass} href=${`/legislation/${s.short_id}`}">
+  return [`<a style="white-space: inherit; height: auto;" class="${voteBtnClass}" href="${`/legislation/${s.short_id}`}">
     <span class="icon" style="align-self: flex-start;"><i class="${voteBtnIcon}"></i></span>
     <span class="has-text-weight-semibold">${voteBtnTxt}</span>
   </a>`]
