@@ -46,16 +46,16 @@ module.exports = {
 
       <section onconnected="${() => dispatch({ type: 'connected' })}" class="hero is-link is-bold is-fullheight subtract-toolbar">
         <div class="hero-body">
-          <div class="container reveal">
-            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile delayed">Healthier democracy for the modern world</h2>
+          <div class="container reveal has-text-centered-mobile">
+            <h2 class="subtitle is-4 is-size-5-mobile has-text-weight-light"><em>Healthier democracy for 2019</em></h2>
+            <br />
+            <h2 class="title is-2 is-size-1-desktop is-hidden-mobile delayed">Welcome to Liquid</h2>
+            <br />
+            <h3 class="title is-4 is-size-4-mobile delayed1">Be heard on key issues.</h3>
+            <h3 class="title is-4 is-size-4-mobile delayed2">Pick your own representatives.</h3>
             <br />
             <br />
-            <h3 class="subtitle is-3 is-size-4-mobile delayed1">Where everyone has a voice on every issue</h3>
-            <h4 class="subtitle is-3 is-size-4-mobile delayed1">We can trust our representatives</h4>
-            <h4 class="subtitle is-3 is-size-4-mobile delayed1">And if they lose our trust, we can <strong>replace them</strong> immediately.</h4>
-            <br />
-            <br />
-            <div class="delayed2 has-text-centered-mobile">
+            <div class="delayed3 has-text-centered-mobile">
               ${!state.user ? [`
                 <a class="button is-link is-inverted is-medium" href="/join">
                   <span class="icon"><i class="fa fa-star"></i></span>
@@ -66,9 +66,9 @@ module.exports = {
           </div>
         </div>
         <div class="hero-footer">
-          <div class="container has-text-centered" style="position: relative; bottom: 40px; opacity: .4">
-            <span class="learn-more is-hidden-mobile" style="cursor: default">Learn more</span><br />
-            <span class="icon is-large  down-arrow"><i class="fa fa-2x fa-chevron-down"></i></span>
+          <div class="container has-text-centered down-arrow" style="position: relative; bottom: 40px;">
+            <span style="cursor: default">more</span><br />
+            <span class="icon is-large "><i class="fa fa-2x fa-chevron-down"></i></span>
           </div>
         </div>
         <style>
@@ -98,6 +98,14 @@ module.exports = {
             71% { opacity: 0; transform: scale(0.9) translate(0, 20px); }
             100% { opacity: 1; transform: scale(1) translate(0, 0); }
           }
+          .delayed3 {
+            animation: delayed3-animation 3.8s cubic-bezier(0.6, 0.2, 0.1, 1);
+          }
+          @keyframes delayed3-animation {
+            0% { opacity: 0; }
+            79% { opacity: 0; transform: scale(0.9) translate(0, 20px); }
+            100% { opacity: 1; transform: scale(1) translate(0, 0); }
+          }
           .down-arrow {
             animation: down-arrow-animation 2s infinite;
             animation-delay: 3s;
@@ -105,16 +113,8 @@ module.exports = {
           }
           @keyframes down-arrow-animation {
             0% { transform: translate(0, 0); opacity: 0; }
-            50% { opacity: 1; }
+            50% { opacity: .4; }
             100% { transform: translate(0px, 20px); opacity: 0; }
-          }
-          .learn-more {
-            animation: fadein 4s;
-          }
-          @keyframes fadein {
-            0% { opacity: 0; }
-            75% { opacity: 0; }
-            100% { opacity: 1; }
           }
         </style>
       </section>
@@ -122,7 +122,7 @@ module.exports = {
       <section class="hero is-dark is-bold is-fullheight">
         <div class="hero-body">
           <div class="container">
-            <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Right now, <span class="has-text-danger">a single person</span> chosen from a limited ballot, serves as the only representative for <span class="has-text-danger">a million of us</span>.</h2>
+            <p class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Before Liquid, we only got <span class="has-text-danger">one</span> elected rep per district.</p>
             <br />
             <br />
             <br />
@@ -130,7 +130,8 @@ module.exports = {
             <br />
             <br />
             <br />
-            <p class="subtitle is-3 is-size-2-desktop is-size-4-mobile reveal">What if each of us could pick whoever we wanted — <strong>personal representatives</strong> — to more closely champion our values?</p>
+            <p class="title is-3 is-size-2-desktop is-size-4-mobile reveal"><strong>Personal Representatives</strong></p>
+            <p class="subtitle is-4 is-size-3-desktop is-size-5-mobile reveal">Liquid lets us pick whoever we want to champion our values.</p>
           </div>
         </div>
       </section>
@@ -138,19 +139,19 @@ module.exports = {
       <section class="hero is-light is-bold is-fullheight">
         <div class="hero-body">
           <div class="container">
-            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal">Who would you choose?</h2>
+            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal">Would you choose:</h2>
             <br />
             <br />
             <br />
-            <h3 class="subtitle is-4 is-size-3-desktop reveal">A more trustworthy politician?</h3>
+            <h3 class="subtitle has-text-weight-light is-4 is-size-3-desktop reveal">A more trustworthy politician?</h3>
             <br />
             <br />
             <br />
-            <h3 class="subtitle is-4 is-size-3-desktop reveal">A favorite expert?</h3>
+            <h3 class="subtitle has-text-weight-light is-4 is-size-3-desktop reveal">A favorite expert?</h3>
             <br />
             <br />
             <br />
-            <h4 class="subtitle is-4 is-size-3-desktop reveal">A family member?</h4>
+            <h4 class="subtitle has-text-weight-light is-4 is-size-3-desktop reveal">A family member?</h4>
           </div>
         </div>
       </section>
@@ -159,23 +160,14 @@ module.exports = {
       <section class="hero is-dark is-bold is-fullheight">
         <div class="hero-body">
           <div class="container">
-            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal">And what if we could <span class="has-text-info">represent ourselves</span> when we wanted?</h2>
-          </div>
-        </div>
-      </section>
-
-      <section class="hero is-light is-bold is-fullheight">
-        <div class="hero-body">
-          <div class="container">
-            <p class="title is-2 is-size-3-mobile reveal">Now we can.</p>
+            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal"><span class="has-text-info">Represent ourselves</span> when we want</h2>
+            <br />
+            <h2 class="subtitle is-3 is-size-4-mobile reveal">${APP_NAME} makes a new kind of democracy possible.</h2>
             <br />
             <br />
             <br />
-            <h2 class="subtitle is-3 is-size-4-mobile reveal">${APP_NAME} makes a new kind of democracy possible:</h2>
-            <br />
-            <br />
-            <br />
-            <h4 class="subtitle is-3 is-size-4-mobile reveal">Vote directly on policy when you want, and choose personal proxies to represent you the rest of the time.</h4>
+            <p class="subtitle is-3 is-size-4-mobile reveal">Vote directly on policy where you feel informed.</p>
+            <p class="subtitle is-3 is-size-4-mobile reveal">Choose personal representatives the rest of the time.</p>
           </div>
         </div>
       </section>
