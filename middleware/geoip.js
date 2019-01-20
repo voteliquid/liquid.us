@@ -10,25 +10,26 @@ function geoip(req, res) {
     ip = '198.27.235.190'
   }
 
-  const timeout = setTimeout(() => {
-    res.json(null)
-  }, 2000)
+  let responded = false
+  const respond = (geoip) => {
+    if (responded === false) {
+      responded = true
+      res.json(geoip)
+    }
+  }
+  const timeout = setTimeout(respond, 2000)
 
   fetch(`http://ip-api.com/json/${ip}${IPAPI_KEY ? `?key=${IPAPI_KEY}` : ''}`, {
     headers: { Accept: 'application/json' },
   })
   .then(response => response.json())
   .then((geoip) => {
-    if (timeout) {
-      clearTimeout(timeout)
-      res.json(geoip)
-    }
+    if (timeout) clearTimeout(timeout)
+    respond(geoip)
   })
   .catch((error) => {
     console.error(error)
-    if (timeout) {
-      clearTimeout(timeout)
-      res.json(null)
-    }
+    if (timeout) clearTimeout(timeout)
+    respond(null)
   })
 }
