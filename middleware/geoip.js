@@ -14,10 +14,10 @@ function geoip(req, res) {
   const respond = (geoip) => {
     if (responded === false) {
       responded = true
-      res.json(geoip)
+      res.json(geoip || null)
     }
   }
-  const timeout = setTimeout(respond, 2000)
+  const timeout = setTimeout(respond, 1000)
 
   fetch(`http://ip-api.com/json/${ip}${IPAPI_KEY ? `?key=${IPAPI_KEY}` : ''}`, {
     headers: { Accept: 'application/json' },
