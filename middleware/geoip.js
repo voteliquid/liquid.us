@@ -1,3 +1,4 @@
+const { IPAPI_KEY } = process.env
 const fetch = require('node-fetch')
 
 module.exports = geoip
@@ -13,11 +14,11 @@ function geoip(req, res) {
     res.json(null)
   }, 2000)
 
-  fetch(`http://ip-api.com/json/${ip}`, {
+  fetch(`http://ip-api.com/json/${ip}${IPAPI_KEY ? `?key=${IPAPI_KEY}` : ''}`, {
     headers: { Accept: 'application/json' },
   })
   .then(response => response.json())
-  .then(geoip => {
+  .then((geoip) => {
     if (timeout) {
       clearTimeout(timeout)
       res.json(geoip)
