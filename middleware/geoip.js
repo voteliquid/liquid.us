@@ -9,13 +9,25 @@ function geoip(req, res) {
     ip = '198.27.235.190'
   }
 
+  const timeout = setTimeout(() => {
+    res.json(null)
+  }, 2000)
+
   fetch(`http://ip-api.com/json/${ip}`, {
     headers: { Accept: 'application/json' },
   })
   .then(response => response.json())
-  .then(geoip => res.json(geoip))
+  .then(geoip => {
+    if (timeout) {
+      clearTimeout(timeout)
+      res.json(geoip)
+    }
+  })
   .catch((error) => {
     console.error(error)
-    res.json(null)
+    if (timeout) {
+      clearTimeout(timeout)
+      res.json(null)
+    }
   })
 }
