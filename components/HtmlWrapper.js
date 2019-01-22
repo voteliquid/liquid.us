@@ -74,21 +74,24 @@ module.exports = (state, html, bundleUrl) => {
             color: hsl(0, 0%, 48%)!important;
           }
 
-          .responsive-video-wrapper {
-            overflow:hidden;
+          .responsive-video-outer {
+            max-width: 560px;
+          }
+
+          .responsive-video-inner {
+            overflow: hidden;
             position: relative;
+            padding-top: 25px;
             padding-bottom: 56.25%; /* 16:9 */
             height: 0;
           }
 
-          .responsive-video-wrapper iframe {
+          .responsive-video-inner iframe {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            max-height: 315px;
-            max-width: 560px;
           }
 
           .endorse-control .is-light, .endorse-control .is-light:hover {

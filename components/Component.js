@@ -116,7 +116,7 @@ module.exports = class Component extends hyperloopComponent {
             url = `https://player.vimeo.com/video/${videoMatch[6]}`
           }
           return `
-            <div style="max-height: 315px;"><div class="responsive-video-wrapper"><iframe width="560" height="315" src="${url}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></div></div>
+            <div class="responsive-video-outer"><div class="responsive-video-inner"><iframe width="560" height="315" src="${url}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></div></div>
           `
         }
         if (url.match(/\.(png|jpg|jpeg|gif)$/i)) {
