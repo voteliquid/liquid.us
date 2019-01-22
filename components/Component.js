@@ -107,7 +107,7 @@ module.exports = class Component extends hyperloopComponent {
   }
   linkifyUrls(text = '') {
     return this.escapeHtml(text)
-      .replace(/(\bhttps?:\/\/[-A-Z0-9+&@()#/%?=~_|!:,.;]*[-A-Z0-9+&()@#/%=~_|])/ig, (url) => {
+      .replace(/(\bhttps?:\/\/\S+)/ig, (url) => {
         const videoMatch = (url || '').match(/(http:|https:|)\/\/(player.|www.)?(vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/)
         if (videoMatch) {
           if (videoMatch[3].slice(0, 5) === 'youtu') {
