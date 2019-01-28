@@ -9,7 +9,7 @@ module.exports = class MeasureDetails extends Component {
     const { user } = this.state
     const { measure: l } = this.props
 
-    const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
+    const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
 
     return this.html`
       <section class="section">
@@ -25,7 +25,7 @@ module.exports = class MeasureDetails extends Component {
           <div class="columns">
             <div class="column is-two-thirds-tablet is-three-quarters-desktop">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
-              ${l.type !== 'PN' ? MeasureSummary.for(this, { measure: l }) : ''}
+              ${l.type !== 'nomination' ? MeasureSummary.for(this, { measure: l }) : ''}
               ${TopComments.for(this, { measure: l, yea: l.top_yea, nay: l.top_nay })}
               ${user ? MeasureProxyVotes.for(this, { measure: l }) : ''}
               ${Votes.for(this, { measure: l })}
@@ -65,7 +65,7 @@ class MeasureSummary extends Component {
   render() {
     const { measure, expanded } = this.props
     const { chamber, congress, number, type } = measure
-    const summary = type === 'PN' && measure.summary ? `Confirmation of ${measure.summary}` : this.linkifyUrls(measure.summary)
+    const summary = type === 'nomination' && measure.summary ? `Confirmation of ${measure.summary}` : this.linkifyUrls(measure.summary)
     const summaryLink =
       measure.legislature_name === 'U.S. Congress' && measure.author_id === null
         ? `<p>Learn more at <a href="https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text" target="_blank">congress.gov <span aria-hidden="true" class="icon is-small is-size-7"><i class="fas fa-external-link-alt"></i></span></a>`

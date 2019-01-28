@@ -170,9 +170,7 @@ module.exports = class Comment extends Component {
     .catch((error) => console.log(error))
   }
   fetchMeasure(short_id) {
-    const type = ~short_id.indexOf('-pn') ? '&type=eq.PN' : '&or=(type.eq.HR,type.eq.S,type.eq.AB,type.eq.SB)'
-    const url = `/measures_detailed?short_id=eq.${short_id}${type}`
-
+    const url = `/measures_detailed?short_id=eq.${short_id}`
     return this.api(url).then((results) => results[0])
   }
   fetchProxyVotes(measure_id, short_id) {
@@ -267,10 +265,10 @@ module.exports = class Comment extends Component {
     const { measures, user } = this.state
     const measure = measures && measures[short_id]
     const avatarURL = this.avatarURL(endorsed_vote || vote)
-    const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
+    const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
     const comment_url = `${measure_url}/votes/${id}`
     const share_url = `${WWW_URL}${comment_url}`
-    const measure_title = type && number ? `${type} ${number} — ${title}` : title
+    const measure_title = number ? `${short_id.replace(/^[^-]+-/, '').toUpperCase()} — ${title}` : title
     const anonymousName = measure
       ? `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
       : 'Anonymous'

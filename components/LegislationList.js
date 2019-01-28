@@ -213,8 +213,7 @@ const measureListRow = (s) => {
             <h3><a href="${measureUrl}">${s.title}</a></h3>
             ${s.introduced_at ? [`
             <div class="is-size-7 has-text-grey">
-              <strong class="has-text-grey">${s.type} ${s.number}</strong>
-              &mdash;
+              <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &mdash;
               ${s.sponsor_first_name
                 ? [`Introduced by&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                 : [`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
@@ -276,7 +275,7 @@ const initialize = (prevQuery, location, storage, user) => (dispatch) => {
     'summary', 'legislature_name', 'published', 'created_at', 'author_first_name', 'author_last_name', 'author_username',
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const api_url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&type=not.eq.PN${order}&limit=40`
+  const api_url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&type=not.eq.nomination${order}&limit=40`
 
   return api(api_url, { storage }).then((measures) => dispatch({
     type: 'receivedMeasures',

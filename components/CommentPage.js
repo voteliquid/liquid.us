@@ -26,7 +26,7 @@ module.exports = class CommentPage extends Component {
         return this.setState({ loading_measure: false })
       }
 
-      const voteUrl = `/${measure.type === 'PN' ? 'nominations' : 'legislation'}/${measure.short_id}/votes/${params.comment_id}`
+      const voteUrl = `/${measure.type === 'nomination' ? 'nominations' : 'legislation'}/${measure.short_id}/votes/${params.comment_id}`
 
       if (measure.author_id && !params.username) {
         return this.location.redirect(301, `/${measure.author_username}${voteUrl}`)
@@ -125,8 +125,8 @@ class CommentDetailPage extends Component {
   render() {
     const { legislatures = [], user } = this.state
     const { measure: l } = this.props
-    const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
-    const url = `${l.author_username ? `/${l.author_username}/` : '/'}${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`
+    const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
+    const url = `${l.author_username ? `/${l.author_username}/` : '/'}${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
     const userInJurisdiction = user && legislatures && legislatures.some(({ name }) => name === l.legislature_name)
 
     return this.html`

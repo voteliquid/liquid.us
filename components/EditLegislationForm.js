@@ -34,7 +34,7 @@ module.exports = class EditLegislationForm extends Component {
         summary: form.summary,
         published: false,
         chamber: 'Lower',
-        type: 'HR',
+        type: 'bill',
         short_id: form.short_id,
       })
     })

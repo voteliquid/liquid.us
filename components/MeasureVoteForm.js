@@ -129,7 +129,7 @@ class MeasureVoteForm extends Component {
         showMeasureVoteForm: !this.state.showMeasureVoteForm,
       })
 
-      const type = measure.type === 'PN' ? 'nominations' : 'legislation'
+      const type = measure.type === 'nomination' ? 'nominations' : 'legislation'
       const username = measure.author_username ? `/${measure.author_username}` : ''
       const measureUrl = `${username}/${type}/${measure.short_id}`
       const elem = document.getElementById('measure-vote-form')

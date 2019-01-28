@@ -37,7 +37,7 @@ class VoteShareButtons extends Component {
     const ClipboardJS = typeof window === 'object' && require('clipboard')
     const { user } = this.state
     const { copied2clipboard, position, short_id, id, user_id, type } = this.props
-    const comment_url = type === 'PN' ? `/nominations/${short_id}/votes/${id}` : `/legislation/${short_id}/votes/${id}`
+    const comment_url = type === 'nomination' ? `/nominations/${short_id}/votes/${id}` : `/legislation/${short_id}/votes/${id}`
     const share_url = `${WWW_URL}${comment_url}`
     let twitter_share_text = `Good argument! Click to show your support or explain why you disagree. ${share_url}`
     if (user && user.id === user_id) {
@@ -162,7 +162,7 @@ class Unendorsed extends Component {
   }
   render() {
     const { fullname, short_id, type, username, author_username } = this.props
-    const measureUrl = `${author_username ? `/${author_username}/` : '/'}${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}/vote`
+    const measureUrl = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}/vote`
     return this.html`
       <div class="box">
         <div class="container">
