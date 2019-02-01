@@ -1,6 +1,7 @@
 const { APP_NAME } = process.env
 const { api, html, preventDefault, redirect } = require('../helpers')
 const activityIndicator = require('./ActivityIndicator')
+const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = {
   init: ({ legislatures, location = {}, measures = {}, measuresList = [], measuresQuery, storage, user }) => [{
@@ -128,6 +129,14 @@ const updateFilter = (event, location, dispatch) => {
 const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
   const hide_direct_votes = location.query.hide_direct_votes || storage.get('hide_direct_votes')
   const legislatureQuery = decodeURIComponent(location.query.legislature).replace(/\+/g, ' ')
+
+  // Add legislature from URL to legislature selection
+  if (location.query.legislature && !legislatures.some(({ abbr }) => abbr === location.query.legislature)) {
+    legislatures.push({
+      abbr: location.query.legislature,
+      name: stateNames[location.query.legislature] || location.query.legislature,
+    })
+  }
 
   return html()`
     <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
