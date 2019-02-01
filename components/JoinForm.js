@@ -60,9 +60,8 @@ module.exports = {
           <br />
           `] : ''}
 
-        <style>.center-on-small-widths { display: flex; }</style>
-        <div class="columns is-centered center-on-small-widths">
-          <div class="column" style="max-width: 500px;">
+        <div class="level">
+          <div class="level-item has-text-centered">
             <form class="box has-text-centered" method="POST" onsubmit="${(event) => dispatch({ type: 'formSubmitted', event })}">
               <input name="phone_user_id" type="hidden" value="${location.query.sms || ''}" />
 

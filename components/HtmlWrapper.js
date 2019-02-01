@@ -39,15 +39,7 @@ module.exports = (state, html, bundleUrl) => {
             font-size: .9rem;
           }
 
-          #application {
-            display: flex;
-            min-height: 100vh;
-            flex-direction: column;
-            overflow-x: hidden;
-          }
-
           #wrapper {
-            flex: 1;
             position: relative;
           }
 
