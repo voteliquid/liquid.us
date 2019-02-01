@@ -43,11 +43,6 @@ module.exports = (state, html, bundleUrl) => {
             position: relative;
           }
 
-          #guidelines {
-             display: inline-block;
-             align: center;
-           }
-
           .router {
             min-height: 50vh;
           }
