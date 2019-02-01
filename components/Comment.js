@@ -48,6 +48,7 @@ module.exports = class Comment extends Component {
       console.log(error)
     })
   }
+
   endorse() {
     const { measures = {}, offices = [], user } = this.state
     const endorsed_vote = !(this.state.user && this.state.user.id === this.props.user_id && this.props.comment) && this.props.endorsed_vote
@@ -207,6 +208,7 @@ module.exports = class Comment extends Component {
       })
     })
   }
+
   fetchTopComments(id, short_id) {
     const order = `order=proxy_vote_count.desc.nullslast,created_at.desc`
     return this.api(`/votes_detailed?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea&${order}`).then((comments) => {
@@ -227,6 +229,7 @@ module.exports = class Comment extends Component {
       })
     })
   }
+
   fetchComments(measure_id, short_id) {
     const { query } = this.location
     const order = query.order || 'most_recent'
@@ -282,7 +285,9 @@ module.exports = class Comment extends Component {
         ? `This is your vote. It's private, only you can see it.`
         : `${fullname || 'Your proxy'} granted you permission to see this vote. Don’t share it publicly.`
     const onBehalfOfCount = username && !twitter_username ? (proxy_vote_count + 1) : proxy_vote_count
+    const reportURL = user ? `${share_url}/report` : '/join'
 
+    const reportOrNot = checkReport(user, endorsed_vote.id, vote.id)
     return this.html`
       <div onclick=${this} class="comment" style="margin-bottom: 1.5em;">
         ${[endorsed_vote ? `<p class="is-size-7 has-text-grey" style="margin-bottom: 1em;">Endorsed by ${!show_bill ? 'your proxy ' : ''}<a href="/${vote.username}">${vote.fullname}</a>:</p>` : '']}
@@ -331,7 +336,13 @@ module.exports = class Comment extends Component {
                     <span class="icon is-small"><i class="fas fa-pencil-alt"></i></span>
                     <span>Edit</span>
                   </a>
-                `] : ''}
+                `] : [`
+                  <span class="has-text-grey-lighter">&bullet;</span>
+                  <a href="${reportURL}" class="has-text-grey-light">
+                    <span>${reportOrNot}</span>
+                  </a>
+                `]
+              }
                 ${is_public || !fullname ? [`
                   <span class="has-text-grey-lighter">&bullet;</span>
                   <a title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-facebook"></i></span></a>
@@ -385,3 +396,12 @@ class CommentContent extends Component {
     `
   }
 }
+function checkReport(user, a, b) {
+    if (user) {
+        return this.api(`/reports?reporter_id=eq.${user.id}`)
+          .then((reports) => {
+            const usersReports = reports.id
+            return (~usersReports.indexOf(a)) || (~usersReports.indexOf(b)) ? 'Reported' : 'Report'
+          })
+      }
+    }
