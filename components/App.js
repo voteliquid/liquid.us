@@ -229,7 +229,12 @@ const fetchOffices = ({ location, storage, user }) => (dispatch) => {
       }
       return api('/rpc/point_to_offices', {
         method: 'POST',
-        body: JSON.stringify({ lon: Number(geoip.lon), lat: Number(geoip.lat) }),
+        body: JSON.stringify({
+          lon: Number(geoip.lon),
+          lat: Number(geoip.lat),
+          city: `${geoip.city}, ${geoip.region}`,
+          state: geoip.region,
+        }),
       })
       .then((offices) => {
         dispatch({ type: 'officesReceived', offices, geoip })
