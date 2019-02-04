@@ -285,9 +285,7 @@ module.exports = class Comment extends Component {
         ? `This is your vote. It's private, only you can see it.`
         : `${fullname || 'Your proxy'} granted you permission to see this vote. Don’t share it publicly.`
     const onBehalfOfCount = username && !twitter_username ? (proxy_vote_count + 1) : proxy_vote_count
-    const reportURL = user ? `${share_url}/report` : '/join'
 
-    const reportOrNot = checkReport(user, endorsed_vote.id, vote.id)
     return this.html`
       <div onclick=${this} class="comment" style="margin-bottom: 1.5em;">
         ${[endorsed_vote ? `<p class="is-size-7 has-text-grey" style="margin-bottom: 1em;">Endorsed by ${!show_bill ? 'your proxy ' : ''}<a href="/${vote.username}">${vote.fullname}</a>:</p>` : '']}
@@ -337,10 +335,6 @@ module.exports = class Comment extends Component {
                     <span>Edit</span>
                   </a>
                 `] : [`
-                  <span class="has-text-grey-lighter">&bullet;</span>
-                  <a href="${reportURL}" class="has-text-grey-light">
-                    <span>${reportOrNot}</span>
-                  </a>
                 `]
               }
                 ${is_public || !fullname ? [`
@@ -396,12 +390,3 @@ class CommentContent extends Component {
     `
   }
 }
-function checkReport(user, a, b) {
-    if (user) {
-        return this.api(`/reports?reporter_id=eq.${user.id}`)
-          .then((reports) => {
-            const usersReports = reports.id
-            return (~usersReports.indexOf(a)) || (~usersReports.indexOf(b)) ? 'Reported' : 'Report'
-          })
-      }
-    }

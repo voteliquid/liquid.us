@@ -151,12 +151,6 @@ class CommentDetailPage extends Component {
               </style>
               ${Comment.for(this, { ...l.comment, shouldTruncate: false })}
               ${l.comment && (!user || userInJurisdiction) ? Endorse.for(this, { vote: l.comment, vote_position: l.vote_position, user }) : ''}
-              <br />
-              <div>
-                <a class="is-size-7 has-text-grey button is-text" href="${url}">
-                  <span>See all arguments</span>
-                </a>
-              </div>
             </div>
             <div class="column is-one-quarter">
               ${Sidebar.for(this, { ...l, user }, `commentpage-sidebar-${l.id}`)}
