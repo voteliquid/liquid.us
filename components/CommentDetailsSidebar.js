@@ -151,7 +151,7 @@ class MeasureVoteCounts extends Component {
   render() {
     const { measure = [] } = this.props
     const {
-      type, legislature_name, chamber, delegate_name, vote_position, short_id
+      type, introduced_at, legislature_name, chamber, delegate_name, vote_position, short_id
     } = measure
 
     const chamberNames = {
@@ -173,7 +173,7 @@ class MeasureVoteCounts extends Component {
           </style>
           <table class="table vote-table is-narrow is-fullwidth">
             <tbody>
-              ${vote_position ? [`
+              ${vote_position && introduced_at ? [`
               <tr>
                 <td class="has-text-left has-text-grey">Your Vote</td>
                 <td colspan="2" class="has-text-right">
