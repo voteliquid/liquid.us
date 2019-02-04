@@ -9,7 +9,7 @@ module.exports = (state, html, bundleUrl) => {
   const title = page_title ? `${page_title} | Liquid US` : `Liquid US | Digital Democracy Voting Platform`
 
   // Potential og_image, first one wins
-  const wi_image = state.location.query.legislature === 'WI' && state.location.path === '/legislation' && `${ASSETS_URL}/WI.png`
+  const wi_image = state.location && state.location.query.legislature === 'WI' && state.location.path === '/legislation' && `${ASSETS_URL}/WI.png`
     // TODO (Jan 8, 2018): replace wi_image to support all 50 states
   const profile_image = selected_profile ? avatarURL(selected_profile) : ''
   const measure_image = selected_bill && selected_bill.image_name ? `${ASSETS_URL}/measure-images/${selected_bill.image_name}` : ''
