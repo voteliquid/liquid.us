@@ -1,11 +1,11 @@
 const stateNames = require('datasets-us-states-abbr-names')
-
+const { WWW_URL } = process.env
 const Component = require('./Component')
-const EditButtons = require('./EditMeasureButtons')
-const MeasureShareButtons = require('./MeasureShareButtons')
 
 module.exports = class MeasureDetailsSidebar extends Component {
+
   render() {
+
     const l = this.props
     const { user } = this.props
     const reps = (this.state.reps || []).filter(({ chamber, legislature }) => chamber === l.chamber && legislature.name === l.legislature_name)
@@ -46,16 +46,70 @@ class PanelTitleBlock extends Component {
 }
 
 class MeasureActionsPanel extends Component {
+  onclick(event) {
+    event.preventDefault()
+    const ClipboardJS = require('clipboard')
+    const clipboard = new ClipboardJS('.permalink')
+    clipboard.on('success', () => {
+      this.setProps({ copied2clipboard: true }).render()
+      setTimeout(() => this.setProps({ copied2clipboard: false }).render(), 2000)
+    })
+    clipboard.on('error', (error) => {
+      console.log(error)
+    })
+  }
+
   render() {
-    const { measure: l, user } = this.props
+    const ClipboardJS = typeof window === 'object' && require('clipboard')
+    const endorsed_vote = !(this.state.user && this.state.user.id === this.props.user_id && this.props.comment) && this.props.endorsed_vote
+    const vote = endorsed_vote || this.props
+    const {
+      author_username, position, fullname, id, short_id, type, user_id, public: is_public,
+    } = endorsed_vote || vote
+    const { user } = this.state
+    const { copied2clipboard } = this.props
+    const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
+    const comment_url = `${measure_url}/votes/${id}`
+    const share_url = `${WWW_URL}${comment_url}`
+    let twitter_share_text = `Good argument! Click to show your support or explain why you disagree. ${share_url}`
+    if (user && user.id === user_id) {
+      twitter_share_text = `I'm voting ${position}. See why: ${share_url}`
+    }
     return this.html`
       <div class="panel-block is-size-7 has-background-light" style="justify-content: center;">
-        ${user && user.id === l.author_id && !l.published ? EditButtons.for(this, l) : MeasureShareButtons.for(this, l)}
-      </div>
-    `
-  }
-}
-
+      <div class="is-size-7" style="position: relative; line-height: 25px; margin-top: 0.2rem;">
+        <span class="has-text-grey-light">
+          ${user && user.id === user_id ? [`
+            <span class="has-text-grey-lighter">&bullet;</span>
+            <a href="${`${measure_url}/vote`}" class="has-text-grey-light">
+              <span class="icon is-small"><i class="fas fa-pencil-alt"></i></span>
+              <span>Edit</span>
+            </a>
+          `] : ''}
+          ${is_public || !fullname ? [
+            `<a class="is-small" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" title="Share on Twitter">
+              <span class="icon"><i class="fab fa-twitter"></i></span><span>Twitter</span>
+            </a>
+            <a class="is-small" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" title="Share on Facebook">
+              <span class="icon"><i class="fab fa-facebook"></i></span><span>Facebook</span>
+            </a>
+            <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
+            <a
+              class="${`permalink is-small ${ClipboardJS && ClipboardJS.isSupported() ? 'tooltip' : ''} ${copied2clipboard ? 'is-tooltip-active is-tooltip-info' : ''}`}"
+              data-tooltip="${copied2clipboard ? 'Copied URL to clipboard' : 'Copy URL to clipboard'}"
+              data-clipboard-text="${share_url}"
+              href="${share_url}"
+              title="Permalink"
+              onclick=${this}
+            >
+              <span class="icon"><i class="fa fa-link"></i></span><span>Permalink</span>
+            </a>
+            `] : ''}
+            </span>
+            </div>
+            </div> `
+          }
+        }
 class MeasureStatus extends Component {
   render() {
     const { measure: l } = this.props
