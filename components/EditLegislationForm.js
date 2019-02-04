@@ -116,7 +116,7 @@ module.exports = class EditLegislationForm extends Component {
         <div class="field">
           <label for="Title" class="label has-text-grey">Title</label>
           <div class="control">
-            <input name="title" class="input" type="text" autocomplete="off" placeholder="The Liquid Democracy Act of 2018" onkeyup=${this} onchange=${this} required value="${title || ''}" />
+            <input name="title" class="input" type="text" autocomplete="off" placeholder="The Liquid Democracy Act of 2019" onkeyup=${this} onchange=${this} required value="${title || ''}" />
           </div>
         </div>
         <div class="field">
