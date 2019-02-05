@@ -257,23 +257,19 @@ module.exports = class Comment extends Component {
     const endorsed_vote = !(this.state.user && this.state.user.id === this.props.user_id && this.props.comment) && this.props.endorsed_vote
     const vote = this.props
     const {
-      comment, author_username, fullname, id,
-      number, position, short_id, title, type,
-      username, twitter_username
+      comment, fullname, id,
+      short_id, username, twitter_username
     } = endorsed_vote || vote
-    const { show_bill } = this.props
     const { measures } = this.state
     const measure = measures && measures[short_id]
     const avatarURL = this.avatarURL(endorsed_vote || vote)
-    const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
-    const measure_title = number ? `${short_id.replace(/^[^-]+-/, '').toUpperCase()} — ${title}` : title
     const anonymousName = measure
       ? `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
       : 'Anonymous'
 
     return this.html`
-      <div onclick=${this} class="comment" style="margin-bottom: 1.5em;">
-        <div class="media">
+      <div onclick=${this} class="comment">
+        <div class="media" style="margin-bottom: 1.5em;">
           <div class="media-left">
             <div class="image is-64x64">
               ${[username || twitter_username
@@ -283,19 +279,18 @@ module.exports = class Comment extends Component {
                 : `<img src="${avatarURL}" alt="avatar" class="round-avatar-img" />`]}
             </div>
           </div>
-          <div class="media-content" style="${`border-left: 1px solid ${position === 'yea' ? 'hsl(141, 71%, 87%)' : 'hsl(348, 100%, 93%)'}; margin-left: -3rem; padding-left: 3rem;`}">
-            <div>
-              <span class="has-text-weight-semibold">
-                Written by
+          <div class="media-content">
+            <div class="has-text-weight-semibold">
+              Written by<br/>
+              <span class="is-size-5">
                 ${username || twitter_username
                     ? [`<a href="/${twitter_username ? `twitter/${twitter_username}` : username}">${fullname}</a>`]
                     : anonymousName}
               </span>
             </div>
-            ${[show_bill ? `<div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>` : '']}
-            ${comment ? CommentContent.for(this, { comment }, `comment-context-${id}`) : ''}
           </div>
         </div>
+        ${comment ? CommentContent.for(this, { comment }, `comment-context-${id}`) : ''}
       </div>
     `
   }
@@ -304,7 +299,7 @@ module.exports = class Comment extends Component {
 class CommentContent extends Component {
   render({ comment = '' }) {
     return this.html`
-      <div class="content" style="margin: .25rem 0 .75rem;">
+      <div class="content is-size-5" style="margin: .25rem 0 .75rem;">
         ${[this.linkifyUrls(comment)]}
       </div>
     `

@@ -284,7 +284,7 @@ module.exports = class Comment extends Component {
       : user && user.id === user_id
         ? `This is your vote. It's private, only you can see it.`
         : `${fullname || 'Your proxy'} granted you permission to see this vote. Don’t share it publicly.`
-    const onBehalfOfCount = username && !twitter_username ? (proxy_vote_count + 1) : proxy_vote_count
+    const onBehalfOfCount = proxy_vote_count
 
     return this.html`
       <div onclick=${this} class="comment" style="margin-bottom: 1.5em;">
@@ -308,7 +308,7 @@ module.exports = class Comment extends Component {
                     ? [`<a href="/${twitter_username ? `twitter/${twitter_username}` : username}">${fullname}</a>`]
                     : anonymousName}
               </span>
-              ${[`<span>voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${onBehalfOfCount > 2 && is_public ? ` on behalf of <span class="has-text-weight-semibold">${onBehalfOfCount}</span> people` : ''}${is_public ? '' : ' privately'}</span>`]}
+              ${[`<span>voted <strong style="color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};">${position}</strong>${onBehalfOfCount > 1 && is_public ? ` on behalf of <span class="has-text-weight-semibold">${onBehalfOfCount}</span> people` : ''}${is_public ? '' : ' privately'}</span>`]}
               ${source_url ? [`<span class="is-size-7"> via <a href="${source_url}" target="_blank">${source_url.split('/')[2] || source_url}</a></span>`] : ''}
             </div>
             ${[show_bill ? `<div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>` : '']}

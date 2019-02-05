@@ -7,7 +7,7 @@ module.exports = class MeasureSummary extends Component {
     this.render()
   }
   render() {
-    const { measure, expanded } = this.props
+    const { measure, expanded, size = 6 } = this.props
     const { chamber, congress, number, type } = measure
     const summary = type === 'nomination' && measure.summary ? `Confirmation of ${measure.summary}` : this.linkifyUrls(measure.summary)
     const summaryLink =
@@ -52,7 +52,7 @@ module.exports = class MeasureSummary extends Component {
       </style>
 
       <div class=${`${expanded || !summary ? '' : 'summary'} measureDescription`} style=${!expanded && summary && summary.length > 512 ? 'max-height: 10rem;' : ''}>
-        <div class="content">
+        <div class=${`content is-size-${size}`}>
           ${[summary ? `${summaryWithoutRepeatedTitle.replace(/\n/g, '<br />')} ${summaryLink}` : `<p>A summary is in progress.</p>${summaryLink}`]}
         </div>
         <div class="${`read-more ${summary && summary.length > 512 ? '' : 'is-hidden'}`}"></div>
