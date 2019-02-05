@@ -1,9 +1,9 @@
 const { ASSETS_URL } = process.env
 const Component = require('./Component')
-const Comment = require('./Comment')
+const EndorsementPageComment = require('./EndorsementPageComment')
 const LoadingIndicator = require('./LoadingIndicator')
 const Sidebar = require('./EndorsementPageSidebar')
-const Endorse = require('./Endorse')
+const MeasureSummary = require('./MeasureSummary')
 const { fetchConstituentVotes } = require('./MeasureDetailsPage').prototype
 const stateNames = require('datasets-us-states-abbr-names')
 
@@ -123,44 +123,33 @@ class CommentNotFoundPage extends Component {
 
 class CommentDetailPage extends Component {
   render() {
-    const { legislatures = [], user, reps } = this.state
+    const { user, reps } = this.state
     const { measure: l } = this.props
     let city; let myReps
     if (user && user.address) {
       city = user && user.address && `${user.address.city}, ${user.address.state}`
-      myReps = l.legislature_name === 'U.S. Congress' ? `To Representative ${reps[0].office_holder.first_name} ${reps[0].office_holder.last_name}, Senator ${reps[1].office_holder.first_name} ${reps[1].office_holder.last_name}, Senator ${reps[2].office_holder.first_name} ${reps[2].office_holder.last_name}, and the U.S. Congress:` : l.legislature_name === city ? `To the City of ${l.legislature_name}'s elected leaders:` : l.legislature_name === user.address.state && reps[3] ? `To Representative ${reps[3].office_holder.first_name} ${reps[3].office_holder.last_name}, Senator ${reps[4].office_holder.first_name} ${reps[4].office_holder.last_name}, and the ${l.legislature_name} Legislature:` : l.legislature_name === user.address.state ? `To the ${l.legislature_name} Legislature:` : `You do not live in ${l.legislature_name}, so you cannot endorse this position.`
+      myReps = l.legislature_name === 'U.S. Congress' ? `To: Representative ${reps[0].office_holder.first_name} ${reps[0].office_holder.last_name}, Senator ${reps[1].office_holder.first_name} ${reps[1].office_holder.last_name}, Senator ${reps[2].office_holder.first_name} ${reps[2].office_holder.last_name}, and the U.S. Congress` : l.legislature_name === city ? `To the City of ${l.legislature_name}'s elected leaders` : l.legislature_name === user.address.state && reps[3] ? `To: Representative ${reps[3].office_holder.first_name} ${reps[3].office_holder.last_name}, Senator ${reps[4].office_holder.first_name} ${reps[4].office_holder.last_name}, and the ${l.legislature_name} Legislature` : l.legislature_name === user.address.state ? `To the ${l.legislature_name} Legislature` : `You do not live in ${l.legislature_name}, so you cannot endorse this position.`
     }
-    const message = `We, the undersigned, ${l.vote_position === 'yea' ? 'support' : 'oppose'} the proposal below and ask that you consider our argument and comments.`
     const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
     const url = `${l.author_username ? `/${l.author_username}/` : '/'}${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
-    const userInJurisdiction = user && legislatures && legislatures.some(({ name }) => name === l.legislature_name)
 
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
+          <h2 class="title has-text-weight-semibold is-3 has-text-centered"><a class="has-text-dark" href="${url}">${title}</a></h2>
           <div class="columns">
             <div class="column">
               <h2 class="title has-text-weight-normal is-5 has-text-dark">${myReps}</h2>
               <div class="subtitle is-size-6 has-text-dark">
-                <br>${message}<br><br>
+                <br>
+                We, the undersigned,
+                <strong style=${`color: ${l.vote_position === 'yea' ? 'hsl(141, 80%, 38%)' : (l.vote_position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};`}>${l.vote_position === 'yea' ? 'support' : 'oppose'}</strong>
+
+                the proposal and ask that you consider our argument and comments.
               </div>
-              <h2 class="title has-text-weight-normal is-4"><a class="has-text-dark" href="${url}">${title}</a></h2>
-              <div class="subtitle is-size-7">
-                <a class="is-size-7 has-text-grey button is-text" href="${url}">
-                  <span>More details</span>
-                </a>
-              </div>
-              <style>
-                .endorse {
-                  position: fixed;
-                  bottom: 0;
-                  left: 0;
-                  right: 0;
-                  z-index: 9999;
-                }
-              </style>
-              ${Comment.for(this, { ...l.comment, shouldTruncate: false })}
-              ${l.comment && (!user || userInJurisdiction) ? Endorse.for(this, { vote: l.comment, vote_position: l.vote_position, user }) : ''}
+              <br>
+              ${EndorsementPageComment.for(this, { ...l.comment, shouldTruncate: false })}
+              ${MeasureSummary.for(this, { measure: l, expanded: true })}
             </div>
             <div class="column is-one-quarter">
               ${Sidebar.for(this, { ...l, user }, `commentpage-sidebar-${l.id}`)}

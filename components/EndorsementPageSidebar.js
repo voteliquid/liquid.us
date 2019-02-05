@@ -1,6 +1,6 @@
 const Component = require('./Component')
 
-const milestones = [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 10000]
+const milestones = [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000]
 function nextMilestone(current) {
   return milestones.filter(ms => ms > current)[0]
 }
@@ -97,7 +97,7 @@ class NewSignupEndorseForm extends Component {
           </div>
           <div class="field">
             <div class="control">
-              <button class="button is-primary is-fullwidth has-text-weight-semibold" type="submit">Endorse this legislation</button>
+              <button class="button is-primary is-fullwidth has-text-weight-semibold" type="submit">Endorse</button>
             </div>
           </div>
         </form>
