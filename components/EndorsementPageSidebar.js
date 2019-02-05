@@ -24,13 +24,14 @@ module.exports = class EndorsementPageSidebar extends Component {
 class EndorsementCount extends Component {
   render() {
     const { measure } = this.props
+    const { username, twitter_username, proxy_vote_count } = measure.comment
 
-    const count = measure.comment.proxy_vote_count
+    const count = username && !twitter_username ? (proxy_vote_count + 1) : proxy_vote_count
 
     return this.html`
       <div class="panel-block">
-        <p><span class="has-text-weight-bold">${count} have signed.</span> Let's get to ${nextMilestone(count)}!</p>
-        <progress class="progress is-primary" value=${count} max="100">15%</progress>
+        <p><span class="has-text-weight-bold">${count} have endorsed.</span> Let's get to ${nextMilestone(count)}!</p>
+        <progress class="progress is-primary" value=${count} max=${nextMilestone(count)}>15%</progress>
       </div>
     `
   }
