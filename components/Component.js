@@ -84,7 +84,8 @@ module.exports = class Component extends hyperloopComponent {
       return res.json()
     })
   }
-  avatarURL({ gravatar_hash, twitter_username }) {
+  avatarURL({ gravatar_hash, image, twitter_username }) {
+    if (image) return `${WWW_URL}/rpc/image-proxy/${encodeURIComponent(image)}`
     if (twitter_username) return `${WWW_URL}/rpc/avatarsio/${twitter_username}`
     return `https://www.gravatar.com/avatar/${gravatar_hash}?d=mm&s=200`
   }

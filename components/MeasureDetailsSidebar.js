@@ -1,4 +1,5 @@
 const stateNames = require('datasets-us-states-abbr-names')
+const stateAbbr = require('datasets-us-states-names-abbr')
 
 const Component = require('./Component')
 const EditButtons = require('./EditMeasureButtons')
@@ -8,7 +9,9 @@ module.exports = class MeasureDetailsSidebar extends Component {
   render() {
     const l = this.props
     const { user } = this.props
-    const reps = (this.state.reps || []).filter(({ chamber, legislature }) => chamber === l.chamber && legislature.name === l.legislature_name)
+    const reps = (this.state.reps || []).filter(({ chamber, legislature }) => {
+      return chamber === l.chamber && (stateAbbr[legislature.name] || legislature.name) === l.legislature_name
+    })
     const showStatusTracker = l.legislature_name === 'U.S. Congress' && l.introduced_at && l.type === 'bill'
     const measureUrl = l.author_username
       ? `/${l.author_username}/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`

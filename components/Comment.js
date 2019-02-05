@@ -48,6 +48,7 @@ module.exports = class Comment extends Component {
       console.log(error)
     })
   }
+
   endorse() {
     const { measures = {}, offices = [], user } = this.state
     const endorsed_vote = !(this.state.user && this.state.user.id === this.props.user_id && this.props.comment) && this.props.endorsed_vote
@@ -207,6 +208,7 @@ module.exports = class Comment extends Component {
       })
     })
   }
+
   fetchTopComments(id, short_id) {
     const order = `order=proxy_vote_count.desc.nullslast,created_at.desc`
     return this.api(`/votes_detailed?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea&${order}`).then((comments) => {
@@ -227,6 +229,7 @@ module.exports = class Comment extends Component {
       })
     })
   }
+
   fetchComments(measure_id, short_id) {
     const { query } = this.location
     const order = query.order || 'most_recent'
@@ -331,7 +334,9 @@ module.exports = class Comment extends Component {
                     <span class="icon is-small"><i class="fas fa-pencil-alt"></i></span>
                     <span>Edit</span>
                   </a>
-                `] : ''}
+                `] : [`
+                `]
+              }
                 ${is_public || !fullname ? [`
                   <span class="has-text-grey-lighter">&bullet;</span>
                   <a title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-facebook"></i></span></a>
