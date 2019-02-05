@@ -123,8 +123,11 @@ class CommentNotFoundPage extends Component {
 
 class CommentDetailPage extends Component {
   render() {
-    const { legislatures = [], user } = this.state
+    const { legislatures = [], user, reps } = this.state
     const { measure: l } = this.props
+    const city = `${user.address.city}, ${user.address.state}`
+    const myReps = l.legislature_name === 'U.S. Congress' ? `To Representative ${reps[0].office_holder.first_name} ${reps[0].office_holder.last_name}, Senator ${reps[1].office_holder.first_name} ${reps[1].office_holder.last_name}, Senator ${reps[2].office_holder.first_name} ${reps[2].office_holder.last_name}, and the U.S. Congress:` : l.legislature_name === city ? `To the City of ${l.legislature_name}'s elected leaders:` : l.legislature_name === user.address.state && reps[3] ? `To Representative ${reps[3].office_holder.first_name} ${reps[3].office_holder.last_name}, Senator ${reps[4].office_holder.first_name} ${reps[4].office_holder.last_name}, and the ${l.legislature_name} Legislature:` : l.legislature_name === user.address.state ? `To the ${l.legislature_name} Legislature:` : `You do not live in ${l.legislature_name}, so you cannot vote on this bill.`
+    const message = `We, the undersigned, ${l.vote_position === 'yea' ? 'support' : 'oppose'} the proposal below and ask that you consider our argument and comments.`
     const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
     const url = `${l.author_username ? `/${l.author_username}/` : '/'}${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
     const userInJurisdiction = user && legislatures && legislatures.some(({ name }) => name === l.legislature_name)
@@ -134,6 +137,10 @@ class CommentDetailPage extends Component {
         <div class="container is-widescreen">
           <div class="columns">
             <div class="column">
+             <h2 class="title has-text-weight-normal is-5"><a class="has-text-dark"> ${myReps}</a></h2>
+             <div class="subtitle is-size-6"><a class="has-text-dark">
+             <br>${message}<br><br>
+            </a></div>
               <h2 class="title has-text-weight-normal is-4"><a class="has-text-dark" href="${url}">${title}</a></h2>
               <div class="subtitle is-size-7">
                 <a class="is-size-7 has-text-grey button is-text" href="${url}">
