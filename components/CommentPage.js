@@ -131,14 +131,13 @@ class CommentDetailPage extends Component {
       myReps = l.legislature_name === 'U.S. Congress' ? `To: Representative ${reps[0].office_holder.first_name} ${reps[0].office_holder.last_name}, Senator ${reps[1].office_holder.first_name} ${reps[1].office_holder.last_name}, Senator ${reps[2].office_holder.first_name} ${reps[2].office_holder.last_name}, and the U.S. Congress` : l.legislature_name === city ? `To the City of ${l.legislature_name}'s elected leaders` : l.legislature_name === user.address.state && reps[3] ? `To: Representative ${reps[3].office_holder.first_name} ${reps[3].office_holder.last_name}, Senator ${reps[4].office_holder.first_name} ${reps[4].office_holder.last_name}, and the ${l.legislature_name} Legislature` : `To: The ${l.legislature_name} Legislature`
     }
     const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
-    const url = `${l.author_username ? `/${l.author_username}/` : '/'}${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
 
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
-          <h2 class="title has-text-weight-semibold is-3 has-text-centered"><a class="has-text-dark" href="${url}">${title}</a></h2>
           <div class="columns">
             <div class="column">
+              <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>
               <h2 class="title has-text-weight-normal is-5 has-text-dark">${myReps}</h2>
               <br>
               ${EndorsementPageComment.for(this, { ...l.comment, shouldTruncate: false })}
@@ -147,7 +146,9 @@ class CommentDetailPage extends Component {
               </div>
             </div>
             <div class="column is-one-quarter">
-              ${Sidebar.for(this, { ...l, user }, `commentpage-sidebar-${l.id}`)}
+              <div style="position: fixed;">
+                ${Sidebar.for(this, { ...l, user }, `commentpage-sidebar-${l.id}`)}
+              </div>
             </div>
           </div>
         </div>

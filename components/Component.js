@@ -123,7 +123,7 @@ module.exports = class Component extends hyperloopComponent {
           `
         }
         if (url.match(/\.(png|jpg|jpeg|gif)$/i)) {
-          return `<div class="responsive-image" style="max-width: 560px;"><a href="${url}"><img alt="${url}" src="${url}" style="max-height: 315px; max-width: 100%; height: auto;" /></a></div>`
+          return `<div class="responsive-image" style="max-width: 100%; background: hsla(0, 0%, 87%, 0.25); text-align: center;"><a href="${url}"><img alt="${url}" src="${url}" style="max-height: 380px; max-width: 100%; height: auto;" /></a></div>`
         }
         return `<a href="${url}">${url}</a>`
       })
