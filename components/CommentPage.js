@@ -4,6 +4,7 @@ const EndorsementPageComment = require('./EndorsementPageComment')
 const LoadingIndicator = require('./LoadingIndicator')
 const Sidebar = require('./EndorsementPageSidebar')
 const MeasureSummary = require('./MeasureSummary')
+const ReportComment = require('./ReportComment')
 const { fetchConstituentVotes } = require('./MeasureDetailsPage').prototype
 const stateNames = require('datasets-us-states-abbr-names')
 
@@ -135,6 +136,7 @@ class CommentDetailPage extends Component {
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
+          ${user && this.location.query.action === 'report' ? ReportComment.for(this, { report_error: null, comment: l.comment }) : ''}
           <div class="columns">
             <div class="column">
               <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>

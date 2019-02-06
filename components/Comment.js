@@ -262,7 +262,7 @@ module.exports = class Comment extends Component {
       comment, author_username, endorsed, updated_at, fullname, id,
       number, proxy_vote_count, position, short_id, title, type,
       username, user_id, public: is_public, shouldTruncate, twitter_username,
-      showPrivacyIndicator, source_url, endorsement_public
+      showPrivacyIndicator, source_url, endorsement_public, reported
     } = endorsed_vote || vote
     const { show_bill } = this.props
     const { measures, user } = this.state
@@ -334,9 +334,13 @@ module.exports = class Comment extends Component {
                     <span class="icon is-small"><i class="fas fa-pencil-alt"></i></span>
                     <span>Edit</span>
                   </a>
-                `] : [`
-                `]
-              }
+                `] : ''}
+                ${user && comment ? [`
+                  <span class="has-text-grey-lighter">&bullet;</span>
+                  ${reported
+                    ? `<span>Reported</span>`
+                    : `<a href="${`${comment_url}?action=report`}" class="has-text-grey-light">Report</a>`}
+                `] : ''}
                 ${is_public || !fullname ? [`
                   <span class="has-text-grey-lighter">&bullet;</span>
                   <a title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-facebook"></i></span></a>
