@@ -175,7 +175,7 @@ class CommentDetailPage extends Component {
                     position: fixed;
                     margin-left: 2rem;
                     margin-right: 15px;
-                    z-index: 998;
+                    z-index: 15;
                   }
 
                   .mobile-hover-bar {
@@ -204,7 +204,7 @@ class MobileHoverBar extends Component {
         position: fixed;
         left: 0; bottom: 0;
         width: 100%;
-        z-index: 100;
+        z-index: 18;
         background: white;
         border-top: 1px solid #ccc;
         padding: 10px 15px;

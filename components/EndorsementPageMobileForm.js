@@ -12,7 +12,7 @@ module.exports = class EndorsementPageMobileForm extends Component {
     const measure = this.props
 
     return this.html`
-      <div style="z-index: 120;" class=${`modal ${this.props.visible ? 'is-active' : ''} mobile-only`}>
+      <div style="z-index: 30;" class=${`modal ${this.props.visible ? 'is-active' : ''} mobile-only`}>
         <div class="modal-background" onclick=${this.props.onclick}></div>
         <div class="modal-content">
           ${measure.user && measure.vote_position && !measure.comment.endorsed

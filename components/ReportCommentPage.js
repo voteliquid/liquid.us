@@ -233,15 +233,6 @@ class CommentDetailPage extends Component {
                   <span>More details</span>
                 </a>
               </div>
-              <style>
-                .endorse {
-                  position: fixed;
-                  bottom: 0;
-                  left: 0;
-                  right: 0;
-                  z-index: 9999;
-                }
-              </style>
               ${Comment.for(this, { ...l.comment, shouldTruncate: false })}
               ${l.comment && (!user || userInJurisdiction) ? Endorse.for(this, { vote: l.comment, vote_position: l.vote_position, user }) : ''}
               <br />
