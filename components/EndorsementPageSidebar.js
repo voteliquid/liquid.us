@@ -214,12 +214,12 @@ class VotedDifferentlyMessage extends Component {
 
     let previousVote = 'endorsed'
     if (measure.vote_position === 'nay') { previousVote = 'opposed' }
-    if (measure.vote_position === 'abstain') { previousVote = 'abstained' }
+    if (measure.vote_position === 'abstain') { previousVote = 'abstained <span class="has-text-weight-normal">on</span>' }
 
 
     return this.html`
       <article class="notification is-warning is-marginless is-size-7">
-          You previously <strong>${previousVote}</strong> this item.<br />
+          You previously <strong>${[previousVote]}</strong> this item.<br />
           This will switch your vote.
       </article>
     `
