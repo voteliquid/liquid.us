@@ -211,7 +211,7 @@ class MobileHoverBar extends Component {
       ">
         <div class="field">
           <div class="control">
-            <button class=${`button ${color} is-fullwidth has-text-weight-bold is-size-5`} onclick=${this.props.onclick}>${action}</button>
+            <button class=${`button ${color} is-fullwidth fix-bulma-centered-text has-text-weight-bold is-size-5`} onclick=${this.props.onclick}>${action}</button>
           </div>
         </div>
       </div>

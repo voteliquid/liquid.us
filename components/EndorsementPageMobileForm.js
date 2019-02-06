@@ -212,7 +212,7 @@ class NewSignupEndorseForm extends Component {
         </div>
         <div class="field">
           <div class="control">
-            <button class=${`button ${color} is-fullwidth has-text-weight-bold is-size-5`} type="submit">${action}</button>
+            <button class=${`button ${color} is-fullwidth fix-bulma-centered-text has-text-weight-bold is-size-5`} type="submit">${action}</button>
           </div>
         </div>
       </form>
@@ -283,7 +283,7 @@ class LoggedInForm extends Component {
         </div>
         <div class="field">
           <div class="control">
-            <button class=${`button ${color} is-fullwidth has-text-weight-bold is-size-5`} type="submit">${action}</button>
+            <button class=${`button ${color} is-fullwidth fix-bulma-centered-text has-text-weight-bold is-size-5`} type="submit">${action}</button>
           </div>
         </div>
       </form>

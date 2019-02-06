@@ -326,7 +326,7 @@ module.exports = class Comment extends Component {
               </div>
             </div>
             <div class="is-size-7" style="position: relative; line-height: 25px; margin-top: 0.2rem;">
-              <a class="has-text-grey-light" title="Permalink" href="${share_url}">${timeAgo().format(`${updated_at}Z`)}</a>
+              <a class="has-text-grey-light" title="Permalink" href="${comment_url}">${timeAgo().format(`${updated_at}Z`)}</a>
               <span class="has-text-grey-light">
                 ${user && user.id === user_id ? [`
                   <span class="has-text-grey-lighter">&bullet;</span>

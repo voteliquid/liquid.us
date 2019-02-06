@@ -90,6 +90,10 @@ module.exports = (state, html, bundleUrl) => {
             border-color: #cecece;
           }
 
+          .fix-bulma-centered-text {
+            display: inline-block !important; /* https://github.com/jgthms/bulma/issues/727 */
+          }
+
         </style>
         <meta property="og:title" content="${wi_image ? `Wisconsin Legislation` : title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:description" content="${wi_image ? `Vote now on extraordinary session bills.` : description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
