@@ -146,7 +146,7 @@ class CommentDetailPage extends Component {
               </div>
             </div>
             <div class="column is-one-quarter">
-              <div style="position: fixed;">
+              <div style="position: fixed; margin-left: 2rem; margin-right: 15px;">
                 ${Sidebar.for(this, { ...l, user }, `commentpage-sidebar-${l.id}`)}
               </div>
             </div>
