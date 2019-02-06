@@ -50,7 +50,7 @@ module.exports = class CommentPage extends Component {
 
           const anonymousName = `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
 
-          const page_title = `${comment.fullname || anonymousName} urges you to tell ${measure.legislature_name} to vote ${comment.position} : ${measure.title}`
+          const page_title = `${comment.fullname || anonymousName}: tell ${measure.legislature_name} to vote ${comment.position} on ${measure.title}`
           if (this.isBrowser) {
             const page_title_with_appname = `${page_title} | ${config.APP_NAME}`
             window.document.title = page_title_with_appname
