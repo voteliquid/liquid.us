@@ -29,7 +29,7 @@ module.exports = class EndorsementPageSidebar extends Component {
             ? AfterEndorseSocialShare.for(this, { measure })
 
             : // logged in, voted differently or haven't voted
-            LoggedInHaventVotedForm.for(this, { measure })
+            LoggedInForm.for(this, { measure })
         }
       </nav>
     `
@@ -226,7 +226,7 @@ class VotedDifferentlyMessage extends Component {
   }
 }
 
-class LoggedInHaventVotedForm extends Component {
+class LoggedInForm extends Component {
   onsubmit(event, formData) {
     if (event) event.preventDefault()
     console.log('formData:', formData)
