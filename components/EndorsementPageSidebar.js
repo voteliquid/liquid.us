@@ -60,7 +60,73 @@ class NewSignupEndorseForm extends Component {
     if (!formData.email || !formData.email.includes('@')) {
       return { error: { email: true } }
     }
-    // const { address, lat, lon, city, state } = formData.address
+    const { address, lat, lon, city, state } = formData.address
+
+    // Authenticate (sends OTP to email if existing user)
+    const device_desc = this.location.userAgent || 'Unknown'
+    const storage = this.storage
+
+    return this.api('/totp?select=device_id,first_seen', {
+      method: 'POST',
+      headers: { Prefer: 'return=representation' },
+      body: JSON.stringify({
+        email: formData.email,
+        device_desc,
+      }),
+    })
+    .then((results) => results[0])
+    .then(({ device_id, first_seen }) => {
+      if (event.target && event.target.reset) {
+        event.target.reset()
+      }
+
+      if (first_seen) {
+        // If new user, authenticate immediately without OTP
+        return this.api('/sessions?select=refresh_token,user_id,jwt', {
+          method: 'POST',
+          headers: { Prefer: 'return=representation' },
+          body: JSON.stringify({ device_id, device_desc }),
+        }).then((results) => results[0]).then(({ jwt, refresh_token, user_id }) => {
+          const oneYearFromNow = new Date(Date.now() + (365 * 24 * 60 * 60 * 1000))
+
+          storage.set('jwt', jwt, { expires: oneYearFromNow })
+          storage.set('refresh_token', refresh_token, { expires: oneYearFromNow })
+          storage.set('user_id', user_id, { expires: oneYearFromNow })
+
+          // Update users name, address, and email
+          return this.api(`/user_addresses?select=id&user_id=eq.${user_id}`, {
+            method: 'POST',
+            headers: { Prefer: 'return=representation' },
+            body: JSON.stringify({
+              user_id,
+              address,
+              city,
+              state,
+              geocoords: `POINT(${lon} ${lat})`,
+            })
+          }).then(() => {
+            // fetch user and re-render by setting state with the newly registered user
+            return this.api(`/users?select=id,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`).then((users) => users[0]).then((user) => {
+              this.setState({
+                user: {
+                  ...user,
+                  first_name,
+                  last_name,
+                  address: { address, city, state },
+                },
+              })
+            })
+          })
+        })
+      }
+
+      // set some cookie that gets read by SignIn and redirects
+      this.storage.set('sign_in_email', formData.email)
+      this.storage.set('device_id', device_id)
+      this.storage.set('redirect_to', this.location.path)
+      this.location.redirect(303, '/sign_in/verify')
+    })
+
   }
   render() {
     const { error = {} } = this.state
