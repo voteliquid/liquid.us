@@ -106,7 +106,7 @@ module.exports = (state, html, bundleUrl) => {
         </script>
       </head>
       <body>
-        <div id="application">${html}</div>
+        <div id="application" style="overflow-x: hidden;">${html}</div>
 
         <script src="/assets/outdatedbrowser.min.js"></script>
         <script>
