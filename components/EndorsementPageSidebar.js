@@ -32,10 +32,14 @@ class EndorsementCount extends Component {
 
     const count = proxy_vote_count
 
+    let action = 'endorsed'; let color = 'is-success'
+    if (measure.comment.position === 'nay') { action = 'opposed'; color = 'is-danger' }
+    if (measure.comment.position === 'abstain') { action = 'abstained'; color = 'is-dark' }
+
     return this.html`
       <div>
-        <p><span class="has-text-weight-bold">${count} ${count < 2 ? 'has' : 'have'} endorsed.</span> Let's get to ${nextMilestone(count)}!</p>
-        <progress class="progress is-success" style="margin-top: 0.5rem; margin-bottom: 1.5rem" value=${count} max=${nextMilestone(count)}>15%</progress>
+        <p><span class="has-text-weight-bold">${count} ${count === 1 ? 'has' : 'have'} ${action}.</span> Let's get to ${nextMilestone(count)}!</p>
+        <progress class=${`progress ${color}`} style="margin-top: 0.5rem; margin-bottom: 1.5rem" value=${count} max=${nextMilestone(count)}>15%</progress>
       </div>
     `
   }
@@ -134,6 +138,11 @@ class NewSignupEndorseForm extends Component {
   }
   render() {
     const { error = {} } = this.state
+    const { measure } = this.props
+
+    let action = 'Endorse'; let color = 'is-success'
+    if (measure.comment.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
+    if (measure.comment.position === 'abstain') { action = 'Join abstention'; color = 'is-dark' }
 
     return this.html`
       <form method="POST" style="width: 100%;" method="POST" onsubmit=${this} action=${this}>
@@ -180,7 +189,7 @@ class NewSignupEndorseForm extends Component {
         </div>
         <div class="field">
           <div class="control">
-            <button class="button is-success is-fullwidth has-text-weight-bold is-size-5" type="submit">Endorse</button>
+            <button class=${`button ${color} is-fullwidth has-text-weight-bold is-size-5`} type="submit">${action}</button>
           </div>
         </div>
       </form>
