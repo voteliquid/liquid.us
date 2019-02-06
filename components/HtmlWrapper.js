@@ -7,9 +7,9 @@ module.exports = (state, html, bundleUrl) => {
   const { page_description, page_title, selected_bill, selected_profile } = state
   const description = page_description || `A new democracy for the modern world.`
   const title = page_title ? `${page_title} | Liquid US` : `Liquid US | Digital Democracy Voting Platform`
-  const isComment = ~title.indexOf('tell')
+  const isComment = title.includes(': tell ')
 
-  const index = title.indexOf("on ")
+  const index = title.indexOf('on ')
   const commentPosition = title.substr(0, index)
   const commentBill = title.substr(index + 1)
   // Potential og_image, first one wins

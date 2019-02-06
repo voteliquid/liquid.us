@@ -92,7 +92,6 @@ module.exports = class CommentPage extends Component {
       this.oninit().then((newState) => this.setState(newState))
     }
   }
-
   render() {
     const { loading_measure, measures = {} } = this.state
     const { params } = this.props
@@ -107,7 +106,6 @@ module.exports = class CommentPage extends Component {
     }</div>`
   }
 }
-
 
 class CommentNotFoundPage extends Component {
   render() {
