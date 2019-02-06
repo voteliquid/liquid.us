@@ -33,9 +33,8 @@ module.exports = class EndorsementPageMobileForm extends Component {
               LoggedInForm.for(this, { measure })
             }
           </nav>
-          </div>
         </div>
-        <button class="modal-close is-large" aria-label="close"></button>
+        <button class="modal-close is-large" aria-label="close" onclick=${this.props.onclick}></button>
       </div>
       <style>
         @media (min-width: 828px) {
