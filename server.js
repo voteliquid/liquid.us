@@ -112,7 +112,7 @@ const compile = (done) => {
         init = true
       } else {
         for (const moduleId of Object.keys(require.cache)) { /* eslint-disable-line no-restricted-syntax */
-          if (!~moduleId.indexOf('node_modules')) {
+          if (!moduleId.includes('node_modules')) {
             delete require.cache[resolveFrom(path.dirname(callerPath()), moduleId)]
           }
         }

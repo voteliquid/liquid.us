@@ -272,7 +272,7 @@ const signIn = module.exports.signIn = (event, location, storage) => (dispatch) 
   })
   .catch((error) => {
     console.log(error)
-    if (~error.message.indexOf('constraint "email')) {
+    if (error.message.includes('constraint "email')) {
       error.message = 'Invalid email address'
     } else if (error.message !== 'Please wait 10 seconds and try again') {
       error.message = `There was a problem on our end. Please try again and let us know if you're still encountering a problem.`

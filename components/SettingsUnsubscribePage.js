@@ -50,7 +50,7 @@ const initialize = (user_id, list) => (dispatch) => {
   })
   .catch((error) => {
     console.log(error)
-    if (error && error.message && !~error.message.indexOf('duplicate')) {
+    if (error && error.message && !error.message.includes('duplicate')) {
       dispatch({ type: 'error', error })
     }
   })

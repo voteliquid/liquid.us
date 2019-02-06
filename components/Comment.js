@@ -7,12 +7,12 @@ module.exports = class Comment extends Component {
   onclick(event) {
     const endorsed_vote = !(this.state.user && this.state.user.id === this.props.user_id && this.props.comment) && this.props.endorsed_vote
     const vote = endorsed_vote || this.props
-    if (~event.currentTarget.className.indexOf('privacy-indicator')) {
+    if (event.currentTarget.className.includes('privacy-indicator')) {
       event.preventDefault()
       this.setProps({ showPrivacyIndicator: true }).render(this.props)
-    } else if (~event.currentTarget.className.indexOf('delete')) {
+    } else if (event.currentTarget.className.includes('delete')) {
       this.setProps({ showPrivacyIndicator: false }).render(this.props)
-    } else if (~event.currentTarget.className.indexOf('endorse-btn')) {
+    } else if (event.currentTarget.className.includes('endorse-btn')) {
       event.preventDefault()
       if (vote.endorsed) {
         return this.unendorse()

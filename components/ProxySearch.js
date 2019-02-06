@@ -67,8 +67,8 @@ class AddProxyByEmailForm extends Component {
     .catch((error) => {
       if (error.code === 42501) return { error: { name: true, message: 'You cannot proxy to yourself' } }
       if (error.code === 23514) {
-        if (~error.message.indexOf('delegations_check')) return { error: { name: true, message: 'You cannot proxy to yourself' } }
-        if (~error.message.indexOf('email')) return { error: { email: true, message: 'Invalid email address' } }
+        if (error.message.includes('delegations_check')) return { error: { name: true, message: 'You cannot proxy to yourself' } }
+        if (error.message.includes('email')) return { error: { email: true, message: 'Invalid email address' } }
       }
       if (error.code === 23505) return { error: { name: true, message: `You've already added ${name.first} ${name.last}` } }
       if (error.code === 'P0001') return this.location.redirect('/get_started/basics?notification=proxy_wo_name')
@@ -172,8 +172,8 @@ class AddProxyByTwitterForm extends Component {
       .catch((error) => {
         if (error.code === 42501) return { error: { name: true, message: 'You cannot proxy to yourself' } }
         if (error.code === 23514) {
-          if (~error.message.indexOf('delegations_check')) return { error: { name: true, message: 'You cannot proxy to yourself' } }
-          if (~error.message.indexOf('email')) return { error: { email: true, message: 'Invalid email address' } }
+          if (error.message.includes('delegations_check')) return { error: { name: true, message: 'You cannot proxy to yourself' } }
+          if (error.message.includes('email')) return { error: { email: true, message: 'Invalid email address' } }
         }
         if (error.code === 23505) return { error: { name: true, message: `You've already added @${twitter_username}` } }
         if (error.code === 'P0001') return this.location.redirect('/get_started/basics?notification=proxy_wo_name')
@@ -343,8 +343,8 @@ class SearchResultAdd extends Component {
     .catch((error) => {
       if (error.code === 42501) return { error: { name: true, message: 'You cannot proxy to yourself' } }
       if (error.code === 23514) {
-        if (~error.message.indexOf('delegations_check')) return { error: { name: true, message: 'You cannot proxy to yourself' } }
-        if (~error.message.indexOf('email')) return { error: { email: true, message: 'Invalid email address' } }
+        if (error.message.includes('delegations_check')) return { error: { name: true, message: 'You cannot proxy to yourself' } }
+        if (error.message.includes('email')) return { error: { email: true, message: 'Invalid email address' } }
       }
       if (error.code === 23505) return { error: { name: true, message: `You've already added them` } }
       if (error.code === 'P0001') return redirect('/get_started/basics?notification=proxy_wo_name')
@@ -445,8 +445,8 @@ class SearchResultAdded extends Component {
     .catch((error) => {
       if (error.code === 42501) return { error: { name: true, message: 'You cannot proxy to yourself' } }
       if (error.code === 23514) {
-        if (~error.message.indexOf('delegations_check')) return { error: { name: true, message: 'You cannot proxy to yourself' } }
-        if (~error.message.indexOf('email')) return { error: { email: true, message: 'Invalid email address' } }
+        if (error.message.includes('delegations_check')) return { error: { name: true, message: 'You cannot proxy to yourself' } }
+        if (error.message.includes('email')) return { error: { email: true, message: 'Invalid email address' } }
       }
       if (error.code === 23505) return { error: { name: true, message: `You've already added them` } }
       if (error.code === 'P0001') return this.location.redirect('/get_started/basics?notification=proxy_wo_name')

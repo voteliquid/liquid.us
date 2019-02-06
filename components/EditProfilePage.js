@@ -48,7 +48,7 @@ class EditProfile extends Component {
     })
     .then(() => this.setState({ editing_form: false, error: null, loading_edit_profile: false }))
     .catch(error => {
-      if (~error.message.indexOf('users_intro_video_url_check')) {
+      if (error.message.includes('users_intro_video_url_check')) {
         this.setState({ loading_edit_profile: false, error: 'Invalid intro video URL. Enter the share URL (example: https://youtu.be/XMrRrzYXav8)' })
       } else {
         this.setState({ loading_edit_profile: false, error: error.message })
@@ -69,15 +69,15 @@ class EditProfile extends Component {
             <div class="field">
               <label class="label">Intro Video</label>
               <div class="control">
-                <input onkeyup=${this} class="${`input ${error && ~error.indexOf('video') ? 'is-danger' : ''}`}" name="intro_video_url" type="text" placeholder="https://youtu.be/XMrRrzYXav8" value="${intro_video_url}" />
-                ${[error && ~error.indexOf('video') ? `<p class="help is-danger">${error}</p>` : '<p class="help">YouTube or Vimeo share URL</p>']}
+                <input onkeyup=${this} class="${`input ${error && error.includes('video') ? 'is-danger' : ''}`}" name="intro_video_url" type="text" placeholder="https://youtu.be/XMrRrzYXav8" value="${intro_video_url}" />
+                ${[error && error.includes('video') ? `<p class="help is-danger">${error}</p>` : '<p class="help">YouTube or Vimeo share URL</p>']}
               </div>
             </div>
             <div class="field">
               <label class="label">Intro text</label>
               <div class="control">
-                <textarea onkeyup=${this} class="${`textarea ${error && ~error.indexOf('bio') ? 'is-danger' : ''}`}" name="about" placeholder="A short introduction" value="${about}"></textarea>
-                ${[error && ~error.indexOf('bio') ? `<p class="help is-danger">Your introduction is too long. Introductions cannot be longer than 1024 characters.</p>` : '']}
+                <textarea onkeyup=${this} class="${`textarea ${error && error.includes('bio') ? 'is-danger' : ''}`}" name="about" placeholder="A short introduction" value="${about}"></textarea>
+                ${[error && error.includes('bio') ? `<p class="help is-danger">Your introduction is too long. Introductions cannot be longer than 1024 characters.</p>` : '']}
                 <p class="help">A short introduction or bio. Characters remaining: ${remaining_chars > 0 ? remaining_chars : 0}</p>
               </div>
             </div>

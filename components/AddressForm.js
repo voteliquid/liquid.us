@@ -135,6 +135,6 @@ const upsertAddressAndContinue = ({ address, city, state, lat, lon, user, storag
     .then(() => dispatch({ type: 'redirected', url: '/' }))
     .catch((error) => dispatch({
       type: 'apiError',
-      error: (~error.message.indexOf('constraint "email')) ? 'Invalid email address' : error.message,
+      error: (error.message.includes('constraint "email')) ? 'Invalid email address' : error.message,
     }))
 }

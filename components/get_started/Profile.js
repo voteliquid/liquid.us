@@ -40,7 +40,7 @@ module.exports = class PickUsernamePage extends Component {
       return { error: 'Only letters, numbers, and underscore allowed' }
     }
 
-    if (~username_blacklist.indexOf(username)) {
+    if (username_blacklist.includes(username)) {
       return { error: `${username} is a reserved name. Please choose another.` }
     }
 
@@ -56,7 +56,7 @@ module.exports = class PickUsernamePage extends Component {
     })
     .catch((api_error) => {
       return {
-        error: (~api_error.message.indexOf('username_unique')) ? 'That username is already taken' : api_error.message,
+        error: (api_error.message.includes('username_unique')) ? 'That username is already taken' : api_error.message,
       }
     })
   }

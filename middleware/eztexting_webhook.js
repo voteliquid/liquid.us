@@ -11,7 +11,7 @@ function eztextingWebhook(req, res) {
 
   if (
     valid_phone.test(phone_number) &&
-    ~message.toLowerCase().indexOf('liquid')
+    message.toLowerCase().includes('liquid')
   ) {
     const proxy_param = proxy ? `&proxy_to=${proxy}` : ''
 

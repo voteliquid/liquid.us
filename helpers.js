@@ -266,7 +266,7 @@ exports.serverHyperloopContext = class HyperloopContext {
       return wire()`${this.render()}`
     })
     .catch(error => {
-      if (~error.message.indexOf('updates[(i - 1)] is not a function')) {
+      if (error.message.includes('updates[(i - 1)] is not a function')) {
         const message = `Malformed template (usually a result of malformed HTML or interpolations inside attribute values, such as class="foo \${bar}" which should be class=\${\`foo \${bar}\`})`
         error.stack = [message].concat(error.stack.split('\n').slice(1)).join('\n')
         error.message = message
@@ -349,7 +349,7 @@ exports.browserHyperloopContext = class HyperloopContext {
       return this.render()
     })
     .catch(error => {
-      if (~error.message.indexOf('updates[(i - 1)] is not a function')) {
+      if (error.message.includes('updates[(i - 1)] is not a function')) {
         const message = `Malformed template (usually a result of malformed HTML or interpolations inside attribute values, such as class="foo \${bar}" which should be class=\${\`foo \${bar}\`})`
         error.stack = [message].concat(error.stack.split('\n').slice(1)).join('\n')
         error.message = message

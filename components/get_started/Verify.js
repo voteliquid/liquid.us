@@ -35,7 +35,7 @@ module.exports = {
         return [{ ...state, loading: true }]
       case 'receivedOtpError':
         console.error(event.error)
-        if (~event.error.message.indexOf('was not found')) {
+        if (event.error.message.includes('was not found')) {
           return [{
             ...state,
             error: `The phone number you entered is not a valid U.S. carrier number. Are you sure you entered it correctly?`,

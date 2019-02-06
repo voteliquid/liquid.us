@@ -36,7 +36,7 @@ module.exports = class MeasureDetailsPage extends Component {
         window.document.title = page_title
         window.history.replaceState(window.history.state, page_title, document.location)
       }
-      const isCity = ~measure.legislature_name.indexOf(',')
+      const isCity = measure.legislature_name.includes(',')
       const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
       this.setState({
         loading_measure: false,
@@ -107,7 +107,7 @@ module.exports = class MeasureDetailsPage extends Component {
     })
   }
   fetchMeasure(short_id) {
-    const measureUrl = `/${~short_id.indexOf('-pn') ? 'nominations' : 'legislation'}/${short_id}`
+    const measureUrl = `/${short_id.includes('-pn') ? 'nominations' : 'legislation'}/${short_id}`
     const url = `/measures_detailed?short_id=eq.${short_id}`
 
     return this.api(url).then((results) => {
