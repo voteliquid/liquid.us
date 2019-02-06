@@ -1,3 +1,4 @@
+const { WWW_URL } = process.env
 const Component = require('./Component')
 const GoogleAddressAutocompleteScript = require('./GoogleAddressAutocompleteScript')
 
@@ -15,7 +16,10 @@ module.exports = class EndorsementPageSidebar extends Component {
       <nav class="box">
         ${EndorsementCount.for(this, { measure, offices: this.state.offices })}
         ${RecentEndorsements.for(this, { measure })}
-        ${NewSignupEndorseForm.for(this, { measure })}
+        ${!measure.comment.endorsed
+          ? NewSignupEndorseForm.for(this, { measure })
+          : AfterEndorseSocialShare.for(this, { measure })
+        }
       </nav>
     `
   }
@@ -180,6 +184,36 @@ class NewSignupEndorseForm extends Component {
           </div>
         </div>
       </form>
+    `
+  }
+}
+
+class AfterEndorseSocialShare extends Component {
+  render() {
+    const { author_username, id, short_id, title, type } = this.props.measure
+    const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
+    const comment_url = `${measure_url}/votes/${id}`
+    const share_url = `${WWW_URL}${comment_url}`
+    const share_text = `Join me in Endorsing this important legislation: ${share_url}`
+
+    return this.html`
+      <div class="content">
+        <p class="has-text-weight-semibold">Increase your impact by asking your friends and family to sign.</p>
+        <div class="buttons">
+          <a class="button is-link has-text-weight-bold" title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">
+            <span class="icon"><i class="fab fa-facebook"></i></span>
+            <span>Facebook</span>
+          </a>
+          <a class="button is-link has-text-weight-bold" title="Share on Twitter" target="_blank" href="${`https://twitter.com/intent/tweet?text=${share_text}`}">
+            <span class="icon"><i class="fab fa-twitter"></i></span>
+            <span>Twitter</span>
+          </a>
+          <a class="button is-link has-text-weight-bold" title="Share with Email" target="_blank" href="${`mailto:?subject=${title}&body=${share_text}`}">
+            <span class="icon"><i class="fa fa-envelope"></i></span>
+            <span>Email</span>
+          </a>
+        </div>
+      </div>
     `
   }
 }
