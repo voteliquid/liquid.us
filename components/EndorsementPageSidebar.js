@@ -230,6 +230,28 @@ class LoggedInForm extends Component {
   onsubmit(event, formData) {
     if (event) event.preventDefault()
     console.log('formData:', formData)
+
+    const { measure } = this.props
+    const { comment, user, short_id } = measure
+    const vote_id = comment.id
+
+    return this.api('/rpc/endorse', {
+      method: 'POST',
+      body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: true }),
+    })
+    .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
+    .then((votes) => {
+      this.setState({
+        measures: {
+          ...this.state.measures,
+          [short_id]: {
+            ...this.state.measures[short_id],
+            comment: votes[0] || this.state.measures[short_id].comment,
+          }
+        }
+      })
+    })
+    .catch((error) => console.log(error))
   }
   render() {
     const { measure } = this.props
