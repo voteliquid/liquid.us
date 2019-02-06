@@ -7,7 +7,11 @@ module.exports = (state, html, bundleUrl) => {
   const { page_description, page_title, selected_bill, selected_profile } = state
   const description = page_description || `A new democracy for the modern world.`
   const title = page_title ? `${page_title} | Liquid US` : `Liquid US | Digital Democracy Voting Platform`
+  const isComment = ~title.indexOf('urges')
 
+  const index = title.indexOf(":")
+  const commentPosition = title.substr(0, index)
+  const commentBill = title.substr(index + 1)
   // Potential og_image, first one wins
   const wi_image = state.location && state.location.query.legislature === 'WI' && state.location.path === '/legislation' && `${ASSETS_URL}/WI.png`
     // TODO (Jan 8, 2018): replace wi_image to support all 50 states
@@ -16,13 +20,14 @@ module.exports = (state, html, bundleUrl) => {
   const default_image = `https://blog.${WWW_DOMAIN}/assets/twitter_large.png`
   const og_image_url = state.og_image_url || wi_image || profile_image || measure_image || default_image
 
+
   return `
     <!DOCTYPE html>
     <html>
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>${title}</title>
+        <title>${isComment ? commentBill : title}</title>
         <link rel="icon" type="image/png" href=${`${ASSETS_URL}/favicon.png`} />
         <link rel="apple-touch-icon" sizes="180x180" href=${`${ASSETS_URL}/apple-touch-icon.png`}>
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
