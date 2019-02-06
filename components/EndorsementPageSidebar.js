@@ -112,7 +112,7 @@ class NewSignupEndorseForm extends Component {
           storage.set('refresh_token', refresh_token, { expires: oneYearFromNow })
           storage.set('user_id', user_id, { expires: oneYearFromNow })
 
-          // Update users name, address, and email
+          // Update users address
           return this.api(`/user_addresses?select=id&user_id=eq.${user_id}`, {
             method: 'POST',
             headers: { Prefer: 'return=representation' },
@@ -124,15 +124,52 @@ class NewSignupEndorseForm extends Component {
               geocoords: `POINT(${lon} ${lat})`,
             })
           }).then(() => {
-            // fetch user and re-render by setting state with the newly registered user
-            return this.api(`/users?select=id,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`).then((users) => users[0]).then((user) => {
-              this.setState({
-                user: {
-                  ...user,
-                  first_name,
-                  last_name,
-                  address: { address, city, state },
-                },
+            // Update users name
+            return this.api(`/users?select=id&id=eq.${user_id}`, {
+              method: 'PATCH',
+              headers: { Prefer: 'return=representation' },
+              body: JSON.stringify({
+                first_name,
+                last_name,
+              }),
+              storage,
+            })
+
+            .then(() => { // fetch user
+              return this.api(`/users?select=id,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`)
+              .then((users) => users[0]).then((user) => {
+
+                const { measure } = this.props
+                const { comment, short_id } = measure
+                const vote_id = comment.id
+
+                // Store endorsement
+                return this.api('/rpc/endorse', {
+                  method: 'POST',
+                  body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: true }),
+                })
+
+                // Get new endorsement count
+                .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
+                .then((votes) => {
+                  // And finally re-render with with the newly registered user and updated count
+                  this.setState({
+                    measures: {
+                      ...this.state.measures,
+                      [short_id]: {
+                        ...this.state.measures[short_id],
+                        comment: votes[0] || this.state.measures[short_id].comment,
+                      }
+                    },
+                    user: {
+                      ...user,
+                      first_name,
+                      last_name,
+                      address: { address, city, state },
+                    },
+                  })
+                })
+                .catch((error) => console.log(error))
               })
             })
           })
