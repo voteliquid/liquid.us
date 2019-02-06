@@ -13,12 +13,23 @@ module.exports = class EndorsementPageSidebar extends Component {
     console.log('measure:', measure)
 
     return this.html`
+
+      ${measure.user && measure.vote_position && !measure.comment.endorsed
+        // logged in, voted differently
+        ? VotedDifferentlyMessage.for(this, { measure }) : ''
+      }
+
       <nav class="box">
         ${EndorsementCount.for(this, { measure, offices: this.state.offices })}
         ${RecentEndorsements.for(this, { measure })}
-        ${!measure.comment.endorsed
+        ${!measure.user // logged out
           ? NewSignupEndorseForm.for(this, { measure })
-          : AfterEndorseSocialShare.for(this, { measure })
+
+          : measure.comment.endorsed // logged in, already endorsed
+            ? AfterEndorseSocialShare.for(this, { measure })
+
+            : // logged in, voted differently or haven't voted
+            LoggedInHaventVotedForm.for(this, { measure })
         }
       </nav>
     `
@@ -184,6 +195,77 @@ class NewSignupEndorseForm extends Component {
               : [`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`]
             }
             ${error && error.address ? [`<p class="help is-danger">${error.message}</p>`] : ''}
+          </div>
+          <p class="is-size-7" style="margin-top: .3rem;">So your reps know you're their constituent.</p>
+        </div>
+        <div class="field">
+          <div class="control">
+            <button class=${`button ${color} is-fullwidth has-text-weight-bold is-size-5`} type="submit">${action}</button>
+          </div>
+        </div>
+      </form>
+    `
+  }
+}
+
+class VotedDifferentlyMessage extends Component {
+  render() {
+    const { measure } = this.props
+
+    let previousVote = 'endorsed'
+    if (measure.vote_position === 'nay') { previousVote = 'opposed' }
+    if (measure.vote_position === 'abstain') { previousVote = 'abstained' }
+
+
+    return this.html`
+      <article class="notification is-warning is-marginless is-size-7">
+          You previously <strong>${previousVote}</strong> this item.<br />
+          This will switch your vote.
+      </article>
+    `
+  }
+}
+
+class LoggedInHaventVotedForm extends Component {
+  onsubmit(event, formData) {
+    if (event) event.preventDefault()
+    console.log('formData:', formData)
+  }
+  render() {
+    const { measure } = this.props
+    const { user } = measure
+
+    let action = 'Endorse'; let color = 'is-success'
+    if (measure.comment.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
+    if (measure.comment.position === 'abstain') { action = 'Join abstention'; color = 'is-dark' }
+
+    return this.html`
+      <form method="POST" style="width: 100%;" method="POST" onsubmit=${this} action=${this}>
+        <div class="field">
+          <label class="label has-text-grey">Your Name *</label>
+          <div class="control has-icons-right">
+            <input name="name" autocomplete="off" class="input" placeholder="John Doe" value="${[user.first_name, user.last_name].filter(a => a).join(' ')}" required disabled />
+            <span class="icon is-small is-right"><i class="fa fa-lock"></i></span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label has-text-grey">Your Email *</label>
+          <div class="field has-addons join-input-field">
+            <div class="control is-expanded has-icons-right">
+              <input name="email" class="input" type="text" placeholder="you@example.com" value=${user.email} required disabled />
+              <span class="icon is-small is-right"><i class="fa fa-lock"></i></span>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label has-text-grey">Your Address</label>
+          <div class="control has-icons-right">
+            <input class="input" autocomplete="off" name="address[address]" id="address_autocomplete" placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" disabled />
+            <input name="address[lat]" id="address_lat" type="hidden" />
+            <input name="address[lon]" id="address_lon" type="hidden" />
+            <input name="address[city]" id="city" type="hidden" />
+            <input name="address[state]" id="state" type="hidden" />
+            <span class="icon is-small is-right"><i class="fa fa-lock"></i></span>
           </div>
           <p class="is-size-7" style="margin-top: .3rem;">So your reps know you're their constituent.</p>
         </div>
