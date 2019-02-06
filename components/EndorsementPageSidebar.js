@@ -288,7 +288,7 @@ class AfterEndorseSocialShare extends Component {
     const share_text = `Join me in Endorsing this important legislation: ${share_url}`
 
     return this.html`
-      <div class="content">
+      <div class="content" style="max-width: 253px;">
         <p class="has-text-weight-semibold">Increase your impact by asking your friends and family to sign.</p>
         <div class="buttons">
           <a class="button is-link has-text-weight-bold" title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">
