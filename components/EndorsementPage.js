@@ -151,7 +151,7 @@ class CommentDetailPage extends Component {
                 ${MeasureSummary.for(this, { measure: l, expanded: true, size: 5 }, `endorsement-${l.comment.id}`)}
               </div>
               <div class="mobile-hover-bar">
-                ${MobileHoverBar.for(this, { measure: l, user, onclick: this.triggerMobileForm.bind(this) })}
+                ${!l.comment.endorsed ? MobileHoverBar.for(this, { measure: l, user, onclick: this.triggerMobileForm.bind(this) }) : ''}
               </div>
               ${MobileForm.for(this, { ...l, user, visible: mobileFormVisible, onclick: this.triggerMobileForm.bind(this) })}
             </div>
