@@ -7,6 +7,7 @@ const MobileForm = require('./EndorsementPageMobileForm')
 const MeasureSummary = require('./MeasureSummary')
 const { fetchConstituentVotes } = require('./MeasureDetailsPage').prototype
 const stateNames = require('datasets-us-states-abbr-names')
+const { EndorsementCount } = require('./EndorsementPageSidebar')
 
 module.exports = class CommentPage extends Component {
   oninit() {
@@ -145,13 +146,16 @@ class CommentDetailPage extends Component {
             <div class="column">
               <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>
               <h2 class="title has-text-weight-normal is-5 has-text-dark">${myReps}</h2>
+              <div class="small-screens-only">
+                ${EndorsementCount.for(this, { measure: l })}
+              </div>
               <br>
               ${EndorsementPageComment.for(this, { ...l.comment, shouldTruncate: false })}
               <div style="border-left: 2px solid hsl(0, 0%, 60%); padding-left: 2rem; margin-top: 2rem;">
                 ${MeasureSummary.for(this, { measure: l, expanded: true, size: 5 }, `endorsement-${l.comment.id}`)}
               </div>
-              <div class="mobile-hover-bar">
-                ${!l.comment.endorsed ? MobileHoverBar.for(this, { measure: l, user, onclick: this.triggerMobileForm.bind(this) }) : ''}
+              <div class="small-screens-only">
+                ${MobileHoverBar.for(this, { measure: l, user, onclick: this.triggerMobileForm.bind(this) })}
               </div>
               ${MobileForm.for(this, { ...l, user, visible: mobileFormVisible, onclick: this.triggerMobileForm.bind(this) })}
             </div>
@@ -163,12 +167,15 @@ class CommentDetailPage extends Component {
                 .sticky-panel.column {
                   display: none;
                 }
-                .mobile-hover-bar {
+                .small-screens-only {
                   display: block;
                 }
                 @media (min-width: 828px) {
                   .sticky-panel.column {
                     display: block;
+                  }
+                  .sticky-panel .content {
+                    max-width: 253px;
                   }
 
                   .panel-wrapper {
@@ -178,7 +185,7 @@ class CommentDetailPage extends Component {
                     z-index: 15;
                   }
 
-                  .mobile-hover-bar {
+                  .small-screens-only {
                     display: none;
                   }
                 }
@@ -198,6 +205,7 @@ class MobileHoverBar extends Component {
     let action = 'Endorse'; let color = 'is-success'
     if (measure.comment.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
     if (measure.comment.position === 'abstain') { action = 'Join abstention'; color = 'is-dark' }
+    if (measure.comment.endorsed) { action = 'Share'; color = 'is-link' }
 
     return this.html`
       <div style="

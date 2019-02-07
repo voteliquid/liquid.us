@@ -19,13 +19,13 @@ module.exports = class EndorsementPageSidebar extends Component {
       }
 
       <nav class="box">
-        ${EndorsementCount.for(this, { measure, offices: this.state.offices })}
+        ${module.exports.EndorsementCount.for(this, { measure })}
         ${RecentEndorsements.for(this, { measure })}
         ${!measure.user // logged out
           ? NewSignupEndorseForm.for(this, { measure })
 
           : measure.comment.endorsed // logged in, already endorsed
-            ? AfterEndorseSocialShare.for(this, { measure })
+            ? module.exports.AfterEndorseSocialShare.for(this, { measure })
 
             : // logged in, voted differently or haven't voted
             LoggedInForm.for(this, { measure })
@@ -35,7 +35,7 @@ module.exports = class EndorsementPageSidebar extends Component {
   }
 }
 
-class EndorsementCount extends Component {
+module.exports.EndorsementCount = class EndorsementCount extends Component {
   render() {
     const { measure } = this.props
     const { proxy_vote_count } = measure.comment
@@ -331,7 +331,7 @@ class LoggedInForm extends Component {
   }
 }
 
-class AfterEndorseSocialShare extends Component {
+module.exports.AfterEndorseSocialShare = class AfterEndorseSocialShare extends Component {
   render() {
     const { author_username, comment, id, short_id, title, type } = this.props.measure
     const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
@@ -344,7 +344,7 @@ class AfterEndorseSocialShare extends Component {
     const share_text = `Join me in ${actionIng} ${title}: ${share_url}`
 
     return this.html`
-      <div class="content" style="max-width: 253px;">
+      <div class="content">
         <p class="has-text-weight-semibold">Increase your impact by asking your friends and family to ${actionTo}.</p>
         <div class="buttons is-centered">
           <a class="button is-link has-text-weight-bold" title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">

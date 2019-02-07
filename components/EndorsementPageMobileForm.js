@@ -1,10 +1,5 @@
-const { WWW_URL } = process.env
 const Component = require('./Component')
-
-const milestones = [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000]
-function nextMilestone(current) {
-  return milestones.filter(ms => ms > current)[0]
-}
+const { EndorsementCount, AfterEndorseSocialShare } = require('./EndorsementPageSidebar')
 
 module.exports = class EndorsementPageMobileForm extends Component {
   render() {
@@ -20,7 +15,7 @@ module.exports = class EndorsementPageMobileForm extends Component {
           }
 
           <nav class="box">
-            ${EndorsementCount.for(this, { measure, offices: this.state.offices })}
+            ${EndorsementCount.for(this, { measure })}
             ${RecentEndorsements.for(this, { measure })}
             ${!measure.user // logged out
               ? NewSignupEndorseForm.for(this, { measure })
@@ -42,26 +37,6 @@ module.exports = class EndorsementPageMobileForm extends Component {
           }
         }
       </style>
-    `
-  }
-}
-
-class EndorsementCount extends Component {
-  render() {
-    const { measure } = this.props
-    const { proxy_vote_count } = measure.comment
-
-    const count = proxy_vote_count
-
-    let action = 'endorsed'; let color = 'is-success'
-    if (measure.comment.position === 'nay') { action = 'opposed'; color = 'is-danger' }
-    if (measure.comment.position === 'abstain') { action = 'abstained'; color = 'is-dark' }
-
-    return this.html`
-      <div>
-        <p><span class="has-text-weight-bold">${count} ${count === 1 ? 'has' : 'have'} ${action}.</span> Let's get to ${nextMilestone(count)}!</p>
-        <progress class=${`progress ${color}`} style="margin-top: 0.5rem; margin-bottom: 1.5rem" value=${count} max=${nextMilestone(count)}>15%</progress>
-      </div>
     `
   }
 }
@@ -338,40 +313,6 @@ class LoggedInForm extends Component {
           </div>
         </div>
       </form>
-    `
-  }
-}
-
-class AfterEndorseSocialShare extends Component {
-  render() {
-    const { author_username, comment, id, short_id, title, type } = this.props.measure
-    const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
-    const comment_url = `${measure_url}/votes/${id}`
-    const share_url = `${WWW_URL}${comment_url}`
-
-    let action = 'endorsing'
-    if (comment.position === 'nay') { action = 'opposing' }
-    if (comment.position === 'abstain') { action = 'abstaining on' }
-    const share_text = `Join me in ${action} ${title}: ${share_url}`
-
-    return this.html`
-      <div class="content" style="max-width: 253px;">
-        <p class="has-text-weight-semibold">Increase your impact by asking your friends and family to endorse.</p>
-        <div class="buttons is-centered">
-          <a class="button is-link has-text-weight-bold" title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">
-            <span class="icon"><i class="fab fa-facebook"></i></span>
-            <span>Post on Facebook</span>
-          </a>
-          <a class="button is-link has-text-weight-bold" title="Share on Twitter" target="_blank" href="${`https://twitter.com/intent/tweet?text=${share_text}`}">
-            <span class="icon"><i class="fab fa-twitter"></i></span>
-            <span>Tweet your people</span>
-          </a>
-          <a class="button is-link has-text-weight-bold" title="Share with Email" target="_blank" href="${`mailto:?subject=${title}&body=${share_text}`}">
-            <span class="icon"><i class="fa fa-envelope"></i></span>
-            <span>Email</span>
-          </a>
-        </div>
-      </div>
     `
   }
 }
