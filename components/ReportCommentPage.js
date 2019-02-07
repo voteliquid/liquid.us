@@ -2,7 +2,6 @@ const Component = require('./Component')
 const Comment = require('./Comment')
 const LoadingIndicator = require('./LoadingIndicator')
 const Sidebar = require('./MeasureDetailsSidebar')
-const Endorse = require('./Endorse')
 const { fetchConstituentVotes } = require('./MeasureDetailsPage').prototype
 
 module.exports = class ReportCommentPage extends Component {
@@ -216,11 +215,10 @@ class CommentNotFoundPage extends Component {
 
 class CommentDetailPage extends Component {
   render() {
-    const { legislatures = [], user } = this.state
+    const { user } = this.state
     const { measure: l } = this.props
     const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
     const url = `${l.author_username ? `/${l.author_username}/` : '/'}${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`
-    const userInJurisdiction = user && legislatures && legislatures.some(({ name }) => name === l.legislature_name)
 
     return this.html`
       <section class="section">
@@ -234,7 +232,6 @@ class CommentDetailPage extends Component {
                 </a>
               </div>
               ${Comment.for(this, { ...l.comment, shouldTruncate: false })}
-              ${l.comment && (!user || userInJurisdiction) ? Endorse.for(this, { vote: l.comment, vote_position: l.vote_position, user }) : ''}
               <br />
               <div>
                 <a class="is-size-7 has-text-grey button is-text" href="${url}">
