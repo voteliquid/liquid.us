@@ -1,36 +1,47 @@
 const { WWW_URL } = process.env
 const Component = require('./Component')
-const GoogleAddressAutocompleteScript = require('./EndorsementGoogleAddressAutocompleteScript')
 
 const milestones = [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000]
 function nextMilestone(current) {
   return milestones.filter(ms => ms > current)[0]
 }
 
-module.exports = class EndorsementPageSidebar extends Component {
+module.exports = class EndorsementPageMobileForm extends Component {
   render() {
     const measure = this.props
 
     return this.html`
+      <div style="z-index: 30;" class=${`modal ${this.props.visible ? 'is-active' : ''} mobile-only`}>
+        <div class="modal-background" onclick=${this.props.onclick}></div>
+        <div class="modal-content">
+          ${measure.user && measure.vote_position && !measure.comment.endorsed
+            // logged in, voted differently
+            ? VotedDifferentlyMessage.for(this, { measure }) : ''
+          }
 
-      ${measure.user && measure.vote_position && !measure.comment.endorsed
-        // logged in, voted differently
-        ? VotedDifferentlyMessage.for(this, { measure }) : ''
-      }
+          <nav class="box">
+            ${EndorsementCount.for(this, { measure, offices: this.state.offices })}
+            ${RecentEndorsements.for(this, { measure })}
+            ${!measure.user // logged out
+              ? NewSignupEndorseForm.for(this, { measure })
 
-      <nav class="box">
-        ${EndorsementCount.for(this, { measure, offices: this.state.offices })}
-        ${RecentEndorsements.for(this, { measure })}
-        ${!measure.user // logged out
-          ? NewSignupEndorseForm.for(this, { measure })
+              : measure.comment.endorsed // logged in, already endorsed
+              ? AfterEndorseSocialShare.for(this, { measure })
 
-          : measure.comment.endorsed // logged in, already endorsed
-            ? AfterEndorseSocialShare.for(this, { measure })
-
-            : // logged in, voted differently or haven't voted
-            LoggedInForm.for(this, { measure })
+              : // logged in, voted differently or haven't voted
+              LoggedInForm.for(this, { measure })
+            }
+          </nav>
+        </div>
+        <button class="modal-close is-large" aria-label="close" onclick=${this.props.onclick}></button>
+      </div>
+      <style>
+        @media (min-width: 828px) {
+          .mobile-only {
+            display: none !important;
+          }
         }
-      </nav>
+      </style>
     `
   }
 }
@@ -219,12 +230,12 @@ class NewSignupEndorseForm extends Component {
         <div class="field">
           <label class="label has-text-grey">Your Address</label>
           <div class="control has-icons-left">
-            <input class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address[address]" id="address_autocomplete_sidebar" placeholder="185 Berry Street, San Francisco, CA 94121" />
-            <input name="address[lat]" id="address_lat_sidebar" type="hidden" />
-            <input name="address[lon]" id="address_lon_sidebar" type="hidden" />
-            <input name="address[city]" id="city_sidebar" type="hidden" />
-            <input name="address[state]" id="state_sidebar" type="hidden" />
-            ${GoogleAddressAutocompleteScript()}
+            <input class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address[address]" id="address_autocomplete_mobileform" placeholder="185 Berry Street, San Francisco, CA 94121" />
+            <input name="address[lat]" id="address_lat_mobileform" type="hidden" />
+            <input name="address[lon]" id="address_lon_mobileform" type="hidden" />
+            <input name="address[city]" id="city_mobileform" type="hidden" />
+            <input name="address[state]" id="state_mobileform" type="hidden" />
+            ${''/* Uses EndorsementGoogleAddressAutocompleteScript.js, initialized in EndorsementPageSidebar */}
             ${error && error.address
               ? [`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`]
               : [`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`]
@@ -235,7 +246,7 @@ class NewSignupEndorseForm extends Component {
         </div>
         <div class="field">
           <div class="control">
-            <button class=${`button ${color} is-fullwidth has-text-weight-bold is-size-5`} type="submit">${action}</button>
+            <button class=${`button ${color} is-fullwidth fix-bulma-centered-text has-text-weight-bold is-size-5`} type="submit">${action}</button>
           </div>
         </div>
       </form>
@@ -323,7 +334,7 @@ class LoggedInForm extends Component {
         </div>
         <div class="field">
           <div class="control">
-            <button class=${`button ${color} is-fullwidth has-text-weight-bold is-size-5`} type="submit">${action}</button>
+            <button class=${`button ${color} is-fullwidth fix-bulma-centered-text has-text-weight-bold is-size-5`} type="submit">${action}</button>
           </div>
         </div>
       </form>
@@ -338,14 +349,14 @@ class AfterEndorseSocialShare extends Component {
     const comment_url = `${measure_url}/votes/${id}`
     const share_url = `${WWW_URL}${comment_url}`
 
-    let actionIng = 'endorsing'; let actionTo = 'endorse'
-    if (comment.position === 'nay') { actionIng = 'opposing'; actionTo = 'oppose' }
-    if (comment.position === 'abstain') { actionIng = 'abstaining on'; actionTo = 'abstain' }
-    const share_text = `Join me in ${actionIng} ${title}: ${share_url}`
+    let action = 'endorsing'
+    if (comment.position === 'nay') { action = 'opposing' }
+    if (comment.position === 'abstain') { action = 'abstaining on' }
+    const share_text = `Join me in ${action} ${title}: ${share_url}`
 
     return this.html`
       <div class="content" style="max-width: 253px;">
-        <p class="has-text-weight-semibold">Increase your impact by asking your friends and family to ${actionTo}.</p>
+        <p class="has-text-weight-semibold">Increase your impact by asking your friends and family to endorse.</p>
         <div class="buttons is-centered">
           <a class="button is-link has-text-weight-bold" title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">
             <span class="icon"><i class="fab fa-facebook"></i></span>

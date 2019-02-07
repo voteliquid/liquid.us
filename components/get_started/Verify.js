@@ -81,7 +81,8 @@ module.exports = {
           ${error ? [`
             <div class="notification is-warning">
               <p>${error}</p>
-              <p>Please contact support@${WWW_DOMAIN} if you need assistance.</p>
+              <br />
+              <p>Please contact <a href="mailto:support@${WWW_DOMAIN}">support@${WWW_DOMAIN}</a> if you need assistance.</p>
             </div>
           `] : ''}
           ${showVerifyOtpForm

@@ -32,7 +32,7 @@ module.exports = {
           bottom: 0;
           right: 15px;
           margin-bottom: 0 !important;
-          z-index: 99;
+          z-index: 10;
         }
         .contact-window {
           border: 1px solid #deeaf2;

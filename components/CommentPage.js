@@ -3,6 +3,7 @@ const Component = require('./Component')
 const EndorsementPageComment = require('./EndorsementPageComment')
 const LoadingIndicator = require('./LoadingIndicator')
 const Sidebar = require('./EndorsementPageSidebar')
+const MobileForm = require('./EndorsementPageMobileForm')
 const MeasureSummary = require('./MeasureSummary')
 const ReportComment = require('./ReportComment')
 const { fetchConstituentVotes } = require('./MeasureDetailsPage').prototype
@@ -123,9 +124,14 @@ class CommentNotFoundPage extends Component {
 }
 
 class CommentDetailPage extends Component {
+  triggerMobileForm() {
+    return this.setState({ mobileFormVisible: !this.state.mobileFormVisible })
+  }
+
   render() {
-    const { user, reps } = this.state
+    const { user, reps, mobileFormVisible } = this.state
     const { measure: l } = this.props
+
     let city; let myReps
     if (user && user.address) {
       city = user && user.address && `${user.address.city}, ${user.address.state}`
@@ -146,15 +152,71 @@ class CommentDetailPage extends Component {
               <div style="border-left: 2px solid hsl(0, 0%, 60%); padding-left: 2rem; margin-top: 2rem;">
                 ${MeasureSummary.for(this, { measure: l, expanded: true, size: 5 }, `endorsement-${l.comment.id}`)}
               </div>
+              <div class="mobile-hover-bar">
+                ${MobileHoverBar.for(this, { measure: l, user, onclick: this.triggerMobileForm.bind(this) })}
+              </div>
+              ${MobileForm.for(this, { ...l, user, visible: mobileFormVisible, onclick: this.triggerMobileForm.bind(this) })}
             </div>
-            <div class="column is-one-quarter">
-              <div style="position: fixed; margin-left: 2rem; margin-right: 15px;">
+            <div class="column is-one-quarter sticky-panel">
+              <div class="panel-wrapper">
                 ${Sidebar.for(this, { ...l, user }, `commentpage-sidebar-${l.id}`)}
               </div>
+              <style>
+                .sticky-panel.column {
+                  display: none;
+                }
+                .mobile-hover-bar {
+                  display: block;
+                }
+                @media (min-width: 828px) {
+                  .sticky-panel.column {
+                    display: block;
+                  }
+
+                  .panel-wrapper {
+                    position: fixed;
+                    margin-left: 2rem;
+                    margin-right: 15px;
+                    z-index: 15;
+                  }
+
+                  .mobile-hover-bar {
+                    display: none;
+                  }
+                }
+              </style>
             </div>
           </div>
         </div>
       </section>
+    `
+  }
+}
+
+class MobileHoverBar extends Component {
+  render() {
+    const { measure } = this.props
+
+    let action = 'Endorse'; let color = 'is-success'
+    if (measure.comment.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
+    if (measure.comment.position === 'abstain') { action = 'Join abstention'; color = 'is-dark' }
+
+    return this.html`
+      <div style="
+        position: fixed;
+        left: 0; bottom: 0;
+        width: 100%;
+        z-index: 18;
+        background: white;
+        border-top: 1px solid #ccc;
+        padding: 10px 15px;
+      ">
+        <div class="field">
+          <div class="control">
+            <button class=${`button ${color} is-fullwidth fix-bulma-centered-text has-text-weight-bold is-size-5`} onclick=${this.props.onclick}>${action}</button>
+          </div>
+        </div>
+      </div>
     `
   }
 }
