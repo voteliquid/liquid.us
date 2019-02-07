@@ -1,6 +1,5 @@
 const { WWW_URL } = process.env
 const Component = require('./Component')
-const GoogleAddressAutocompleteScript = require('./GoogleAddressAutocompleteScript')
 
 const milestones = [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000]
 function nextMilestone(current) {
@@ -77,7 +76,6 @@ class RecentEndorsements extends Component {
 class NewSignupEndorseForm extends Component {
   onsubmit(event, formData) {
     if (event) event.preventDefault()
-    console.log('formData:', formData)
 
     const name_pieces = formData.name.split(' ')
     const first_name = name_pieces[0]
@@ -232,12 +230,12 @@ class NewSignupEndorseForm extends Component {
         <div class="field">
           <label class="label has-text-grey">Your Address</label>
           <div class="control has-icons-left">
-            <input class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address[address]" id="address_autocomplete" placeholder="185 Berry Street, San Francisco, CA 94121" />
-            <input name="address[lat]" id="address_lat" type="hidden" />
-            <input name="address[lon]" id="address_lon" type="hidden" />
-            <input name="address[city]" id="city" type="hidden" />
-            <input name="address[state]" id="state" type="hidden" />
-            ${GoogleAddressAutocompleteScript()}
+            <input class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address[address]" id="address_autocomplete_mobileform" placeholder="185 Berry Street, San Francisco, CA 94121" />
+            <input name="address[lat]" id="address_lat_mobileform" type="hidden" />
+            <input name="address[lon]" id="address_lon_mobileform" type="hidden" />
+            <input name="address[city]" id="city_mobileform" type="hidden" />
+            <input name="address[state]" id="state_mobileform" type="hidden" />
+            ${''/* Uses EndorsementGoogleAddressAutocompleteScript.js, initialized in EndorsementPageSidebar */}
             ${error && error.address
               ? [`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`]
               : [`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`]
@@ -275,9 +273,8 @@ class VotedDifferentlyMessage extends Component {
 }
 
 class LoggedInForm extends Component {
-  onsubmit(event, formData) {
+  onsubmit(event) {
     if (event) event.preventDefault()
-    console.log('formData:', formData)
 
     const { measure } = this.props
     const { comment, user, short_id } = measure
@@ -330,11 +327,7 @@ class LoggedInForm extends Component {
         <div class="field">
           <label class="label has-text-grey">Your Address</label>
           <div class="control has-icons-right">
-            <input class="input" autocomplete="off" name="address[address]" id="address_autocomplete" placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" disabled />
-            <input name="address[lat]" id="address_lat" type="hidden" />
-            <input name="address[lon]" id="address_lon" type="hidden" />
-            <input name="address[city]" id="city" type="hidden" />
-            <input name="address[state]" id="state" type="hidden" />
+            <input class="input" autocomplete="off" name="address[address]" placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" disabled />
             <span class="icon is-small is-right"><i class="fa fa-lock"></i></span>
           </div>
           <p class="is-size-7" style="margin-top: .3rem;">So your reps know you're their constituent.</p>
