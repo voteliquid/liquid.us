@@ -245,8 +245,8 @@ module.exports = {
                 <section class="section space-out-multiline">
                   <h4 class="title is-4 reveal">Introduction</h4>
                   <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2016/09/21/what-is-liquid-democracy/`}" target="_blank">What is Liquid Democracy?</a></p>
-                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/11/06/announcing-united-vote/`}" target="_blank">Introducing United.vote: Help Build a Democracy We Can Trust</a></p>
                   <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/07/04/running-liquid-democracy-candidates/`}" target="_blank">Liquid Democracy Candidates: How to Upgrade Our Legislature, One Seat at a Time</a></p>
+                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2018/10/02/introducing-liquid-us/`}" target="_blank">Introducing Liquid US and Support for All 50 States and Local Legislatures</a></p>
                 </section>
 
                 <section class="section space-out-multiline">
