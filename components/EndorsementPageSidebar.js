@@ -1,6 +1,6 @@
 const { WWW_URL } = process.env
 const Component = require('./Component')
-const GoogleAddressAutocompleteScript = require('./GoogleAddressAutocompleteScript')
+const GoogleAddressAutocompleteScript = require('./EndorsementGoogleAddressAutocompleteScript')
 
 const milestones = [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000]
 function nextMilestone(current) {
@@ -10,7 +10,6 @@ function nextMilestone(current) {
 module.exports = class EndorsementPageSidebar extends Component {
   render() {
     const measure = this.props
-    console.log('measure:', measure)
 
     return this.html`
 
@@ -20,13 +19,13 @@ module.exports = class EndorsementPageSidebar extends Component {
       }
 
       <nav class="box">
-        ${EndorsementCount.for(this, { measure, offices: this.state.offices })}
+        ${module.exports.EndorsementCount.for(this, { measure })}
         ${RecentEndorsements.for(this, { measure })}
         ${!measure.user // logged out
           ? NewSignupEndorseForm.for(this, { measure })
 
           : measure.comment.endorsed // logged in, already endorsed
-            ? AfterEndorseSocialShare.for(this, { measure })
+            ? module.exports.AfterEndorseSocialShare.for(this, { measure })
 
             : // logged in, voted differently or haven't voted
             LoggedInForm.for(this, { measure })
@@ -36,7 +35,7 @@ module.exports = class EndorsementPageSidebar extends Component {
   }
 }
 
-class EndorsementCount extends Component {
+module.exports.EndorsementCount = class EndorsementCount extends Component {
   render() {
     const { measure } = this.props
     const { proxy_vote_count } = measure.comment
@@ -66,7 +65,6 @@ class RecentEndorsements extends Component {
 class NewSignupEndorseForm extends Component {
   onsubmit(event, formData) {
     if (event) event.preventDefault()
-    console.log('formData:', formData)
 
     const name_pieces = formData.name.split(' ')
     const first_name = name_pieces[0]
@@ -112,7 +110,7 @@ class NewSignupEndorseForm extends Component {
           storage.set('refresh_token', refresh_token, { expires: oneYearFromNow })
           storage.set('user_id', user_id, { expires: oneYearFromNow })
 
-          // Update users name, address, and email
+          // Update users address
           return this.api(`/user_addresses?select=id&user_id=eq.${user_id}`, {
             method: 'POST',
             headers: { Prefer: 'return=representation' },
@@ -124,15 +122,52 @@ class NewSignupEndorseForm extends Component {
               geocoords: `POINT(${lon} ${lat})`,
             })
           }).then(() => {
-            // fetch user and re-render by setting state with the newly registered user
-            return this.api(`/users?select=id,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`).then((users) => users[0]).then((user) => {
-              this.setState({
-                user: {
-                  ...user,
-                  first_name,
-                  last_name,
-                  address: { address, city, state },
-                },
+            // Update users name
+            return this.api(`/users?select=id&id=eq.${user_id}`, {
+              method: 'PATCH',
+              headers: { Prefer: 'return=representation' },
+              body: JSON.stringify({
+                first_name,
+                last_name,
+              }),
+              storage,
+            })
+
+            .then(() => { // fetch user
+              return this.api(`/users?select=id,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`)
+              .then((users) => users[0]).then((user) => {
+
+                const { measure } = this.props
+                const { comment, short_id } = measure
+                const vote_id = comment.id
+
+                // Store endorsement
+                return this.api('/rpc/endorse', {
+                  method: 'POST',
+                  body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: true }),
+                })
+
+                // Get new endorsement count
+                .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
+                .then((votes) => {
+                  // And finally re-render with with the newly registered user and updated count
+                  this.setState({
+                    measures: {
+                      ...this.state.measures,
+                      [short_id]: {
+                        ...this.state.measures[short_id],
+                        comment: votes[0] || this.state.measures[short_id].comment,
+                      }
+                    },
+                    user: {
+                      ...user,
+                      first_name,
+                      last_name,
+                      address: { address, city, state },
+                    },
+                  })
+                })
+                .catch((error) => console.log(error))
               })
             })
           })
@@ -184,11 +219,11 @@ class NewSignupEndorseForm extends Component {
         <div class="field">
           <label class="label has-text-grey">Your Address</label>
           <div class="control has-icons-left">
-            <input class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address[address]" id="address_autocomplete" placeholder="185 Berry Street, San Francisco, CA 94121" />
-            <input name="address[lat]" id="address_lat" type="hidden" />
-            <input name="address[lon]" id="address_lon" type="hidden" />
-            <input name="address[city]" id="city" type="hidden" />
-            <input name="address[state]" id="state" type="hidden" />
+            <input class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address[address]" id="address_autocomplete_sidebar" placeholder="185 Berry Street, San Francisco, CA 94121" />
+            <input name="address[lat]" id="address_lat_sidebar" type="hidden" />
+            <input name="address[lon]" id="address_lon_sidebar" type="hidden" />
+            <input name="address[city]" id="city_sidebar" type="hidden" />
+            <input name="address[state]" id="state_sidebar" type="hidden" />
             ${GoogleAddressAutocompleteScript()}
             ${error && error.address
               ? [`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`]
@@ -214,12 +249,12 @@ class VotedDifferentlyMessage extends Component {
 
     let previousVote = 'endorsed'
     if (measure.vote_position === 'nay') { previousVote = 'opposed' }
-    if (measure.vote_position === 'abstain') { previousVote = 'abstained' }
+    if (measure.vote_position === 'abstain') { previousVote = 'abstained <span class="has-text-weight-normal">on</span>' }
 
 
     return this.html`
       <article class="notification is-warning is-marginless is-size-7">
-          You previously <strong>${previousVote}</strong> this item.<br />
+          You previously <strong>${[previousVote]}</strong> this item.<br />
           This will switch your vote.
       </article>
     `
@@ -227,9 +262,30 @@ class VotedDifferentlyMessage extends Component {
 }
 
 class LoggedInForm extends Component {
-  onsubmit(event, formData) {
+  onsubmit(event) {
     if (event) event.preventDefault()
-    console.log('formData:', formData)
+
+    const { measure } = this.props
+    const { comment, user, short_id } = measure
+    const vote_id = comment.id
+
+    return this.api('/rpc/endorse', {
+      method: 'POST',
+      body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: true }),
+    })
+    .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
+    .then((votes) => {
+      this.setState({
+        measures: {
+          ...this.state.measures,
+          [short_id]: {
+            ...this.state.measures[short_id],
+            comment: votes[0] || this.state.measures[short_id].comment,
+          }
+        }
+      })
+    })
+    .catch((error) => console.log(error))
   }
   render() {
     const { measure } = this.props
@@ -260,11 +316,7 @@ class LoggedInForm extends Component {
         <div class="field">
           <label class="label has-text-grey">Your Address</label>
           <div class="control has-icons-right">
-            <input class="input" autocomplete="off" name="address[address]" id="address_autocomplete" placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" disabled />
-            <input name="address[lat]" id="address_lat" type="hidden" />
-            <input name="address[lon]" id="address_lon" type="hidden" />
-            <input name="address[city]" id="city" type="hidden" />
-            <input name="address[state]" id="state" type="hidden" />
+            <input class="input" autocomplete="off" name="address[address]" placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" disabled />
             <span class="icon is-small is-right"><i class="fa fa-lock"></i></span>
           </div>
           <p class="is-size-7" style="margin-top: .3rem;">So your reps know you're their constituent.</p>
@@ -279,25 +331,29 @@ class LoggedInForm extends Component {
   }
 }
 
-class AfterEndorseSocialShare extends Component {
+module.exports.AfterEndorseSocialShare = class AfterEndorseSocialShare extends Component {
   render() {
-    const { author_username, id, short_id, title, type } = this.props.measure
+    const { author_username, comment, id, short_id, title, type } = this.props.measure
     const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
     const comment_url = `${measure_url}/votes/${id}`
     const share_url = `${WWW_URL}${comment_url}`
-    const share_text = `Join me in Endorsing this important legislation: ${share_url}`
+
+    let actionIng = 'endorsing'; let actionTo = 'endorse'
+    if (comment.position === 'nay') { actionIng = 'opposing'; actionTo = 'oppose' }
+    if (comment.position === 'abstain') { actionIng = 'abstaining on'; actionTo = 'abstain' }
+    const share_text = `Join me in ${actionIng} ${title}: ${share_url}`
 
     return this.html`
-      <div class="content" style="max-width: 253px;">
-        <p class="has-text-weight-semibold">Increase your impact by asking your friends and family to sign.</p>
-        <div class="buttons">
+      <div class="content">
+        <p class="has-text-weight-semibold">Increase your impact by asking your friends and family to ${actionTo}.</p>
+        <div class="buttons is-centered">
           <a class="button is-link has-text-weight-bold" title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">
             <span class="icon"><i class="fab fa-facebook"></i></span>
-            <span>Facebook</span>
+            <span>Post on Facebook</span>
           </a>
           <a class="button is-link has-text-weight-bold" title="Share on Twitter" target="_blank" href="${`https://twitter.com/intent/tweet?text=${share_text}`}">
             <span class="icon"><i class="fab fa-twitter"></i></span>
-            <span>Twitter</span>
+            <span>Tweet your people</span>
           </a>
           <a class="button is-link has-text-weight-bold" title="Share with Email" target="_blank" href="${`mailto:?subject=${title}&body=${share_text}`}">
             <span class="icon"><i class="fa fa-envelope"></i></span>

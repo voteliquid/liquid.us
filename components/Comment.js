@@ -255,6 +255,7 @@ module.exports = class Comment extends Component {
       })
     })
   }
+
   render() {
     const endorsed_vote = !(this.state.user && this.state.user.id === this.props.user_id && this.props.comment) && this.props.endorsed_vote
     const vote = this.props
@@ -334,9 +335,8 @@ module.exports = class Comment extends Component {
                     <span class="icon is-small"><i class="fas fa-pencil-alt"></i></span>
                     <span>Edit</span>
                   </a>
-                `] : [`
-                `]
-              }
+                `] : ''}
+                ${user && comment ? ReportLink.for(this, { share_url, comment: endorsed_vote || vote, short_id }) : ''}
                 ${is_public || !fullname ? [`
                   <span class="has-text-grey-lighter">&bullet;</span>
                   <a title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-facebook"></i></span></a>
@@ -348,6 +348,43 @@ module.exports = class Comment extends Component {
           </div>
         </div>
       </div>
+    `
+  }
+}
+
+class ReportLink extends Component {
+  onclick(event) {
+    event.preventDefault()
+
+    const { user } = this.state
+    const { comment } = this.props
+
+    if (!comment.reported) {
+      this.api('/reports', {
+        method: 'POST',
+        body: JSON.stringify({
+          reporter_id: user.id,
+          comment_author_id: comment.user_id,
+          comment_id: comment.id,
+          explanation: null,
+        }),
+      })
+      .then(() => {
+        this.setProps({ comment: { ...comment, reported: true } }).render(this.props)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+    }
+  }
+  render() {
+    const { share_url, comment } = this.props
+    const report_url = `${share_url}?action=report`
+    return this.html`
+      <span>
+        <span class="has-text-grey-lighter">&bullet;</span>
+        <a onclick="${this}" class="has-text-grey-light" href="${report_url}">${comment.reported ? 'Reported' : 'Report'}</a>
+      </span>
     `
   }
 }
