@@ -344,23 +344,27 @@ class LoggedInForm extends Component {
 
 class AfterEndorseSocialShare extends Component {
   render() {
-    const { author_username, id, short_id, title, type } = this.props.measure
+    const { author_username, comment, id, short_id, title, type } = this.props.measure
     const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
     const comment_url = `${measure_url}/votes/${id}`
     const share_url = `${WWW_URL}${comment_url}`
-    const share_text = `Join me in Endorsing this important legislation: ${share_url}`
+
+    let action = 'endorsing'
+    if (comment.position === 'nay') { action = 'opposing' }
+    if (comment.position === 'abstain') { action = 'abstaining on' }
+    const share_text = `Join me in ${action} ${title}: ${share_url}`
 
     return this.html`
       <div class="content" style="max-width: 253px;">
-        <p class="has-text-weight-semibold">Increase your impact by asking your friends and family to sign.</p>
-        <div class="buttons">
+        <p class="has-text-weight-semibold">Increase your impact by asking your friends and family to endorse.</p>
+        <div class="buttons is-centered">
           <a class="button is-link has-text-weight-bold" title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">
             <span class="icon"><i class="fab fa-facebook"></i></span>
-            <span>Facebook</span>
+            <span>Post on Facebook</span>
           </a>
           <a class="button is-link has-text-weight-bold" title="Share on Twitter" target="_blank" href="${`https://twitter.com/intent/tweet?text=${share_text}`}">
             <span class="icon"><i class="fab fa-twitter"></i></span>
-            <span>Twitter</span>
+            <span>Tweet your people</span>
           </a>
           <a class="button is-link has-text-weight-bold" title="Share with Email" target="_blank" href="${`mailto:?subject=${title}&body=${share_text}`}">
             <span class="icon"><i class="fa fa-envelope"></i></span>
