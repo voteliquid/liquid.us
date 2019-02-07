@@ -255,6 +255,7 @@ module.exports = class Comment extends Component {
       })
     })
   }
+
   render() {
     const endorsed_vote = !(this.state.user && this.state.user.id === this.props.user_id && this.props.comment) && this.props.endorsed_vote
     const vote = this.props
@@ -262,7 +263,7 @@ module.exports = class Comment extends Component {
       comment, author_username, endorsed, updated_at, fullname, id,
       number, proxy_vote_count, position, short_id, title, type,
       username, user_id, public: is_public, shouldTruncate, twitter_username,
-      showPrivacyIndicator, source_url, endorsement_public, reported
+      showPrivacyIndicator, source_url, endorsement_public
     } = endorsed_vote || vote
     const { show_bill } = this.props
     const { measures, user } = this.state
@@ -335,12 +336,7 @@ module.exports = class Comment extends Component {
                     <span>Edit</span>
                   </a>
                 `] : ''}
-                ${user && comment ? [`
-                  <span class="has-text-grey-lighter">&bullet;</span>
-                  ${reported
-                    ? `<span>Reported</span>`
-                    : `<a href="${`${comment_url}?action=report`}" class="has-text-grey-light">Report</a>`}
-                `] : ''}
+                ${user && comment ? ReportLink.for(this, { share_url, comment: endorsed_vote || vote, short_id }) : ''}
                 ${is_public || !fullname ? [`
                   <span class="has-text-grey-lighter">&bullet;</span>
                   <a title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-facebook"></i></span></a>
@@ -352,6 +348,43 @@ module.exports = class Comment extends Component {
           </div>
         </div>
       </div>
+    `
+  }
+}
+
+class ReportLink extends Component {
+  onclick(event) {
+    event.preventDefault()
+
+    const { user } = this.state
+    const { comment } = this.props
+
+    if (!comment.reported) {
+      this.api('/reports', {
+        method: 'POST',
+        body: JSON.stringify({
+          reporter_id: user.id,
+          comment_author_id: comment.user_id,
+          comment_id: comment.id,
+          explanation: null,
+        }),
+      })
+      .then(() => {
+        this.setProps({ comment: { ...comment, reported: true } }).render(this.props)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+    }
+  }
+  render() {
+    const { share_url, comment } = this.props
+    const report_url = `${share_url}?action=report`
+    return this.html`
+      <span>
+        <span class="has-text-grey-lighter">&bullet;</span>
+        <a onclick="${this}" class="has-text-grey-light" href="${report_url}">${comment.reported ? 'Reported' : 'Report'}</a>
+      </span>
     `
   }
 }
