@@ -122,7 +122,7 @@ module.exports = {
       <section class="hero is-dark is-bold is-fullheight">
         <div class="hero-body">
           <div class="container">
-            <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Most petitions today do not verify who is signing. Liquid <span class="has-text-danger">verifies constituent identities</span> so reps know what real residents want.</h2>
+            <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Most petitions today do not verify who is signing. Liquid <span class="has-text-info">verifies constituent identities</span> so reps know what real residents want.</h2>
             <br />
             <br />
             <br />
