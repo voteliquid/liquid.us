@@ -15,7 +15,7 @@ module.exports = class EndorsementPageSidebar extends Component {
 
     return this.html`
 
-      ${measure.user && measure.vote_position && !measure.comment.endorsed
+      ${measure.user && measure.vote_position && !measure.comment.endorsed && measure.author_username !== user.username
         // logged in, voted differently
         ? VotedDifferentlyMessage.for(this, { measure }) : ''
       }
@@ -26,7 +26,7 @@ module.exports = class EndorsementPageSidebar extends Component {
         ${!measure.user // logged out
           ? NewSignupEndorseForm.for(this, { measure })
 
-          : measure.comment.endorsed // logged in, already endorsed
+          : measure.comment.endorsed || measure.author_username === user.username // logged in, already endorsed
             ? module.exports.AfterEndorseSocialShare.for(this, { measure })
             : notMyLegislature === 'invalid' // Logged in, wrong juridstiction
             ? module.exports.WrongJuridstictionSocialShare.for(this, { measure })
@@ -345,7 +345,7 @@ module.exports.AfterEndorseSocialShare = class AfterEndorseSocialShare extends C
 
     let actionIng = 'endorsing'; let actionTo = 'endorse'
     if (comment.position === 'nay') { actionIng = 'opposing'; actionTo = 'oppose' }
-    if (comment.position === 'abstain') { actionIng = 'voting on'; actionTo = 'vote now' }
+    if (comment.position === 'abstain') { actionIng = 'abstaining'; actionTo = 'abstain' }
     const share_text = `Join me in ${actionIng} ${title}: ${share_url}`
 
     return this.html`
