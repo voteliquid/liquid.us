@@ -11,7 +11,7 @@ module.exports = (state, html, bundleUrl) => {
   const index = title.indexOf('on ')
   const commentPosition = title.substr(0, index)
   const commentBill = title.substr(index + 3)
-  const description = isComment ? `${commentPosition} ${page_description}` : page_description ? `${page_description}` : `A new democracy for the modern world.`
+  const description = isComment ? `${commentPosition}. ${page_description}` : page_description ? `${page_description}` : `A new democracy for the modern world.`
   // Potential og_image, first one wins
   const wi_image = state.location && state.location.query.legislature === 'WI' && state.location.path === '/legislation' && `${ASSETS_URL}/WI.png`
     // TODO (Jan 8, 2018): replace wi_image to support all 50 states
@@ -100,8 +100,8 @@ module.exports = (state, html, bundleUrl) => {
           }
 
         </style>
-        <meta property="og:title" content="${wi_image ? `Wisconsin Leislation` : isComment ? commentBill : title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
-        <meta property="og:description" content="${wi_image ? `Vote now on extraordinary session bills.` : description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
+        <meta property="og:title" content="${wi_image ? `Wisconsin Legislation` : isComment ? commentBill : title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
+        <meta property="og:description" content="${wi_image ? `Vote now on Wisconsin bills.` : description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:image" content="${og_image_url}" />
         <meta property="og:type" content="website" />
         ${responsiveTableStyle}
