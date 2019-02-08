@@ -11,7 +11,7 @@ module.exports = (state, html, bundleUrl) => {
   const index = title.indexOf(' on ')
   const commentPosition = title.substr(0, index)
   const commentBill = title.substr(index + 4)
-  const description = isComment ? `${commentPosition}. ${page_description}` : page_description ? `${page_description}` : `A new democracy for the modern world.`
+  const description = isComment ? `${commentPosition}! ${page_description}` : page_description ? `${page_description}` : `A new democracy for the modern world.`
   // Potential og_image, first one wins
   const wi_image = state.location && state.location.query.legislature === 'WI' && state.location.path === '/legislation' && `${ASSETS_URL}/WI.png`
     // TODO (Jan 8, 2018): replace wi_image to support all 50 states
