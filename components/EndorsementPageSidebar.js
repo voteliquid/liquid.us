@@ -345,7 +345,7 @@ module.exports.AfterEndorseSocialShare = class AfterEndorseSocialShare extends C
 
     let actionIng = 'endorsing'; let actionTo = 'endorse'
     if (comment.position === 'nay') { actionIng = 'opposing'; actionTo = 'oppose' }
-    if (comment.position === 'abstain') { actionIng = 'abstaining on'; actionTo = 'abstain' }
+    if (comment.position === 'abstain') { actionIng = 'voting on'; actionTo = 'vote now' }
     const share_text = `Join me in ${actionIng} ${title}: ${share_url}`
 
     return this.html`
