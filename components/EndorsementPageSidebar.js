@@ -14,7 +14,7 @@ module.exports = class EndorsementPageSidebar extends Component {
 
     return this.html`
 
-      ${measure.user && measure.vote_position && !measure.comment.endorsed && measure.author_username !== user.username
+      ${measure.user && measure.vote_position && !measure.comment.endorsed && measure.comment.username !== user.username
         // logged in, voted differently
         ? VotedDifferentlyMessage.for(this, { measure }) : ''
       }
@@ -25,7 +25,7 @@ module.exports = class EndorsementPageSidebar extends Component {
         ${!measure.user // logged out
           ? NewSignupEndorseForm.for(this, { measure })
 
-          : measure.comment.endorsed || measure.author_username === user.username // logged in, already endorsed
+          : measure.comment.endorsed || measure.comment.username === user.username // logged in, already endorsed
             ? module.exports.AfterEndorseSocialShare.for(this, { measure })
 
 
