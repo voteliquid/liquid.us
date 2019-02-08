@@ -6745,3 +6745,8 @@ label.panel-block {
 .footer {
   background-color: #fafafa;
   padding: 3rem 1.5rem 6rem; }
+
+input[disabled],
+fieldset[disabled] input {
+  -webkit-text-fill-color: #7a7a7a;
+  opacity: 1; }
