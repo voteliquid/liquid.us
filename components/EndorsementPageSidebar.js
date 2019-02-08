@@ -10,6 +10,8 @@ function nextMilestone(current) {
 module.exports = class EndorsementPageSidebar extends Component {
   render() {
     const measure = this.props
+    const user = measure.user
+    const notMyLegislature = measure.legislature_name === 'U.S. Congress' ? 'valid' : ~measure.legislature_name.indexOf(',') && user && measure.legislature_name === user.address.city ? 'valid' : ~measure.legislature_name.indexOf(',') ? 'invalid' : measure.legislature_name !== user.address.state ? 'invalid' : 'valid'
 
     return this.html`
 
@@ -26,6 +28,9 @@ module.exports = class EndorsementPageSidebar extends Component {
 
           : measure.comment.endorsed // logged in, already endorsed
             ? module.exports.AfterEndorseSocialShare.for(this, { measure })
+            : notMyLegislature === 'invalid' // Logged in, wrong juridstiction
+            ? module.exports.WrongJuridstictionSocialShare.for(this, { measure })
+
 
             : // logged in, voted differently or haven't voted
             LoggedInForm.for(this, { measure })
@@ -346,6 +351,39 @@ module.exports.AfterEndorseSocialShare = class AfterEndorseSocialShare extends C
     return this.html`
       <div class="content">
         <p class="has-text-weight-semibold">Increase your impact by asking your friends and family to ${actionTo}.</p>
+        <div class="buttons is-centered">
+          <a class="button is-link has-text-weight-bold" title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">
+            <span class="icon"><i class="fab fa-facebook"></i></span>
+            <span>Post on Facebook</span>
+          </a>
+          <a class="button is-link has-text-weight-bold" title="Share on Twitter" target="_blank" href="${`https://twitter.com/intent/tweet?text=${share_text}`}">
+            <span class="icon"><i class="fab fa-twitter"></i></span>
+            <span>Tweet your people</span>
+          </a>
+          <a class="button is-link has-text-weight-bold" title="Share with Email" target="_blank" href="${`mailto:?subject=${title}&body=${share_text}`}">
+            <span class="icon"><i class="fa fa-envelope"></i></span>
+            <span>Email</span>
+          </a>
+        </div>
+      </div>
+    `
+  }
+}
+module.exports.WrongJuridstictionSocialShare = class WrongJuridstictionSocialShare extends Component {
+  render() {
+    const { author_username, comment, id, short_id, title, type } = this.props.measure
+    const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
+    const comment_url = `${measure_url}/votes/${id}`
+    const share_url = `${WWW_URL}${comment_url}`
+
+    let actionShare = 'support'; let actionTo = 'endorse'
+    if (comment.position === 'nay') { actionShare = 'stop'; actionTo = 'oppose' }
+    if (comment.position === 'abstain') { actionShare = 'gather feedback on'; actionTo = 'vote now' }
+    const share_text = `Help ${actionShare} ${title}: ${share_url}`
+
+    return this.html`
+      <div class="content">
+        <p class="has-text-weight-semibold">Ask your friends and family to ${actionTo}.</p>
         <div class="buttons is-centered">
           <a class="button is-link has-text-weight-bold" title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">
             <span class="icon"><i class="fab fa-facebook"></i></span>
