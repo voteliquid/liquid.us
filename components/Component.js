@@ -105,6 +105,9 @@ module.exports = class Component extends hyperloopComponent {
       .replace(/&lt;(\/?)(i|p|br|ul|ol|li|strong|a|b)&gt;/gi, (match, p1, p2) => {
         return `<${p1}${p2}>`
       })
+      .replace(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/gi, (match) => {
+        return opts.stripImages ? '' : match
+      })
   }
   linkifyUrls(text = '') {
     return this.escapeHtml(text)

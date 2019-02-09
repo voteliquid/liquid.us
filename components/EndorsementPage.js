@@ -73,7 +73,7 @@ module.exports = class CommentPage extends Component {
           this.setState({
             loading_measure: false,
             page_title,
-            page_description: this.escapeHtml(comment.comment, { replaceAmp: true }),
+            page_description: this.escapeHtml(comment.comment, { replaceAmp: true, stripImages: true }),
             og_image_url: ogImage,
             measures: {
               ...this.state.measures,
