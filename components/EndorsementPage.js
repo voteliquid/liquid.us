@@ -66,9 +66,12 @@ module.exports = class CommentPage extends Component {
             window.document.title = page_title_with_appname
             window.history.replaceState(window.history.state, page_title_with_appname, document.location)
           }
+
+          const inlineImageMatch = comment && comment.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
+          const inlineImage = inlineImageMatch && inlineImageMatch[0]
           const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
           const authorImage = comment.username || comment.twitter_username ? this.avatarURL(comment) : null
-          const ogImage = authorImage || measureImage
+          const ogImage = inlineImage || authorImage || measureImage
 
           this.setState({
             loading_measure: false,
