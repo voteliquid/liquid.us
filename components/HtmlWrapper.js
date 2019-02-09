@@ -5,9 +5,13 @@ const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
 
 module.exports = (state, html, bundleUrl) => {
   const { page_description, page_title, selected_bill, selected_profile } = state
-  const description = page_description || `A new democracy for the modern world.`
   const title = page_title ? `${page_title} | Liquid US` : `Liquid US | Digital Democracy Voting Platform`
+  const isComment = title.includes(': Tell ')
 
+  const index = title.indexOf(' on ')
+  const commentPosition = title.substr(0, index)
+  const commentBill = title.substr(index + 4)
+  const description = isComment ? `${commentPosition}! ${page_description}` : page_description ? `${page_description}` : `A new democracy for the modern world.`
   // Potential og_image, first one wins
   const wi_image = state.location && state.location.query.legislature === 'WI' && state.location.path === '/legislation' && `${ASSETS_URL}/WI.png`
     // TODO (Jan 8, 2018): replace wi_image to support all 50 states
@@ -15,6 +19,7 @@ module.exports = (state, html, bundleUrl) => {
   const measure_image = selected_bill && selected_bill.image_name ? `${ASSETS_URL}/measure-images/${selected_bill.image_name}` : ''
   const default_image = `https://blog.${WWW_DOMAIN}/assets/twitter_large.png`
   const og_image_url = state.og_image_url || wi_image || profile_image || measure_image || default_image
+
 
   return `
     <!DOCTYPE html>
@@ -95,8 +100,8 @@ module.exports = (state, html, bundleUrl) => {
           }
 
         </style>
-        <meta property="og:title" content="${wi_image ? `Wisconsin Legislation` : title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
-        <meta property="og:description" content="${wi_image ? `Vote now on extraordinary session bills.` : description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
+        <meta property="og:title" content="${wi_image ? `Wisconsin Legislation` : isComment ? commentBill : title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
+        <meta property="og:description" content="${wi_image ? `Vote now on Wisconsin bills.` : description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:image" content="${og_image_url}" />
         <meta property="og:type" content="website" />
         ${responsiveTableStyle}

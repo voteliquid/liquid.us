@@ -49,16 +49,16 @@ module.exports = class CommentPage extends Component {
           }
 
           measure.comment = comment
+          const isCity = ~measure.legislature_name.indexOf(',')
 
           const anonymousName = `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
 
-          const page_title = `${comment.fullname || anonymousName} voted ${comment.position} on ${measure.legislature_name}: ${measure.title}`
+          const page_title = `${comment.fullname || anonymousName}: Tell ${measure.legislature_name === 'U.S. Congress' ? `Congress` : ~measure.legislature_name.indexOf(',') ? `your ${measure.legislature_name}'s elected officials` : `the ${measure.legislature_name} legislature`} to vote ${comment.position} on ${measure.title}`
           if (this.isBrowser) {
             const page_title_with_appname = `${page_title} | ${config.APP_NAME}`
             window.document.title = page_title_with_appname
             window.history.replaceState(window.history.state, page_title_with_appname, document.location)
           }
-          const isCity = ~measure.legislature_name.indexOf(',')
           const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
           const authorImage = comment.username || comment.twitter_username ? this.avatarURL(comment) : null
           const ogImage = authorImage || measureImage
