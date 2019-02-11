@@ -333,9 +333,9 @@ class LoggedInForm extends Component {
 
 module.exports.AfterEndorseSocialShare = class AfterEndorseSocialShare extends Component {
   render() {
-    const { author_username, comment, id, short_id, title, type } = this.props.measure
+    const { author_username, comment, short_id, title, type } = this.props.measure
     const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
-    const comment_url = `${measure_url}/votes/${id}`
+    const comment_url = `${measure_url}/votes/${comment.id}`
     const share_url = `${WWW_URL}${comment_url}`
 
     let actionIng = 'endorsing'; let actionTo = 'endorse'
