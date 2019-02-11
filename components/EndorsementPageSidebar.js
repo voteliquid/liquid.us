@@ -38,9 +38,9 @@ module.exports = class EndorsementPageSidebar extends Component {
 module.exports.EndorsementCount = class EndorsementCount extends Component {
   render() {
     const { measure } = this.props
-    const { proxy_vote_count } = measure.comment
+    const { all_proxy_vote_count } = measure.comment
 
-    const count = proxy_vote_count
+    const count = all_proxy_vote_count
 
     let action = 'endorsed'; let color = 'is-success'
     if (measure.comment.position === 'nay') { action = 'opposed'; color = 'is-danger' }
