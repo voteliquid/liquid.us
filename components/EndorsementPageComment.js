@@ -92,7 +92,6 @@ module.exports = class Comment extends Component {
       const officeId = officesInChamber[0] && officesInChamber[0].id
       return this.fetchConstituentVotes(measure, officeId)
     })
-    .then(() => this.fetchTopComments(measure_id, short_id))
     .then(() => this.fetchComments(measure_id, short_id))
     .then(() => this.fetchProxyVotes(measure.id, short_id))
     .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
@@ -145,7 +144,6 @@ module.exports = class Comment extends Component {
       const officeId = officesInChamber[0] && officesInChamber[0].id
       return this.fetchConstituentVotes(measure, officeId)
     })
-    .then(() => this.fetchTopComments(measure_id, short_id))
     .then(() => this.fetchComments(measure_id, short_id))
     .then(() => this.fetchProxyVotes(measure_id, short_id))
     .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
@@ -203,27 +201,6 @@ module.exports = class Comment extends Component {
             ...votes
           },
         },
-      })
-    })
-  }
-
-  fetchTopComments(id, short_id) {
-    const order = `order=proxy_vote_count.desc.nullslast,created_at.desc`
-    return this.api(`/votes_detailed?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea&${order}`).then((comments) => {
-      const yea = comments[0]
-
-      return this.api(`/votes_detailed?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.nay&${order}`).then((comments) => {
-        const nay = comments[0]
-        this.setState({
-          measures: {
-            ...this.state.measures,
-            [short_id]: {
-              ...this.state.measures[short_id],
-              top_yea: yea,
-              top_nay: nay,
-            },
-          },
-        })
       })
     })
   }
