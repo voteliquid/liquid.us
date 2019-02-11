@@ -93,7 +93,6 @@ module.exports = class Comment extends Component {
       return this.fetchConstituentVotes(measure, officeId)
     })
     .then(() => this.fetchComments(measure_id, short_id))
-    .then(() => this.fetchProxyVotes(measure.id, short_id))
     .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
     .then((votes) => {
       if (typeof window === 'object' && window._loq) window._loq.push(['tag', 'Voted'], ['tag', 'Endorsed'])
@@ -145,7 +144,6 @@ module.exports = class Comment extends Component {
       return this.fetchConstituentVotes(measure, officeId)
     })
     .then(() => this.fetchComments(measure_id, short_id))
-    .then(() => this.fetchProxyVotes(measure_id, short_id))
     .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
     .then((votes) => {
       this.setState({
@@ -169,23 +167,6 @@ module.exports = class Comment extends Component {
   fetchMeasure(short_id) {
     const url = `/measures_detailed?short_id=eq.${short_id}`
     return this.api(url).then((results) => results[0])
-  }
-  fetchProxyVotes(measure_id, short_id) {
-    if (this.state.user) {
-      return this.api(`/proxy_votes_detailed?measure_id=eq.${measure_id}&order=proxy_vote_count.desc,created_at.desc`)
-        .then((proxyVotes) => {
-          this.setState({
-            measures: {
-              ...this.state.measures,
-              [short_id]: {
-                ...this.state.measures[short_id],
-                proxyVotes,
-              },
-            },
-          })
-        })
-    }
-    return Promise.resolve()
   }
   fetchConstituentVotes(measure, office_id) {
     const { id, short_id } = measure
