@@ -10,9 +10,10 @@ module.exports = class MeasureSummary extends Component {
     const { measure, expanded, size = 6 } = this.props
     const { chamber, congress, number, type, short_id } = measure
     const index = short_id.indexOf('-')
-    const wi_bill = short_id.slice(index + 1)
+    const bill_id = short_id.slice(index + 1)
     const summary = type === 'nomination' && measure.summary ? `Confirmation of ${measure.summary}` : this.linkifyUrls(measure.summary)
-    const link = measure.legislature_name === "U.S. Congress" ? `"https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text"` : measure.legislature_name === "WI" ? `https://docs.legis.wisconsin.gov/${congress}/proposals/reg/asm/bill/${wi_bill}` : ''
+    const link = measure.legislature_name === "U.S. Congress" ? `"https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text"` : measure.legislature_name === "WI" ? `https://docs.legis.wisconsin.gov/${congress}/proposals/reg/asm/bill/${bill_id}` : measure.legislature_name === "CA" ? `https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=${congress}0${bill_id.toUpperCase()}` : ''
+
     const summaryLink =
       measure.author_id === null
         ? `<p><a href=${link} target="_blank">Learn more <span aria-hidden="true" class="icon is-small is-size-7"><i class="fas fa-external-link-alt"></i></span></a>`
