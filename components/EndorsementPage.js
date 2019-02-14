@@ -199,6 +199,15 @@ class CommentDetailPage extends Component {
                     display: none;
                   }
                 }
+
+                @media (max-height: 575px) {
+                  /* Don't position:fixed the sidebar if window isn't tall enough */
+                  .panel-wrapper {
+                    position: relative;
+                    margin-right: 0;
+                    z-index: 1;
+                  }
+                }
               </style>
             </div>
           </div>
