@@ -230,11 +230,7 @@ module.exports = class Comment extends Component {
         <div class="media" style="margin-bottom: 1.5em;">
           <div class="media-left">
             <div class="image is-64x64">
-              ${[username || twitter_username
-                ? `<a href="/${twitter_username ? `twitter/${twitter_username}` : username}">
-                    <img src="${avatarURL}" alt="avatar" class="round-avatar-img" />
-                  </a>`
-                : `<img src="${avatarURL}" alt="avatar" class="round-avatar-img" />`]}
+              <img src="${avatarURL}" alt="avatar" class="round-avatar-img" />
             </div>
           </div>
           <div class="media-content">
@@ -242,7 +238,7 @@ module.exports = class Comment extends Component {
               Written by<br/>
               <span class="is-size-5">
                 ${username || twitter_username
-                    ? [`<a href="/${twitter_username ? `twitter/${twitter_username}` : username}">${fullname}</a>`]
+                    ? fullname
                     : anonymousName}
               </span>
             </div>
