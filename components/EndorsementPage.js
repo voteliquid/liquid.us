@@ -253,9 +253,9 @@ class TargetReps extends Component {
 
     return this.html`
       <br />
-      <div class="columns" style="margin-bottom: 0">
-        <div class="column is-narrow">
-          <span class="is-size-3 has-text-weight-semibold">To:&nbsp;</span>
+      <div class="columns">
+        <div class="column is-narrow" style="margin-bottom: -1rem">
+          <span class="is-size-3 is-size-4-mobile has-text-weight-semibold">To:&nbsp;</span>
         </div>
         ${targetReps.map(r => Rep.for(this, { r }, `rep-${r.id}`))}
         ${Legislature.for(this, { measure, targetReps })}
@@ -280,7 +280,7 @@ class Rep extends Component {
 
     return this.html`
       <div class="column is-narrow">
-        <div class="media" style="margin-bottom: 1.5em;">
+        <div class="media">
           <div class="media-left">
             <div class="image is-48x48 is-clipped">
               <img src=${this.avatarURL(rep)} />
@@ -305,7 +305,7 @@ class Legislature extends Component {
 
     return this.html`
       <div class="column">
-        <div class="media" style="margin-bottom: 1.5em;">
+        <div class="media">
           ${isState ? [`
             <div class="media-left">
               <div class="image is-48x48 is-clipped">
