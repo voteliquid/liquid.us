@@ -255,12 +255,10 @@ class TargetReps extends Component {
       <br />
       <div class="columns" style="margin-bottom: 0">
         <div class="column is-narrow">
-          <span class="is-size-4 has-text-weight-semibold">To:&nbsp;</span>
+          <span class="is-size-3 has-text-weight-semibold">To:&nbsp;</span>
         </div>
         ${targetReps.map(r => Rep.for(this, { r }, `rep-${r.id}`))}
-        <div class="column">
-          <span class="has-text-weight-semibold is-size-5">${targetReps.length ? 'And t' : 'T'}he ${measure.legislature_name} Legislature</span>
-        </div>
+        ${Legislature.for(this, { measure, targetReps })}
       </div>
       ${!(user && user.address) ? NotYourRepsMessage.for(this, { measure }) : []}
     `
@@ -274,20 +272,39 @@ class Rep extends Component {
     const position = r.name.split(' ').slice(2).join(' ')
     return this.html`
       <div class="column is-narrow">
-
         <div class="media" style="margin-bottom: 1.5em;">
           <div class="media-left">
-            <div class="image is-48x48">
+            <div class="image is-48x48 is-clipped">
               <img src=${this.avatarURL(rep)} />
             </div>
           </div>
-          <div class="media-content is-vcentered">
-            <div class="has-text-weight-semibold is-size-5">
+          <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
               ${rep.first_name} ${rep.last_name}, ${r.legislature.short_name}<br/> ${position}
-            </div>
           </div>
         </div>
+      </div>
+    `
+  }
+}
 
+class Legislature extends Component {
+  render() {
+    const { measure } = this.props
+    const measureImage = (measure.legislature_name.length === 2) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+
+    return this.html`
+      <div class="column">
+        <div class="media" style="margin-bottom: 1.5em;">
+          <div class="media-left">
+            <div class="image is-48x48 is-clipped">
+              <img src=${measureImage} style="background: hsla(0, 0%, 87%, 0.5); padding: 4px;"/>
+            </div>
+          </div>
+          <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
+            ${stateNames[measure.legislature_name]}<br />
+            Legislature
+          </div>
+        </div>
       </div>
     `
   }
