@@ -246,12 +246,10 @@ class TargetReps extends Component {
     const { user, reps } = this.state
     const { measure } = this.props
 
-    let targetReps = []
-    if (measure.legislature_name === 'U.S. Congress') {
-      targetReps = [reps[0], reps[1], reps[2]]
-    } else if (measure.legislature_name.length === 2 && reps[3]) {
-      targetReps = [reps[3], reps[4]]
-    }
+    const targetReps = reps.filter(r =>
+      r.legislature.short_name === measure.legislature_name
+      || r.legislature.name === measure.legislature_name
+    )
 
     return this.html`
       <br />
