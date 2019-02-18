@@ -139,14 +139,9 @@ class CommentDetailPage extends Component {
   }
 
   render() {
-    const { user, reps, mobileFormVisible } = this.state
+    const { user, mobileFormVisible } = this.state
     const { measure: l } = this.props
 
-    let city; let myReps
-    if (user && user.address) {
-      city = user && user.address && `${user.address.city}, ${user.address.state}`
-      myReps = l.legislature_name === 'U.S. Congress' ? `To: Representative ${reps[0].office_holder.first_name} ${reps[0].office_holder.last_name}, Senator ${reps[1].office_holder.first_name} ${reps[1].office_holder.last_name}, Senator ${reps[2].office_holder.first_name} ${reps[2].office_holder.last_name}, and the U.S. Congress` : l.legislature_name === city ? `To the City of ${l.legislature_name}'s elected leaders` : l.legislature_name === user.address.state && reps[3] ? `To: Representative ${reps[3].office_holder.first_name} ${reps[3].office_holder.last_name}, Senator ${reps[4].office_holder.first_name} ${reps[4].office_holder.last_name}, and the ${l.legislature_name} Legislature` : `To: The ${l.legislature_name} Legislature`
-    }
     const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
 
     return this.html`
@@ -155,7 +150,7 @@ class CommentDetailPage extends Component {
           <div class="columns">
             <div class="column">
               <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>
-              <h2 class="title has-text-weight-normal is-5 has-text-dark">${myReps}</h2>
+              ${TargetReps.for(this, { measure: l })}
               <div class="small-screens-only">
                 ${EndorsementCount.for(this, { measure: l })}
               </div>
@@ -242,6 +237,85 @@ class MobileHoverBar extends Component {
           </div>
         </div>
       </div>
+    `
+  }
+}
+
+class TargetReps extends Component {
+  render() {
+    const { user, reps } = this.state
+    const { measure } = this.props
+
+    let targetReps = []
+    if (measure.legislature_name === 'U.S. Congress') {
+      targetReps = [reps[0], reps[1], reps[2]]
+    } else if (measure.legislature_name.length === 2 && reps[3]) {
+      targetReps = [reps[3], reps[4]]
+    }
+
+    return this.html`
+      <br />
+      <div class="columns" style="margin-bottom: 0">
+        <div class="column is-narrow">
+          <span class="is-size-4 has-text-weight-semibold">To:&nbsp;</span>
+        </div>
+        ${targetReps.map(r => Rep.for(this, { r }, `rep-${r.id}`))}
+        <div class="column">
+          <span class="has-text-weight-semibold is-size-5">${targetReps.length ? 'And t' : 'T'}he ${measure.legislature_name} Legislature</span>
+        </div>
+      </div>
+      ${!(user && user.address) ? NotYourRepsMessage.for(this, { measure }) : []}
+    `
+  }
+}
+
+class Rep extends Component {
+  render() {
+    const { r } = this.props
+    const rep = r.office_holder
+    const position = r.name.split(' ').slice(2).join(' ')
+    return this.html`
+      <div class="column is-narrow">
+
+        <div class="media" style="margin-bottom: 1.5em;">
+          <div class="media-left">
+            <div class="image is-48x48">
+              <img src=${this.avatarURL(rep)} />
+            </div>
+          </div>
+          <div class="media-content is-vcentered">
+            <div class="has-text-weight-semibold is-size-5">
+              ${rep.first_name} ${rep.last_name}, ${r.legislature.short_name}<br/> ${position}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    `
+  }
+}
+
+class NotYourRepsMessage extends Component {
+  onclick(event) {
+    event.preventDefault()
+    return this.setState({ notYourRepsMessageVisible: !this.state.notYourRepsMessageVisible })
+  }
+
+  render() {
+    const { measure } = this.props
+    const { notYourRepsMessageVisible } = this.state
+
+    let action = 'Endorse'
+    if (measure.comment.position === 'nay') { action = 'Join opposition' }
+    if (measure.comment.position === 'abstain') { action = 'Join abstention' }
+
+    return this.html`
+      <p class="is-size-7" style="position: relative; bottom: 1rem;">
+        <a onclick=${this}>Not your representatives?</a>
+        ${notYourRepsMessageVisible ? [`
+          <span class="has-text-weight-semibold">Enter your address and press ${action} to send to your correct reps.</span>
+        `] : []}
+      </p>
     `
   }
 }
