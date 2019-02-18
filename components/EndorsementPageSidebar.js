@@ -89,6 +89,7 @@ class NewSignupEndorseForm extends Component {
       body: JSON.stringify({
         email: formData.email,
         device_desc,
+        channel: 'endorsement',
       }),
     })
     .then((results) => results[0])
