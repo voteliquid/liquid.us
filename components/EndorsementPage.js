@@ -270,6 +270,14 @@ class Rep extends Component {
     const { r } = this.props
     const rep = r.office_holder
     const position = r.name.split(' ').slice(2).join(' ')
+    const isState = r.legislature.name !== 'U.S. Congress'
+    const firstLine = isState
+      ? `${rep.first_name} ${rep.last_name}, ${r.legislature.short_name}`
+      : `${r.chamber === 'Upper' ? 'Sen' : 'Rep'}. ${rep.first_name} ${rep.last_name}`
+    const secondLine = isState
+      ? position
+      : r.chamber === 'Upper' ? stateNames[r.short_name] : r.short_name
+
     return this.html`
       <div class="column is-narrow">
         <div class="media" style="margin-bottom: 1.5em;">
@@ -279,7 +287,8 @@ class Rep extends Component {
             </div>
           </div>
           <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
-              ${rep.first_name} ${rep.last_name}, ${r.legislature.short_name}<br/> ${position}
+            ${firstLine}<br />
+            ${secondLine}
           </div>
         </div>
       </div>
@@ -306,7 +315,7 @@ class Legislature extends Component {
           `] : []}
           <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
             ${name}<br />
-            Legislature
+            ${measure.legislature_name === 'U.S. Congress' ? '' : 'Legislature'}
           </div>
         </div>
       </div>
