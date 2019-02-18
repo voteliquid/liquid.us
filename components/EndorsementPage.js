@@ -290,18 +290,22 @@ class Rep extends Component {
 class Legislature extends Component {
   render() {
     const { measure } = this.props
-    const measureImage = (measure.legislature_name.length === 2) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+    const isState = measure.legislature_name.length === 2
+    const measureImage = isState ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+    const name = isState ? stateNames[measure.legislature_name] : measure.legislature_name
 
     return this.html`
       <div class="column">
         <div class="media" style="margin-bottom: 1.5em;">
-          <div class="media-left">
-            <div class="image is-48x48 is-clipped">
-              <img src=${measureImage} style="background: hsla(0, 0%, 87%, 0.5); padding: 4px;"/>
+          ${isState ? [`
+            <div class="media-left">
+              <div class="image is-48x48 is-clipped">
+                <img src=${measureImage} style="background: hsla(0, 0%, 87%, 0.5); padding: 4px;"/>
+              </div>
             </div>
-          </div>
+          `] : []}
           <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
-            ${stateNames[measure.legislature_name]}<br />
+            ${name}<br />
             Legislature
           </div>
         </div>
