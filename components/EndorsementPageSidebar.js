@@ -271,7 +271,7 @@ class VotedDifferentlyMessage extends Component {
 }
 
 class LoggedInForm extends Component {
-  onsubmit(event) {
+  onsubmit(event, formData) {
     if (event) event.preventDefault()
 
     const { measure } = this.props
@@ -280,7 +280,7 @@ class LoggedInForm extends Component {
 
     return this.api('/rpc/endorse', {
       method: 'POST',
-      body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: true }),
+      body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on' }),
     })
     .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
     .then((votes) => {
