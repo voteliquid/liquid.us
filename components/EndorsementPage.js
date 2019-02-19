@@ -73,18 +73,20 @@ module.exports = class CommentPage extends Component {
           const authorImage = comment.username || comment.twitter_username ? this.avatarURL(comment) : null
           const ogImage = inlineImage || authorImage || measureImage
 
-          this.setState({
-            loading_measure: false,
-            page_title,
-            page_description: this.escapeHtml(comment.comment, { replaceAmp: true, stripImages: true }),
-            og_image_url: ogImage,
-            measures: {
-              ...this.state.measures,
-              [measure.short_id]: {
-                ...this.state.measures[measure.short_id],
-                ...measure
+          this.fetchLastVotePublic().then(() => {
+            this.setState({
+              loading_measure: false,
+              page_title,
+              page_description: this.escapeHtml(comment.comment, { replaceAmp: true, stripImages: true }),
+              og_image_url: ogImage,
+              measures: {
+                ...this.state.measures,
+                [measure.short_id]: {
+                  ...this.state.measures[measure.short_id],
+                  ...measure
+                },
               },
-            },
+            })
           })
         })
       })
@@ -97,6 +99,16 @@ module.exports = class CommentPage extends Component {
   }
   fetchComment(id, measure) {
     return this.api(`/votes_detailed?measure_id=eq.${measure.id}&id=eq.${id}`).then(([comment]) => (comment))
+  }
+  fetchLastVotePublic() {
+    const { user } = this.state
+    if (user) {
+      return this.api(`/votes?user_id=eq.${user.id}&delegate_rank=eq.-1&order=updated_at.desc&limit=1`).then(votes => {
+        const last_vote_public = votes[0] ? votes[0].public : true
+        this.setState({ last_vote_public })
+      })
+    }
+    return Promise.resolve()
   }
   onpagechange(oldProps) {
     if (this.props.url !== oldProps.url) {

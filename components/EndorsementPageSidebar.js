@@ -299,6 +299,7 @@ class LoggedInForm extends Component {
   render() {
     const { measure } = this.props
     const { user } = measure
+    const { last_vote_public } = this.state
 
     let action = 'Endorse'; let color = 'is-success'
     if (measure.comment.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
@@ -329,6 +330,14 @@ class LoggedInForm extends Component {
             <span class="icon is-small is-right"><i class="fa fa-lock"></i></span>
           </div>
           <p class="is-size-7" style="margin-top: .3rem;">So your reps know you're their constituent.</p>
+        </div>
+        <div class="field">
+          <div class="control">
+            <label class="checkbox">
+              <input name="is_public" type="checkbox" checked=${last_vote_public} />
+              Share my name publicly
+            </label>
+          </div>
         </div>
         <div class="field">
           <div class="control">
