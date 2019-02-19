@@ -131,6 +131,9 @@ module.exports = class Component extends hyperloopComponent {
         return `<a href="${url}">${url}</a>`
       })
       .replace(/\n/g, '<br />')
+      .replace(/[a-z0-9.+_-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)*/ig, (email) => {
+        return `<a href="mailto:${email}">${email}</a>`
+      })
   }
   possessive(str) {
     if (typeof str === 'string' && str[str.length - 1] === 's') {
