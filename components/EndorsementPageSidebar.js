@@ -144,7 +144,7 @@ class NewSignupEndorseForm extends Component {
                 // Store endorsement
                 return this.api('/rpc/endorse', {
                   method: 'POST',
-                  body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: true }),
+                  body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on' }),
                 })
 
                 // Get new endorsement count
@@ -232,6 +232,14 @@ class NewSignupEndorseForm extends Component {
             ${error && error.address ? [`<p class="help is-danger">${error.message}</p>`] : ''}
           </div>
           <p class="is-size-7" style="margin-top: .3rem;">So your reps know you're their constituent.</p>
+        </div>
+        <div class="field">
+          <div class="control">
+            <label class="checkbox">
+              <input name="is_public" type="checkbox" checked />
+              Share my name publicly
+            </label>
+          </div>
         </div>
         <div class="field">
           <div class="control">
