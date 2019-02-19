@@ -1,5 +1,5 @@
 const Component = require('./Component')
-const { EndorsementCount, AfterEndorseSocialShare } = require('./EndorsementPageSidebar')
+const { EndorsementCount, AfterEndorseSocialShare, AfterEndorseComment } = require('./EndorsementPageSidebar')
 
 module.exports = class EndorsementPageMobileForm extends Component {
   render() {
@@ -16,16 +16,18 @@ module.exports = class EndorsementPageMobileForm extends Component {
 
           <nav class="box">
             ${EndorsementCount.for(this, { measure })}
-            ${RecentEndorsements.for(this, { measure })}
             ${!measure.user // logged out
               ? NewSignupEndorseForm.for(this, { measure })
 
               : measure.comment.endorsed // logged in, already endorsed
-              ? AfterEndorseSocialShare.for(this, { measure })
+                ? AfterEndorseSocialShare.for(this, { measure })
 
               : // logged in, voted differently or haven't voted
               LoggedInForm.for(this, { measure })
             }
+            ${measure.user && measure.comment.endorsed && !measure.reply
+              ? AfterEndorseComment.for(this, { measure })
+              : ''}
           </nav>
         </div>
         <button class="modal-close is-large" aria-label="close" onclick=${this.props.onclick}></button>
@@ -37,13 +39,6 @@ module.exports = class EndorsementPageMobileForm extends Component {
           }
         }
       </style>
-    `
-  }
-}
-
-class RecentEndorsements extends Component {
-  render() {
-    return this.html`<todo />
     `
   }
 }

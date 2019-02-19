@@ -20,7 +20,6 @@ module.exports = class EndorsementPageSidebar extends Component {
 
       <nav class="box">
         ${module.exports.EndorsementCount.for(this, { measure })}
-        ${RecentEndorsements.for(this, { measure })}
         ${!measure.user // logged out
           ? NewSignupEndorseForm.for(this, { measure })
 
@@ -30,6 +29,9 @@ module.exports = class EndorsementPageSidebar extends Component {
             : // logged in, voted differently or haven't voted
             LoggedInForm.for(this, { measure })
         }
+        ${measure.user && measure.comment.endorsed && !measure.reply
+          ? module.exports.AfterEndorseComment.for(this, { measure })
+          : ''}
       </nav>
     `
   }
@@ -51,13 +53,6 @@ module.exports.EndorsementCount = class EndorsementCount extends Component {
         <p><span class="has-text-weight-bold">${count} ${count === 1 ? 'has' : 'have'} ${action}.</span> Let's get to ${nextMilestone(count)}!</p>
         <progress class=${`progress ${color}`} style="margin-top: 0.5rem; margin-bottom: 1.5rem" value=${count} max=${nextMilestone(count)}>15%</progress>
       </div>
-    `
-  }
-}
-
-class RecentEndorsements extends Component {
-  render() {
-    return this.html`<todo />
     `
   }
 }
@@ -370,6 +365,62 @@ module.exports.AfterEndorseSocialShare = class AfterEndorseSocialShare extends C
           </a>
         </div>
       </div>
+    `
+  }
+}
+
+module.exports.AfterEndorseComment = class AfterEndorseComment extends Component {
+  onsubmit(event) {
+    event.preventDefault()
+
+    const measure = this.props.measure
+    const user = this.state.user
+    const form = require('parse-form').parse(event.currentTarget).body
+
+    const reply = {
+      vote_id: measure.comment.id,
+      user_id: user.id,
+      content: form.content,
+    }
+
+    this.setState({
+      measures: {
+        [measure.short_id]: {
+          ...measure,
+          reply,
+        },
+      },
+    })
+
+    this.api(`/replies`, {
+      method: 'POST',
+      body: JSON.stringify(reply),
+    })
+    .then(() => this.api(`/replies_detailed?vote_id=eq.${reply.vote_id}&order=created_at.desc`))
+    .then((replies) => this.setState({
+      measures: {
+        [measure.short_id]: {
+          ...measure,
+          reply,
+          replies,
+        },
+      },
+    }))
+  }
+  render() {
+    const loading = this.props.loading
+    return this.html`
+      <form class="content" onsubmit="${this}">
+        <p>Tell others why you signed:</p>
+        <div class="field">
+          <div class="control">
+            <textarea name="content" class="textarea" required></textarea>
+          </div>
+        </div>
+        <div class="control">
+          <button class="${`button is-link has-text-weight-bold ${loading ? 'is-loading' : ''}`}" disabled=${loading} type="submit">Save</button>
+        </div>
+      </form>
     `
   }
 }
