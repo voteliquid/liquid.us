@@ -148,6 +148,7 @@ const signIn = module.exports.signIn = (event, location, storage) => (dispatch) 
       email,
       phone_number,
       device_desc,
+      channel: 'join-page',
     }),
   })
   .then((results) => results[0])

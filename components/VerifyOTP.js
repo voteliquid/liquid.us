@@ -117,6 +117,7 @@ const requestOTP = (location, storage) => (dispatch) => {
     body: JSON.stringify({
       email: sign_in_email,
       device_desc: location.userAgent || 'Unknown',
+      channel: 'join-page',
     }),
   })
   .then((results) => results[0])
