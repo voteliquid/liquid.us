@@ -187,7 +187,7 @@ class CommentDetailPage extends Component {
                 .small-screens-only {
                   display: block;
                 }
-                @media (min-width: 828px) {
+                @media (min-width: 1050px) {
                   .sticky-panel.column {
                     display: block;
                   }
