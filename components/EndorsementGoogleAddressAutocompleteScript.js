@@ -10,30 +10,32 @@ module.exports = () => {
         var input1 = document.getElementById('address_autocomplete_sidebar')
         var input2 = document.getElementById('address_autocomplete_mobileform')
 
-        autocomplete1 = new window.google.maps.places.Autocomplete(input1, {
-          types: ['address'],
-          componentRestrictions: { country: 'us' },
-        })
-        autocomplete2 = new window.google.maps.places.Autocomplete(input2, {
-          types: ['address'],
-          componentRestrictions: { country: 'us' },
-        })
-
-        window.google.maps.event.addDomListener(input1, 'keydown', function (event2) {
-          var lat = document.getElementById('address_lat_sidebar')
-          if (event2.keyCode === 13 && !lat.value) {
-            event2.preventDefault();
-          }
-        })
-        window.google.maps.event.addDomListener(input2, 'keydown', function (event2) {
-          var lat = document.getElementById('address_lat_mobileform')
-          if (event2.keyCode === 13 && !lat.value) {
-            event2.preventDefault();
-          }
-        })
-
-        autocomplete1.addListener('place_changed', fillInAddress1)
-        autocomplete2.addListener('place_changed', fillInAddress2)
+        if (input1) {
+          autocomplete1 = new window.google.maps.places.Autocomplete(input1, {
+            types: ['address'],
+            componentRestrictions: { country: 'us' },
+          })
+          window.google.maps.event.addDomListener(input1, 'keydown', function (event2) {
+            var lat = document.getElementById('address_lat_sidebar')
+            if (event2.keyCode === 13 && !lat.value) {
+              event2.preventDefault();
+            }
+          })
+          autocomplete1.addListener('place_changed', fillInAddress1)
+        }
+        if (input2) {
+          autocomplete2 = new window.google.maps.places.Autocomplete(input2, {
+            types: ['address'],
+            componentRestrictions: { country: 'us' },
+          })
+          window.google.maps.event.addDomListener(input2, 'keydown', function (event2) {
+            var lat = document.getElementById('address_lat_mobileform')
+            if (event2.keyCode === 13 && !lat.value) {
+              event2.preventDefault();
+            }
+          })
+          autocomplete2.addListener('place_changed', fillInAddress2)
+        }
       }
 
       function fillInAddress1() {

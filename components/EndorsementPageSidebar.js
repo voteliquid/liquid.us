@@ -270,19 +270,38 @@ class VotedDifferentlyMessage extends Component {
   }
 }
 
+
 class LoggedInForm extends Component {
-  onsubmit(event, formData) {
-    if (event) event.preventDefault()
-
-    const { measure } = this.props
-    const { comment, user, short_id } = measure
-    const vote_id = comment.id
-
+  updateNameAndAddress(addressData, nameData) {
+    // Update users address
+    return this.api(`/user_addresses?select=id&user_id=eq.${addressData.user_id}`, {
+      method: 'POST',
+      headers: { Prefer: 'return=representation' },
+      body: JSON.stringify(addressData)
+    }).then(() => {
+      // Update users name
+      return this.api(`/users?select=id&id=eq.${addressData.user_id}`, {
+        method: 'PATCH',
+        headers: { Prefer: 'return=representation' },
+        body: JSON.stringify(nameData),
+      })
+    }).then(() => {
+      this.setState({
+        user: {
+          ...this.state.user,
+          ...nameData,
+          address: addressData,
+        },
+      })
+    })
+  }
+  endorse(endorsement) {
+    const short_id = this.props.measure.short_id
     return this.api('/rpc/endorse', {
       method: 'POST',
-      body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on' }),
+      body: JSON.stringify(endorsement),
     })
-    .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
+    .then(() => this.api(`/votes_detailed?id=eq.${endorsement.vote_id}`))
     .then((votes) => {
       this.setState({
         measures: {
@@ -294,24 +313,53 @@ class LoggedInForm extends Component {
         }
       })
     })
-    .catch((error) => console.log(error))
+  }
+  onsubmit(event, formData) {
+    if (event) event.preventDefault()
+
+    const { user } = this.state
+    const { measure } = this.props
+    const { comment } = measure
+    const vote_id = comment.id
+    const endorsement = { user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on' }
+
+    if (user.first_name) {
+      return this.endorse(endorsement).catch((error) => console.log(error))
+    }
+
+    const first_name = formData.name.split(' ').slice(0, 1)[0]
+    const last_name = formData.name.split(' ').slice(1).join(' ')
+    const nameData = { first_name, last_name }
+    const addressData = {
+      user_id: user.id,
+      address: formData.address.address,
+      city: formData.address.city,
+      state: formData.address.state,
+      geocoords: `POINT(${formData.address.lon} ${formData.address.lat})`,
+    }
+
+    return this.updateNameAndAddress(addressData, nameData)
+      .then(() => this.endorse(endorsement))
+      .catch((error) => console.log(error))
   }
   render() {
     const { measure } = this.props
-    const { user } = measure
-    const { last_vote_public } = this.state
+    const { last_vote_public, user } = this.state
 
     let action = 'Endorse'; let color = 'is-success'
     if (measure.comment.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
     if (measure.comment.position === 'abstain') { action = 'Join abstention'; color = 'is-dark' }
+
+    const name = [user.first_name, user.last_name].filter(a => a).join(' ')
+    const address = user.address ? user.address.address : ''
 
     return this.html`
       <form method="POST" style="width: 100%;" method="POST" onsubmit=${this} action=${this}>
         <div class="field">
           <label class="label has-text-grey">Your Name *</label>
           <div class="control has-icons-right">
-            <input name="name" autocomplete="off" class="input" placeholder="John Doe" value="${[user.first_name, user.last_name].filter(a => a).join(' ')}" required disabled />
-            <span class="icon is-small is-right"><i class="fa fa-lock"></i></span>
+            <input name="name" autocomplete="off" class="input" placeholder="John Doe" required value="${name}" required disabled=${!!name} />
+            <span class="icon is-small is-right"><i class="${`fa fa-${name ? 'lock' : 'user'}`}"></i></span>
           </div>
         </div>
         <div class="field">
@@ -326,8 +374,13 @@ class LoggedInForm extends Component {
         <div class="field">
           <label class="label has-text-grey">Your Address</label>
           <div class="control has-icons-right">
-            <input class="input" autocomplete="off" name="address[address]" placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" disabled />
-            <span class="icon is-small is-right"><i class="fa fa-lock"></i></span>
+            <input id="address_autocomplete_sidebar" class="input" autocomplete="off" name="address[address]" placeholder="185 Berry Street, San Francisco, CA 94121" value="${address}" disabled=${!!address} />
+            <span class="icon is-small is-right"><i class="${`fa fa-${address ? 'lock' : 'map-marker-alt'}`}"></i></span>
+            <input name="address[lat]" id="address_lat_sidebar" type="hidden" />
+            <input name="address[lon]" id="address_lon_sidebar" type="hidden" />
+            <input name="address[city]" id="city_sidebar" type="hidden" />
+            <input name="address[state]" id="state_sidebar" type="hidden" />
+            ${address ? '' : GoogleAddressAutocompleteScript()}
           </div>
           <p class="is-size-7" style="margin-top: .3rem;">So your reps know you're their constituent.</p>
         </div>
