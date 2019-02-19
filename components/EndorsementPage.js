@@ -369,19 +369,19 @@ class NotYourRepsMessage extends Component {
 
 class EndorsementComment extends Component {
   render() {
-    const { content, gravatar, name, username } = this.props
+    const { content, author_gravatar, author_name, author_username } = this.props
     return this.html`
       <div class="media">
         <div class="media-left">
           <div class="image is-32x32">
-            <img src="${`https://www.gravatar.com/avatar/${gravatar}?d=mm&s=200`}" class="round-avatar-img" />
+            <img src="${`https://www.gravatar.com/avatar/${author_gravatar}?d=mm&s=200`}" class="round-avatar-img" />
           </div>
         </div>
         <div class="media-content">
           <p class="has-text-weight-semibold">
-            ${username
-              ? `<a href="/${username}">${name}</a>`
-              : (name || 'Anonymous')}
+            ${[author_username
+              ? `<a href="/${author_username}">${author_name}</a>`
+              : (author_name || 'Anonymous')]}
           </p>
           <p>${content}</p>
         </div>
