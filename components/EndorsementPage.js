@@ -11,7 +11,7 @@ const { EndorsementCount } = require('./EndorsementPageSidebar')
 
 module.exports = class CommentPage extends Component {
   oninit() {
-    const { config, measures = {}, offices = [] } = this.state
+    const { config, measures = {}, offices = [], user } = this.state
     const { params } = this.props
 
     const url = `/measures_detailed?short_id=eq.${params.short_id}`
@@ -43,49 +43,55 @@ module.exports = class CommentPage extends Component {
       const officeId = officesInChamber[0] && officesInChamber[0].id
       return fetchConstituentVotes.call(this, measure, officeId).then(() => {
         return this.fetchComment(params.comment_id, measure).then(comment => {
-          if (!comment) {
-            this.location.setStatus(404)
-            return this.setState({ loading_measure: false })
-          }
+          return this.fetchEndorsementComments(comment).then((replies) => {
+            return this.fetchEndorsementComment(comment, measure, user).then((reply) => {
+              if (!comment) {
+                this.location.setStatus(404)
+                return this.setState({ loading_measure: false })
+              }
 
-          measure.comment = comment
-          const isCity = measure.legislature_name.includes(',')
+              measure.comment = comment
+              measure.reply = reply
+              measure.replies = replies || []
+              const isCity = measure.legislature_name.includes(',')
 
-          const anonymousName = `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
+              const anonymousName = `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
 
-          let legislature = `the ${measure.legislature_name} legislature`
-          if (measure.legislature_name === 'U.S. Congress') {
-            legislature = 'Congress'
-          } else if (isCity) {
-            legislature = `your ${measure.legislature_name}'s elected officials`
-          }
+              let legislature = `the ${measure.legislature_name} legislature`
+              if (measure.legislature_name === 'U.S. Congress') {
+                legislature = 'Congress'
+              } else if (isCity) {
+                legislature = `your ${measure.legislature_name}'s elected officials`
+              }
 
-          const page_title = `${comment.fullname || anonymousName}: Tell ${legislature} to vote ${comment.position} on ${measure.title}`
-          if (this.isBrowser) {
-            const page_title_with_appname = `${page_title} | ${config.APP_NAME}`
-            window.document.title = page_title_with_appname
-            window.history.replaceState(window.history.state, page_title_with_appname, document.location)
-          }
+              const page_title = `${comment.fullname || anonymousName}: Tell ${legislature} to vote ${comment.position} on ${measure.title}`
+              if (this.isBrowser) {
+                const page_title_with_appname = `${page_title} | ${config.APP_NAME}`
+                window.document.title = page_title_with_appname
+                window.history.replaceState(window.history.state, page_title_with_appname, document.location)
+              }
 
-          const inlineImageMatch = comment && comment.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
-          const inlineImage = inlineImageMatch && inlineImageMatch[0]
-          const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
-          const authorImage = comment.username || comment.twitter_username ? this.avatarURL(comment) : null
-          const ogImage = inlineImage || authorImage || measureImage
+              const inlineImageMatch = comment && comment.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
+              const inlineImage = inlineImageMatch && inlineImageMatch[0]
+              const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+              const authorImage = comment.username || comment.twitter_username ? this.avatarURL(comment) : null
+              const ogImage = inlineImage || authorImage || measureImage
 
-          this.fetchLastVotePublic().then(() => {
-            this.setState({
-              loading_measure: false,
-              page_title,
-              page_description: this.escapeHtml(comment.comment, { replaceAmp: true, stripImages: true }),
-              og_image_url: ogImage,
-              measures: {
-                ...this.state.measures,
-                [measure.short_id]: {
-                  ...this.state.measures[measure.short_id],
-                  ...measure
-                },
-              },
+              this.fetchLastVotePublic().then(() => {
+                this.setState({
+                  loading_measure: false,
+                  page_title,
+                  page_description: this.escapeHtml(comment.comment, { replaceAmp: true, stripImages: true }),
+                  og_image_url: ogImage,
+                  measures: {
+                    ...this.state.measures,
+                    [measure.short_id]: {
+                      ...this.state.measures[measure.short_id],
+                      ...measure
+                    },
+                  },
+                })
+              })
             })
           })
         })
@@ -96,6 +102,18 @@ module.exports = class CommentPage extends Component {
       this.location.setStatus(404)
       return this.setState({ error, loading_measure: false })
     })
+  }
+  fetchEndorsementComment(comment, measure, user) {
+    const vote_id = comment.id
+    const user_id = user && user.id
+    if (user_id) {
+      return this.api(`/replies?vote_id=eq.${vote_id}&user_id=eq.${user_id}`).then((replies) => replies[0])
+    }
+    return Promise.resolve(null)
+  }
+  fetchEndorsementComments(comment) {
+    const vote_id = comment.id
+    return this.api(`/replies_detailed?vote_id=eq.${vote_id}&order=created_at.desc`).then((replies) => replies)
   }
   fetchComment(id, measure) {
     return this.api(`/votes_detailed?measure_id=eq.${measure.id}&id=eq.${id}`).then(([comment]) => (comment))
@@ -175,6 +193,7 @@ class CommentDetailPage extends Component {
                 ${MobileHoverBar.for(this, { measure: l, user, onclick: this.triggerMobileForm.bind(this) })}
               </div>
               ${MobileForm.for(this, { ...l, user, visible: mobileFormVisible, onclick: this.triggerMobileForm.bind(this) })}
+              ${(l.replies || []).map((reply) => EndorsementComment.for(this, reply, `endorsement-${l.id}-${reply.id}`))}
             </div>
             <div class="column is-one-quarter sticky-panel">
               <div class="panel-wrapper">
@@ -356,6 +375,29 @@ class NotYourRepsMessage extends Component {
           <span class="has-text-weight-semibold">Enter your address and press ${action} to send to your correct reps.</span>
         `] : []}
       </p>
+    `
+  }
+}
+
+class EndorsementComment extends Component {
+  render() {
+    const { content, author_gravatar, author_name, author_username } = this.props
+    return this.html`
+      <div class="media">
+        <div class="media-left">
+          <div class="image is-32x32">
+            <img src="${`https://www.gravatar.com/avatar/${author_gravatar}?d=mm&s=200`}" class="round-avatar-img" />
+          </div>
+        </div>
+        <div class="media-content">
+          <p class="has-text-weight-semibold">
+            ${[author_username
+              ? `<a href="/${author_username}">${author_name}</a>`
+              : (author_name || 'Anonymous')]}
+          </p>
+          <p>${content}</p>
+        </div>
+      </div>
     `
   }
 }
