@@ -473,7 +473,7 @@ module.exports.AfterEndorseComment = class AfterEndorseComment extends Component
     const loading = this.props.loading
     return this.html`
       <form class="content" onsubmit="${this}">
-        <p>Tell others why you signed:</p>
+        <p>Tell others why you endorsed:</p>
         <div class="field">
           <div class="control">
             <textarea name="content" class="textarea" required></textarea>
