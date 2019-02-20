@@ -476,7 +476,7 @@ module.exports.AfterEndorseComment = class AfterEndorseComment extends Component
         <p>Tell others why you endorsed:</p>
         <div class="field">
           <div class="control">
-            <textarea name="content" class="textarea" required></textarea>
+            <textarea name="content" class="textarea" required style="resize:none;"></textarea>
           </div>
         </div>
         <div class="control">
