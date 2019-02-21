@@ -118,7 +118,7 @@ module.exports = class CommentPage extends Component {
   }
   fetchEndorsementComments(comment, short_id) {
     const vote_id = comment.id
-    return this.api(`/replies_detailed?vote_id=eq.${vote_id}&order=created_at.desc`).then((replies) => {
+    return this.api(`/replies_detailed?vote_id=eq.${vote_id}&author_name=not.is.null&order=created_at.desc`).then((replies) => {
       this.setState({
         measures: {
           ...this.state.measures,
