@@ -153,19 +153,18 @@ class MeasureInfoPanel extends Component {
 class MeasureVoteCounts extends Component {
   render() {
     const { APP_NAME } = this.state.config
-    const { measure, offices = [] } = this.props
+    const { measure, offices = [], reps = [] } = this.props
     const {
       type, constituent_yeas, constituent_nays, yeas, nays,
       legislature_name, chamber, delegate_name, vote_position, short_id
     } = measure
     const isCity = measure.legislature_name.includes(',')
-    const upperChamber = measure.legislature_name === 'U.S. Congress' ? offices[2].short_name : isCity ? measure.legislature_name : offices[4].short_name
-    const lowerChamber = measure.legislature_name === 'U.S. Congress' ? offices[0].short_name : isCity ? '' : offices[3].short_name
+    const upperChamber = measure.legislature_name === 'U.S. Congress' ? offices[2].short_name : isCity ? measure.legislature_name : offices[4].short_name.replace('U', ' S.D. ')
+    const lowerChamber = measure.legislature_name === 'U.S. Congress' ? offices[0].short_name : isCity ? '' : offices[3].name.includes('Assembly') ? offices[3].short_name.replace('L', ' A.D. ') : offices[3].name.includes('House') ? offices[3].short_name.replace('L', ' H.D. ') : offices[3].short_name.replace('L', ' L.D. ')
     const chamberNames = {
       'U.S. Congress': { Upper: 'Senate', Lower: 'House' },
       'CA': { Upper: 'Senate', Lower: 'Assembly' },
     }
-    console.log(offices)
 
     return this.html`
       <div class="panel-block">
@@ -201,7 +200,7 @@ class MeasureVoteCounts extends Component {
                 <td class="has-text-right">${yeas || 0}</td>
                 <td class="has-text-right">${nays || 0}</td>
               </tr>
-              ${offices.length && upperChamber ? [`
+              ${offices.length && lowerChamber ? [`
               <tr>
                 <td class="has-text-left has-text-grey">${measure.chamber === 'Upper' ? upperChamber : lowerChamber}</td>
                 <td class="has-text-right">${constituent_yeas || 0}</td>
@@ -253,6 +252,7 @@ class MeasureVoteCounts extends Component {
 class MeasureRepsPanel extends Component {
   render() {
     const { measure, reps = [] } = this.props
+    console.log(reps)
     return this.html`
       <div class="panel-block">
         <div>
