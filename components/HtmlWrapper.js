@@ -4,14 +4,11 @@ const fs = require('fs')
 const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
 
 module.exports = (state, html, bundleUrl) => {
-  const { page_description, page_title, selected_bill, selected_profile } = state
-  const title = page_title ? `${page_title} | Liquid US` : `Liquid US | Digital Democracy Voting Platform`
-  const isComment = title.includes(': Tell ')
+  const { page_description, page_title, selected_bill, selected_profile, social_title } = state
+  const title = social_title ? `${social_title} | Liquid US` : page_title ? `${page_title} | Liquid US` : `Liquid US | Digital Democracy Voting Platform`
 
-  const index = title.indexOf(' on ')
-  const commentPosition = title.slice(0, index)
-  const commentBill = title.slice(index + 4)
-  const description = isComment ? `${commentPosition}! ${page_description}` : page_description ? `${page_description}` : `A new democracy for the modern world.`
+
+  const description = page_description ? `${page_description}` : `A new democracy for the modern world.`
   // Potential og_image, first one wins
   const wi_image = state.location && state.location.query.legislature === 'WI' && state.location.path === '/legislation' && `${ASSETS_URL}/WI.png`
     // TODO (Jan 8, 2018): replace wi_image to support all 50 states
@@ -100,7 +97,7 @@ module.exports = (state, html, bundleUrl) => {
           }
 
         </style>
-        <meta property="og:title" content="${wi_image ? `Wisconsin Legislation` : isComment ? commentBill : title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
+        <meta property="og:title" content="${wi_image ? `Wisconsin Legislation` : title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:description" content="${wi_image ? `Vote now on Wisconsin bills.` : description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:image" content="${og_image_url}" />
         <meta property="og:type" content="website" />

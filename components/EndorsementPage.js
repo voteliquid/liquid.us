@@ -57,18 +57,24 @@ module.exports = class CommentPage extends Component {
 
               const anonymousName = `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
 
-              let legislature = `the ${measure.legislature_name} legislature`
+              let legislature = `${measure.legislature_name}`
               if (measure.legislature_name === 'U.S. Congress') {
                 legislature = 'Congress'
               } else if (isCity) {
-                legislature = `your ${measure.legislature_name}'s elected officials`
+                legislature = `${measure.legislature_name}`
               }
 
-              const page_title = `${comment.fullname || anonymousName}: Tell ${legislature} to vote ${comment.position} on ${measure.title}`
+              const page_title = `${comment.fullname || anonymousName}: ${comment.position === 'nay' ? 'Oppose ' : 'Support'} '${measure.title}' in ${legislature}`
               if (this.isBrowser) {
                 const page_title_with_appname = `${page_title} | ${config.APP_NAME}`
                 window.document.title = page_title_with_appname
                 window.history.replaceState(window.history.state, page_title_with_appname, document.location)
+              }
+              let theLegislature = `the ${measure.legislature_name} legislature`
+              if (measure.legislature_name === 'U.S. Congress') {
+                theLegislature = 'Congress'
+              } else if (isCity) {
+                theLegislature = `the City of ${measure.legislature_name}`
               }
 
               const inlineImageMatch = comment && comment.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
@@ -81,7 +87,8 @@ module.exports = class CommentPage extends Component {
                 this.setState({
                   loading_measure: false,
                   page_title,
-                  page_description: this.escapeHtml(comment.comment, { replaceAmp: true, stripImages: true }),
+                  social_title: measure.title,
+                  page_description: `${comment.fullname} to ${theLegislature}: ${this.escapeHtml(comment.comment, { replaceAmp: true, stripImages: true })}`,
                   og_image_url: ogImage,
                   measures: {
                     ...this.state.measures,
