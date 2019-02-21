@@ -29,7 +29,7 @@ module.exports = class EndorsementPageSidebar extends Component {
             : // logged in, voted differently or haven't voted
             LoggedInForm.for(this, { measure })
         }
-        ${measure.user && measure.comment.endorsed && !measure.reply
+        ${measure.user && measure.comment.endorsed && !measure.reply && measure.replyLoaded
           ? module.exports.AfterEndorseComment.for(this, { measure })
           : ''}
       </nav>
@@ -153,6 +153,7 @@ class NewSignupEndorseForm extends Component {
                       [short_id]: {
                         ...this.state.measures[short_id],
                         comment: votes[0] || this.state.measures[short_id].comment,
+                        replyLoaded: true,
                       }
                     },
                     user: {

@@ -1,4 +1,4 @@
-const { ASSETS_URL } = process.env
+const { APP_NAME, ASSETS_URL } = process.env
 const Component = require('./Component')
 const EndorsementPageComment = require('./EndorsementPageComment')
 const LoadingIndicator = require('./LoadingIndicator')
@@ -11,19 +11,18 @@ const { EndorsementCount } = require('./EndorsementPageSidebar')
 
 module.exports = class CommentPage extends Component {
   oninit() {
-    const { config, measures = {}, offices = [], user } = this.state
+    const { measures = {}, offices = [], user } = this.state
     const { params } = this.props
-
-    const url = `/measures_detailed?short_id=eq.${params.short_id}`
 
     if (!measures[params.short_id] || !measures[params.short_id].comment) {
       this.setState({ loading_measure: true })
     }
 
-    return this.api(url).then((results) => {
-      const measure = results[0]
+    const fetchMeasure = this.api(`/measures_detailed?short_id=eq.${params.short_id}`).then((measures) => measures[0])
+    const fetchComment = this.fetchComment(params.comment_id)
 
-      if (!measure) {
+    return Promise.all([fetchMeasure, fetchComment]).then(([measure, comment]) => {
+      if (!measure || !comment) {
         this.location.setStatus(404)
         return this.setState({ loading_measure: false })
       }
@@ -39,63 +38,28 @@ module.exports = class CommentPage extends Component {
         return this.setState({ loading_measure: false })
       }
 
+      this.setPageTitleAndDesc(measure, comment)
+
+      this.setState({
+        loading_measure: false,
+        measures: {
+          ...this.state.measures,
+          [measure.short_id]: {
+            ...measure,
+            comment,
+          },
+        },
+      })
+
       const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
       const officeId = officesInChamber[0] && officesInChamber[0].id
-      return fetchConstituentVotes.call(this, measure, officeId).then(() => {
-        return this.fetchComment(params.comment_id, measure).then(comment => {
-          return this.fetchEndorsementComments(comment).then((replies) => {
-            return this.fetchEndorsementComment(comment, measure, user).then((reply) => {
-              if (!comment) {
-                this.location.setStatus(404)
-                return this.setState({ loading_measure: false })
-              }
 
-              measure.comment = comment
-              measure.reply = reply
-              measure.replies = replies || []
-              const isCity = measure.legislature_name.includes(',')
-
-              const anonymousName = `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
-
-              let legislature = `the ${measure.legislature_name} legislature`
-              if (measure.legislature_name === 'U.S. Congress') {
-                legislature = 'Congress'
-              } else if (isCity) {
-                legislature = `your ${measure.legislature_name}'s elected officials`
-              }
-
-              const page_title = `${comment.fullname || anonymousName}: Tell ${legislature} to vote ${comment.position} on ${measure.title}`
-              if (this.isBrowser) {
-                const page_title_with_appname = `${page_title} | ${config.APP_NAME}`
-                window.document.title = page_title_with_appname
-                window.history.replaceState(window.history.state, page_title_with_appname, document.location)
-              }
-
-              const inlineImageMatch = comment && comment.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
-              const inlineImage = inlineImageMatch && inlineImageMatch[0]
-              const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
-              const authorImage = comment.username || comment.twitter_username ? this.avatarURL(comment) : null
-              const ogImage = inlineImage || authorImage || measureImage
-
-              this.fetchLastVotePublic().then(() => {
-                this.setState({
-                  loading_measure: false,
-                  page_title,
-                  page_description: this.escapeHtml(comment.comment, { replaceAmp: true, stripImages: true }),
-                  og_image_url: ogImage,
-                  measures: {
-                    ...this.state.measures,
-                    [measure.short_id]: {
-                      ...this.state.measures[measure.short_id],
-                      ...measure
-                    },
-                  },
-                })
-              })
-            })
-          })
-        })
-      })
+      Promise.all([
+        fetchConstituentVotes.call(this, measure, officeId),
+        this.fetchEndorsementComments(comment, params.short_id),
+        this.fetchEndorsementComment(comment, params.short_id, user),
+        this.fetchLastVotePublic(),
+      ])
     })
     .catch((error) => {
       console.log(error)
@@ -103,20 +67,71 @@ module.exports = class CommentPage extends Component {
       return this.setState({ error, loading_measure: false })
     })
   }
-  fetchEndorsementComment(comment, measure, user) {
+  setPageTitleAndDesc(measure, comment) {
+    const isCity = measure.legislature_name.includes(',')
+    const anonymousName = `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
+
+    let legislature = `the ${measure.legislature_name} legislature`
+    if (measure.legislature_name === 'U.S. Congress') {
+      legislature = 'Congress'
+    } else if (isCity) {
+      legislature = `your ${measure.legislature_name}'s elected officials`
+    }
+
+    const page_title = `${comment.fullname || anonymousName}: Tell ${legislature} to vote ${comment.position} on ${measure.title}`
+    if (this.isBrowser) {
+      const page_title_with_appname = `${page_title} | ${APP_NAME}`
+      window.document.title = page_title_with_appname
+      window.history.replaceState(window.history.state, page_title_with_appname, document.location)
+    }
+
+    const inlineImageMatch = comment && comment.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
+    const inlineImage = inlineImageMatch && inlineImageMatch[0]
+    const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+    const authorImage = comment.username || comment.twitter_username ? this.avatarURL(comment) : null
+    const ogImage = inlineImage || authorImage || measureImage
+
+    this.setState({
+      page_title,
+      page_description: this.escapeHtml(comment.comment, { replaceAmp: true, stripImages: true }),
+      og_image_url: ogImage,
+    })
+  }
+  fetchEndorsementComment(comment, short_id, user) {
     const vote_id = comment.id
     const user_id = user && user.id
     if (user_id) {
-      return this.api(`/replies?vote_id=eq.${vote_id}&user_id=eq.${user_id}`).then((replies) => replies[0])
+      return this.api(`/replies?vote_id=eq.${vote_id}&user_id=eq.${user_id}`).then((replies) => {
+        this.setState({
+          measures: {
+            ...this.state.measures,
+            [short_id]: {
+              ...this.state.measures[short_id],
+              reply: replies[0],
+              replyLoaded: true,
+            },
+          },
+        })
+      })
     }
     return Promise.resolve(null)
   }
-  fetchEndorsementComments(comment) {
+  fetchEndorsementComments(comment, short_id) {
     const vote_id = comment.id
-    return this.api(`/replies_detailed?vote_id=eq.${vote_id}&order=created_at.desc`).then((replies) => replies)
+    return this.api(`/replies_detailed?vote_id=eq.${vote_id}&order=created_at.desc`).then((replies) => {
+      this.setState({
+        measures: {
+          ...this.state.measures,
+          [short_id]: {
+            ...this.state.measures[short_id],
+            replies,
+          },
+        },
+      })
+    })
   }
-  fetchComment(id, measure) {
-    return this.api(`/votes_detailed?measure_id=eq.${measure.id}&id=eq.${id}`).then(([comment]) => (comment))
+  fetchComment(id) {
+    return this.api(`/votes_detailed?id=eq.${id}`).then(([comment]) => (comment))
   }
   fetchLastVotePublic() {
     const { user } = this.state
@@ -184,7 +199,7 @@ class CommentDetailPage extends Component {
               <div class="small-screens-only">
                 ${EndorsementCount.for(this, { measure: l })}
               </div>
-              <br>
+              <br />
               ${EndorsementPageComment.for(this, { ...l.comment, shouldTruncate: false })}
               <div style="border-left: 2px solid hsl(0, 0%, 60%); padding-left: 2rem; margin-top: 2rem;">
                 ${MeasureSummary.for(this, { measure: l, expanded: true, size: 5 }, `endorsement-${l.comment.id}`)}
