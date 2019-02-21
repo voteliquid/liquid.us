@@ -3,9 +3,18 @@ const Component = require('./Component')
 const Comment = require('./Comment')
 
 module.exports = class UserProfilePage extends Component {
-  render() {
-    const { proxied_name, selected_profile: p, user } = this.state
+  oninit() {
+    if (!this.state.user) return this.location.redirect('/sign_in')
+    return this.fetchYourProposedLegislation()
+  }
+  fetchYourProposedLegislation() {
+    this.setState({ loading: true })
+    return this.api(`/measures_detailed?author_id=eq.${this.state.selected_profile.user_id}&order=created_at.desc`)
+      .then(userLegislation => this.setState({ loading: false, userLegislation }))
+  }
 
+  render() {
+    const { proxied_name, selected_profile: p, user, userLegislation } = this.state
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
@@ -34,14 +43,54 @@ module.exports = class UserProfilePage extends Component {
                 <div class="column">
                   <h1 class="title is-3">${p.name}</h1>
                   ${p.username ? [`<h2 class="subtitle is-5 has-text-grey-light">@${p.username}</h2>`] : ''}
+
+                </div>
+
+              </div>
+              <div class="columns is-size-5">
+                <div class="column">
+                  <span>&nbsp&nbsp&nbsp&nbsp${p.public_votes[0] === null ? '0' : p.public_votes.length + 1}</span>
+                  <br />
+                  &nbsp&nbsp${summaryTooltipButton('bullhorn', `Votes`)}
+                  <br />
+                </div>
+
+                <div class="column">
+                  <span>${commentCount(p)}</span>
+                  <br />
+                  ${summaryTooltipButton('comment', 'Comments')}
+                  <br />
+                </div>
+                <div class="column">
+              <span>${proposalCount(userLegislation)}</span>
+                  <br />
+                  ${summaryTooltipButton('file', 'Proposals')}
+                  <br />
+                </div>
+                <div class="column">
+                  ${[p.direct_proxy_count
+                    ? `&nbsp<span> ${p.direct_proxy_count} </span>`
+                    : `1`
+                  ]}
+                  <br />
+                  ${summaryTooltipButton('handshake', 'Directly representing')}
+                </div>
+                <div class="column">
+                  ${[p.max_vote_power
+                    ? `&nbsp<span> ${p.max_vote_power} </span>`
+                    : `1`
+                  ]}
+                  <br />
+                  ${summaryTooltipButton('users', 'Indirectly representing')}
                 </div>
               </div>
-              ${[p.direct_proxy_count
-                ? `<h3 class="subtitle is-6"><span class="icon"><i class="fa fa-users"></i></span> Represents ${p.direct_proxy_count} ${p.direct_proxy_count === 1 ? 'person' : 'people'} directly, and ${p.max_vote_power || 0} ${p.max_vote_power === 1 ? 'person' : 'people'} indirectly</h3>`
-                : `<h3 class="subtitle is-6"><span class="icon"><i class="fa fa-users"></i></span> Represents 1 person</h3>`
-              ]}
+
               ${user && p.username && user.username === p.username
                 ? [`
+                  <button class="button is-link is-outlined is-fullwidth is-medium tooltip is-tooltip-info fix-bulma-centered-text" data-tooltip="Add a bio, video, or picture">
+                    <span class="icon is-small"><i class="far fa-user-circle"></i></span>
+                    <span><a href="/edit_profile">Edit Profile</a></span>
+                  </button><br /><br />
                   <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
                   <button disabled class="button is-link is-outlined is-fullwidth is-medium tooltip is-tooltip-info fix-bulma-centered-text" data-tooltip="You can't proxy to yourself">
                     <span class="icon is-small"><i class="far fa-handshake"></i></span>
@@ -57,17 +106,72 @@ module.exports = class UserProfilePage extends Component {
                   <p>Proxy to ${p.first_name} to vote for you whenever you don't vote directly yourself.</p>
                </div>
              `] : []}
+             <br />
+             <br />
+             ${p.about ? AboutUser.for(this) : ''}
+
             </div>
             <div class="column">
               ${(!p.about && !p.public_votes.length)
                 ? EmptyProfileExplainer.for(this) : ''}
-              ${p.about
-                ? AboutUser.for(this) : ''}
+
               ${p.public_votes.length
                 ? PublicVotes.for(this) : ''}
               ${!p.username
                 ? GhostProfileMessage.for(this) : ''}
             </div>
+            <style>
+              .highlight-hover:hover {
+                background: #f6f8fa;
+              }
+              .icon-tooltip {
+                position: relative;
+              }
+              .icon-tooltip .icon-tooltip-content {
+                display: none;
+                position: absolute;
+                max-height: 222px;
+              }
+              .icon-tooltip .icon-tooltip-arrow {
+                display: none;
+                position: absolute;
+              }
+              .icon-tooltip:hover .icon-tooltip-content {
+                display: block;
+                background: hsl(0, 0%, 100%) !important;
+                box-shadow: 0px 4px 15px hsla(0, 0%, 0%, 0.15);
+                border: 1px solid hsl(0, 0%, 87%);
+                color: #333;
+                font-size: 14px;
+                overflow: hidden;
+                padding: .4rem .8rem;
+                text-align: center;
+                white-space: normal;
+                width: 100px;
+                z-index: 99999;
+                top: auto;
+                bottom: 0%;
+                left: 0%;
+                right: 100%;
+                transform: translate(-0.5rem, 50%);
+              }
+              .icon-tooltip:hover .icon-tooltip-arrow {
+                border-color: transparent transparent transparent hsl(0, 0%, 100%) !important;
+                z-index: 99999;
+                position: right;
+                display: inline-block;
+                pointer-events: none;
+                border-style: solid;
+                border-width: .5rem;
+                margin-left: -.5rem;
+                margin-top: -.5rem;
+                top: 50%;
+                left: -1px;
+              }
+              .icon-tooltip:hover .has-text-grey-lighter {
+                color: hsl(0, 0%, 75%) !important;
+              }
+            </style>
           </div>
         </div>
       </section>
@@ -264,16 +368,35 @@ class YourProfileNotification extends Component {
             <span class="icon"><i class="fa fa-users"></i></span> Share the URL <strong><a href="${`${WWW_URL}/${selected_profile.username}`}">${WWW_DOMAIN}/${selected_profile.username}</a></strong> with others to easily proxy to you.
           </div>
           <div class="column is-half">
-            <span class="icon"><i class="fa fa-camera"></i></span> Change your photo by signing in to <a href="https://www.gravatar.com"><strong>Gravatar</strong></a> with your same email.
-          </div>
-          <div class="column is-half">
             <span class="icon"><i class="fa fa-edit"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
-          </div>
-          <div class="column is-half">
-            <span class="icon"><i class="fas fa-user-circle"></i></span> <a href="/edit_profile"><strong>Edit Profile</strong></a> to add an intro video or bio to your page.
           </div>
         </div>
       </div>
     `
   }
 }
+function commentCount(p) {
+  let commentTracker = 0
+  let i
+  for (i = 0; i < p.public_votes.length + 1; i++) {
+    if (p.public_votes[i] && p.public_votes[i].comment !== null) {
+      commentTracker += 1
+    }
+} return commentTracker
+}
+function proposalCount(userLegislation) {
+  let proposalTracker = 0
+  let i
+  for (i = 0; i < userLegislation.length + 1; i++) {
+    if (userLegislation[i] && userLegislation[i].published === true) {
+      proposalTracker++
+    }
+} return proposalTracker
+}
+const summaryTooltipButton = (icon, text) => [`
+    <span class="icon has-text-success icon-tooltip">
+      <i class="fa fa-lg fa-${icon} has-text-gray"></i>
+      <div class="icon-tooltip-content">${text}</div>
+      <div class="icon-tooltip-arrow"></div>
+    </span>
+    `]
