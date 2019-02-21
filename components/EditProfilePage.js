@@ -67,14 +67,16 @@ class EditProfile extends Component {
           <h2 class="title is-5">Edit Profile</h2>
           <form action=${this} method="POST" onsubmit=${this}>
             <div class="field">
-              <label class="label">Intro Video</label>
+              <label class="label">Photo</label>
+              <div>Change your photo by signing in to <a href="https://www.gravatar.com"><strong>Gravatar</strong></a> with your same email.</div>
+              <br /><label class="label">Video</label>
               <div class="control">
                 <input onkeyup=${this} class="${`input ${error && ~error.indexOf('video') ? 'is-danger' : ''}`}" name="intro_video_url" type="text" placeholder="https://youtu.be/XMrRrzYXav8" value="${intro_video_url}" />
                 ${[error && ~error.indexOf('video') ? `<p class="help is-danger">${error}</p>` : '<p class="help">YouTube or Vimeo share URL</p>']}
               </div>
             </div>
             <div class="field">
-              <label class="label">Intro text</label>
+              <label class="label">About You</label>
               <div class="control">
                 <textarea onkeyup=${this} class="${`textarea ${error && ~error.indexOf('bio') ? 'is-danger' : ''}`}" name="about" placeholder="A short introduction" value="${about}"></textarea>
                 ${[error && ~error.indexOf('bio') ? `<p class="help is-danger">Your introduction is too long. Introductions cannot be longer than 1024 characters.</p>` : '']}
