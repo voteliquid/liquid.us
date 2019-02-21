@@ -153,7 +153,7 @@ class MeasureInfoPanel extends Component {
 class MeasureVoteCounts extends Component {
   render() {
     const { APP_NAME } = this.state.config
-    const { measure, offices = [], reps = [] } = this.props
+    const { measure, offices = [] } = this.props
     const {
       type, constituent_yeas, constituent_nays, yeas, nays,
       legislature_name, chamber, delegate_name, vote_position, short_id
