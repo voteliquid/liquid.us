@@ -264,7 +264,7 @@ class MobileHoverBar extends Component {
 
     let action = 'Endorse'; let color = 'is-success'
     if (measure.comment.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
-    if (measure.comment.position === 'abstain') { action = 'Weign in'; color = 'is-success' }
+    if (measure.comment.position === 'abstain') { action = 'Weigh in'; color = 'is-success' }
     if (measure.comment.endorsed) { action = 'Share'; color = 'is-link' }
 
     return this.html`
