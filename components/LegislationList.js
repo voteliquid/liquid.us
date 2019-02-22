@@ -3,7 +3,7 @@ const activityIndicator = require('./ActivityIndicator')
 const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = {
-  init: ({ legislatures, location = {}, measures = {}, measuresList = [], measuresQuery, storage, user, showFilters }) => [{
+  init: ({ geoip, legislatures, location = {}, measures = {}, measuresList = [], measuresQuery, storage, user, showFilters }) => [{
     location,
     legislatures,
     loading: true,
@@ -11,7 +11,7 @@ module.exports = {
     measuresList,
     measuresQuery,
     showFilters,
-  }, initialize(measuresQuery, location, storage, user)],
+  }, initialize(geoip, measuresQuery, location, storage, user)],
   update: (event, state) => {
     switch (event.type) {
       case 'error':
@@ -34,7 +34,7 @@ module.exports = {
     }
   },
   view: (state, dispatch) => {
-    const { geoip, loading, measuresList, location, measures, user } = state
+    const { geoip, loading, measuresList, location, measures, storage, user } = state
     const { query } = location
 
     return html()`
@@ -46,7 +46,7 @@ module.exports = {
                 <span class="filter-button">${filterButton(state, dispatch)}</span>&nbsp<span class="propose-button">${proposeButton()}</span>
               </div><br />
               ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []} <br />
-            <span class="filter-tabs">${filterTabs(state, dispatch)}</span> <br />
+            <div class="card filter-tabs">${filterTabs(state, dispatch)}</div>
             ${loading ? activityIndicator() :
                 (!measuresList.length ? noBillsMsg(query.order, query) : measuresList.map((short_id) => ` ${measureListRow(measures[short_id])}`))}
             </div>
@@ -75,7 +75,10 @@ module.exports = {
                     }
                   }
                   .filter-tabs {
-                    margin-left: 15rem;
+                    padding-left: 4rem;
+                    padding-top: 1rem;
+                    padding-bottom: 1rem;
+                    background-color: #FFFFF
                   }
                   .highlight-hover {
                     background-color: #FFFFF;
@@ -336,10 +339,8 @@ const measureListRow = (s) => {
   const index = s.legislature_name.indexOf(', ')
   const cityName = s.legislature_name.slice(0, index)
   const liquidLeg = s.legislature_name === 'U.S. Congress' ? 'Congress' : s.legislature_name.includes(',') ? cityName : s.legislature_name
-  const legisInfo = s.sponsor_first_name && s.legislature_name === 'U.S. Congress' && s.chamber === 'Lower' ? 'U.S. House' : s.sponsor_first_name && s.legislature_name === 'U.S. Congress' ? 'U.S. Senate' : s.sponsor_first_name && s.chamber === 'Lower' ? `${s.legislature_name} Assembly` : s.sponsor_first_name ? `${s.legislature_name} Senate` : `Liquid ${liquidLeg}`
-  const anonymousName = s
-    ? `${s.legislature_name === 'U.S. Congress' ? `American` : (stateNames[s.legislature_name] || s.legislature_name)} Citizen`
-    : 'Anonymous'
+  const legisInfo = s.sponsor_first_name && s.legislature_name === 'U.S. Congress' && s.chamber === 'Lower' ? 'U.S. House' : s.sponsor_first_name && s.legislature_name === 'U.S. Congress' ? 'U.S. Senate' : s.author_username === null && s.chamber === 'Lower' ? `${s.legislature_name} Assembly` : s.author_username === null ? `${s.legislature_name} Senate` : `Liquid ${liquidLeg}`
+console.log(s.chamber)
   const toAmend = s.title.includes('To amend ')
   const billToAmend = s.title.includes('A bill to amend ')
   const relatingTo = s.title.includes('Relating to: ')
@@ -378,6 +379,7 @@ const measureListRow = (s) => {
               </div>
             </div>
           `] : [`
+            <strong>Latest action:</strong> Published on Liquid
             <div class="is-size-6 has-text-grey-light summary-bar-2">
               ${s.author_username & s.legislature_name
                 ? [`${legisInfo}
@@ -388,45 +390,61 @@ const measureListRow = (s) => {
                 ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                 : `${legisInfo}
                 <span class="has-text-grey-lighter">&bullet;</span>
-                ${anonymousName}`}
+                ${`<a href="${`/${authorLink}`}">${s.author_first_name} ${s.author_last_name}</a>&nbsp`}`}
                 <span class="has-text-grey-lighter">&bullet;</span>
-                ${(new Date(s.created_at)).toLocaleDateString()}
+                Published ${(new Date(s.created_at)).toLocaleDateString()}
             </div>
           </div>
+        </div>
           `]}
-          <div class="colum is-one-quarter has-text-right-tablet has-text-left-mobile">
+          <span class="column is-one-third has-text-right-tablet has-text-left-mobile">
             ${voteButton(s)}
-          </div>
+          </span>
 
         </div>
         <style>
+        .already-voted {
+          font-size: 17px;
+          margin-right: 2.7rem;
+        }
         @media (max-width: 800px) {
           .summary-bar-1 {
 
-          font-size: 11px
+          font-size: 10px;
           }
+        }
+
           @media (max-width: 800px) {
             .summary-bar-2 {
 
-            font-size: 11px
+            font-size: 10px;
             }
-        } 
-        </style>
+        }
 
+        .voted-for {
+        margin-right: 2.5rem;
+        }
+
+        .vote-now {
+        margin-right: 5rem;
+        font-size: 20px;
+        }
+
+        </style>
       </div>
     </div>
   `
 }
 
-const initialize = (prevQuery, location, storage, user) => (dispatch) => {
+const initialize = (geoip, prevQuery, location, storage, user) => (dispatch) => {
   const { query, url } = location
 
   if (prevQuery === url) return dispatch({ type: 'loaded' })
   const terms = query.terms && query.terms.replace(/[^\w\d ]/g, '').replace(/(hr|s) (\d+)/i, '$1$2').replace(/(\S)\s+(\S)/g, '$1 & $2')
   const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
-
-  const userCitySt = user && user.address ? `"${user.address.city}, ${user.address.state}"` : ''
-  const userState = user && user.address ? user.address.state : ''
+console.log(geoip)
+  const userCitySt = user && user.address ? `"${user.address.city}, ${user.address.state}"` : geoip ? `"${geoip.city}, ${geoip.region}"` : ''
+  const userState = user && user.address ? user.address.state : geoip ? geoip.region : ''
   const congress = query.congress || storage.get('congress')
   const state = query.state || storage.get('state')
   const city = query.city || storage.get('city')
@@ -507,7 +525,7 @@ const initialize = (prevQuery, location, storage, user) => (dispatch) => {
 
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
   const api_url = `/measures_detailed?select=${fields.join(',')}${from_liquid_query}${from_leg_body_query}${status_query}${type_query}${updated_query}${introduced_query}${legCheck}${fts}&published=is.true&order=${lastAction}.desc.nullslast&limit=40`
-
+console.log(api_url)
 
   return api(api_url, { storage }).then((measures) => dispatch({
     type: 'receivedMeasures',
@@ -529,7 +547,7 @@ const votePositionClass = (position) => {
 
 const voteButton = (s) => {
   let voteBtnTxt = 'Vote'
-  let voteBtnClass = 'button is-outlined is-medium is-primary'
+  let voteBtnClass = 'button is-outlined vote-now is-primary'
   let voteBtnIcon = 'fas fa-edit'
   if (s.vote_position) {
     const position = `${s.vote_position[0].toUpperCase()}${s.vote_position.slice(1)}`
@@ -542,11 +560,11 @@ const voteButton = (s) => {
       } else {
         voteBtnTxt = `Inherited ${position} vote from proxy`
       }
-      voteBtnClass = `button is-small is-outlined ${votePositionClass(s.vote_position)}`
+      voteBtnClass = `button voted-for is-outlined ${votePositionClass(s.vote_position)}`
     }
     if (s.delegate_rank === -1) {
       voteBtnTxt = `You voted ${position}`
-      voteBtnClass = `button is-medium is-success ${votePositionClass(s.vote_position)}`
+      voteBtnClass = `button already-voted is-success ${votePositionClass(s.vote_position)}`
     }
   }
   return [`<a style="white-space: inherit; height: auto" class="${voteBtnClass}" href="${`/legislation/${s.short_id}`}">
