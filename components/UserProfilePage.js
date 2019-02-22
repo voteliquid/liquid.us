@@ -21,9 +21,6 @@ module.exports = class UserProfilePage extends Component {
           ${user && !user.verified ?
             UnverifiedNotification.for(this) : []
           }
-          ${user && p.username && user.username === p.username ?
-            YourProfileNotification.for(this) : []
-          }
           ${proxied_name ? [`
             <div class="notification is-info">
               Your proxy to ${proxied_name} has been saved.
@@ -109,6 +106,7 @@ module.exports = class UserProfilePage extends Component {
              <br />
              <br />
              ${p.about ? AboutUser.for(this) : ''}
+
 
             </div>
             <div class="column">
@@ -356,25 +354,6 @@ class UnverifiedNotification extends Component {
   }
 }
 
-class YourProfileNotification extends Component {
-  render() {
-    const { selected_profile } = this.state
-
-    return this.html`
-      <div class="notification">
-        <h4 class="title is-5">This is your profile page.</h4>
-        <div class="columns is-multiline">
-          <div class="column is-half">
-            <span class="icon"><i class="fa fa-users"></i></span> Share the URL <strong><a href="${`${WWW_URL}/${selected_profile.username}`}">${WWW_DOMAIN}/${selected_profile.username}</a></strong> with others to easily proxy to you.
-          </div>
-          <div class="column is-half">
-            <span class="icon"><i class="fa fa-edit"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
-          </div>
-        </div>
-      </div>
-    `
-  }
-}
 function commentCount(p) {
   let commentTracker = 0
   let i
@@ -394,9 +373,37 @@ function proposalCount(userLegislation) {
 } return proposalTracker
 }
 const summaryTooltipButton = (icon, text) => [`
-    <span class="icon has-text-success icon-tooltip">
+    <span class="icon is-outlined has-text-success icon-tooltip">
       <i class="fa fa-lg fa-${icon} has-text-gray"></i>
       <div class="icon-tooltip-content">${text}</div>
       <div class="icon-tooltip-arrow"></div>
     </span>
     `]
+  class ShareButtons extends Component {
+      render() {
+        const { selected_profile, user } = this.state
+        const share_url = `${WWW_URL}/${selected_profile.username}/`
+        const share_text = selected_profile.username = user.username ? `I'd like to represent for you on Liquid US, a tool to hold our politicians accountable. Check out my policy positions here and proxy to me if you agree with my priorities` : `${selected_profile.first_name} is using Liquid US to hold our politicians accountable. Check out their policy positions and choose them as a proxy if you agree with their policy priorities. ${selected_profile.last_name}'s Key Votes'`
+        const subject = selected_profile.username = user.username ? `I'd like to represent you on key votes` : `Thought you'd be interested in this`
+
+        return this.html`
+          <div class="content">
+            <p class="has-text-weight-semibold">Share your public voting history & get others to proxy to you. They will only see your public votes.</p>
+            <div class="buttons is-centered">
+              <a class="button is-link has-text-weight-bold" title="Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">
+                <span class="icon"><i class="fab fa-facebook"></i></span>
+                <span>Post on Facebook</span>
+              </a>
+              <a class="button is-link has-text-weight-bold" title="Twitter" target="_blank" href="${`https://twitter.com/intent/tweet?text=${share_text}`}">
+                <span class="icon"><i class="fab fa-twitter"></i></span>
+                <span>Tweet your people</span>
+              </a>
+              <a class="button is-link has-text-weight-bold" title="Email" target="_blank" href="${`mailto:?subject=${subject}&body=${share_text}`}">
+                <span class="icon"><i class="fa fa-envelope"></i></span>
+                <span>Email</span>
+              </a>
+            </div>
+          </div>
+        `
+      }
+    }
