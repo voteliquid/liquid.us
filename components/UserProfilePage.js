@@ -82,10 +82,10 @@ module.exports = class UserProfilePage extends Component {
               ${user && p.username && user.username === p.username
                 ? [`
                   <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
-                  <button class="button is-link is-outlined is-fullwidth is-medium tooltip is-tooltip-info fix-bulma-centered-text" data-tooltip="Add a bio, video, or picture">
+                  <a href="/edit_profile"><button class="button is-link is-outlined is-fullwidth is-medium tooltip is-tooltip-info fix-bulma-centered-text" data-tooltip="Add a bio, video, or picture">
                     <span class="icon is-small"><i class="far fa-user-circle"></i></span>
-                    <span><a href="/edit_profile">Edit Profile</a></span>
-                  </button><br /><br />
+                    <span>Edit Profile</span>
+                  </button></a><br /><br />
                   <button disabled class="button is-link is-outlined is-fullwidth is-medium tooltip is-tooltip-info fix-bulma-centered-text" data-tooltip="Add a bio, video, or picture">
                     <span class="icon is-small"><i class="far fa-handshake"></i></span>
                     <span>Proxy</span>
