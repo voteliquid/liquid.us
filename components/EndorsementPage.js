@@ -195,7 +195,7 @@ class CommentDetailPage extends Component {
           <div class="columns">
             <div class="column">
               <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>
-              ${TargetReps.for(this, { measure: l })}
+              ${l.author_username === 'councilmemberbas' ? '' : TargetReps.for(this, { measure: l })}
               <div class="small-screens-only">
                 ${EndorsementCount.for(this, { measure: l })}
               </div>
