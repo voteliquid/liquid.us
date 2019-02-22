@@ -170,7 +170,7 @@ class NewSignupEndorseForm extends Component {
 
     let action = 'Endorse'; let color = 'is-success'
     if (measure.comment.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
-    if (measure.comment.position === 'abstain') { action = 'Join abstention'; color = 'is-dark' }
+    if (measure.comment.position === 'abstain') { action = 'Weigh in'; color = 'is-success' }
 
     return this.html`
       <form method="POST" style="width: 100%;" method="POST" onsubmit=${this} action=${this}>
@@ -328,7 +328,7 @@ class LoggedInForm extends Component {
 
     let action = 'Endorse'; let color = 'is-success'
     if (measure.comment.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
-    if (measure.comment.position === 'abstain') { action = 'Join abstention'; color = 'is-dark' }
+    if (measure.comment.position === 'abstain') { action = 'Weigh in'; color = 'is-success' }
 
     const name = [user.first_name, user.last_name].filter(a => a).join(' ')
     const address = user.address ? user.address.address : ''
