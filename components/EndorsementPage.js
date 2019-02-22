@@ -264,7 +264,7 @@ class MobileHoverBar extends Component {
 
     let action = 'Endorse'; let color = 'is-success'
     if (measure.comment.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
-    if (measure.comment.position === 'abstain') { action = 'Join abstention'; color = 'is-dark' }
+    if (measure.comment.position === 'abstain') { action = 'Weign in'; color = 'is-success' }
     if (measure.comment.endorsed) { action = 'Share'; color = 'is-link' }
 
     return this.html`
@@ -381,7 +381,7 @@ class NotYourRepsMessage extends Component {
 
     let action = 'Endorse'
     if (measure.comment.position === 'nay') { action = 'Join opposition' }
-    if (measure.comment.position === 'abstain') { action = 'Join abstention' }
+    if (measure.comment.position === 'abstain') { action = 'Weigh in' }
 
     return this.html`
       <p class="is-size-7" style="position: relative; bottom: 1rem;">
