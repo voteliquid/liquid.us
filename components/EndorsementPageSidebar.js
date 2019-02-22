@@ -471,7 +471,7 @@ module.exports.AfterEndorseComment = class AfterEndorseComment extends Component
     }))
   }
   render() {
-    const { comment } = this.props.measures
+    const { comment } = this.props.measure
     const loading = this.props.loading
 
     let afterEndorseMessage = 'Tell others why you endorsed'
