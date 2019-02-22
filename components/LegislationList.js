@@ -34,7 +34,7 @@ module.exports = {
     }
   },
   view: (state, dispatch) => {
-    const { loading, measuresList, location, measures } = state
+    const { geoip, loading, measuresList, location, measures, user } = state
     const { query } = location
 
     return html()`
@@ -43,12 +43,13 @@ module.exports = {
           <div class="column">
             <div class="container bill-details">
               <div class="both-buttons">
-                ${filterButton(state, dispatch)}&nbsp${proposeButton()}
-              </div>
-            ${filterTabs(state, dispatch)}
+                <span class="filter-button">${filterButton(state, dispatch)}</span>&nbsp<span class="propose-button">${proposeButton()}</span>
+              </div><br />
+              ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []} <br />
+            <span class="filter-tabs">${filterTabs(state, dispatch)}</span> <br />
             ${loading ? activityIndicator() :
-                (!measuresList.length ? noBillsMsg(query.order, query) : measuresList.map((short_id) => measureListRow(measures[short_id])))}
-                </div>
+                (!measuresList.length ? noBillsMsg(query.order, query) : measuresList.map((short_id) => ` ${measureListRow(measures[short_id])}`))}
+            </div>
               <style>
                 .bill-details {
                    max-width: 800px;
@@ -60,12 +61,21 @@ module.exports = {
                        margin-right: 0rem;
                     }
                   }
-                  .both-buttons {
+                  .filter-button {
                     margin-left: 15rem;
                   }
-                  .whole-page {
-                    background-color: #f6f8fa;
-
+                  @media (max-width: 800px) {
+                    .propose-button {
+                      margin-left: 4rem;
+                    }
+                  }
+                  @media (max-width: 800px) {
+                    .filter-button {
+                      margin-left: 6rem;
+                    }
+                  }
+                  .filter-tabs {
+                    margin-left: 15rem;
                   }
                   .highlight-hover {
                     background-color: #FFFFF;
@@ -121,6 +131,10 @@ module.exports = {
                 }
                 .summary-tooltip:hover .has-text-grey-lighter {
                   color: hsl(0, 0%, 75%) !important;
+                }
+                .whole-page {
+                  background-color: #f6f8fa;
+
                 }
               </style>
             </div>
@@ -294,7 +308,6 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
           </div>
         </div>
       </div>
-      ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []}
     </form>
   `
 }
@@ -313,7 +326,7 @@ const filterTabs = ({ geoip, legislatures, location, storage, user }, dispatch) 
   return html()`
     <div class=${showFilters ? 'is-centered' : 'is-hidden'}>
       ${filterForm(geoip, legislatures, storage, location, user, dispatch)}
-    </div><br>
+    </div>
   `
 }
 
@@ -334,27 +347,26 @@ const measureListRow = (s) => {
   const reviseTitle = `${s.title.charAt(13).toUpperCase() + s.title.slice(14)}`
   const reviseTitle2 = s.title.slice(titleIndex + 2)
   const titleRevised = (toAmend || billToAmend) ? `T${reviseTitle2}` : relatingTo ? `${reviseTitle}` : `${s.title}`
+  const authorLink = s.sponsor_first_name ? s.sponsor_username : s.author_username
   return `
     <div class="card highlight-hover">
       <div class="card-content">
-        <div class="title is-5"><a href="${measureUrl}">${titleRevised}</a></div>
+        <div class="title is-4"><a href="${measureUrl}">${titleRevised}</a></div>
         <div class="columns">
           <div class="column">
-            <div class="is-size-6 has-text-grey">
+            <div class="is-size-5">
               ${s.introduced_at ? [`
-              <strong class=" has-text-grey">Status:</strong>
+              <strong>Latest action:</strong>
               ${next_action_at ? [`
                 Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
-                <br />
-              `] : `${s.status}`} <br />
-                <strong class="has-text-grey">Last action: </strong>
-                <span>${new Date(s.last_action_at).toLocaleDateString()}</span>
-            <br />
-              <span class="has-text-grey">
+              `] : s.status === 'Awaiting floor or committee vote' ? `Discharged or reported from committee on <span>${new Date(s.last_action_at).toLocaleDateString()}</span><br />` : `${s.status} on <span>${new Date(s.last_action_at).toLocaleDateString()}</span>`}
+            </div>
+            <div class="is-size-6 has-text-grey summary-bar-1">
               ${s.sponsor_first_name && s.legislature_name ? [`
                 ${legisInfo}
                 <span class="has-text-grey-lighter">&bullet;</span>
-                <a href="${`/${s.author_username}`}">${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;
+                ${s.summary ? [`${summaryTooltipButton(s.id, s.short_id, s.summary)}<span class="has-text-grey-lighter">&bullet;</span>`] : ''}
+                <a href="${`/${authorLink}`}">${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;
                 <span class="has-text-grey-lighter">&bullet;</span>
                 Introduced ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                   : s.legislature_name
@@ -363,13 +375,13 @@ const measureListRow = (s) => {
                   Introduced ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                   : [`Introduced ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                 }
-                </span>
+              </div>
             </div>
-          </div>
           `] : [`
-            <div class="is-size-6 has-text-grey-light">
+            <div class="is-size-6 has-text-grey-light summary-bar-2">
               ${s.author_username & s.legislature_name
                 ? [`${legisInfo}
+                ${s.summary ? [`${summaryTooltipButton(s.id, s.short_id, s.summary)}<span class="has-text-grey-lighter">&bullet;</span>`] : ''}
                 <span class="has-text-grey-lighter">&bullet;</span>
                 <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>&nbsp;
                 <span class="has-text-grey-lighter">&bullet;</span>
@@ -384,34 +396,21 @@ const measureListRow = (s) => {
           `]}
           <div class="colum is-one-quarter has-text-right-tablet has-text-left-mobile">
             ${voteButton(s)}
-            ${s.summary ? summaryTooltipButton(s.id, s.short_id, s.summary) : ''}
           </div>
 
         </div>
         <style>
-        .summary-text {
-          margin-left: 5rem;
-          margin-top: -.5rem;
-          padding-left: 1rem;
-          padding-top: 1rem;
-          padding-bottom: 0rem;
-          padding-right: 20rem
-          margin-bottom: 0rem;
-          margin-right: 5rem;
-        }
         @media (max-width: 800px) {
-          .summary-text {
+          .summary-bar-1 {
 
-          margin-left: 1rem;
-          margin-top: -.5rem;
-          padding-left: 1rem;
-          padding-top: 1rem;
-          padding-bottom: 1rem;
-          padding-right: 1rem
-          margin-bottom: 1rem;
-          margin-right: 1rem;
+          font-size: 11px
           }
-        }
+          @media (max-width: 800px) {
+            .summary-bar-2 {
+
+            font-size: 11px
+            }
+        } 
         </style>
 
       </div>
@@ -582,8 +581,6 @@ const filterButton = ({ location, storage }) => {
 
 const summaryTooltipButton = (id, short_id, summary) => [`
   <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">
-    <br />
-    <br />
     <span class="icon summary-tooltip">
       <i class="fa fa-lg fa-info-circle has-text-grey-lighter"></i>
       <div class="summary-tooltip-content">${summary}</div>
