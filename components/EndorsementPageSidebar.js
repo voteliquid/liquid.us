@@ -473,13 +473,14 @@ module.exports.AfterEndorseComment = class AfterEndorseComment extends Component
   render() {
     const { comment } = this.props.measures
     const loading = this.props.loading
-    let action = 'endorsed'
-    if (comment.position === 'nay') { action = 'opposed' }
-    if (comment.position === 'abstain') { action = 'weighed in' }
+
+    let afterEndorseMessage = 'Tell others why you endorsed'
+    if (comment.position === 'nay') { afterEndorseMessage = 'Tell others why you opposed' }
+    if (comment.position === 'abstain') { afterEndorseMessage = 'Share your feedback, questions and ideas here' }
 
     return this.html`
       <form class="content" onsubmit="${this}">
-        <p>Tell others why you ${action}:</p>
+        <p>${afterEndorseMessage}:</p>
         <div class="field">
           <div class="control">
             <textarea name="content" class="textarea" required style="resize:none;"></textarea>
