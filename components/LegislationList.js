@@ -36,114 +36,99 @@ module.exports = {
   view: (state, dispatch) => {
     const { geoip, loading, measuresList, location, measures, storage, user } = state
     const { query } = location
+    const showFilters = location.query.show_filters || storage.get('show_filters')
 
     return html()`
       <div class="section whole-page">
-        <div class="columns">
+        <div class="columns is-centered">
           <div class="column">
             <div class="container bill-details">
-              <div class="both-buttons">
-                <span class="filter-button">${filterButton(state, dispatch)}</span>&nbsp<span class="propose-button">${proposeButton()}</span>
+              <div class="has-text-centered">
+                ${filterButton(state, dispatch)}&nbsp${proposeButton()}
               </div><br />
               ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []} <br />
-            <div class="card filter-tabs">${filterTabs(state, dispatch)}</div>
-            ${loading ? activityIndicator() :
+              <div class=${showFilters ? 'is-centered' : 'is-hidden'}>
+                <div class="card filter-tabs">${filterTabs(state, dispatch)}</div>
+              </div>
+              ${loading ? activityIndicator() :
                 (!measuresList.length ? noBillsMsg(query.order, query) : measuresList.map((short_id) => ` ${measureListRow(measures[short_id])}`))}
             </div>
-              <style>
-                .bill-details {
-                   max-width: 800px;
-                   margin-right: 30rem;
-                }
-                  @media (max-width: 800px) {
-                    .bill-details {
-                       max-width: 800px;
-                       margin-right: 0rem;
-                    }
-                  }
-                  .filter-button {
-                    margin-left: 15rem;
-                  }
-                  @media (max-width: 800px) {
-                    .propose-button {
-                      margin-left: 4rem;
-                    }
-                  }
-                  @media (max-width: 800px) {
-                    .filter-button {
-                      margin-left: 6rem;
-                    }
-                  }
-                  .filter-tabs {
-                    padding-left: 4rem;
-                    padding-top: 1rem;
-                    padding-bottom: 1rem;
-                    background-color: #FFFFF
-                  }
-                  .highlight-hover {
-                    background-color: #FFFFF;
-
-                  }
-                  .highlight-hover:hover {
-                  background: #f6f8fa;
-
-                }
-                .summary-tooltip {
-                  position: relative;
-                }
-                .summary-tooltip .summary-tooltip-content {
-                  display: none;
-                  position: absolute;
-                  max-height: 222px;
-                }
-                .summary-tooltip .summary-tooltip-arrow {
-                  display: none;
-                  position: absolute;
-                }
-                .summary-tooltip:hover .summary-tooltip-content {
-                  display: block;
-                  background: hsl(0, 0%, 100%) !important;
-                  box-shadow: 0px 4px 15px hsla(0, 0%, 0%, 0.15);
-                  border: 1px solid hsl(0, 0%, 87%);
-                  color: #333;
-                  font-size: 14px;
-                  overflow: hidden;
-                  padding: .4rem .8rem;
-                  text-align: left;
-                  white-space: normal;
-                  width: 400px;
-                  z-index: 99999;
-                  top: auto;
-                  bottom: 50%;
-                  left: auto;
-                  right: 100%;
-                  transform: translate(-0.5rem, 50%);
-                }
-                .summary-tooltip:hover .summary-tooltip-arrow {
-                  border-color: transparent transparent transparent hsl(0, 0%, 100%) !important;
-                  z-index: 99999;
-                  position: absolute;
-                  display: inline-block;
-                  pointer-events: none;
-                  border-style: solid;
-                  border-width: .5rem;
-                  margin-left: -.5rem;
-                  margin-top: -.5rem;
-                  top: 50%;
-                  left: -1px;
-                }
-                .summary-tooltip:hover .has-text-grey-lighter {
-                  color: hsl(0, 0%, 75%) !important;
-                }
-                .whole-page {
-                  background-color: #f6f8fa;
-
-                }
-              </style>
-            </div>
           </div>
-
+        </div>
       </div>
+      <style>
+        .bill-details {
+          max-width: 1086px;
+        }
+        .filter-tabs {
+          padding-left: 9rem;
+          padding-top: 1rem;
+          padding-bottom: 1rem;
+          background-color: #FFF;
+        }
+        .highlight-hover {
+          background-color: #FFF;
+        }
+        .highlight-hover:hover {
+          background: #f6f8fa;
+        }
+        .summary-tooltip {
+          position: relative;
+        }
+        .summary-tooltip .summary-tooltip-content {
+          display: none;
+          position: absolute;
+          max-height: 222px;
+        }
+        .summary-tooltip .summary-tooltip-arrow {
+          display: none;
+          position: absolute;
+        }
+        .summary-tooltip:hover .summary-tooltip-content {
+          display: block;
+          background: hsl(0, 0%, 100%) !important;
+          box-shadow: 0px 4px 15px hsla(0, 0%, 0%, 0.15);
+          border: 1px solid hsl(0, 0%, 87%);
+          color: #333;
+          font-size: 14px;
+          overflow: hidden;
+          padding: .4rem .8rem;
+          text-align: left;
+          white-space: normal;
+          width: 400px;
+          z-index: 99999;
+          top: auto;
+          bottom: 50%;
+          left: auto;
+          right: 100%;
+          transform: translate(-0.5rem, 50%);
+        }
+        .summary-tooltip:hover .summary-tooltip-arrow {
+          border-color: transparent transparent transparent hsl(0, 0%, 100%) !important;
+          z-index: 99999;
+          position: absolute;
+          display: inline-block;
+          pointer-events: none;
+          border-style: solid;
+          border-width: .5rem;
+          margin-left: -.5rem;
+          margin-top: -.5rem;
+          top: 50%;
+          left: -1px;
+        }
+        .summary-tooltip:hover .has-text-grey-lighter {
+          color: hsl(0, 0%, 75%) !important;
+        }
+        .whole-page {
+          background-color: #f6f8fa;
+        }
+        @media (max-width: 1086px) {
+
+          .whole-page {
+            padding: 0;
+          }
+        }
+      </style>
     `
   },
 }
@@ -325,11 +310,8 @@ const addAddressNotification = (geoip = {}, user) => {
 }
 
 const filterTabs = ({ geoip, legislatures, location, storage, user }, dispatch) => {
-  const showFilters = location.query.show_filters || storage.get('show_filters')
   return html()`
-    <div class=${showFilters ? 'is-centered' : 'is-hidden'}>
       ${filterForm(geoip, legislatures, storage, location, user, dispatch)}
-    </div>
   `
 }
 
@@ -339,8 +321,8 @@ const measureListRow = (s) => {
   const index = s.legislature_name.indexOf(', ')
   const cityName = s.legislature_name.slice(0, index)
   const liquidLeg = s.legislature_name === 'U.S. Congress' ? 'Congress' : s.legislature_name.includes(',') ? cityName : s.legislature_name
-  const legisInfo = s.sponsor_first_name && s.legislature_name === 'U.S. Congress' && s.chamber === 'Lower' ? 'U.S. House' : s.sponsor_first_name && s.legislature_name === 'U.S. Congress' ? 'U.S. Senate' : s.author_username === null && s.chamber === 'Lower' ? `${s.legislature_name} Assembly` : s.author_username === null ? `${s.legislature_name} Senate` : `Liquid ${liquidLeg}`
-console.log(s.chamber)
+  const legisInfo = s.legislature_name === 'U.S. Congress' && s.chamber === 'Upper' ? 'U.S. Senate' : s.sponsor_first_name && s.legislature_name === 'U.S. Congress' ? 'U.S. House' : s.author_username === null && s.chamber === 'Lower' ? `${s.legislature_name} Assembly` : s.author_username === null ? `${s.legislature_name} Senate` : `Liquid ${liquidLeg}`
+console.log(s)
   const toAmend = s.title.includes('To amend ')
   const billToAmend = s.title.includes('A bill to amend ')
   const relatingTo = s.title.includes('Relating to: ')
@@ -352,37 +334,39 @@ console.log(s.chamber)
   return `
     <div class="card highlight-hover">
       <div class="card-content">
-        <div class="title is-4"><a href="${measureUrl}">${titleRevised}</a></div>
+        <div class="title is-4 bill-title"><a href="${measureUrl}">${titleRevised}</a>              ${s.summary ? [`&nbsp${summaryTooltipButton(s.id, s.short_id, s.summary)}`] : ''}
+        </div>
         <div class="columns">
           <div class="column">
             <div class="is-size-5">
-              ${s.introduced_at ? [`
-              <strong>Latest action:</strong>
-              ${next_action_at ? [`
-                Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
-              `] : s.status === 'Awaiting floor or committee vote' ? `Discharged or reported from committee on <span>${new Date(s.last_action_at).toLocaleDateString()}</span><br />` : `${s.status} on <span>${new Date(s.last_action_at).toLocaleDateString()}</span>`}
+              ${s.introduced_at
+              ? [`${s.status === 'Introduced' || s.status === 'Published' ? '' : '<strong>Latest action: </strong>'}${next_action_at
+                ? [`Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}`]
+                : s.status === 'Awaiting floor or committee vote'
+                ? `Discharged or reported from committee on <span>${new Date(s.last_action_at).toLocaleDateString()}</span><br />`
+                : s.status === 'Introduced' || s.status === 'Published' ? '<br />'
+                : `${s.status} on <span>${new Date(s.last_action_at).toLocaleDateString()}</span>`}
             </div>
-            <div class="is-size-6 has-text-grey summary-bar-1">
+            <div class="has-text-grey summary-bar-1">
               ${s.sponsor_first_name && s.legislature_name ? [`
-                ${legisInfo}
+                Introduced ${legisInfo}
                 <span class="has-text-grey-lighter">&bullet;</span>
-                ${s.summary ? [`${summaryTooltipButton(s.id, s.short_id, s.summary)}<span class="has-text-grey-lighter">&bullet;</span>`] : ''}
-                <a href="${`/${authorLink}`}">${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;
+                <a href="${`/${authorLink}`}">${s.sponsor_first_name} ${s.sponsor_last_name}</a>
                 <span class="has-text-grey-lighter">&bullet;</span>
-                Introduced ${(new Date(s.introduced_at)).toLocaleDateString()}`]
+                ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                   : s.legislature_name
                   ? [`${legisInfo}
                   <span class="has-text-grey-lighter">&bullet;</span>
-                  Introduced ${(new Date(s.introduced_at)).toLocaleDateString()}`]
-                  : [`Introduced ${(new Date(s.introduced_at)).toLocaleDateString()}`]
+                  ${(new Date(s.introduced_at)).toLocaleDateString()}`]
+                  : [`${(new Date(s.introduced_at)).toLocaleDateString()}`]
                 }
               </div>
             </div>
           `] : [`
-            <strong>Latest action:</strong> Published on Liquid
-            <div class="is-size-6 has-text-grey-light summary-bar-2">
+            <br>
+            <div class="has-text-grey summary-bar-2">
               ${s.author_username & s.legislature_name
-                ? [`${legisInfo}
+                ? [`Published ${legisInfo}
                 ${s.summary ? [`${summaryTooltipButton(s.id, s.short_id, s.summary)}<span class="has-text-grey-lighter">&bullet;</span>`] : ''}
                 <span class="has-text-grey-lighter">&bullet;</span>
                 <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>&nbsp;
@@ -392,44 +376,44 @@ console.log(s.chamber)
                 <span class="has-text-grey-lighter">&bullet;</span>
                 ${`<a href="${`/${authorLink}`}">${s.author_first_name} ${s.author_last_name}</a>&nbsp`}`}
                 <span class="has-text-grey-lighter">&bullet;</span>
-                Published ${(new Date(s.created_at)).toLocaleDateString()}
+                ${(new Date(s.created_at)).toLocaleDateString()}
             </div>
           </div>
         </div>
           `]}
-          <span class="column is-one-third has-text-right-tablet has-text-left-mobile">
+          <span class="column vote-button is-one-half">
             ${voteButton(s)}
           </span>
 
         </div>
         <style>
-        .already-voted {
-          font-size: 17px;
-          margin-right: 2.7rem;
+          .already-voted {
+            font-size: 20px;
         }
-        @media (max-width: 800px) {
-          .summary-bar-1 {
-
-          font-size: 10px;
+          .bill-title {
+            margin-bottom: 0.5rem;
           }
-        }
+          .card-content {
+            padding-left: 40px;
+            padding-bottom: 0.25px
+          }
+          .voted-for {
 
-          @media (max-width: 800px) {
-            .summary-bar-2 {
-
-            font-size: 10px;
+          }
+          .vote-now {
+            font-size: 20px;
+          }
+          @media (max-width: 1086px) {
+            .card-content {
+              padding-left: 3px;
+              padding-right: 3px;
             }
-        }
-
-        .voted-for {
-        margin-right: 2.5rem;
-        }
-
-        .vote-now {
-        margin-right: 5rem;
-        font-size: 20px;
-        }
-
+            .summary-bar-1 {
+              padding-top: 5px;
+          }
+            .summary-bar-2 {
+              padding-top: 5px;
+            }
         </style>
       </div>
     </div>
@@ -547,7 +531,7 @@ const votePositionClass = (position) => {
 
 const voteButton = (s) => {
   let voteBtnTxt = 'Vote'
-  let voteBtnClass = 'button is-outlined vote-now is-primary'
+  let voteBtnClass = 'button is-outlined is-fullwidth vote-now is-primary'
   let voteBtnIcon = 'fas fa-edit'
   if (s.vote_position) {
     const position = `${s.vote_position[0].toUpperCase()}${s.vote_position.slice(1)}`
@@ -556,18 +540,18 @@ const voteButton = (s) => {
     if (s.vote_position === 'abstain') voteBtnIcon = 'far fa-circle'
     if (s.delegate_rank > -1) {
       if (s.delegate_name) {
-        voteBtnTxt = `Inherited ${position} vote from ${s.delegate_name}`
+        voteBtnTxt = `${s.delegate_name} voted ${position} for you`
       } else {
         voteBtnTxt = `Inherited ${position} vote from proxy`
       }
-      voteBtnClass = `button voted-for is-outlined ${votePositionClass(s.vote_position)}`
+      voteBtnClass = `button is-fullwidth voted-for is-outlined ${votePositionClass(s.vote_position)}`
     }
     if (s.delegate_rank === -1) {
       voteBtnTxt = `You voted ${position}`
-      voteBtnClass = `button already-voted is-success ${votePositionClass(s.vote_position)}`
+      voteBtnClass = `button is-fullwidth already-voted is-success ${votePositionClass(s.vote_position)}`
     }
   }
-  return [`<a style="white-space: inherit; height: auto" class="${voteBtnClass}" href="${`/legislation/${s.short_id}`}">
+  return [`<a style="white-space: inherit; height: auto align-center" class="${voteBtnClass}" href="${`/legislation/${s.short_id}`}">
     <span class="icon" style="align-right: flex-start;"><i class="${voteBtnIcon}"></i></span>
     <span class="has-text-weight-semibold">${voteBtnTxt}</span>
   </a>`]
