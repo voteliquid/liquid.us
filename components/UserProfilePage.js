@@ -46,19 +46,19 @@ module.exports = class UserProfilePage extends Component {
                 <div class="column">
                   <span>&nbsp&nbsp&nbsp&nbsp${p.public_votes[0] === null ? '0' : p.public_votes.length + 1}</span>
                   <br />
-                  &nbsp&nbsp${summaryTooltipButton('bullhorn', `Votes`)}
+                  &nbsp&nbsp${iconTooltipButtonFa('bullhorn', `Votes`)}
                   <br />
                 </div>
                 <div class="column">
                   <span>${commentCount(p)}</span>
                   <br />
-                  ${summaryTooltipButton('comment', 'Comments')}
+                  ${iconTooltipButtonFar('comment', 'Comments')}
                   <br />
                 </div>
                 <div class="column">
               <span>${proposalCount(userLegislation)}</span>
                   <br />
-                  ${summaryTooltipButton('file', 'Proposals')}
+                  ${iconTooltipButtonFar('file', 'Proposals')}
                   <br />
                 </div>
                 <div class="column">
@@ -67,7 +67,7 @@ module.exports = class UserProfilePage extends Component {
                     : `1`
                   ]}
                   <br />
-                  ${summaryTooltipButton('handshake', 'Directly representing')}
+                  ${iconTooltipButtonFar('handshake', 'Directly representing')}
                 </div>
                 <div class="column">
                   ${[p.max_vote_power
@@ -75,7 +75,7 @@ module.exports = class UserProfilePage extends Component {
                     : `1`
                   ]}
                   <br />
-                  ${summaryTooltipButton('users', 'Indirectly representing')}
+                  ${iconTooltipButtonFa('users', 'Indirectly representing')}
                 </div>
               </div>
 
@@ -372,14 +372,20 @@ function proposalCount(userLegislation) {
   return proposalTracker
 }
 
-const summaryTooltipButton = (icon, text) => [`
+const iconTooltipButtonFar = (icon, text) => [`
+  <span class="icon has-text-link icon-tooltip">
+    <i class="far fa-${icon}"></i>
+    <div class="icon-tooltip-content">${text}</div>
+    <div class="icon-tooltip-arrow"></div>
+  </span>
+`]
+const iconTooltipButtonFa = (icon, text) => [`
   <span class="icon has-text-link icon-tooltip">
     <i class="fa fa-${icon}"></i>
     <div class="icon-tooltip-content">${text}</div>
     <div class="icon-tooltip-arrow"></div>
   </span>
 `]
-
 class ShareButtons extends Component {
   render() {
     const { selected_profile, user } = this.state
