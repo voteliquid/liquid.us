@@ -228,19 +228,16 @@ class CommentDetailPage extends Component {
                   .sticky-panel .content {
                     max-width: 253px;
                   }
-
                   .panel-wrapper {
                     position: fixed;
                     margin-left: 2rem;
                     margin-right: 15px;
                     z-index: 15;
                   }
-
                   .small-screens-only {
                     display: none;
                   }
                 }
-
                 @media (max-height: 575px) {
                   /* Don't position:fixed the sidebar if window isn't tall enough */
                   .panel-wrapper {
