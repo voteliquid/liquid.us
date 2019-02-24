@@ -260,8 +260,8 @@ class MeasureVoteForm extends Component {
             <div class="control" style="flex-shrink: 1;">
               <div class="select">
                 <select autocomplete="off" name="public" onchange=${this}>
-                  <option value="true" selected=${public_checked}>Public (Vote Power: ${l.vote_power})</option>
-                  <option value="false" selected=${!public_checked}>Private (Vote Power: 1)</option>
+                  <option value="true" selected=${public_checked}>Public${l.vote_power ? ` (Vote Power: ${l.vote_power})` : ''}</option>
+                  <option value="false" selected=${!public_checked}>Private${l.vote_power ? '(Vote Power: 1)' : ''}</option>
                 </select>
               </div>
             </div>

@@ -29,7 +29,7 @@ module.exports = class EndorsementPageSidebar extends Component {
             : // logged in, voted differently or haven't voted
             LoggedInForm.for(this, { measure })
         }
-        ${measure.user && measure.comment.endorsed && !measure.reply
+        ${measure.user && measure.comment.endorsed && !measure.reply && measure.replyLoaded
           ? module.exports.AfterEndorseComment.for(this, { measure })
           : ''}
       </nav>
@@ -46,7 +46,7 @@ module.exports.EndorsementCount = class EndorsementCount extends Component {
 
     let action = 'endorsed'; let color = 'is-success'
     if (measure.comment.position === 'nay') { action = 'opposed'; color = 'is-danger' }
-    if (measure.comment.position === 'abstain') { action = 'abstained'; color = 'is-dark' }
+    if (measure.comment.position === 'abstain') { action = 'weighed in'; color = 'is-success' }
 
     return this.html`
       <div>
@@ -153,6 +153,7 @@ class NewSignupEndorseForm extends Component {
                       [short_id]: {
                         ...this.state.measures[short_id],
                         comment: votes[0] || this.state.measures[short_id].comment,
+                        replyLoaded: true,
                       }
                     },
                     user: {
@@ -184,7 +185,7 @@ class NewSignupEndorseForm extends Component {
 
     let action = 'Endorse'; let color = 'is-success'
     if (measure.comment.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
-    if (measure.comment.position === 'abstain') { action = 'Join abstention'; color = 'is-dark' }
+    if (measure.comment.position === 'abstain') { action = 'Weigh in'; color = 'is-success' }
 
     return this.html`
       <form method="POST" style="width: 100%;" method="POST" onsubmit=${this} action=${this}>
@@ -343,7 +344,7 @@ class LoggedInForm extends Component {
 
     let action = 'Endorse'; let color = 'is-success'
     if (measure.comment.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
-    if (measure.comment.position === 'abstain') { action = 'Join abstention'; color = 'is-dark' }
+    if (measure.comment.position === 'abstain') { action = 'Weigh in'; color = 'is-success' }
 
     const name = [user.first_name, user.last_name].filter(a => a).join(' ')
     const address = user.address ? user.address.address : ''
@@ -406,7 +407,7 @@ module.exports.AfterEndorseSocialShare = class AfterEndorseSocialShare extends C
 
     let actionIng = 'endorsing'; let actionTo = 'endorse'
     if (comment.position === 'nay') { actionIng = 'opposing'; actionTo = 'oppose' }
-    if (comment.position === 'abstain') { actionIng = 'abstaining on'; actionTo = 'abstain' }
+    if (comment.position === 'abstain') { actionIng = 'weighing in on'; actionTo = 'weigh in' }
     const share_text = `Join me in ${actionIng} ${title}: ${share_url}`
 
     return this.html`
@@ -470,10 +471,16 @@ module.exports.AfterEndorseComment = class AfterEndorseComment extends Component
     }))
   }
   render() {
+    const { comment } = this.props.measure
     const loading = this.props.loading
+
+    let afterEndorseMessage = 'Tell others why you endorsed'
+    if (comment.position === 'nay') { afterEndorseMessage = 'Tell others why you opposed' }
+    if (comment.position === 'abstain') { afterEndorseMessage = 'Share your feedback, questions and ideas here' }
+
     return this.html`
       <form class="content" onsubmit="${this}">
-        <p>Tell others why you endorsed:</p>
+        <p>${afterEndorseMessage}:</p>
         <div class="field">
           <div class="control">
             <textarea name="content" class="textarea" required style="resize:none;"></textarea>
