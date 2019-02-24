@@ -1,6 +1,8 @@
 const { api, html, preventDefault, redirect } = require('../helpers')
 const activityIndicator = require('./ActivityIndicator')
 const stateNames = require('datasets-us-states-abbr-names')
+const stringWidth = require('string-width')
+
 
 module.exports = {
   init: ({ geoip, legislatures, location = {}, measures = {}, measuresList = [], measuresQuery, storage, user, showFilters }) => [{
@@ -322,7 +324,6 @@ const measureListRow = (s) => {
   const cityName = s.legislature_name.slice(0, index)
   const liquidLeg = s.legislature_name === 'U.S. Congress' ? 'Congress' : s.legislature_name.includes(',') ? cityName : s.legislature_name
   const legisInfo = s.legislature_name === 'U.S. Congress' && s.chamber === 'Upper' ? 'U.S. Senate' : s.sponsor_first_name && s.legislature_name === 'U.S. Congress' ? 'U.S. House' : s.author_username === null && s.chamber === 'Lower' ? `${s.legislature_name} Assembly` : s.author_username === null ? `${s.legislature_name} Senate` : `Liquid ${liquidLeg}`
-console.log(s)
   const toAmend = s.title.includes('To amend ')
   const billToAmend = s.title.includes('A bill to amend ')
   const relatingTo = s.title.includes('Relating to: ')
@@ -331,6 +332,9 @@ console.log(s)
   const reviseTitle2 = s.title.slice(titleIndex + 2)
   const titleRevised = (toAmend || billToAmend) ? `T${reviseTitle2}` : relatingTo ? `${reviseTitle}` : `${s.title}`
   const authorLink = s.sponsor_first_name ? s.sponsor_username : s.author_username
+  const summaryString = `${legisInfo} Introduced ${(s.sponsor_first_name || s.author_first_name)} ${(s.sponsor_last_name || s.author_last_name)} ${(new Date(s.introduced_at)).toLocaleDateString()}`
+  const stringLengthCheck = stringWidth(summaryString) > 45 ? 'font-size: 10px' : stringWidth(summaryString) <= 45 ? 'font-size: 14px' : ''
+  console.log(stringLengthCheck)
   return `
     <div class="card highlight-hover">
       <div class="card-content">
@@ -410,6 +414,7 @@ console.log(s)
             }
             .summary-bar-1 {
               padding-top: 5px;
+              ${stringLengthCheck}
           }
             .summary-bar-2 {
               padding-top: 5px;
@@ -426,7 +431,6 @@ const initialize = (geoip, prevQuery, location, storage, user) => (dispatch) => 
   if (prevQuery === url) return dispatch({ type: 'loaded' })
   const terms = query.terms && query.terms.replace(/[^\w\d ]/g, '').replace(/(hr|s) (\d+)/i, '$1$2').replace(/(\S)\s+(\S)/g, '$1 & $2')
   const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
-console.log(geoip)
   const userCitySt = user && user.address ? `"${user.address.city}, ${user.address.state}"` : geoip ? `"${geoip.city}, ${geoip.region}"` : ''
   const userState = user && user.address ? user.address.state : geoip ? geoip.region : ''
   const congress = query.congress || storage.get('congress')
@@ -509,7 +513,6 @@ console.log(geoip)
 
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
   const api_url = `/measures_detailed?select=${fields.join(',')}${from_liquid_query}${from_leg_body_query}${status_query}${type_query}${updated_query}${introduced_query}${legCheck}${fts}&published=is.true&order=${lastAction}.desc.nullslast&limit=40`
-console.log(api_url)
 
   return api(api_url, { storage }).then((measures) => dispatch({
     type: 'receivedMeasures',
