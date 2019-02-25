@@ -15,7 +15,7 @@ module.exports = class MeasureDetailsPage extends Component {
     })
 
     if (measure) {
-      const title = `${measure.legislature_name}: ${measure.title}`
+      const title = `${measure.title} by ${measure.sponsor_first_name || measure.author_first_name} ${measure.sponsor_first_name || measure.author_last_name} in ${measure.legislature_name}`
       if (this.isBrowser) {
         const page_title = `${title} | ${config.APP_NAME}`
         window.document.title = page_title
