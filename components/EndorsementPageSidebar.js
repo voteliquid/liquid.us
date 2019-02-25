@@ -1,4 +1,5 @@
 const { WWW_URL } = process.env
+const { fetchOffices } = require('../effects/offices')
 const Component = require('./Component')
 const GoogleAddressAutocompleteScript = require('./EndorsementGoogleAddressAutocompleteScript')
 
@@ -21,13 +22,13 @@ module.exports = class EndorsementPageSidebar extends Component {
       <nav class="box">
         ${module.exports.EndorsementCount.for(this, { measure })}
         ${!measure.user // logged out
-          ? NewSignupEndorseForm.for(this, { measure })
+          ? module.exports.NewSignupEndorseForm.for(this, { measure })
 
           : measure.comment.endorsed // logged in, already endorsed
             ? module.exports.AfterEndorseSocialShare.for(this, { measure })
 
             : // logged in, voted differently or haven't voted
-            LoggedInForm.for(this, { measure })
+            module.exports.LoggedInForm.for(this, { measure })
         }
         ${measure.user && measure.comment.endorsed && !measure.reply && measure.replyLoaded
           ? module.exports.AfterEndorseComment.for(this, { measure })
@@ -57,7 +58,7 @@ module.exports.EndorsementCount = class EndorsementCount extends Component {
   }
 }
 
-class NewSignupEndorseForm extends Component {
+module.exports.NewSignupEndorseForm = class NewSignupEndorseForm extends Component {
   onsubmit(event, formData) {
     if (event) event.preventDefault()
 
@@ -147,21 +148,29 @@ class NewSignupEndorseForm extends Component {
                 .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
                 .then((votes) => {
                   // And finally re-render with with the newly registered user and updated count
-                  this.setState({
-                    measures: {
-                      ...this.state.measures,
-                      [short_id]: {
-                        ...this.state.measures[short_id],
-                        comment: votes[0] || this.state.measures[short_id].comment,
-                        replyLoaded: true,
-                      }
-                    },
-                    user: {
-                      ...user,
-                      first_name,
-                      last_name,
-                      address: { address, city, state },
-                    },
+                  const newUser = {
+                    ...user,
+                    first_name,
+                    last_name,
+                    address: { address, city, state },
+                  }
+
+                  fetchOffices({
+                    location: this.location,
+                    storage: this.storage,
+                    user: newUser,
+                  })(this.state.dispatch).then(() => {
+                    this.setState({
+                      measures: {
+                        ...this.state.measures,
+                        [short_id]: {
+                          ...this.state.measures[short_id],
+                          comment: votes[0] || this.state.measures[short_id].comment,
+                          replyLoaded: true,
+                        }
+                      },
+                      user: newUser,
+                    })
                   })
                 })
                 .catch((error) => console.log(error))
@@ -267,7 +276,7 @@ class VotedDifferentlyMessage extends Component {
 }
 
 
-class LoggedInForm extends Component {
+module.exports.LoggedInForm = class LoggedInForm extends Component {
   updateNameAndAddress(addressData, nameData) {
     // Update users address
     return this.api(`/user_addresses?select=id&user_id=eq.${addressData.user_id}`, {
@@ -282,12 +291,18 @@ class LoggedInForm extends Component {
         body: JSON.stringify(nameData),
       })
     }).then(() => {
-      this.setState({
-        user: {
-          ...this.state.user,
-          ...nameData,
-          address: addressData,
-        },
+      const newUser = {
+        ...this.state.user,
+        ...nameData,
+        address: addressData,
+      }
+
+      fetchOffices({
+        location: this.location,
+        storage: this.storage,
+        user: newUser,
+      })(this.state.dispatch).then(() => {
+        this.setState({ user: newUser })
       })
     })
   }

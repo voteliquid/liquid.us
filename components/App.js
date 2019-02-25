@@ -1,8 +1,7 @@
-const { NODE_ENV, WWW_URL } = process.env
-const fetch = require('isomorphic-fetch')
 const stateNames = require('datasets-us-states-abbr-names')
 
 const { api, combineEffects, html, loadPage, mapEffect, mapEvent, runInSeries } = require('../helpers')
+const { fetchOffices } = require('../effects/offices')
 const Navbar = require('./NavBar')
 const Footer = require('./Footer')
 const ContactWidget = require('./ContactWidget')
@@ -50,6 +49,7 @@ const App = module.exports = {
         return [{
           ...state,
           ...event.state,
+          dispatch: event.dispatch,
           hyperloop: state.hyperloop,
           navbar: { ...state.navbar, user: event.state.user || state.user },
           legislatures: event.state.legislatures || state.legislatures,
@@ -202,50 +202,6 @@ const fetchUserAndOffices = ({ location, storage, reps, user }) => (dispatch) =>
     .then((user) => fetchOffices({ location, storage, user })(dispatch))
 }
 
-const fetchOffices = ({ location, storage, user }) => (dispatch) => {
-    const address = user && user.address
-
-    if (address) {
-      return api('/user_offices', { storage })
-      .then((offices) => dispatch({ type: 'officesReceived', offices: offices || [] }))
-      .catch((error) => dispatch({ type: 'error', error }))
-    }
-
-    let ip = location.ip
-
-    if (!ip || (ip === '::1' && NODE_ENV !== 'production')) ip = '198.27.235.190'
-
-    return fetch(`${WWW_URL}/rpc/geoip/${ip}`, {
-      headers: {
-        Accept: 'application/json',
-      },
-      cache: 'no-cache',
-      mode: 'no-cors',
-    })
-    .then(response => response.json())
-    .then((geoip) => {
-      if (!geoip) {
-        return dispatch({ type: 'officesReceived', offices: [] })
-      }
-      return api('/rpc/point_to_offices', {
-        method: 'POST',
-        body: JSON.stringify({
-          lon: Number(geoip.lon),
-          lat: Number(geoip.lat),
-          city: `${geoip.city}, ${geoip.region}`,
-          state: geoip.region,
-        }),
-      })
-      .then((offices) => {
-        dispatch({ type: 'officesReceived', offices, geoip })
-      })
-    })
-    .catch((error) => {
-      console.error(error)
-      dispatch({ type: 'error', error })
-    })
-}
-
 const fetchUser = (storage) => (dispatch) => {
   const userId = storage.get('user_id')
   const jwt = storage.get('jwt')
@@ -370,11 +326,11 @@ const initHyperloop = (context, location, Component) => (dispatch) => {
   }
   p.then((html) => {
     const render = context.root.render
-    context.root.render = (props, state) => {
-      dispatch({ type: 'hyperloopStateChanged', state })
-      return render.call(context.root, context.root.props, { ...state, hyperloop: undefined })
+    context.root.render = () => {
+      dispatch({ type: 'hyperloopStateChanged', state: context.state, dispatch })
+      return render.call(context.root, context.root.props, { ...context.state, hyperloop: undefined })
     }
-    dispatch({ type: 'hyperloopStateChanged', state: context.state })
+    dispatch({ type: 'hyperloopStateChanged', state: context.state, dispatch })
     dispatch({
       type: 'hyperloopInitialized',
       program: { view: () => html },
