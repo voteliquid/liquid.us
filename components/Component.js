@@ -92,13 +92,13 @@ module.exports = class Component extends hyperloopComponent {
   capitalize(str = '') {
     return str.slice(0, 1).toUpperCase() + str.slice(1)
   }
-  escapeHtml(unsafe, opts = {}) {
+  escapeHtml(unsafe, opts = { replaceApos: true }) {
     return (unsafe || '')
       .replace(/[<>"'&]/g, (char) => {
         if (char === '<') return '&lt;'
         if (char === '>') return '&gt;'
         if (char === '"') return '&quot;'
-        if (char === "'") return '&#039;'
+        if (opts.replaceApos && char === "'") return '&#039;'
         if (opts.replaceAmp && char === '&') return '&amp;'
         return char
       })
@@ -110,8 +110,9 @@ module.exports = class Component extends hyperloopComponent {
       })
   }
   linkifyUrls(text = '') {
+    const urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/ig
     return this.escapeHtml(text)
-      .replace(/(\bhttps?:\/\/\S+)/ig, (url) => {
+      .replace(urlRegex, (url) => {
         const videoMatch = (url || '').match(/(http:|https:|)\/\/(player.|www.|media.)?(cityofmadison\.com|vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(Mediasite\/Showcase\/madison-city-channel\/Presentation\/|video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/)
         if (videoMatch) {
           if (videoMatch[3].slice(0, 5) === 'youtu') {
@@ -128,7 +129,11 @@ module.exports = class Component extends hyperloopComponent {
         if (url.match(/\.(png|jpg|jpeg|gif)$/i)) {
           return `<div class="responsive-image" style="max-width: 100%; background: hsla(0, 0%, 87%, 0.25); text-align: center;"><a href="${url}"><img alt="${url}" src="${url}" style="max-height: 380px; max-width: 100%; height: auto;" /></a></div>`
         }
-        return `<a href="${url}">${url}</a>`
+        let displayedUrl = url.replace(/https?:\/\/(www\.)?/, '')
+        if (displayedUrl.length > 25) {
+          displayedUrl = `${displayedUrl.slice(0, 25)}...`
+        }
+        return `<a href="${url}" target="_blank" rel="nofollow">${displayedUrl}</a>`
       })
       .replace(/\n/g, '<br />')
       .replace(/[a-z0-9.+_-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)*/ig, (email) => {
