@@ -92,13 +92,13 @@ module.exports = class Component extends hyperloopComponent {
   capitalize(str = '') {
     return str.slice(0, 1).toUpperCase() + str.slice(1)
   }
-  escapeHtml(unsafe, opts = {}) {
+  escapeHtml(unsafe, opts = { replaceApos: true }) {
     return (unsafe || '')
       .replace(/[<>"'&]/g, (char) => {
         if (char === '<') return '&lt;'
         if (char === '>') return '&gt;'
         if (char === '"') return '&quot;'
-        if (char === "'") return '&#039;'
+        if (opts.replaceApos && char === "'") return '&#039;'
         if (opts.replaceAmp && char === '&') return '&amp;'
         return char
       })

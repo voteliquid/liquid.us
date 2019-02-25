@@ -78,7 +78,12 @@ module.exports = class CommentPage extends Component {
       legislature = `your ${measure.legislature_name}'s elected officials`
     }
 
-    const page_title = `${comment.fullname || anonymousName}: Tell ${legislature} to vote ${comment.position} on ${measure.title}`
+    let page_title = `${comment.fullname || anonymousName}: Tell ${legislature} to vote ${comment.position} on ${measure.title}`
+    if (comment.position === 'abstain') {
+      const firstRealSentence = this.escapeHtml(comment.comment, { replaceApos: false, stripImages: true })
+        .split('\n').filter(line => line)[0] // strip leading whitespace
+      page_title = `${comment.fullname || anonymousName}: ${firstRealSentence}`
+    }
     if (this.isBrowser) {
       const page_title_with_appname = `${page_title} | ${APP_NAME}`
       window.document.title = page_title_with_appname
@@ -91,9 +96,10 @@ module.exports = class CommentPage extends Component {
     const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
 
     this.setState({
-      page_title,
-      page_description: this.escapeHtml(comment.comment, { replaceAmp: true, stripImages: true }),
       og_image_url: inlineImage || authorImage || measureImage,
+      og_title: measure.title,
+      page_description: page_title,
+      page_title,
     })
   }
   fetchEndorsementComment(comment, short_id, user) {
