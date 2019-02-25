@@ -129,7 +129,11 @@ module.exports = class Component extends hyperloopComponent {
         if (url.match(/\.(png|jpg|jpeg|gif)$/i)) {
           return `<div class="responsive-image" style="max-width: 100%; background: hsla(0, 0%, 87%, 0.25); text-align: center;"><a href="${url}"><img alt="${url}" src="${url}" style="max-height: 380px; max-width: 100%; height: auto;" /></a></div>`
         }
-        return `<a href="${url}">${url}</a>`
+        let displayedUrl = url.replace(/https?:\/\/(www\.)?/, '')
+        if (displayedUrl.length > 25) {
+          displayedUrl = `${displayedUrl.slice(0, 25)}...`
+        }
+        return `<a href="${url}" target="_blank" rel="nofollow">${displayedUrl}</a>`
       })
       .replace(/\n/g, '<br />')
       .replace(/[a-z0-9.+_-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)*/ig, (email) => {
