@@ -110,8 +110,9 @@ module.exports = class Component extends hyperloopComponent {
       })
   }
   linkifyUrls(text = '') {
+    const urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/ig
     return this.escapeHtml(text)
-      .replace(/(\bhttps?:\/\/\S+)/ig, (url) => {
+      .replace(urlRegex, (url) => {
         const videoMatch = (url || '').match(/(http:|https:|)\/\/(player.|www.|media.)?(cityofmadison\.com|vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(Mediasite\/Showcase\/madison-city-channel\/Presentation\/|video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/)
         if (videoMatch) {
           if (videoMatch[3].slice(0, 5) === 'youtu') {
