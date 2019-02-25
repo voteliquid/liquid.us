@@ -116,7 +116,7 @@ class MeasureInfoPanel extends Component {
         <div style="width: 100%;">
           <div class="columns is-gapless is-multiline is-mobile">
             <div class="column is-one-third">
-              <div class="has-text-grey">${introduced_at ? 'Introduced' : 'Proposed'}</div>
+              <div class="has-text-grey">${short_id === "us116-hjres46-relating-to-a-natl" || introduced_at ? 'Introduced' : 'Proposed'}</div>
             </div>
             <div class="column is-two-thirds">
               <div class="has-text-right">${short_id === "us116-hjres46-relating-to-a-natl" ? 'February 22, 2019' : new Date(introduced_at || created_at).toLocaleDateString()}</div>
