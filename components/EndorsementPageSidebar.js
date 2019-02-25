@@ -1,5 +1,5 @@
 const { WWW_URL } = process.env
-const { fetchOffices } = require('../effects/offices')
+const { signIn, updateNameAndAddress } = require('../effects')
 const Component = require('./Component')
 const GoogleAddressAutocompleteScript = require('./EndorsementGoogleAddressAutocompleteScript')
 
@@ -73,120 +73,53 @@ module.exports.NewSignupEndorseForm = class NewSignupEndorseForm extends Compone
     if (!formData.email || !formData.email.includes('@')) {
       return { error: { email: true } }
     }
-    const { address, lat, lon, city, state } = formData.address
 
-    // Authenticate (sends OTP to email if existing user)
-    const device_desc = this.location.userAgent || 'Unknown'
-    const storage = this.storage
+    return signIn({
+      email: formData.email,
+      location: this.location,
+      storage: this.storage,
+      redirectTo: this.location.url,
+    })(this.state.dispatch).then((user) => {
+      const { measure } = this.props
+      const { comment, short_id } = measure
+      const vote_id = comment.id
 
-    return this.api('/totp?select=device_id,first_seen', {
-      method: 'POST',
-      headers: { Prefer: 'return=representation' },
-      body: JSON.stringify({
-        email: formData.email,
-        device_desc,
-        channel: 'endorsement',
-      }),
-    })
-    .then((results) => results[0])
-    .then(({ device_id, first_seen }) => {
-      if (event.target && event.target.reset) {
-        event.target.reset()
-      }
-
-      if (first_seen) {
-        // If new user, authenticate immediately without OTP
-        return this.api('/sessions?select=refresh_token,user_id,jwt', {
+      if (user) {
+        // Store endorsement
+        return this.api('/rpc/endorse', {
           method: 'POST',
-          headers: { Prefer: 'return=representation' },
-          body: JSON.stringify({ device_id, device_desc }),
-        }).then((results) => results[0]).then(({ jwt, refresh_token, user_id }) => {
-          const oneYearFromNow = new Date(Date.now() + (365 * 24 * 60 * 60 * 1000))
+          body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on' }),
+        })
 
-          storage.set('jwt', jwt, { expires: oneYearFromNow })
-          storage.set('refresh_token', refresh_token, { expires: oneYearFromNow })
-          storage.set('user_id', user_id, { expires: oneYearFromNow })
-
-          // Update users address
-          return this.api(`/user_addresses?select=id&user_id=eq.${user_id}`, {
-            method: 'POST',
-            headers: { Prefer: 'return=representation' },
-            body: JSON.stringify({
-              user_id,
-              address,
-              city,
-              state,
-              geocoords: `POINT(${lon} ${lat})`,
-            })
-          }).then(() => {
-            // Update users name
-            return this.api(`/users?select=id&id=eq.${user_id}`, {
-              method: 'PATCH',
-              headers: { Prefer: 'return=representation' },
-              body: JSON.stringify({
-                first_name,
-                last_name,
-              }),
-              storage,
-            })
-
-            .then(() => { // fetch user
-              return this.api(`/users?select=id,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`)
-              .then((users) => users[0]).then((user) => {
-
-                const { measure } = this.props
-                const { comment, short_id } = measure
-                const vote_id = comment.id
-
-                // Store endorsement
-                return this.api('/rpc/endorse', {
-                  method: 'POST',
-                  body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on' }),
-                })
-
-                // Get new endorsement count
-                .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
-                .then((votes) => {
-                  // And finally re-render with with the newly registered user and updated count
-                  const newUser = {
-                    ...user,
-                    first_name,
-                    last_name,
-                    address: { address, city, state },
-                  }
-
-                  fetchOffices({
-                    location: this.location,
-                    storage: this.storage,
-                    user: newUser,
-                  })(this.state.dispatch).then(() => {
-                    this.setState({
-                      measures: {
-                        ...this.state.measures,
-                        [short_id]: {
-                          ...this.state.measures[short_id],
-                          comment: votes[0] || this.state.measures[short_id].comment,
-                          replyLoaded: true,
-                        }
-                      },
-                      user: newUser,
-                    })
-                  })
-                })
-                .catch((error) => console.log(error))
-              })
-            })
+        .then(() => updateNameAndAddress({
+          addressData: {
+            user_id: user.id,
+            address: formData.address.address,
+            city: formData.address.city,
+            state: formData.address.state,
+            geocoords: `POINT(${formData.address.lon} ${formData.address.lat})`,
+          },
+          nameData: { first_name, last_name },
+          storage: this.storage,
+        })(this.state.dispatch))
+        // Get new endorsement count
+        .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
+        .then((votes) => {
+          // And finally re-render with with the newly registered user and updated count
+          this.setState({
+            measures: {
+              ...this.state.measures,
+              [short_id]: {
+                ...this.state.measures[short_id],
+                comment: votes[0] || this.state.measures[short_id].comment,
+                replyLoaded: true,
+              }
+            },
           })
         })
+        .catch((error) => console.log(error))
       }
-
-      // set some cookie that gets read by SignIn and redirects
-      this.storage.set('sign_in_email', formData.email)
-      this.storage.set('device_id', device_id)
-      this.storage.set('redirect_to', this.location.path)
-      this.location.redirect(303, '/sign_in/verify')
     })
-
   }
   render() {
     const { error = {} } = this.state
@@ -277,35 +210,6 @@ class VotedDifferentlyMessage extends Component {
 
 
 module.exports.LoggedInForm = class LoggedInForm extends Component {
-  updateNameAndAddress(addressData, nameData) {
-    // Update users address
-    return this.api(`/user_addresses?select=id&user_id=eq.${addressData.user_id}`, {
-      method: 'POST',
-      headers: { Prefer: 'return=representation' },
-      body: JSON.stringify(addressData)
-    }).then(() => {
-      // Update users name
-      return this.api(`/users?select=id&id=eq.${addressData.user_id}`, {
-        method: 'PATCH',
-        headers: { Prefer: 'return=representation' },
-        body: JSON.stringify(nameData),
-      })
-    }).then(() => {
-      const newUser = {
-        ...this.state.user,
-        ...nameData,
-        address: addressData,
-      }
-
-      fetchOffices({
-        location: this.location,
-        storage: this.storage,
-        user: newUser,
-      })(this.state.dispatch).then(() => {
-        this.setState({ user: newUser })
-      })
-    })
-  }
   endorse(endorsement) {
     const short_id = this.props.measure.short_id
     return this.api('/rpc/endorse', {
@@ -349,7 +253,7 @@ module.exports.LoggedInForm = class LoggedInForm extends Component {
       geocoords: `POINT(${formData.address.lon} ${formData.address.lat})`,
     }
 
-    return this.updateNameAndAddress(addressData, nameData)
+    return updateNameAndAddress({ addressData, nameData, storage: this.state.storage })(this.state.dispatch)
       .then(() => this.endorse(endorsement))
       .catch((error) => console.log(error))
   }

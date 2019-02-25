@@ -1,6 +1,6 @@
 const { APP_NAME } = process.env
-const { api, html, redirect } = require('../helpers')
-const { signIn } = require('./SignIn')
+const { api, combineEffects, html, preventDefault, redirect } = require('../helpers')
+const { signIn } = require('../effects')
 
 module.exports = {
   init: ({ location, storage, user }) => [{
@@ -15,7 +15,14 @@ module.exports = {
   update: (event, state) => {
     switch (event.type) {
       case 'formSubmitted':
-        return [{ ...state, loading: true }, signIn(event.event, state.location, state.storage)]
+        return [{ ...state, loading: true }, combineEffects(
+          preventDefault(event.event),
+          signIn({
+            email: require('parse-form').parse(event.event.target).body.email,
+            location: state.location,
+            storage: state.storage
+          })
+        )]
       case 'metricsReceived':
         return [{ ...state, usersCount: event.usersCount }]
       case 'proxyProfileReceived':

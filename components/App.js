@@ -1,7 +1,7 @@
 const stateNames = require('datasets-us-states-abbr-names')
 
-const { api, combineEffects, html, loadPage, mapEffect, mapEvent, runInSeries } = require('../helpers')
-const { fetchOffices } = require('../effects/offices')
+const { api, combineEffects, html, loadPage, mapEffect, mapEvent, redirect, runInSeries } = require('../helpers')
+const { fetchOffices } = require('../effects')
 const Navbar = require('./NavBar')
 const Footer = require('./Footer')
 const ContactWidget = require('./ContactWidget')
@@ -138,6 +138,8 @@ const App = module.exports = {
               routeState: { ...routeState, loading: false },
             }, mapEffect('routeEvent', effect)]
         }
+      case 'redirected':
+        return [state, redirect(event.url, event.status)]
       case 'routeLoaded':
         const [routeInitState, routeInitEffect] =
           (event.program && event.program.init)
@@ -158,8 +160,9 @@ const App = module.exports = {
           !isHyperloop && mapEffect('routeEvent', routeInitEffect),
           isHyperloop && hyperloopEffect
         )]
+      case 'userUpdated':
       case 'userReceived':
-        const user = { ...event.user, jwt: state.storage.get('jwt') }
+        const user = { ...state.user, ...event.user, jwt: state.storage.get('jwt') }
         return [{
           ...state,
           user,
