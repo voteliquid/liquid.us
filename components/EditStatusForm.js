@@ -9,14 +9,20 @@ module.exports = class EditStatusForm extends Component {
   }
   onsubmit(event, form) {
     event.preventDefault()
-    return this.updateStatus(event, form)
 
+    const { editing_bill, loading } = this.state
+
+    if (!loading) {
+      if (editing_bill.id) {
+        return this.updateStatus(event, form)
+      }
+    }
   }
   updateStatus(event, form) {
-    const { updating_last_action, user } = this.state
+    const { editing_bill, user } = this.state
     this.setState({ loading: 'saving' })
 
-    return this.api(`/measures?id=eq.${updating_last_action.id}`, {
+    return this.api(`/measures?id=eq.${editing_bill.id}`, {
       method: 'PATCH',
       headers: { Prefer: 'return=representation' },
       body: JSON.stringify(form),
@@ -25,7 +31,7 @@ module.exports = class EditStatusForm extends Component {
       const bill = bills[0]
       this.setState({
         loading: false,
-        yourUpdate: (this.state.yourUpdate || []).map((old) => (old.id === updating_last_action.id ? bill : old)),
+        yourUpdate: (this.state.yourUpdate || []).map((old) => (old.id === editing_bill.id ? bill : old)),
       })
       this.location.redirect(303, `/${user.username}/legislation/${bill.short_id}`)
       })
@@ -42,8 +48,8 @@ module.exports = class EditStatusForm extends Component {
     this.setState({ loading: false, error: ui_error })
   }
   render() {
-    const { updating_last_action = {}, error, loading } = this.state
-    const { status } = updating_last_action
+    const { editing_bill = {}, error, loading } = this.state
+    const { status } = editing_bill
 
 
     return this.html`

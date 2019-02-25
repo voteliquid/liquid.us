@@ -54,7 +54,7 @@ class MeasureActionsPanel extends Component {
         ${user && user.id === l.author_id && !l.published ? EditButtons.for(this, l) : MeasureShareButtons.for(this, l)}
       </div>
       <div class="panel-block is-size-7 has-background-light" style="justify-content: center;">
-      ${user && user.id === l.author_id && !l.published ? '' : EditUpdateButton.for(this, 1)}
+      ${user && user.id === l.author_id && l.published ? EditUpdateButton.for(this, l) : ''}
       </div>
     `
   }
