@@ -1,6 +1,11 @@
 const Component = require('./Component')
 
 module.exports = class MeasureSummary extends Component {
+  oninit() {
+    if (this.state.location.query.show_more === 'true') {
+      this.setProps({ expanded: true })
+    }
+  }
   onclick(event) {
     event.preventDefault()
     this.setProps({ expanded: !this.props.expanded })
