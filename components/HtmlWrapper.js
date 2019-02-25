@@ -4,8 +4,8 @@ const fs = require('fs')
 const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
 
 module.exports = (state, html, bundleUrl) => {
-  const { page_description, page_title, selected_bill, selected_profile, social_title } = state
-  const title = social_title ? `${social_title} | Liquid US` : page_title ? `${page_title} | Liquid US` : `Liquid US | Digital Democracy Voting Platform`
+  const { page_description, page_title, selected_bill, selected_profile } = state
+  const title = page_title ? `${page_title} | Liquid US` : `Liquid US | Digital Democracy Voting Platform`
 
 
   const description = page_description ? `${page_description}` : `A new democracy for the modern world.`
