@@ -16,13 +16,13 @@ module.exports = class MeasureDetailsSidebar extends Component {
     const measureUrl = l.author_username
       ? `/${l.author_username}/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
       : `/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
-
+console.log('test', l.short_id)
     return this.html`
       <nav class="panel">
         <div class="panel-heading has-text-centered">
           <h3 class="title has-text-weight-semibold is-size-5">
             <a href="${measureUrl}" class="has-text-dark">
-              ${l.introduced_at ? `${l.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}` : (l.short_id === 'should-nancy-pelosi-be-speaker' ? 'Proposed Nomination' : 'Proposed Legislation')}
+              ${l.introduced_at ? `${l.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}` : (l.short_id === 'should-nancy-pelosi-be-speaker' || l.type === 'nomination' ? 'Proposed Nomination' : l.short_id === "us116-hjres46-relating-to-a-natl" ? 'H.J.Res. 46' : 'Proposed Legislation')}
             </a>
           </h3>
           <h4 class="subtitle is-size-7 has-text-grey is-uppercase has-text-weight-semibold">
