@@ -99,8 +99,7 @@ module.exports = class CommentPage extends Component {
               this.fetchLastVotePublic().then(() => {
                 this.setState({
                   loading_measure: false,
-                  page_title,
-                  social_title: measure.title,
+                  page_title: measure.title,
                   page_description: `${comment.fullname} to ${theLegislature}: ${this.escapeHtml(comment.comment, { replaceAmp: true, stripImages: true })}`,
                   og_image_url: ogImage,
                   measures: {
