@@ -8,9 +8,13 @@ module.exports = class MeasureDetails extends Component {
   render() {
     const { user } = this.state
     const { measure: l } = this.props
+    const next_action_at = l.next_agenda_action_at || l.next_agenda_begins_at
 
     const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
-
+    const status = l.introduced_at === null ? `Draft legislation created on ${(new Date(l.created_at)).toLocaleDateString()}` : next_action_at ? [`
+      Scheduled for House floor action ${!l.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
+      <br />
+    `] : l.status === 'Introduced' && l.sponsor_username === null && l.introduced_at !== null ? `Published on ${(new Date(l.introduced_at)).toLocaleDateString()}` : l.status === 'Introduced' && l.sponsor_username === null ? 'Published on Liquid' : `${l.status}</p>} on ${new Date(l.last_action_at).toLocaleDateString()}`
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
@@ -25,7 +29,7 @@ module.exports = class MeasureDetails extends Component {
           <div class="columns">
             <div class="column is-two-thirds-tablet is-three-quarters-desktop">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
-                <h2 class="title has-text-weight-normal is-5">Status: ${l.status}</h2>
+                <h2 class="title has-text-weight-normal is-6"><i>${status}</i></h2>
                 ${l.type !== 'PN' ? MeasureSummary.for(this, { measure: l }) : ''}
               ${TopComments.for(this, { measure: l, yea: l.top_yea, nay: l.top_nay })}
               ${user ? MeasureProxyVotes.for(this, { measure: l }) : ''}
