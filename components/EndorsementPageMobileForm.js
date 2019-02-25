@@ -33,6 +33,10 @@ module.exports = class EndorsementPageMobileForm extends Component {
         <button class="modal-close is-large" aria-label="close" onclick=${this.props.onclick}></button>
       </div>
       <style>
+        .modal-content, .modal-card {
+          max-height: calc(100vh - 100px) !important;
+        }
+
         @media (min-width: 1050px) {
           .mobile-only {
             display: none !important;
