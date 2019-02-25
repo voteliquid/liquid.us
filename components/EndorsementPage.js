@@ -71,19 +71,10 @@ module.exports = class CommentPage extends Component {
     const isCity = measure.legislature_name.includes(',')
     const anonymousName = `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
 
-    let legislature = `the ${measure.legislature_name} legislature`
-    if (measure.legislature_name === 'U.S. Congress') {
-      legislature = 'Congress'
-    } else if (isCity) {
-      legislature = `your ${measure.legislature_name}'s elected officials`
-    }
+    const firstRealSentence = this.escapeHtml(comment.comment, { replaceApos: false, stripImages: true })
+      .split('\n').filter(line => line)[0] // strip leading whitespace
+    const page_title = `${comment.fullname || anonymousName}: ${firstRealSentence}`
 
-    let page_title = `${comment.fullname || anonymousName}: Tell ${legislature} to vote ${comment.position} on ${measure.title}`
-    if (comment.position === 'abstain') {
-      const firstRealSentence = this.escapeHtml(comment.comment, { replaceApos: false, stripImages: true })
-        .split('\n').filter(line => line)[0] // strip leading whitespace
-      page_title = `${comment.fullname || anonymousName}: ${firstRealSentence}`
-    }
     if (this.isBrowser) {
       const page_title_with_appname = `${page_title} | ${APP_NAME}`
       window.document.title = page_title_with_appname
@@ -97,7 +88,7 @@ module.exports = class CommentPage extends Component {
 
     this.setState({
       og_image_url: inlineImage || authorImage || measureImage,
-      og_title: measure.title,
+      og_title: `${measure.title} | Liquid US`,
       page_description: page_title,
       page_title,
     })
