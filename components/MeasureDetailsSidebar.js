@@ -16,7 +16,6 @@ module.exports = class MeasureDetailsSidebar extends Component {
     const measureUrl = l.author_username
       ? `/${l.author_username}/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
       : `/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
-console.log('test', l.short_id)
     return this.html`
       <nav class="panel">
         <div class="panel-heading has-text-centered">
@@ -95,7 +94,7 @@ class MeasureInfoPanel extends Component {
     const {
       introduced_at, created_at, author_username, sponsor_username,
       sponsor_first_name, sponsor_last_name, author_first_name,
-      author_last_name, type, number, congress, chamber, legislature_name
+      author_last_name, type, number, congress, chamber, legislature_name, short_id
     } = measure
 
     let bill_details_name = false
@@ -120,14 +119,14 @@ class MeasureInfoPanel extends Component {
               <div class="has-text-grey">${introduced_at ? 'Introduced' : 'Proposed'}</div>
             </div>
             <div class="column is-two-thirds">
-              <div class="has-text-right">${new Date(introduced_at || created_at).toLocaleDateString()}</div>
+              <div class="has-text-right">${short_id === "us116-hjres46-relating-to-a-natl" ? 'February 22, 2019' : new Date(introduced_at || created_at).toLocaleDateString()}</div>
             </div>
             <div class="column is-one-third">
               <div class="has-text-grey">${author_username ? 'Author' : (sponsor_username ? 'Sponsor' : '')}</div>
             </div>
             <div class="column is-two-thirds">
               <div class="has-text-right">
-                ${sponsor_username
+                ${short_id === "us116-hjres46-relating-to-a-natl" ? [`<a href="/JoaquinCastrotx">Joaquin Castro</a>`] : sponsor_username
                   ? [`<a href="/${sponsor_username}">${sponsor_first_name} ${sponsor_last_name}</a>`]
                   : author_username
                     ? [`<a href="/${author_username}">${author_first_name} ${author_last_name}</a>`]
