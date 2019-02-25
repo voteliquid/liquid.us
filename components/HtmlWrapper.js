@@ -11,14 +11,14 @@ module.exports = (state, html, bundleUrl) => {
   const index = title.indexOf(' on ')
   const commentPosition = title.slice(0, index)
   const commentBill = title.slice(index + 4)
-  const description = isComment ? `${commentPosition}! ${page_description}` : page_description ? `${page_description}` : `A new democracy for the modern world.`
+  const description = isComment ? `${commentPosition}! ${page_description}` : page_description ? `${page_description}` : `The Most Powerful Way to Advocate for Your Community.`
+
   // Potential og_image, first one wins
-  const wi_image = state.location && state.location.query.legislature === 'WI' && state.location.path === '/legislation' && `${ASSETS_URL}/WI.png`
-    // TODO (Jan 8, 2018): replace wi_image to support all 50 states
-  const profile_image = selected_profile ? avatarURL(selected_profile) : ''
   const measure_image = selected_bill && selected_bill.image_name ? `${ASSETS_URL}/measure-images/${selected_bill.image_name}` : ''
+  const legislature_image = state.location && state.location.query.legislature && state.location.query.legislature.length === 2 && state.location.path === '/legislation' && `${ASSETS_URL}/legislature-images/${state.location.query.legislature}.png`
+  const profile_image = selected_profile ? avatarURL(selected_profile) : ''
   const default_image = `https://blog.${WWW_DOMAIN}/assets/twitter_large.png`
-  const og_image_url = state.og_image_url || wi_image || profile_image || measure_image || default_image
+  const og_image_url = state.og_image_url || measure_image || legislature_image || profile_image || default_image
 
 
   return `
@@ -100,8 +100,8 @@ module.exports = (state, html, bundleUrl) => {
           }
 
         </style>
-        <meta property="og:title" content="${wi_image ? `Wisconsin Legislation` : isComment ? commentBill : title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
-        <meta property="og:description" content="${wi_image ? `Vote now on Wisconsin bills.` : description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
+        <meta property="og:title" content="${isComment ? commentBill : title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
+        <meta property="og:description" content="${description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:image" content="${og_image_url}" />
         <meta property="og:type" content="website" />
         ${responsiveTableStyle}

@@ -87,14 +87,13 @@ module.exports = class CommentPage extends Component {
 
     const inlineImageMatch = comment && comment.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
     const inlineImage = inlineImageMatch && inlineImageMatch[0]
-    const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
     const authorImage = comment.username || comment.twitter_username ? this.avatarURL(comment) : null
-    const ogImage = inlineImage || authorImage || measureImage
+    const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
 
     this.setState({
       page_title,
       page_description: this.escapeHtml(comment.comment, { replaceAmp: true, stripImages: true }),
-      og_image_url: ogImage,
+      og_image_url: inlineImage || authorImage || measureImage,
     })
   }
   fetchEndorsementComment(comment, short_id, user) {
