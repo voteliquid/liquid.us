@@ -8,7 +8,7 @@ const NotFound = require('./NotFound')
 module.exports = class EditStatusPage extends Component {
 
   oninit() {
-    const { user, config, measures = {}, reps = [] } = this.state
+    const { user, config, measures = {} } = this.state
     const { params } = this.props
     const measure = measures[params.short_id]
 
@@ -59,13 +59,6 @@ module.exports = class EditStatusPage extends Component {
         },
       })
 
-      const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-      const officeId = repsInChamber[0] && repsInChamber[0].office_id
-
-      return this.fetchComments(measure.id, measure.short_id)
-        .then(() => this.fetchConstituentVotes(measure, officeId))
-        .then(() => this.fetchTopComments(measure.id, measure.short_id))
-        .then(() => this.fetchProxyVotes(measure.id, measure.short_id))
     })
     .catch((error) => {
       console.log(error)
@@ -91,26 +84,6 @@ module.exports = class EditStatusPage extends Component {
       })
     })
   }
-  fetchTopComments(id, short_id) {
-    const order = `order=proxy_vote_count.desc.nullslast,created_at.desc`
-    return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.yea&${order}`).then((comments) => {
-      const yea = comments[0]
-
-      return this.api(`/public_votes?measure_id=eq.${id}&comment=not.is.null&comment=not.eq.&position=eq.nay&${order}`).then((comments) => {
-        const nay = comments[0]
-        this.setState({
-          measures: {
-            ...this.state.measures,
-            [short_id]: {
-              ...this.state.measures[short_id],
-              top_yea: yea,
-              top_nay: nay,
-            },
-          },
-        })
-      })
-    })
-  }
   fetchMeasure(short_id) {
     const measureUrl = `/${~short_id.indexOf('-pn') ? 'nominations' : 'legislation'}/${short_id}`
     const url = `/measures_detailed?short_id=eq.${short_id}`
@@ -125,49 +98,7 @@ module.exports = class EditStatusPage extends Component {
       return measure
     })
   }
-  fetchProxyVotes(measure_id, short_id) {
-    if (this.state.user) {
-      return this.api(`/proxy_votes?measure_id=eq.${measure_id}&order=proxy_vote_count.desc,created_at.desc`)
-        .then((proxyVotes) => {
-          this.setState({
-            measures: {
-              ...this.state.measures,
-              [short_id]: {
-                ...this.state.measures[short_id],
-                proxyVotes,
-              },
-            },
-          })
-        })
-    }
-    return Promise.resolve()
-  }
-  fetchComments(measure_id, short_id) {
-    const { query } = this.location
-    const order = query.order || 'most_recent'
-    const position = query.position || 'all'
-    const orders = {
-      most_recent: 'created_at.desc',
-      vote_power: 'proxy_vote_count.desc.nullslast,created_at.desc',
-    }
-    const positions = {
-      all: '',
-      yea: '&position=eq.yea',
-      nay: '&position=eq.nay',
-    }
-    return this.api(`/public_votes?measure_id=eq.${measure_id}&comment=not.is.null&comment=not.eq.&order=${orders[order]}${positions[position]}`).then((comments) => {
-      this.setState({
-        measures: {
-          ...this.state.measures,
-          [short_id]: {
-            ...this.state.measures[short_id],
-            comments,
-            cur_endorsement: comments.filter(c => c.endorsed)[0]
-          },
-        },
-      })
-    })
-  }
+
   onpagechange(oldProps) {
     if (this.props.url !== oldProps.url && this.state.measures) {
       this.oninit()

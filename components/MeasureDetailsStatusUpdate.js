@@ -1,16 +1,11 @@
 const Component = require('./Component')
-const MeasureProxyVotes = require('./MeasureProxyVotes')
-const Sidebar = require('./MeasureDetailsSidebar')
-const TopComments = require('./MeasureTopComments')
-const Votes = require('./MeasureVotes')
-const EditStatusForm = require('./EditStatusForm')
 
 module.exports = class MeasureDetailsStatusUpdate extends Component {
   render() {
-    const { user } = this.state
-    const { measure: l } = this.props
+    const { selected_bill = {}, user } = this.state
+    const l = selected_bill
 
-    const title = l.type === 'PN' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
+    const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
 
     return this.html`
       <section class="section">
@@ -26,15 +21,13 @@ module.exports = class MeasureDetailsStatusUpdate extends Component {
           <div class="columns">
             <div class="column is-two-thirds-tablet is-three-quarters-desktop">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
-              <h2 class="title is-5">Edit Status</h2>
+              <h2 class="title is-5">Current Status: ${l.status}</h2>
+              <h2 class="title is-5">New Status:</h2>
               ${this.state.loading === 'populating' ? ' ' : EditStatusForm.for(this)}
-              ${l.type !== 'PN' ? MeasureSummary.for(this, { measure: l }) : ''}
-              ${TopComments.for(this, { measure: l, yea: l.top_yea, nay: l.top_nay })}
-              ${user ? MeasureProxyVotes.for(this, { measure: l }) : ''}
-              ${Votes.for(this, { measure: l })}
+              <br />
+              ${l.type !== 'nomination' ? MeasureSummary.for(this, { measure: l }) : ''}
             </div>
             <div class="${`column ${l.introduced_at ? `column is-one-third-tablet is-one-quarter-desktop` : ''}`}">
-              ${Sidebar.for(this, { ...l, user }, `measure-sidebar-${l.id}`)}
             </div>
           </div>
         </div>
@@ -45,11 +38,11 @@ module.exports = class MeasureDetailsStatusUpdate extends Component {
 
 class UnpublishedMsg extends Component {
   render() {
-    const { measure, user } = this.props
+    const { selected_bill = {}, user } = this.state
     return this.html`
       <div class="notification">
         <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
-        ${user && measure.author_id === user.id
+        ${user && selected_bill.author_id === user.id
           ? `Your proposed legislation is unpublished. You can continue to edit it until you decide to publish.`
           : `This proposed legislation is a draft. The author may continue to make changes until it's published.`
         }
@@ -66,9 +59,11 @@ class MeasureSummary extends Component {
     this.render()
   }
   render() {
-    const { measure, expanded } = this.props
+    const { expanded } = this.props
+    const { selected_bill = {} } = this.state
+    const measure = selected_bill
     const { chamber, congress, number, type } = measure
-    const summary = type === 'PN' && measure.summary ? `Confirmation of ${measure.summary}` : this.linkifyUrls(measure.summary)
+    const summary = type === 'nomination' && measure.summary ? `Confirmation of ${measure.summary}` : this.linkifyUrls(measure.summary)
     const summaryLink =
       measure.legislature_name === 'U.S. Congress' && measure.author_id === null
         ? `<p>Learn more at <a href="https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text" target="_blank">congress.gov <span aria-hidden="true" class="icon is-small is-size-7"><i class="fas fa-external-link-alt"></i></span></a>`
@@ -121,6 +116,67 @@ class MeasureSummary extends Component {
             : ''}
         </a>
       </div>
+    `
+  }
+}
+class EditStatusForm extends Component {
+  onkeyup(event) {
+    this.setProps({ [event.target.getAttribute('name')]: event.target.value }).render()
+  }
+  onchange(event) {
+    this.setProps({ [event.target.getAttribute('name')]: event.target.value }).render()
+  }
+  onsubmit(event, form) {
+    event.preventDefault()
+
+    const { selected_bill = {}, loading } = this.state
+    if (!loading) {
+      if (selected_bill.id) {
+        return this.updateStatus(event, form)
+      }
+    }
+  }
+  updateStatus(event, form) {
+    const { selected_bill = {}, user } = this.state
+    this.setState({ loading: 'saving' })
+
+    return this.api(`/measures?id=eq.${selected_bill.id}`, {
+      method: 'PATCH',
+      headers: { Prefer: 'return=representation' },
+      body: JSON.stringify(form),
+    })
+    .then((bills) => {
+      const bill = bills[0]
+      this.setState({
+        loading: false,
+        yourUpdate: (this.state.yourUpdate || []).map((old) => (old.id === selected_bill.id ? bill : old)),
+      })
+      this.location.redirect(303, `/${user.username}/legislation/${bill.short_id}`)
+      })
+    .catch((api_error) => this.handleError(api_error))
+  }
+
+  render() {
+    const { selected_bill = {}, error, loading } = this.state
+    const { status } = selected_bill
+console.log(status)
+    return this.html`
+      <form method="POST" onsubmit=${this} action=${this}>
+        ${error ? [`<div class="notification is-danger">${error}</div>`] : ''}
+        <div class="field">
+          <div class="control">
+            <input name="status" class="input" type="text" autocomplete="off" placeholder="${status}" onkeyup=${this} onchange=${this} required value="${status || ''}" />
+          </div>
+        </div>
+        <div class="field is-grouped">
+          <div class="control">
+            <button class=${`button is-primary ${loading === 'saving' ? 'is-loading' : ''}`} disabled="${loading}" type="submit">
+              <span class="icon"><i class="fa fa-edit"></i></span>
+              <span>Save</span>
+            </button>
+          </div>
+        </div>
+        </form>
     `
   }
 }
