@@ -4,7 +4,6 @@ const Comment = require('./Comment')
 
 module.exports = class UserProfilePage extends Component {
   oninit() {
-    if (!this.state.user) return this.location.redirect('/sign_in')
     return this.fetchYourProposedLegislation()
   }
   fetchYourProposedLegislation() {
