@@ -98,8 +98,8 @@ module.exports = class UserProfilePage extends Component {
                   <p><strong>${APP_NAME}</strong> lets you vote on any legislative bill, but most of us won't have time to do that.</p>
                   <p>Proxy to ${p.first_name} to vote for you whenever you don't vote directly yourself.</p>
                </div>
-             `] : []}
-             <br />
+             `] : [`<br /><br />`]}
+
              ${ShareButtons.for(this)}
              <br />
 
@@ -389,16 +389,16 @@ class ShareButtons extends Component {
   render() {
     const { selected_profile, user } = this.state
     const share_url = `${WWW_URL}/${selected_profile.username}/`
-    const share_text = selected_profile.username === user.username
+    const share_text = user && selected_profile.username === user.username
       ? `I'd like to represent for you on Liquid US, a tool to hold our politicians accountable. Check out my policy positions here and proxy to me if you agree with my priorities`
       : `${selected_profile.first_name} is using Liquid US to hold our politicians accountable. Check out their policy positions and choose them as a proxy if you agree with their policy priorities. ${selected_profile.last_name}'s Key Votes'`
-    const subject = selected_profile.username === user.username
+    const subject = user && selected_profile.username === user.username
       ? `I'd like to represent you on key votes`
       : `Thought you'd be interested in this`
 
     return this.html`
       <div class="content">
-        <br /><p class="has-text-weight-semibold">Share to get others to proxy to you. They will see all votes and comments that you have marked public.</p>
+        <p class="has-text-weight-semibold">${user && selected_profile.username === user.username ? 'Share to get others to proxy to you. They will see all votes and comments that you have marked public.' : `Share to increase the impact ${selected_profile.first_name} is having in the legislative process.`}</p>
         <div class="buttons is-centered">
           <a class="button is-link has-text-weight-bold" title="Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">
             <span class="icon"><i class="fab fa-facebook"></i></span>
