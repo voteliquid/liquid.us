@@ -47,12 +47,12 @@ module.exports = {
       <section onconnected="${() => dispatch({ type: 'connected' })}" class="hero is-link is-bold is-fullheight subtract-toolbar">
         <div class="hero-body">
           <div class="container reveal">
-            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile delayed">Healthier democracy for the modern world</h2>
+            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile delayed">The Most Powerful Way to Advocate for Your Community</h2>
             <br />
             <br />
-            <h3 class="subtitle is-3 is-size-4-mobile delayed1">Where everyone has a voice on every issue</h3>
-            <h4 class="subtitle is-3 is-size-4-mobile delayed1">We can trust our representatives</h4>
-            <h4 class="subtitle is-3 is-size-4-mobile delayed1">And if they lose our trust, we can <strong>replace them</strong> immediately.</h4>
+            <h3 class="subtitle is-3 is-size-4-mobile delayed1">Built for the legislative process</h3>
+            <h4 class="subtitle is-3 is-size-4-mobile delayed1">Easily invite your community to support your position</h4>
+            <h4 class="subtitle is-3 is-size-4-mobile delayed1">Address verification so reps hear their constituents</h4>
             <br />
             <br />
             <div class="delayed2 has-text-centered-mobile">
@@ -122,7 +122,7 @@ module.exports = {
       <section class="hero is-dark is-bold is-fullheight">
         <div class="hero-body">
           <div class="container">
-            <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Right now, <span class="has-text-danger">a single person</span> chosen from a limited ballot, serves as the only representative for <span class="has-text-danger">a million of us</span>.</h2>
+            <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Most petitions today do not verify who is signing. Liquid <span class="has-text-info">verifies constituent identities</span> so reps know what real residents want.</h2>
             <br />
             <br />
             <br />
@@ -130,7 +130,7 @@ module.exports = {
             <br />
             <br />
             <br />
-            <p class="subtitle is-3 is-size-2-desktop is-size-4-mobile reveal">What if each of us could pick whoever we wanted — <strong>personal representatives</strong> — to more closely champion our values?</p>
+            <p class="subtitle is-3 is-size-2-desktop is-size-4-mobile reveal">We identify real constituents by cross-referencing phone numbers with the national voter file.</p>
           </div>
         </div>
       </section>
@@ -138,19 +138,19 @@ module.exports = {
       <section class="hero is-light is-bold is-fullheight">
         <div class="hero-body">
           <div class="container">
-            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal">Who would you choose?</h2>
+            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal"><strong>You control your privacy</strong></h2>
             <br />
             <br />
             <br />
-            <h3 class="subtitle is-4 is-size-3-desktop reveal">A more trustworthy politician?</h3>
+            <h3 class="subtitle is-4 is-size-3-desktop reveal">You always stay in control</h3>
             <br />
             <br />
             <br />
-            <h3 class="subtitle is-4 is-size-3-desktop reveal">A favorite expert?</h3>
+            <h3 class="subtitle is-4 is-size-3-desktop reveal">Lead your community publicly when you want</h3>
             <br />
             <br />
             <br />
-            <h4 class="subtitle is-4 is-size-3-desktop reveal">A family member?</h4>
+            <h4 class="subtitle is-4 is-size-3-desktop reveal">Weigh in privately when preferred</h4>
           </div>
         </div>
       </section>
@@ -159,19 +159,7 @@ module.exports = {
       <section class="hero is-dark is-bold is-fullheight">
         <div class="hero-body">
           <div class="container">
-            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal">And what if we could <span class="has-text-info">represent ourselves</span> when we wanted?</h2>
-          </div>
-        </div>
-      </section>
-
-      <section class="hero is-light is-bold is-fullheight">
-        <div class="hero-body">
-          <div class="container">
-            <p class="title is-2 is-size-3-mobile reveal">Now we can.</p>
-            <br />
-            <br />
-            <br />
-            <h2 class="subtitle is-3 is-size-4-mobile reveal">${APP_NAME} makes a new kind of democracy possible:</h2>
+            <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal"><span class="has-text-info">${APP_NAME}</span> makes a new kind of democracy possible:</h2>
             <br />
             <br />
             <br />
@@ -221,7 +209,10 @@ module.exports = {
               </style>
               <br />
               <br />
-              <h4 class="subtitle is-5 is-size-4-desktop"><a href="/join"><span class="icon is-size-5"><i class="fa fa-caret-right" style="position:relative;bottom: 2px;"></i></span> <strong>Join Now</strong></a> to help create a transparent accountability record.</h4>
+              ${!state.user ?
+                [`<h4 class="subtitle is-5 is-size-4-desktop"><a href="/join"><span class="icon is-size-5"><i class="fa fa-caret-right" style="position:relative;bottom: 2px;"></i></span> <strong>Join Now</strong></a> to help create a transparent accountability record.</h4>`]
+                : ''
+              }
             </div>
             <br />
             <br />
@@ -254,14 +245,14 @@ module.exports = {
                 <section class="section space-out-multiline">
                   <h4 class="title is-4 reveal">Introduction</h4>
                   <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2016/09/21/what-is-liquid-democracy/`}" target="_blank">What is Liquid Democracy?</a></p>
-                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/11/06/announcing-united-vote/`}" target="_blank">Introducing United.vote: Help Build a Democracy We Can Trust</a></p>
                   <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/07/04/running-liquid-democracy-candidates/`}" target="_blank">Liquid Democracy Candidates: How to Upgrade Our Legislature, One Seat at a Time</a></p>
+                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2018/10/02/introducing-liquid-us/`}" target="_blank">Introducing Liquid US and Support for All 50 States and Local Legislatures</a></p>
                 </section>
 
                 <section class="section space-out-multiline">
                   <h4 class="title is-4 reveal">Further Reading</h4>
                   <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/03/06/how-to-move-past-two-parties/`}" target="_blank">How to Move Past A Two Party System</a></p>
-                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/10/23/democracy-vs-corruption/`}" target="_blank">Democracy vs. Corruption: How to Really Drain the Swamp</a></p>
+                  <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/10/23/democracy-vs-corruption/`}" target="_blank">Liquid Democracy is the Most Promising Way to Fix Money in Politics</a></p>
                   <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/04/17/liquid-democracy-and-a-free-political-economy/`}" target="_blank">Liquid Democracy and A Free Political Economy</a></p>
                   <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/05/12/liquid-democracy-can-completely-eliminate-gerrymandering/`}" target="_blank">Liquid Democracy Can Completely Eliminate Gerrymandering</a></p>
                   <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/10/27/liquid-democracy-is-not-direct-democracy/`}" target="_blank">Liquid Democracy Is Not Direct Democracy, and That's a Good Thing</a></p>

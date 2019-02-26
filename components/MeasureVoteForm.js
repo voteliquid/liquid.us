@@ -129,7 +129,7 @@ class MeasureVoteForm extends Component {
         showMeasureVoteForm: !this.state.showMeasureVoteForm,
       })
 
-      const type = measure.type === 'PN' ? 'nominations' : 'legislation'
+      const type = measure.type === 'nomination' ? 'nominations' : 'legislation'
       const username = measure.author_username ? `/${measure.author_username}` : ''
       const measureUrl = `${username}/${type}/${measure.short_id}`
       const elem = document.getElementById('measure-vote-form')
@@ -204,7 +204,7 @@ class MeasureVoteForm extends Component {
         <div class="field">
           <h4 class="title is-size-6">${!v.comment ? 'Add your argument' : 'Edit your argument'}:</h4>
         </div>
-        ${v.id && !v.comment && public_checked ? [`
+        ${v.id && !v.comment && l.vote_power !== undefined && public_checked ? [`
           <p class="notification">
             <span class="icon"><i class="fa fa-users"></i></span>
             ${v.id ? 'You cast' : 'You are casting'}
@@ -233,13 +233,13 @@ class MeasureVoteForm extends Component {
             </div>
             <div class="column">
               <div class="control has-text-right has-text-left-mobile has-text-grey is-size-7">
-                ${[public_checked ? `
+                ${[public_checked && l.vote_power !== undefined ? `
                     <span class="icon"><i class="fas fa-users"></i></span>You are casting
                     a vote for <span class="has-text-weight-semibold">${l.vote_power}</span> people as their proxy.
-                ` : `
+                ` : l.vote_power !== undefined ? `
                     <span class="icon"><i class="fas fa-address-book"></i></span>You are casting
                     a private vote for yourself only. Only you can see it.
-                `]}
+                ` : '']}
               </div>
             </div>
           </div>
@@ -260,8 +260,8 @@ class MeasureVoteForm extends Component {
             <div class="control" style="flex-shrink: 1;">
               <div class="select">
                 <select autocomplete="off" name="public" onchange=${this}>
-                  <option value="true" selected=${public_checked}>Public (Vote Power: ${l.vote_power})</option>
-                  <option value="false" selected=${!public_checked}>Private (Vote Power: 1)</option>
+                  <option value="true" selected=${public_checked}>Public${l.vote_power ? ` (Vote Power: ${l.vote_power})` : ''}</option>
+                  <option value="false" selected=${!public_checked}>Private${l.vote_power ? '(Vote Power: 1)' : ''}</option>
                 </select>
               </div>
             </div>

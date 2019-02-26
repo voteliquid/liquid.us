@@ -1,4 +1,5 @@
 const stateNames = require('datasets-us-states-abbr-names')
+const stateAbbr = require('datasets-us-states-names-abbr')
 
 const Component = require('./Component')
 const EditButtons = require('./EditMeasureButtons')
@@ -9,18 +10,20 @@ module.exports = class MeasureDetailsSidebar extends Component {
   render() {
     const l = this.props
     const { user } = this.props
-    const reps = (this.state.reps || []).filter(({ chamber, legislature }) => chamber === l.chamber && legislature.name === l.legislature_name)
-    const showStatusTracker = l.legislature_name === 'U.S. Congress' && l.introduced_at && (l.type === 'HR' || l.type === 'S')
+    const reps = (this.state.reps || []).filter(({ chamber, legislature }) => {
+      return chamber === l.chamber && (stateAbbr[legislature.name] || legislature.name) === l.legislature_name
+    })
+    const showStatusTracker = l.legislature_name === 'U.S. Congress' && l.introduced_at && l.type === 'bill'
     const measureUrl = l.author_username
-      ? `/${l.author_username}/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`
-      : `/${l.type === 'PN' ? 'nominations' : 'legislation'}/${l.short_id}`
+      ? `/${l.author_username}/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
+      : `/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
 
     return this.html`
       <nav class="panel">
         <div class="panel-heading has-text-centered">
           <h3 class="title has-text-weight-semibold is-size-5">
             <a href="${measureUrl}" class="has-text-dark">
-              ${l.introduced_at ? `${l.type} ${l.number}` : (l.short_id === 'should-nancy-pelosi-be-speaker' ? 'Proposed Nomination' : 'Proposed Legislation')}
+              ${l.introduced_at ? `${l.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}` : (l.short_id === 'should-nancy-pelosi-be-speaker' ? 'Proposed Nomination' : 'Proposed Legislation')}
             </a>
           </h3>
           <h4 class="subtitle is-size-7 has-text-grey is-uppercase has-text-weight-semibold">
@@ -105,14 +108,10 @@ class MeasureInfoPanel extends Component {
     if (introduced_at) {
       if (legislature_name === 'U.S. Congress') {
         bill_details_name = 'congress.gov'
-        if (type === 'HR' || type === 'S') {
+        if (type === 'bill') {
           bill_details_url = `https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}`
-        } else if (type === 'PN') {
+        } else if (type === 'nomination') {
           bill_details_url = `https://www.congress.gov/nomination/${congress}th-congress/${number}`
-        }
-        if (legislature_name === 'California Congress') {
-          bill_details_name = 'leginfo.legislature.ca.gov'
-          bill_details_url = `https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=${congress}0${type}${number}`
         }
       }
     }
@@ -190,7 +189,7 @@ class MeasureVoteCounts extends Component {
               <tr>
                 <td class="has-text-left has-text-grey">Your Vote</td>
                 <td colspan="2" class="has-text-right">
-                  <a class="${`${vote_position === 'yea' ? 'has-text-success' : 'has-text-danger'} has-text-weight-semibold`}" href="${`/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}/vote`}">${this.capitalize(vote_position)}</a>
+                  <a class="${`${vote_position === 'yea' ? 'has-text-success' : 'has-text-danger'} has-text-weight-semibold`}" href="${`/${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}/vote`}">${this.capitalize(vote_position)}</a>
                 </td>
               </tr>
               ${delegate_name ? [`<tr><td colspan="3" class="has-text-grey">Inherited from ${delegate_name}</td></tr>`] : ''}
@@ -231,7 +230,7 @@ class MeasureVoteCounts extends Component {
                 </td>
                 `}
               </tr>
-              ${type !== 'PN' ? [`
+              ${type !== 'nomination' ? [`
               <tr>
                 <td class="has-text-left has-text-grey">
                   ${chamberNames[legislature_name].Upper}

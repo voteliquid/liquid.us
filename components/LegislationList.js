@@ -1,6 +1,7 @@
 const { APP_NAME } = process.env
 const { api, html, preventDefault, redirect } = require('../helpers')
 const activityIndicator = require('./ActivityIndicator')
+const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = {
   init: ({ legislatures, location = {}, measures = {}, measuresList = [], measuresQuery, storage, user }) => [{
@@ -129,6 +130,14 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
   const hide_direct_votes = location.query.hide_direct_votes || storage.get('hide_direct_votes')
   const legislatureQuery = decodeURIComponent(location.query.legislature).replace(/\+/g, ' ')
 
+  // Add legislature from URL to legislature selection
+  if (location.query.legislature && !legislatures.some(({ abbr }) => abbr === location.query.legislature)) {
+    legislatures.push({
+      abbr: location.query.legislature,
+      name: stateNames[location.query.legislature] || location.query.legislature,
+    })
+  }
+
   return html()`
     <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
       <input name="order" type="hidden" value="${location.query.order || 'upcoming'}" />
@@ -213,8 +222,7 @@ const measureListRow = (s) => {
             <h3><a href="${measureUrl}">${s.title}</a></h3>
             ${s.introduced_at ? [`
             <div class="is-size-7 has-text-grey">
-              <strong class="has-text-grey">${s.type} ${s.number}</strong>
-              &mdash;
+              <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &mdash;
               ${s.sponsor_first_name
                 ? [`Introduced by&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
                 : [`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()}`]
@@ -257,7 +265,7 @@ const initialize = (prevQuery, location, storage, user) => (dispatch) => {
   const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
 
   const orders = {
-    upcoming: '&status=not.eq.Introduced&introduced_at=not.is.null&failed_lower_at=is.null&passed_lower_at=is.null&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc',
+    upcoming: '&status=not.eq.Introduced&introduced_at=not.is.null&failed_lower_at=is.null&failed_upper_at=is.null&or=(passed_lower_at.is.null,passed_upper_at.is.null,and(passed_lower_at.is.null,passed_upper_at.is.null))&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc',
     new: '&introduced_at=not.is.null&order=introduced_at.desc,number.desc',
     proposed: '&published=is.true&introduced_at=is.null&order=created_at.desc,title.asc',
   }
@@ -276,7 +284,7 @@ const initialize = (prevQuery, location, storage, user) => (dispatch) => {
     'summary', 'legislature_name', 'published', 'created_at', 'author_first_name', 'author_last_name', 'author_username',
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const api_url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&type=not.eq.PN${order}&limit=40`
+  const api_url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_query}${fts}${legislature}&type=not.eq.nomination${order}&limit=40`
 
   return api(api_url, { storage }).then((measures) => dispatch({
     type: 'receivedMeasures',
@@ -318,7 +326,7 @@ const voteButton = (s) => {
       voteBtnClass = `button is-small ${votePositionClass(s.vote_position)}`
     }
   }
-  return [`<a style="white-space: inherit; height: auto;" class="${voteBtnClass} href=${`/legislation/${s.short_id}`}">
+  return [`<a style="white-space: inherit; height: auto;" class="${voteBtnClass}" href="${`/legislation/${s.short_id}`}">
     <span class="icon" style="align-self: flex-start;"><i class="${voteBtnIcon}"></i></span>
     <span class="has-text-weight-semibold">${voteBtnTxt}</span>
   </a>`]

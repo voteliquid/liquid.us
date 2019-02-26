@@ -90,7 +90,7 @@ class VoteButtons extends Component {
     const saveVote = require('./MeasureVoteForm').MeasureVoteForm.prototype.onsubmit
     const { measure } = this.props
     const { author_username, short_id, type } = measure
-    const measureUrl = `${author_username ? `/${author_username}/` : '/'}${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}/vote`
+    const measureUrl = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}/vote`
 
     if (measure.vote_position === form.vote_position) {
       return this.location.redirect(303, measureUrl)
@@ -103,7 +103,7 @@ class VoteButtons extends Component {
     const { measure } = this.props
     const { author_username, delegate_name, vote_position } = measure
     const { my_vote = { vote_position } } = measure
-    const measureUrl = `${author_username ? `/${author_username}/` : '/'}${measure.type === 'PN' ? 'nominations' : 'legislation'}/${measure.short_id}/vote`
+    const measureUrl = `${author_username ? `/${author_username}/` : '/'}${measure.type === 'nomination' ? 'nominations' : 'legislation'}/${measure.short_id}/vote`
     return this.html`
       <div onconnected=${this} class="columns is-gapless is-multiline is-marginless">
         ${vote_position === 'abstain' ? [`

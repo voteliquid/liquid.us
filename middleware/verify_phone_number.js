@@ -1,7 +1,11 @@
-const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_KEY } = process.env
+const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } = process.env
 
 module.exports = (req, res) => {
-  const twilio = require('twilio')(TWILIO_ACCOUNT_SID, TWILIO_AUTH_KEY)
+  if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) {
+    return res.status(400).json({ message: 'Missing phone_verification keys (process.env)' })
+  }
+  const twilio = require('twilio')(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
 
   const phone_number = req.body.phone_number
   twilio.lookups.phoneNumbers(`+1${phone_number}`)

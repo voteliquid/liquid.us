@@ -8,7 +8,7 @@ const { runtime } = require('raj')
 const cookies = require('browser-cookies')
 const hyperhtml = require('hyperhtml')
 
-const { browserHyperloopContext: HyperloopContext, combineEffects } = require('./helpers')
+const { browserHyperloopContext: HyperloopContext } = require('./helpers')
 const App = require('./components/App')
 
 let starting = true
@@ -40,8 +40,11 @@ runtime({
   }, App.init[1]],
   update: (event, state) => {
     // Intercept app updates and update the hyperloop state.
-    const [appState, appEffect] = App.update(event, state)
-    return [appState, combineEffects(setHyperloopState(appState), appEffect)]
+    const result = App.update(event, state)
+    if (result[0].hyperloop) {
+      Object.assign(result[0].hyperloop.state, { ...result[0], hyperloop: undefined })
+    }
+    return result
   },
   view: (state, dispatch) => {
     // Wait for route view to load (async chunked JS) before rendering.
@@ -52,12 +55,6 @@ runtime({
     return App.view(state, dispatch)
   },
 })
-
-function setHyperloopState(state) {
-  if (state.hyperloop) {
-    Object.assign(state.hyperloop.state, { ...state, hyperloop: undefined })
-  }
-}
 
 if (module.hot) {
   module.hot.accept()
