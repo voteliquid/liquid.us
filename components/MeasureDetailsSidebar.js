@@ -21,7 +21,7 @@ module.exports = class MeasureDetailsSidebar extends Component {
         <div class="panel-heading has-text-centered">
           <h3 class="title has-text-weight-semibold is-size-5">
             <a href="${measureUrl}" class="has-text-dark">
-              ${l.introduced_at ? `${l.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}` : (l.short_id === 'should-nancy-pelosi-be-speaker' || l.type === 'nomination' ? 'Proposed Nomination' : l.short_id === "us116-hjres46-relating-to-a-natl" ? 'H.J.Res. 46' : 'Proposed Legislation')}
+              ${l.introduced_at ? `${l.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}` : (l.short_id === 'should-nancy-pelosi-be-speaker' || l.type === 'nomination' ? 'Proposed Nomination' : l.short_id === "relating-to-a-national-emergency" ? 'H.J.Res. 46' : 'Proposed Legislation')}
             </a>
           </h3>
           <h4 class="subtitle is-size-7 has-text-grey is-uppercase has-text-weight-semibold">
@@ -116,17 +116,17 @@ class MeasureInfoPanel extends Component {
         <div style="width: 100%;">
           <div class="columns is-gapless is-multiline is-mobile">
             <div class="column is-one-third">
-              <div class="has-text-grey">${short_id === "us116-hjres46-relating-to-a-natl" || introduced_at ? 'Introduced' : 'Proposed'}</div>
+              <div class="has-text-grey">${short_id === "relating-to-a-national-emergency" || introduced_at ? 'Introduced' : 'Proposed'}</div>
             </div>
             <div class="column is-two-thirds">
-              <div class="has-text-right">${short_id === "us116-hjres46-relating-to-a-natl" ? 'February 22, 2019' : new Date(introduced_at || created_at).toLocaleDateString()}</div>
+              <div class="has-text-right">${short_id === "relating-to-a-national-emergency" ? 'February 22, 2019' : new Date(introduced_at || created_at).toLocaleDateString()}</div>
             </div>
             <div class="column is-one-third">
               <div class="has-text-grey">${author_username ? 'Author' : (sponsor_username ? 'Sponsor' : '')}</div>
             </div>
             <div class="column is-two-thirds">
               <div class="has-text-right">
-                ${short_id === "us116-hjres46-relating-to-a-natl" ? [`<a href="/JoaquinCastrotx">Joaquin Castro</a>`] : sponsor_username
+                ${short_id === "relating-to-a-national-emergency" ? [`<a href="/JoaquinCastrotx">Joaquin Castro</a>`] : sponsor_username
                   ? [`<a href="/${sponsor_username}">${sponsor_first_name} ${sponsor_last_name}</a>`]
                   : author_username
                     ? [`<a href="/${author_username}">${author_first_name} ${author_last_name}</a>`]
