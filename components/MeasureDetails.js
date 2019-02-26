@@ -10,12 +10,14 @@ module.exports = class MeasureDetails extends Component {
     const { user } = this.state
     const { measure: l } = this.props
     const next_action_at = l.next_agenda_action_at || l.next_agenda_begins_at
-
+    const index = l.legislature_name.indexOf(',')
+    const legName = l.legislature_name === 'U.S. Congress' ? 'Congress' : index ? l.legislature_name.slice(0, index) : l.legislature_name
+    console.log(l.legislature_name.slice(','))
     const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
-    const status = l.introduced_at === null ? `Draft legislation created on ${(new Date(l.created_at)).toLocaleDateString()}` : next_action_at ? [`
+    const status = l.published === false ? `Draft legislation created on ${(new Date(l.created_at)).toLocaleDateString()}` : next_action_at ? [`
       Scheduled for House floor action ${!l.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
       <br />
-    `] : l.status === 'Introduced' && l.sponsor_username === null && l.introduced_at !== null ? `Published on ${(new Date(l.introduced_at)).toLocaleDateString()}` : l.status === 'Introduced' && l.sponsor_username === null ? 'Published on Liquid' : `${l.status}</p>} on ${new Date(l.last_action_at).toLocaleDateString()}`
+    `] : l.status === 'Introduced' && l.sponsor_username === null ? `Published on Liquid ${legName}` : l.status === 'Introduced' ? `Introduced on ${(new Date(l.introduced_at)).toLocaleDateString()}` : `${l.status}`
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
