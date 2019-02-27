@@ -60,7 +60,7 @@ module.exports = class MeasureDetailsPage extends Component {
       return this.fetchComments(measure.id, measure.short_id)
         .then(() => this.fetchConstituentVotes(measure, officeIds))
         .then(() => this.fetchTopComments(measure.id, measure.short_id))
-        .then(() => this.fetchProxyVotes(measure.id, measure.short_id))
+        // .then(() => this.fetchProxyVotes(measure.id, measure.short_id))
     })
     .catch((error) => {
       console.log(error)
@@ -146,16 +146,7 @@ module.exports = class MeasureDetailsPage extends Component {
     return Promise.resolve()
   }
   dedupeVotes(votes) {
-    const ids = {}
-    const deduped = []
-    votes.forEach((item) => {
-      const id = item.endorsed_vote ? item.endorsed_vote.id : item.id
-      if (!ids[id]) {
-        ids[id] = item
-        deduped.push(item)
-      }
-    })
-    return deduped
+    return votes.filter((item) => !item.endorsed_vote)
   }
   fetchComments(measure_id, short_id) {
     const { query } = this.location
@@ -176,7 +167,7 @@ module.exports = class MeasureDetailsPage extends Component {
           ...this.state.measures,
           [short_id]: {
             ...this.state.measures[short_id],
-            comments,
+            comments: this.dedupeVotes(comments),
             cur_endorsement: comments.filter(c => c.endorsed)[0]
           },
         },

@@ -289,7 +289,7 @@ module.exports = class Comment extends Component {
 
     return this.html`
       <div onclick=${this} class="comment" style="margin-bottom: 1.5em;">
-        ${[endorsed_vote ? `<p class="is-size-7 has-text-grey" style="margin-bottom: 1em;">Endorsed by ${!show_bill ? 'your proxy ' : ''}<a href="/${vote.username}">${vote.fullname}</a>:</p>` : '']}
+        ${[endorsed_vote ? `<p class="is-size-7 has-text-grey" style="margin-bottom: 1em;">Endorsed by <a href="/${vote.username}">${vote.fullname}</a>:</p>` : '']}
         <div class="media">
           <div class="media-left">
             <div class="image is-32x32">
