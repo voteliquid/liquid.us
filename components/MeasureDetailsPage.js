@@ -37,7 +37,7 @@ module.exports = class MeasureDetailsPage extends Component {
         window.history.replaceState(window.history.state, page_title, document.location)
       }
       const isCity = ~measure.legislature_name.indexOf(',')
-      const inlineImageMatch = measure && measure.summary.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
+      const inlineImageMatch = measure && measure.summary && measure.summary.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
       const inlineImage = inlineImageMatch && inlineImageMatch[0]
       const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
       const ogImage = inlineImage || measureImage
