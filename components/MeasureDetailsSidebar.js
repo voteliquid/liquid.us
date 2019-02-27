@@ -12,7 +12,7 @@ module.exports = class MeasureDetailsSidebar extends Component {
     const reps = (this.state.reps || []).filter(({ chamber, legislature }) => {
       return chamber === l.chamber && (stateAbbr[legislature.name] || legislature.name) === l.legislature_name
     })
-    const showStatusTracker = l.legislature_name === 'U.S. Congress' && l.introduced_at && l.type === 'bill'
+    const showStatusTracker = l.legislature_name === 'U.S. Congress' && ((l.introduced_at && l.type === 'bill') || l.short_id === "terminating-a-national-emergency")
     const measureUrl = l.author_username
       ? `/${l.author_username}/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
       : `/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
@@ -61,9 +61,11 @@ class MeasureActionsPanel extends Component {
 class MeasureStatus extends Component {
   render() {
     const { measure: l } = this.props
-    const steps = [{ step: 'Introduced', fulfilled: !!l.introduced_at }]
-
-    if (l.chamber === 'Upper') {
+    const steps = l.short_id === "terminating-a-national-emergency" ? [{ step: 'Introduced', fulfilled: !!l.created_at }] : [{ step: 'Introduced', fulfilled: !!l.introduced_at }]
+    if (l.short_id === "terminating-a-national-emergency") {
+      steps.push({ step: 'Passed House', fulfilled: !!l.created_at })
+      steps.push({ step: 'Passed Senate', fulfilled: !!l.passed_upper_at })
+    } else if (l.chamber === 'Upper') {
       steps.push({ step: 'Passed Senate', fulfilled: !!l.passed_upper_at })
       steps.push({ step: 'Passed House', fulfilled: !!l.passed_lower_at })
     } else {
@@ -122,7 +124,7 @@ class MeasureInfoPanel extends Component {
               <div class="has-text-right">${short_id === "terminating-a-national-emergency" ? 'February 22, 2019' : new Date(introduced_at || created_at).toLocaleDateString()}</div>
             </div>
             <div class="column is-one-third">
-              <div class="has-text-grey">${author_username ? 'Author' : (sponsor_username ? 'Sponsor' : '')}</div>
+              <div class="has-text-grey">${short_id === "terminating-a-national-emergency" || sponsor_username ? 'Sponsor' : author_username ? 'Author' : ''}</div>
             </div>
             <div class="column is-two-thirds">
               <div class="has-text-right">
@@ -220,8 +222,11 @@ class MeasureVoteCounts extends Component {
                 <td class="has-text-right">${measure[`${chamber === 'Upper' ? 'upper' : 'lower'}_yeas`] || ''}</td>
                 <td class="has-text-right">${measure[`${chamber === 'Upper' ? 'upper' : 'lower'}_nays`] || ''}</td>
                 ` : `
-                <td class="has-text-right" colspan="2">
-                  ${measure.lower_yeas ? '' : measure.passed_lower_at ? 'Passed unanimously' : 'No vote yet'}
+                <td class="has-text-left">
+                  ${short_id === "terminating-a-national-emergency" ? 245 : measure.lower_yeas ? '' : measure.passed_lower_at ? 'Passed unanimously' : 'No vote yet'}
+                </td>
+                <td class="has-text-right">
+                  ${short_id === "terminating-a-national-emergency" ? 19 : ''}
                 </td>
                 `}
               </tr>
