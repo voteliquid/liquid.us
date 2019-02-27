@@ -28,7 +28,7 @@ const fetchOffices = exports.fetchOffices = ({ location = {}, storage, user }) =
     if (!geoip) {
       return dispatch({ type: 'officesReceived', offices: [] })
     }
-    return api('/rpc/point_to_offices', {
+    return Promise.resolve([]) /*api('/rpc/point_to_offices', {
       method: 'POST',
       body: JSON.stringify({
         lon: Number(geoip.lon),
@@ -36,7 +36,7 @@ const fetchOffices = exports.fetchOffices = ({ location = {}, storage, user }) =
         city: `${geoip.city}, ${geoip.region}`,
         state: geoip.region,
       }),
-    })
+    })*/
     .then((offices) => {
       dispatch({ type: 'officesReceived', offices, geoip })
     })

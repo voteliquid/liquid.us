@@ -63,11 +63,11 @@ const fetchOffices = (location, storage, user) => (dispatch) => {
     if (!geoip) {
       return dispatch({ type: 'officesLoaded', offices: [] })
     }
-    return api('/rpc/point_to_offices', {
+    return Promise.resolve([])/* api('/rpc/point_to_offices', {
       method: 'POST',
       body: JSON.stringify({ lon: Number(geoip.lon), lat: Number(geoip.lat) }),
       storage,
-    })
+    })*/
     .then(offices => {
       if (!offices) offices = []
       dispatch({ type: 'officesLoaded', offices, geoip })
