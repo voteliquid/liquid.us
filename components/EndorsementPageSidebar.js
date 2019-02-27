@@ -2,6 +2,7 @@ const { WWW_URL } = process.env
 const { signIn, updateNameAndAddress } = require('../effects')
 const Component = require('./Component')
 const GoogleAddressAutocompleteScript = require('./EndorsementGoogleAddressAutocompleteScript')
+const fetch = require('isomorphic-fetch')
 
 const milestones = [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000]
 function nextMilestone(current) {
@@ -85,38 +86,41 @@ module.exports.NewSignupEndorseForm = class NewSignupEndorseForm extends Compone
       const vote_id = comment.id
 
       if (user) {
-        return updateNameAndAddress({
-          addressData: {
-            user_id: user.id,
-            address: formData.address.address,
-            city: formData.address.city,
-            state: formData.address.state,
-            geocoords: `POINT(${formData.address.lon} ${formData.address.lat})`,
-          },
-          nameData: { first_name, last_name },
-          storage: this.storage,
-        })(this.state.dispatch)
-        // Store endorsement
-        .then(() => this.api('/rpc/endorse', {
-          method: 'POST',
-          body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on' }),
-        }))
-        // Get new endorsement count
-        .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
-        .then((votes) => {
-          // And finally re-render with with the newly registered user and updated count
-          this.setState({
-            measures: {
-              ...this.state.measures,
-              [short_id]: {
-                ...this.state.measures[short_id],
-                comment: votes[0] || this.state.measures[short_id].comment,
-                replyLoaded: true,
-              }
+        checkForMissingGeocoords(formData, this.state)
+        .then(() => {
+          return updateNameAndAddress({
+            addressData: {
+              user_id: user.id,
+              address: formData.address.address,
+              city: formData.address.city,
+              state: formData.address.state,
+              geocoords: `POINT(${formData.address.lon} ${formData.address.lat})`,
             },
+            nameData: { first_name, last_name },
+            storage: this.storage,
+          })(this.state.dispatch)
+          // Store endorsement
+          .then(() => this.api('/rpc/endorse', {
+            method: 'POST',
+            body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on' }),
+          }))
+          // Get new endorsement count
+          .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
+          .then((votes) => {
+            // And finally re-render with with the newly registered user and updated count
+            this.setState({
+              measures: {
+                ...this.state.measures,
+                [short_id]: {
+                  ...this.state.measures[short_id],
+                  comment: votes[0] || this.state.measures[short_id].comment,
+                  replyLoaded: true,
+                }
+              },
+            })
           })
+          .catch((error) => console.log(error))
         })
-        .catch((error) => console.log(error))
       }
     })
   }
@@ -252,9 +256,12 @@ module.exports.LoggedInForm = class LoggedInForm extends Component {
       geocoords: `POINT(${formData.address.lon} ${formData.address.lat})`,
     }
 
-    return updateNameAndAddress({ addressData, nameData, storage: this.state.storage })(this.state.dispatch)
-      .then(() => this.endorse(endorsement))
-      .catch((error) => console.log(error))
+    return checkForMissingGeocoords(formData, this.state)
+    .then(() => {
+      return updateNameAndAddress({ addressData, nameData, storage: this.state.storage })(this.state.dispatch)
+        .then(() => this.endorse(endorsement))
+        .catch((error) => console.log(error))
+    })
   }
   render() {
     const { measure } = this.props
@@ -409,5 +416,25 @@ module.exports.AfterEndorseComment = class AfterEndorseComment extends Component
         </div>
       </form>
     `
+  }
+}
+
+function checkForMissingGeocoords(formData, state) {
+  const { location, user } = state
+
+  if (formData.address.address && !formData.address.lon) {
+    console.log('Got address but no geocoords :-/')
+    return fetch('https://blog-api.liquid.us/feedback', {
+      body: JSON.stringify({
+        text: JSON.stringify(formData),
+        user,
+        url: location.url,
+      }),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    })
   }
 }
