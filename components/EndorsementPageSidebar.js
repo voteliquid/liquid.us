@@ -85,13 +85,7 @@ module.exports.NewSignupEndorseForm = class NewSignupEndorseForm extends Compone
       const vote_id = comment.id
 
       if (user) {
-        // Store endorsement
-        return this.api('/rpc/endorse', {
-          method: 'POST',
-          body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on' }),
-        })
-
-        .then(() => updateNameAndAddress({
+        return updateNameAndAddress({
           addressData: {
             user_id: user.id,
             address: formData.address.address,
@@ -101,7 +95,12 @@ module.exports.NewSignupEndorseForm = class NewSignupEndorseForm extends Compone
           },
           nameData: { first_name, last_name },
           storage: this.storage,
-        })(this.state.dispatch))
+        })(this.state.dispatch)
+        // Store endorsement
+        .then(() => this.api('/rpc/endorse', {
+          method: 'POST',
+          body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on' }),
+        }))
         // Get new endorsement count
         .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
         .then((votes) => {
