@@ -436,5 +436,10 @@ function checkForMissingGeocoords(formData, state) {
       },
       method: 'POST',
     })
+    .catch((error) => {
+      console.error('Problem sending checkForMissingGeocoords debug message:')
+      console.error(error)
+    })
   }
+  return Promise.resolve()
 }
