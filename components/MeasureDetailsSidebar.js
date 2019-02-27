@@ -218,15 +218,12 @@ class MeasureVoteCounts extends Component {
                 <td class="has-text-left has-text-grey">
                   ${chamberNames[legislature_name].Lower}
                 </td>
-                ${measure.lower_yeas || measure.lower_nays ? `
-                <td class="has-text-right">${measure[`${chamber === 'Upper' ? 'upper' : 'lower'}_yeas`] || ''}</td>
-                <td class="has-text-right">${measure[`${chamber === 'Upper' ? 'upper' : 'lower'}_nays`] || ''}</td>
+                ${measure.lower_yeas || measure.lower_nays || short_id === "terminating-a-national-emergency" ? `
+                <td class="has-text-right">${short_id === "terminating-a-national-emergency" ? 245 : (measure[`${chamber === 'Upper' ? 'upper' : 'lower'}_yeas`] || '')}</td>
+                <td class="has-text-right">${short_id === "terminating-a-national-emergency" ? 185 : (measure[`${chamber === 'Upper' ? 'upper' : 'lower'}_nays`] || '')}</td>
                 ` : `
-                <td class="has-text-left">
-                  ${short_id === "terminating-a-national-emergency" ? 245 : measure.lower_yeas ? '' : measure.passed_lower_at ? 'Passed unanimously' : 'No vote yet'}
-                </td>
-                <td class="has-text-right">
-                  ${short_id === "terminating-a-national-emergency" ? 19 : ''}
+                <td class="has-text-right" colspan="2">
+                  ${measure.lower_yeas ? '' : measure.passed_lower_at ? 'Passed unanimously' : 'No vote yet'}
                 </td>
                 `}
               </tr>
