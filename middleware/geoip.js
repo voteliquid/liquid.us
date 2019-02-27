@@ -19,7 +19,7 @@ function geoip(req, res) {
   }
   const timeout = setTimeout(respond, 1000)
 
-  fetch(`http://ip-api.com/json/${ip}${IPAPI_KEY ? `?key=${IPAPI_KEY}` : ''}`, {
+  fetch(`http://pro.ip-api.com/json/${ip}${IPAPI_KEY ? `?key=${IPAPI_KEY}` : ''}`, {
     headers: { Accept: 'application/json' },
   })
   .then(response => response.json())
