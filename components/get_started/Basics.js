@@ -1,6 +1,5 @@
-const { APP_NAME, GOOGLE_GEOCODER_KEY, WWW_DOMAIN } = process.env
-const { api, html, redirect } = require('../../helpers')
-const fetch = require('isomorphic-fetch')
+const { APP_NAME, WWW_DOMAIN } = process.env
+const { api, html, makePoint, redirect } = require('../../helpers')
 const GoogleAddressAutocompleteScript = require('../GoogleAddressAutocompleteScript')
 
 module.exports = {
@@ -140,39 +139,6 @@ const patchUser = (event, storage, user) => (dispatch) => {
     return dispatch({ type: 'error', error: Object.assign(new Error('Please enter only a first and last name'), { name: true }) })
   }
 
-  if (!lat || !lon) {
-    return fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${formData.address.address}&key=${GOOGLE_GEOCODER_KEY}`)
-      .then(response => response.json())
-      .then(({ results }) => {
-        if (results[0] && results[0].geometry && results[0].geometry.location) {
-          const { location } = results[0].geometry
-          return upsertAddressAndContinue({
-            first_name,
-            last_name,
-            address: results[0].formatted_address || address,
-            voter_status,
-            lat: location.lat,
-            lon: location.lng,
-          }, { storage, user }, dispatch)
-        }
-        return dispatch({
-          type: 'error',
-          error: Object.assign(
-            new Error(`There was a problem processing your address. Please contact support@${WWW_DOMAIN} and let us know.`
-          ), { address: true }),
-        })
-      })
-      .catch(error => {
-        console.log(error)
-        return dispatch({
-          type: 'error',
-          error: Object.assign(
-            new Error(`There was a problem processing your address. Please contact support@${WWW_DOMAIN} and let us know.`
-          ), { address: true }),
-        })
-      })
-  }
-
   return upsertAddressAndContinue({ first_name, last_name, address, voter_status, lat, lon, city, state }, { storage, user }, dispatch)
 }
 
@@ -189,7 +155,7 @@ const upsertAddressAndContinue = (formData, { storage, user }, dispatch) => {
         address,
         city,
         state,
-        geocoords: `POINT(${lon} ${lat})`,
+        geocoords: makePoint(lon, lat),
       }),
       storage,
     })
@@ -202,7 +168,7 @@ const upsertAddressAndContinue = (formData, { storage, user }, dispatch) => {
         address,
         city,
         state,
-        geocoords: `POINT(${lon} ${lat})`,
+        geocoords: makePoint(lon, lat),
       }),
       storage,
     })
