@@ -22,7 +22,12 @@ function geoip(req, res) {
   fetch(`http://pro.ip-api.com/json/${ip}${IPAPI_KEY ? `?key=${IPAPI_KEY}` : ''}`, {
     headers: { Accept: 'application/json' },
   })
-  .then(response => response.json())
+  .then(res => {
+    if (res.status === 200) {
+      return res.json()
+    }
+    return Promise.reject(new Error(`Received non-OK response from ip-api.com (code: ${res.status})`))
+  })
   .then((geoip) => {
     if (timeout) clearTimeout(timeout)
     respond(geoip)
