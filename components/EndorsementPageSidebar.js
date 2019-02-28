@@ -1,5 +1,6 @@
 const { WWW_URL } = process.env
 const { signIn, updateNameAndAddress } = require('../effects')
+const { makePoint } = require('../helpers')
 const Component = require('./Component')
 const GoogleAddressAutocompleteScript = require('./EndorsementGoogleAddressAutocompleteScript')
 const fetch = require('isomorphic-fetch')
@@ -94,7 +95,7 @@ module.exports.NewSignupEndorseForm = class NewSignupEndorseForm extends Compone
               address: formData.address.address,
               city: formData.address.city,
               state: formData.address.state,
-              geocoords: `POINT(${formData.address.lon} ${formData.address.lat})`,
+              geocoords: makePoint(formData.address.lon, formData.address.lat),
             },
             nameData: { first_name, last_name },
             storage: this.storage,
