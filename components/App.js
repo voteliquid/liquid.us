@@ -192,6 +192,11 @@ const loadRoute = (loader) => (dispatch) => {
     return loader.then((loaded) => {
       dispatch({ type: 'routeLoaded', program: loaded.default || loaded })
     })
+    .catch((error) => {
+      if (typeof window === 'object' && error.message && error.message.slice(0, 13) === 'Loading chunk') {
+        window.location.reload(true)
+      }
+    })
   }
   dispatch({ type: 'routeLoaded', program: loader.default || loader })
 }
