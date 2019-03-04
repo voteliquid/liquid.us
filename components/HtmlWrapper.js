@@ -136,7 +136,6 @@ module.exports = (state, html, bundleUrl) => {
         </script>
         <div>
           ${[NODE_ENV === 'production' ? `
-            <script async src="https://d10lpsik1i8c69.cloudfront.net/w.js"></script>
             <script async src="https://www.googletagmanager.com/gtag/js?id=UA-84279342-5"></script>
             <script>
               window.dataLayer = window.dataLayer || [];
