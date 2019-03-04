@@ -48,6 +48,11 @@ module.exports = class EndorsementPageMobileForm extends Component {
 }
 
 class NewSignupEndorseMobileForm extends NewSignupEndorseForm {
+  onconnected(event) {
+    if (window.initGoogleAddressAutocomplete) {
+      window.initGoogleAddressAutocomplete(event.currentTarget.getAttribute('id'))
+    }
+  }
   render() {
     const { error = {} } = this.state
     const { measure } = this.props
@@ -85,12 +90,7 @@ class NewSignupEndorseMobileForm extends NewSignupEndorseForm {
         <div class="field">
           <label class="label has-text-grey">Your Address</label>
           <div class="control has-icons-left">
-            <input class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address[address]" id="address_autocomplete_mobileform" placeholder="185 Berry Street, San Francisco, CA 94121" />
-            <input name="address[lat]" id="address_lat_mobileform" type="hidden" />
-            <input name="address[lon]" id="address_lon_mobileform" type="hidden" />
-            <input name="address[city]" id="city_mobileform" type="hidden" />
-            <input name="address[state]" id="state_mobileform" type="hidden" />
-            ${''/* Uses EndorsementGoogleAddressAutocompleteScript.js, initialized in EndorsementPageSidebar */}
+            <input onconnected=${this} class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete_mobileform" placeholder="185 Berry Street, San Francisco, CA 94121" />
             ${error && error.address
               ? [`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`]
               : [`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`]
@@ -136,6 +136,11 @@ class VotedDifferentlyMessage extends Component {
 }
 
 class LoggedInMobileForm extends LoggedInForm {
+  onconnected(event) {
+    if (window.initGoogleAddressAutocomplete) {
+      window.initGoogleAddressAutocomplete(event.currentTarget.getAttribute('id'))
+    }
+  }
   render() {
     const { measure } = this.props
     const { last_vote_public, user } = this.state
@@ -168,13 +173,8 @@ class LoggedInMobileForm extends LoggedInForm {
         <div class="field">
           <label class="label has-text-grey">Your Address</label>
           <div class="control has-icons-right">
-            <input id="address_autocomplete_mobileform" class="input" autocomplete="off" name="address[address]" placeholder="185 Berry Street, San Francisco, CA 94121" value="${address}" disabled=${!!address} />
+            <input onconnected=${this} id="address_autocomplete_mobileform" class="input" autocomplete="off" name="address" placeholder="185 Berry Street, San Francisco, CA 94121" value="${address}" disabled=${!!address} />
             <span class="icon is-small is-right"><i class="${`fa fa-${address ? 'lock' : 'map-marker-alt'}`}"></i></span>
-            <input name="address[lat]" id="address_lat_mobileform" type="hidden" />
-            <input name="address[lon]" id="address_lon_mobileform" type="hidden" />
-            <input name="address[city]" id="city_mobileform" type="hidden" />
-            <input name="address[state]" id="state_mobileform" type="hidden" />
-            ${''/* Uses EndorsementGoogleAddressAutocompleteScript.js, initialized in EndorsementPageSidebar */}
           </div>
           <p class="is-size-7" style="margin-top: .3rem;">So your reps know you're their constituent.</p>
         </div>

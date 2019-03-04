@@ -2,7 +2,6 @@ const { WWW_URL } = process.env
 const { signIn, updateNameAndAddress } = require('../effects')
 const { makePoint } = require('../helpers')
 const Component = require('./Component')
-const GoogleAddressAutocompleteScript = require('./EndorsementGoogleAddressAutocompleteScript')
 
 const milestones = [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000]
 function nextMilestone(current) {
@@ -60,6 +59,11 @@ module.exports.EndorsementCount = class EndorsementCount extends Component {
 }
 
 module.exports.NewSignupEndorseForm = class NewSignupEndorseForm extends Component {
+  onconnected(event) {
+    if (window.initGoogleAddressAutocomplete) {
+      window.initGoogleAddressAutocomplete(event.currentTarget.getAttribute('id'))
+    }
+  }
   onsubmit(event, formData) {
     if (event) event.preventDefault()
 
@@ -88,14 +92,14 @@ module.exports.NewSignupEndorseForm = class NewSignupEndorseForm extends Compone
       if (user) {
         return updateNameAndAddress({
           addressData: {
-            user_id: user.id,
-            address: formData.address.address,
-            city: formData.address.city,
-            state: formData.address.state,
-            geocoords: makePoint(formData.address.lon, formData.address.lat),
+            address: formData.address,
+            city: window.lastSelectedGooglePlacesAddress.city,
+            state: window.lastSelectedGooglePlacesAddress.state,
+            geocoords: makePoint(window.lastSelectedGooglePlacesAddress.lon, window.lastSelectedGooglePlacesAddress.lat),
           },
           nameData: { first_name, last_name },
           storage: this.storage,
+          user,
         })(this.state.dispatch)
         // Store endorsement
         .then(() => this.api('/rpc/endorse', {
@@ -158,12 +162,7 @@ module.exports.NewSignupEndorseForm = class NewSignupEndorseForm extends Compone
         <div class="field">
           <label class="label has-text-grey">Your Address</label>
           <div class="control has-icons-left">
-            <input class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address[address]" id="address_autocomplete_sidebar" placeholder="185 Berry Street, San Francisco, CA 94121" />
-            <input name="address[lat]" id="address_lat_sidebar" type="hidden" />
-            <input name="address[lon]" id="address_lon_sidebar" type="hidden" />
-            <input name="address[city]" id="city_sidebar" type="hidden" />
-            <input name="address[state]" id="state_sidebar" type="hidden" />
-            ${GoogleAddressAutocompleteScript()}
+            <input onconnected=${this} class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete_sidebar" placeholder="185 Berry Street, San Francisco, CA 94121" />
             ${error && error.address
               ? [`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`]
               : [`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`]
@@ -210,6 +209,11 @@ class VotedDifferentlyMessage extends Component {
 
 
 module.exports.LoggedInForm = class LoggedInForm extends Component {
+  onconnected(event) {
+    if (window.initGoogleAddressAutocomplete) {
+      window.initGoogleAddressAutocomplete(event.currentTarget.getAttribute('id'))
+    }
+  }
   endorse(endorsement) {
     const short_id = this.props.measure.short_id
     return this.api('/rpc/endorse', {
@@ -246,14 +250,13 @@ module.exports.LoggedInForm = class LoggedInForm extends Component {
     const last_name = formData.name.split(' ').slice(1).join(' ')
     const nameData = { first_name, last_name }
     const addressData = {
-      user_id: user.id,
-      address: formData.address.address,
-      city: formData.address.city,
-      state: formData.address.state,
-      geocoords: `POINT(${formData.address.lon} ${formData.address.lat})`,
+      address: formData.address,
+      city: window.lastSelectedGooglePlacesAddress.city,
+      state: window.lastSelectedGooglePlacesAddress.state,
+      geocoords: makePoint(window.lastSelectedGooglePlacesAddress.lon, window.lastSelectedGooglePlacesAddress.lat),
     }
 
-    return updateNameAndAddress({ addressData, nameData, storage: this.state.storage })(this.state.dispatch)
+    return updateNameAndAddress({ addressData, nameData, storage: this.state.storage, user })(this.state.dispatch)
       .then(() => this.endorse(endorsement))
       .catch((error) => console.log(error))
   }
@@ -269,7 +272,7 @@ module.exports.LoggedInForm = class LoggedInForm extends Component {
     const address = user.address ? user.address.address : ''
 
     return this.html`
-      <form method="POST" style="width: 100%;" method="POST" onsubmit=${this} action=${this}>
+      <form method="POST" style="width: 100%;" method="POST" onsubmit=${this}>
         <div class="field">
           <label class="label has-text-grey">Your Name *</label>
           <div class="control has-icons-right">
@@ -289,13 +292,8 @@ module.exports.LoggedInForm = class LoggedInForm extends Component {
         <div class="field">
           <label class="label has-text-grey">Your Address</label>
           <div class="control has-icons-right">
-            <input id="address_autocomplete_sidebar" class="input" autocomplete="off" name="address[address]" placeholder="185 Berry Street, San Francisco, CA 94121" value="${address}" disabled=${!!address} />
+            <input onconnected=${this} id="address_autocomplete_sidebar" class="input" autocomplete="off" name="address" placeholder="185 Berry Street, San Francisco, CA 94121" value="${address}" disabled=${!!address} />
             <span class="icon is-small is-right"><i class="${`fa fa-${address ? 'lock' : 'map-marker-alt'}`}"></i></span>
-            <input name="address[lat]" id="address_lat_sidebar" type="hidden" />
-            <input name="address[lon]" id="address_lon_sidebar" type="hidden" />
-            <input name="address[city]" id="city_sidebar" type="hidden" />
-            <input name="address[state]" id="state_sidebar" type="hidden" />
-            ${address ? '' : GoogleAddressAutocompleteScript()}
           </div>
           <p class="is-size-7" style="margin-top: .3rem;">So your reps know you're their constituent.</p>
         </div>

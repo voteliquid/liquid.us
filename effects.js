@@ -47,21 +47,23 @@ const fetchOffices = exports.fetchOffices = ({ location = {}, storage, user }) =
   })
 }
 
-exports.updateNameAndAddress = ({ addressData, nameData, storage }) => (dispatch) => {
-  // Update users address
-  return api(`/user_addresses?select=id&user_id=eq.${addressData.user_id}`, {
-    method: 'POST',
+exports.updateNameAndAddress = ({ addressData, nameData, storage, user }) => (dispatch) => {
+  // Update users name
+  return api(`/users?select=id&id=eq.${user.id}`, {
+    method: 'PATCH',
     headers: { Prefer: 'return=representation' },
-    body: JSON.stringify(addressData),
+    body: JSON.stringify(nameData),
     storage,
-  }).then(() => {
-    // Update users name
-    return api(`/users?select=id&id=eq.${addressData.user_id}`, {
-      method: 'PATCH',
-      headers: { Prefer: 'return=representation' },
-      body: JSON.stringify(nameData),
-      storage,
-    })
+  })
+  // Update users address
+  .then(() => api(`/user_addresses?select=id&user_id=eq.${user.id}`, {
+    method: user && user.address ? 'PATCH' : 'POST',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify(user && user.address ? addressData : { ...addressData, user_id: user.id }),
+    storage,
+  }))
+  .catch((error) => {
+    console.log(error)
   })
   .then(() => {
     const user = { ...nameData, address: addressData }

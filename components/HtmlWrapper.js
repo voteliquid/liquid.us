@@ -1,6 +1,7 @@
 const { ASSETS_URL, NODE_ENV, WWW_DOMAIN } = process.env
 const { avatarURL } = require('../helpers')
 const fs = require('fs')
+const GoogleAddressAutocompleteScript = require('./GoogleAddressAutocompleteScript')
 const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
 
 module.exports = (state, html, bundleUrl) => {
@@ -146,6 +147,7 @@ module.exports = (state, html, bundleUrl) => {
             </script>
           ` : '']}
         </div>
+        ${GoogleAddressAutocompleteScript}
         <script src="${bundleUrl}"></script>
       </body>
     </html>
