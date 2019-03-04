@@ -52,7 +52,11 @@ runtime({
       starting = false
       return hyperhtml.bind(document.getElementById('application'))`${App.view(state, dispatch)}`
     }
-    return App.view(state, dispatch)
+    try {
+      return App.view(state, dispatch)
+    } catch (error) {
+      window.location.reload(true)
+    }
   },
 })
 
