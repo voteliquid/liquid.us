@@ -1,5 +1,5 @@
 const { NODE_ENV, WWW_URL } = process.env
-const { api } = require('./helpers')
+const { api, makePoint } = require('./helpers')
 const atob = require('atob')
 const fetch = require('isomorphic-fetch')
 
@@ -56,12 +56,12 @@ exports.updateNameAndAddress = ({ addressData, nameData, storage, user }) => (di
     storage,
   })
   // Update users address
-  .then(() => api(`/user_addresses?select=id&user_id=eq.${user.id}`, {
-    method: user && user.address ? 'PATCH' : 'POST',
-    headers: { Prefer: 'return=representation' },
-    body: JSON.stringify(user && user.address ? addressData : { ...addressData, user_id: user.id }),
-    storage,
-  }))
+  .then(() => {
+    if (!addressData.lon) {
+      return geocode(addressData.address).then((newAddressData) => updateAddress(newAddressData, user, storage))
+    }
+    return updateAddress(addressData, user, storage)
+  })
   .catch((error) => {
     console.log(error)
   })
@@ -69,6 +69,40 @@ exports.updateNameAndAddress = ({ addressData, nameData, storage, user }) => (di
     const user = { ...nameData, address: addressData }
     dispatch({ type: 'userUpdated', user })
     return fetchOffices({ storage, user })(dispatch)
+  })
+}
+
+const updateAddress = (addressData, user, storage) => {
+  return api(`/user_addresses?select=id&user_id=eq.${user.id}`, {
+    method: user && user.address && user.address.address ? 'PATCH' : 'POST',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify(user && user.address && user.address.address ? addressData : { ...addressData, user_id: user.id }),
+    storage,
+  })
+}
+
+const geocode = (address) => {
+  return fetch(`/rpc/geocode`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ address }),
+  })
+  .then((res) => res.json())
+  .then(([place]) => {
+    const newAddressData = { address }
+    const geocoords = place.geometry.location
+    newAddressData.geocoords = makePoint(geocoords.lng, geocoords.lat)
+    newAddressData.city = place.address_components.filter((item) => {
+      return item.types.some((type) => type === 'locality')
+    }).map((item) => item.long_name).shift() || ''
+    newAddressData.state = place.address_components.filter((item) => {
+      return item.types.some((type) => type === 'administrative_area_level_1')
+    }).map((item) => item.short_name).shift() || ''
+    return newAddressData
+  })
+  .catch((error) => {
+    console.log(error)
+    return { address }
   })
 }
 

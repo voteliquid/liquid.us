@@ -53,6 +53,7 @@ const eztextingWebhook = require('./middleware/eztexting_webhook')
 const redirects = require('./middleware/redirects')
 const twitterUsernameSearch = require('./middleware/twitter_username_search')
 const verifyPhoneNumber = require('./middleware/verify_phone_number')
+const geocode = require('./middleware/geocode')
 const htmlWrapper = require('./components/HtmlWrapper')
 let App = require('./components/App')
 
@@ -157,6 +158,7 @@ function startAppServer() {
     .post('/rpc/verify_phone_number', bodyParser.json(), verifyPhoneNumber)
     .get('/rpc/eztexting_webhook', eztextingWebhook)
     .post('/rpc/twitter_username_search', bodyParser.json(), twitterUsernameSearch)
+    .post('/rpc/geocode', bodyParser.json(), geocode)
     .get('/hyperloop/:filename', (req, res) => {
       res.setHeader('Content-Type', 'text/javascript')
       mfs.readFile(`/${req.params.filename}`, 'utf8', (error, js) => {
