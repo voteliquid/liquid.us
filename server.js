@@ -138,6 +138,7 @@ compile((err, stats) => {
 
 function startAppServer() {
   server
+    .disable('x-powered-by')
     .enable('trust proxy') // use x-forwarded-by for request ip
     .use(compression())
     .use(cors())
