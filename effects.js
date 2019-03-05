@@ -106,7 +106,7 @@ const geocode = (address) => {
   })
 }
 
-exports.signIn = ({ location, email, redirectTo = '/get_started', storage }) => (dispatch) => {
+exports.signIn = ({ location, channel = 'join-page', email, redirectTo = '/get_started', storage }) => (dispatch) => {
   const phone_number = location.query.ph ? atob(location.query.ph) : null
   const proxying_user_id = storage.get('proxying_user_id')
   const vote_position = storage.get('vote_position')
@@ -121,7 +121,7 @@ exports.signIn = ({ location, email, redirectTo = '/get_started', storage }) => 
       email: email.toLowerCase().trim(),
       phone_number,
       device_desc,
-      channel: 'join-page',
+      channel,
     }),
   })
   .then((results) => results[0])

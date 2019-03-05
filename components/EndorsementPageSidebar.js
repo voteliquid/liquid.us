@@ -84,6 +84,7 @@ module.exports.NewSignupEndorseForm = class NewSignupEndorseForm extends Compone
       location: this.location,
       storage: this.storage,
       redirectTo: this.location.url,
+      channel: 'endorsement',
     })(this.state.dispatch).then((user) => {
       const { measure } = this.props
       const { comment, short_id } = measure
