@@ -74,7 +74,7 @@ const App = module.exports = {
           scrollToTop(event.location.path !== state.location.path),
           mapEffect('footerEvent', Footer.selectQuote),
           runInSeries(
-            fetchUserAndOffices(state),
+            !state.offices && fetchUserAndOffices(state),
             loadRoute(event.loader)
           )
         )]
