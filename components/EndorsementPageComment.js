@@ -88,9 +88,11 @@ module.exports = class Comment extends Component {
           }
         }
       })
+      /* TODO disabled until query can be optimized
       const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
       const officeId = officesInChamber[0] && officesInChamber[0].id
       return this.fetchConstituentVotes(measure, officeId)
+      */
     })
     .then(() => this.fetchComments(measure_id, short_id))
     .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
