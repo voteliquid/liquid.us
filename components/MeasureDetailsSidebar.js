@@ -249,8 +249,7 @@ class MeasureVoteCounts extends Component {
     `
   }
 }
-const repCheck = ([measure], [reps]) => {
-  console.log(measure.legislature_name === reps[4].legislature.name ? reps[0].legislature.name : '')
+const repCheck = (measure, reps) => {
   const relevantReps = []
   for (let i = 0; i < reps.length; i++) {
   if (measure.legislature_name === reps[i].legislature.name) {
@@ -264,8 +263,7 @@ class MeasureRepsPanel extends Component {
   render() {
     const { measure } = this.props
     const { reps = [] } = this.state
-    const relevantReps = repCheck([measure], [reps])
-    console.log(relevantReps)
+    const relevantReps = repCheck(measure, reps)
     return this.html`
       <div class="panel-block">
         <div>
