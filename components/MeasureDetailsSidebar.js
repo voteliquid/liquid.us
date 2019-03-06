@@ -249,19 +249,32 @@ class MeasureVoteCounts extends Component {
     `
   }
 }
+const repCheck = ([measure], [reps]) => {
+  console.log(measure.legislature_name === reps[4].legislature.name ? reps[0].legislature.name : '')
+  const relevantReps = []
+  for (let i = 0; i < reps.length; i++) {
+  if (measure.legislature_name === reps[i].legislature.name) {
+    relevantReps.push(reps[i])
+    }
+  }
+  return relevantReps
+}
 
 class MeasureRepsPanel extends Component {
   render() {
-    const { measure, reps = [] } = this.props
+    const { measure } = this.props
+    const { reps = [] } = this.state
+    const relevantReps = repCheck([measure], [reps])
+    console.log(relevantReps)
     return this.html`
       <div class="panel-block">
         <div>
           <h4 class="has-text-centered has-text-weight-semibold" style="margin: 0 0 .5rem;">
             ${measure.vote_position
-            ? `We told your rep${reps.length > 1 ? 's' : ''} to vote ${measure.vote_position}`
-            : `Vote to tell your rep${reps.length > 1 ? 's' : ''}`}
+            ? `We told your rep${relevantReps.length > 1 ? 's' : ''} to vote ${measure.vote_position}`
+            : `Vote to tell your rep${relevantReps.length > 1 ? 's' : ''}`}
           </h4>
-          ${reps.map((rep) => RepSnippet.for(this, { rep: rep.office_holder, office: rep }, `sidebar-rep-${rep.office_holder.user_id}`))}
+          ${relevantReps.map((rep) => RepSnippet.for(this, { rep: rep.office_holder, office: rep }, `sidebar-rep-${rep.office_holder.user_id}`))}
         </div>
       </div>
     `
