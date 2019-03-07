@@ -165,7 +165,7 @@ const verifyOTP = (event, location, storage, user) => (dispatch) => {
     return api(`/users?select=id,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`, { storage })
     .then(users => {
       dispatch({
-        type: 'userReceived',
+        type: 'userUpdated',
         user: { ...users[0], address: users[0].address[0] }
       })
       return { jwt, user_id }

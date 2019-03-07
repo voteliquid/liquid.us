@@ -161,7 +161,6 @@ const App = module.exports = {
           isHyperloop && hyperloopEffect
         )]
       case 'userUpdated':
-      case 'userReceived':
         const user = { ...state.user, ...event.user, jwt: state.storage.get('jwt') }
         return [{
           ...state,
