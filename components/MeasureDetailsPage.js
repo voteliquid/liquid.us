@@ -129,14 +129,14 @@ module.exports = class MeasureDetailsPage extends Component {
               ...this.state.measures,
               [short_id]: {
                 ...this.state.measures[short_id],
-                proxyVotes: this.dedupeVotes(inheritedVotes.map((vote) => {
+                proxyVotes: (inheritedVotes.map((vote) => {
                   return {
                     ...vote,
                     ...vote.proxy,
                     fullname: vote.proxy && `${vote.proxy.first_name} ${vote.proxy.last_name}`,
                     endorsed_vote: vote.root_vote,
                   }
-                }).concat(proxyVotes)),
+                }).concat(proxyVotes)).filter(item => !item.endorsed_vote),
               },
             },
           })
@@ -144,9 +144,6 @@ module.exports = class MeasureDetailsPage extends Component {
       })
     }
     return Promise.resolve()
-  }
-  dedupeVotes(votes) {
-    return votes.filter((item) => !item.endorsed_vote)
   }
   fetchComments(measure_id, short_id) {
     const { query } = this.location
@@ -167,7 +164,7 @@ module.exports = class MeasureDetailsPage extends Component {
           ...this.state.measures,
           [short_id]: {
             ...this.state.measures[short_id],
-            comments: this.dedupeVotes(comments),
+            comments: comments.filter((item) => !item.endorsed_vote),
             cur_endorsement: comments.filter(c => c.endorsed)[0]
           },
         },
