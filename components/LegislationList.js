@@ -230,12 +230,12 @@ const measureListRow = (s) => {
               ${s.summary ? [`
                 <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
               `] : []}
-              <p><strong class="has-text-grey">Status:</strong>
+              <p${s.legislature_name === 'WI' ? ' class="is-hidden"' : ''}><strong class="has-text-grey">Status:</strong>
               ${next_action_at ? [`
                 Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
                 <br />
               `] : `${s.status}</p>`}
-              <strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}
+              <p><strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}</p>
             </div>
             `] : [`
               <div class="is-size-7 has-text-grey">
