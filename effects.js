@@ -145,7 +145,7 @@ exports.signIn = ({ location, channel = 'join-page', email, redirectTo = '/get_s
         .then(users => {
           const proxy_to = location.query.proxy_to
 
-          dispatch({ type: 'userUpdated', user: { ...users[0], address: users[0].address[0] } })
+          dispatch({ type: 'userUpdated', user: { ...users[0], address: users[0].address[0] }, jwt })
 
           if (proxying_user_id) {
             return api('/delegations', {

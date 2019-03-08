@@ -27,6 +27,8 @@ module.exports = {
         return [{ ...state, usersCount: event.usersCount }]
       case 'proxyProfileReceived':
         return [{ ...state, proxyProfile: event.proxyProfile }]
+      case 'userUpdated':
+        return [{ ...state, user: { ...state.user, ...event.user } }]
       case 'redirected':
         return [state, redirect(event.url, 302)]
       case 'error':

@@ -55,6 +55,7 @@ runtime({
     try {
       return App.view(state, dispatch)
     } catch (error) {
+      console.log(error)
       window.location.reload(true)
     }
   },

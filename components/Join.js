@@ -13,7 +13,7 @@ module.exports = {
     switch (event.type) {
       case 'joinFormEvent':
         const [joinFormState, joinFormEffect] = JoinForm.update(event.event, state.joinForm)
-        if (event.event.type === 'loaded' || event.event.type === 'redirected') {
+        if (event.event.type === 'userUpdated' || event.event.type === 'loaded' || event.event.type === 'redirected') {
           return [state, (dispatch) => dispatch(event.event)]
         }
         return [{ ...state, joinForm: joinFormState }, mapEffect('joinFormEvent', joinFormEffect)]

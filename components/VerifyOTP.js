@@ -139,7 +139,7 @@ const requestOTP = (location, storage) => (dispatch) => {
 const verifyOTP = (event, location, storage, user) => (dispatch) => {
   const formData = event && require('parse-form').parse(event.target).body
 
-  if (user && !location.query.totp) {
+  if (user) {
     return dispatch({ type: 'redirected', url: '/get_started' })
   }
 
@@ -254,5 +254,6 @@ const verifyOTP = (event, location, storage, user) => (dispatch) => {
       error.message = `Something went wrong on our end.<br />Please contact support@${WWW_DOMAIN} and help us fix it.`
     }
     dispatch({ type: 'error', error })
+    dispatch({ type: 'loaded' })
   })
 }

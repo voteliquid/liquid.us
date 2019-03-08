@@ -161,11 +161,7 @@ const App = module.exports = {
           isHyperloop && hyperloopEffect
         )]
       case 'userUpdated':
-        const user = { ...state.user, ...event.user }
-        return [{
-          ...state,
-          user,
-        }]
+        return [{ ...state, user: { ...state.user, ...event.user } }]
       default:
         return [state]
     }
