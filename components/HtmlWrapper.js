@@ -137,9 +137,9 @@ module.exports = (state, html, bundleUrl) => {
         </script>
         <div>
           ${[NODE_ENV === 'production' ? `
-            /* LuckyOrange.com */
+            ${/* LuckyOrange.com */' '}
             <script async src="https://d10lpsik1i8c69.cloudfront.net/w.js"></script>
-            /* Google Analytics */
+            ${/* Google Analytics */' '}
             <script async src="https://www.googletagmanager.com/gtag/js?id=UA-84279342-5"></script>
             <script>
               window.dataLayer = window.dataLayer || [];
