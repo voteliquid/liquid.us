@@ -161,7 +161,7 @@ const App = module.exports = {
           isHyperloop && hyperloopEffect
         )]
       case 'userUpdated':
-        const user = { ...state.user, ...event.user, jwt: state.storage.get('jwt') }
+        const user = { ...state.user, ...event.user }
         return [{
           ...state,
           user,
@@ -220,7 +220,7 @@ const fetchUser = (storage) => (dispatch) => {
         ...users[0],
         address: users[0] ? users[0].address[0] : null,
       }
-      dispatch({ type: 'userReceived', user })
+      dispatch({ type: 'userUpdated', user })
       return user
     })
     .catch((error) => {
