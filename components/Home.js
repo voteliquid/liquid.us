@@ -268,7 +268,7 @@ module.exports = {
                 </style>
               </div>
               <div class="column">
-                ${Video({ url: 'https://www.youtube.com/embed/XMrRrzYXav8' })}
+                ${Video({ url: 'https://www.youtube.com/embed/NRGRgfSf7Fc' })}
               </div>
             </div>
           </div>
