@@ -30,8 +30,8 @@ module.exports = class MeasureDetailsSidebar extends Component {
           </h4>
         </div>
         ${reps && reps.length ? MeasureRepsPanel.for(this, { measure: l, reps }) : ''}
-        ${/* PanelTitleBlock.for(this, { title: 'Votes' }, 'title-votes') */''}
-        ${/* MeasureVoteCounts.for(this, { measure: l, offices: this.state.offices }) TODO disabled query is too slow */''}
+        ${PanelTitleBlock.for(this, { title: 'Votes' }, 'title-votes')}
+        ${MeasureVoteCounts.for(this, { measure: l, offices: this.state.offices })}
         ${PanelTitleBlock.for(this, { title: 'Info' }, 'title-info')}
         ${MeasureInfoPanel.for(this, { measure: l, showStatusTracker })}
         ${MeasureActionsPanel.for(this, { measure: l, user })}
