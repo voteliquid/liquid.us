@@ -344,12 +344,12 @@ const measureListRow = (s) => {
           <div class="column">
             <div class="is-size-5">
               ${s.introduced_at
-              ? [`${s.status === 'Introduced' || s.status === 'Published' ? '' : '<strong>Latest action: </strong>'}${next_action_at
+              ? [`<strong>Status: </strong>${next_action_at
                 ? [`Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}`]
                 : s.status === 'Awaiting floor or committee vote'
-                ? `Discharged or reported from committee on <span>${new Date(s.last_action_at).toLocaleDateString()}</span><br />`
-                : s.status === 'Introduced' || s.status === 'Published' ? '<br />'
-                : `${s.status} on <span>${new Date(s.last_action_at).toLocaleDateString()}</span>`}
+                ? `Discharged or reported from committee`
+                : `${s.status}</span>`}
+                <p${s.last_action_at === s.introduced_at ? ' class="is-hidden"' : ''}><strong>Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}</p>
             </div>
             <div class="has-text-grey summary-bar-1">
               ${s.sponsor_first_name && s.legislature_name ? [`
