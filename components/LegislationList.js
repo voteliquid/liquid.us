@@ -334,7 +334,6 @@ const measureListRow = (s) => {
   const authorLink = s.sponsor_first_name ? s.sponsor_username : s.author_username
   const summaryString = `${legisInfo} Introduced ${(s.sponsor_first_name || s.author_first_name)} ${(s.sponsor_last_name || s.author_last_name)} ${(new Date(s.introduced_at)).toLocaleDateString()}`
   const stringLengthCheck = stringWidth(summaryString) > 45 ? 'font-size: 10px' : stringWidth(summaryString) <= 45 ? 'font-size: 14px' : ''
-  console.log(stringLengthCheck)
   return `
     <div class="card highlight-hover">
       <div class="card-content">
@@ -440,7 +439,7 @@ const initialize = (geoip, prevQuery, location, storage, user) => (dispatch) => 
   const leg_query = congress === 'on' && state === 'on' && city === 'on' ? `${congressName},${userState},${userCitySt}` : congress === 'on' && state === 'on' ? `${congressName},${userState}` : congress === 'on' && city === 'on' ? `${congressName},${userCitySt}` : congress === 'on' ? `${congressName}` : state === 'on' && city === 'on' ? `${userState},${userCitySt}` : state === 'on' ? `${userState}` : city === 'on' ? `${userCitySt}` : `${congressName},${userState},${userCitySt}`
   const legCheck = `&legislature_name=in.(${leg_query})`
 
-
+// see which statuses are checked
   const recently_introduced = query.recently_introduced || storage.get('recently_introduced')
   const committee_discharged = query.committee_discharged || storage.get('committee_discharged')
   const floor_consideration = query.floor_consideration || storage.get('floor_consideration')
@@ -455,6 +454,7 @@ const initialize = (geoip, prevQuery, location, storage, user) => (dispatch) => 
   const veto_check = query.veto || storage.get('veto')
   const withdrawn_check = query.withdrawn || storage.get('withdrawn')
   const failed_check = query.failed || storage.get('failed')
+  const recent_update = query.recent_update || storage.get('recent_update')
 
   const cd = committee_discharged === 'on'
   const flc = floor_consideration === 'on'
@@ -467,10 +467,9 @@ const initialize = (geoip, prevQuery, location, storage, user) => (dispatch) => 
   const ecc = pending_exec_cal === 'on'
   const vc = veto_check === 'on'
   const ec = enacted_check === 'on'
-  const recent_update = query.recent_update || storage.get('recent_update')
-  const lastAction = flc || cd || ca || poc || fw || pbc || rc || tec || ecc || vc || ec || recent_update === 'on' ? 'last_action_at' : 'created_at'
-
   const ri = recently_introduced === 'on'
+
+// set status pull based on which ones are checked
   const introducedCheck = ri && (flc || cd || ca || poc || fw || pbc || rc || tec || ecc || vc || ec) ? `Introduced,Pending Committee,` : ri ? `Introduced,Pending Committee` : ''
   const floorCheck = flc && (cd || ca || poc || fw || pbc || rc || tec || ecc || vc || ec) ? 'Floor Consideration,Pending Executive Calendar,' : flc ? 'Floor Consideration,Pending Executive Calendar' : ''
   const dischargedCheck = cd && (ca || poc || fw || pbc || rc || tec || ecc || vc || ec) ? 'Awaiting floor or committee vote,' : cd ? 'Awaiting floor or committee vote' : ''
@@ -488,7 +487,10 @@ const initialize = (geoip, prevQuery, location, storage, user) => (dispatch) => 
   const allStatus = ri || flc || cd || ca || poc || fw || pbc || rc || tec || ecc || vc || ec ? '' : `Introduced,Floor Consideration,Committee Consideration,Passed One Chamber,Failed One Chamber,Passed Both Chambers,Resolving Differences,To Executive,Pending Executive Calendar,Enacted,Withdrawn,Veto Actions,Failed or Returned to Executive`
 
   const status_query = `&status=in.(${introducedCheck}${floorCheck}${dischargedCheck}${committeeActionCheck}${passedOneCheck}${failedOne}${passedBoth}${resolvingCheck}${execCheck}${enactedCheck}${vetoedCheck}${allStatus})`
+  // how to sort bills
+    const lastAction = flc || cd || ca || poc || fw || pbc || rc || tec || ecc || vc || ec || recent_update === 'on' ? 'last_action_at' : 'created_at'
 
+// check and select other variables
   const from_liquid = query.from_liquid || storage.get('from_liquid')
   const from_leg_body = query.from_leg_body || storage.get('from_leg_body')
   const from_liquid_query = from_liquid === 'on' && from_leg_body !== 'on' ? '&introduced_at=is.null' : ''
@@ -571,7 +573,7 @@ const proposeButton = () =>
 const toggleShowFilters = () => {
   document.querySelector('[name="show_filters"]').click()
 }
-
+// determine which filters to show
 const filterButton = ({ location, storage }) => {
   const showFilters = location.query.show_filters || storage.get('show_filters')
 
