@@ -36,20 +36,21 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        exclude: /node_modules\/(?!(hyperhtml))/,
+        exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
           options: {
-            presets: [[require.resolve('babel-preset-env'), {
+            presets: [['@babel/preset-env', {
               targets: {
-                browsers: ["last 3 versions", "IE >= 11", "safari >= 7"]
+                browsers: ["> 0.25%, not dead"]
               },
               useBuiltIns: 'entry',
+              corejs: 2,
             }]],
             plugins: [
               'babel-plugin-syntax-dynamic-import',
-              'babel-plugin-transform-object-rest-spread',
-            ].map(require.resolve)
+              '@babel/plugin-proposal-object-rest-spread',
+            ]
           }
         }
       }
@@ -63,12 +64,12 @@ module.exports = {
         parallel: true,
         uglifyOptions: {
           compress: {
-            pure_funcs: ['console.debug', 'console.group', 'console.groupEnd'],
+            pure_funcs: ['console.log', 'console.debug', 'console.group', 'console.groupEnd'],
           },
           ecma: 6,
           mangle: true,
-          keep_classnames: true,
-          keep_fnames: true,
+          keep_classnames: false,
+          keep_fnames: false,
         },
         sourceMap: true,
       })
@@ -79,12 +80,12 @@ module.exports = {
     filename: '[hash].js',
     publicPath: '/hyperloop/'
   },
-  plugins,
   resolve: {
     alias: {
-      'hyperhtml': 'hyperhtml/cjs',
-      'viperhtml': 'hyperhtml/cjs/index'
-    }
+      'lighterhtml': 'lighterhtml-plus',
+      'viperhtml': 'lighterhtml-plus',
+    },
   },
+  plugins,
   target: 'web',
 }

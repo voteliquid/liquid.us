@@ -1,10 +1,10 @@
+const debug = require('debug')('liquid:app')
 const fs = require('fs')
 const path = require('path')
 const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'))
 const checkEngineVersion = require('check-node-version')
 
 const { NODE_ENV, PORT, WWW_PORT } = process.env
-const { runtime } = require('raj')
 const bodyParser = require('body-parser')
 const callerPath = require('caller-path')
 const compression = require('compression')
@@ -15,6 +15,7 @@ const MemoryFS = require('memory-fs')
 const resolveFrom = require('resolve-from')
 const serveStatic = require('serve-static')
 const webpack = require('webpack')
+const { runtime } = require('raj')
 
 // Ensure the correct node and NPM versions.
 checkEngineVersion({
@@ -34,16 +35,16 @@ checkEngineVersion({
 
 // transform dynamic import()'s in node environment to require()'s
 // used by routes.js to load chunked JS bundles asynchronously.
-require('babel-register')({
+require('@babel/register')({
   ignore: [/node_modules/],
-  presets: [[require.resolve('babel-preset-env'), { targets: { node: "8.9" } }]],
+  presets: [[require.resolve('@babel/preset-env'), { targets: { node: "8.9" } }]],
   plugins: [
     require.resolve('babel-plugin-dynamic-import-node'),
-    require.resolve('babel-plugin-transform-object-rest-spread'),
+    require.resolve('@babel/plugin-proposal-object-rest-spread'),
   ]
 })
 
-const { serverHyperloopContext: HyperloopContext, loadPage } = require('./helpers')
+const { loadPage } = require('./helpers')
 const webpackConfig = require('./webpack.config')
 const twitterAvatarProxy = require('./middleware/twitter_avatar_proxy')
 const imageProxy = require('./middleware/image_proxy')
@@ -54,8 +55,8 @@ const redirects = require('./middleware/redirects')
 const twitterUsernameSearch = require('./middleware/twitter_username_search')
 const verifyPhoneNumber = require('./middleware/verify_phone_number')
 const geocode = require('./middleware/geocode')
-const htmlWrapper = require('./components/HtmlWrapper')
-let App = require('./components/App')
+const htmlWrapper = require('./views/html-wrapper')
+let App = require('./app')
 
 const port = PORT || WWW_PORT
 
@@ -118,7 +119,7 @@ const compile = (done) => {
           }
         }
 
-        App = require('./components/App')
+        App = require('./app')
       }
       done(null, stats)
     })
@@ -182,8 +183,7 @@ function serveApp(req, res, next) {
   })
 }
 
-function initAppState(App, req, res) {
-  const store = {}
+function initAppState(App, req) {
   return {
     ...App.init[0],
     config,
@@ -192,60 +192,44 @@ function initAppState(App, req, res) {
       ip: req.ip,
       userAgent: req.get('User-Agent') || 'Unknown',
     },
-    storage: {
-      get: (key) => {
-        const info = store[key]
-        if (req.cookies[key]) {
-          return req.cookies[key]
-        }
-        if (info && (!info.expires || info.expires > (new Date()))) {
-          return info.val
-        }
-      },
-      set: (key, val, opts) => {
-        store[key] = { val, ...opts }
-        if (res.running) {
-          res.cookie(key, val, opts)
-        }
-        return val
-      },
-      unset: (key) => {
-        store[key] = null
-        if (res.running) {
-          res.clearCookie(key)
-        }
-      },
-    },
+    cookies: req.cookies,
   }
 }
 
 function runApp(req, res, done) {
-  const initState = initAppState(App, req, res)
-  const hyperloop = new HyperloopContext(initState, req, res)
-  res.running = true
+  const initState = initAppState(App, req)
   runtime({
     ...App,
-    init: [{
-      ...initState,
-      hyperloop,
-    }, (dispatch) => {
-      loadPage(req.url, 200, dispatch)
-    }],
+    init: [initState, (dispatch) => loadPage(req.url, 200, dispatch)],
     update: (event, state) => {
-      // Intercept app updates and update the hyperloop state.
-      const result = App.update(event, state)
-      if (result[0].hyperloop) {
-        Object.assign(result[0].hyperloop.state, { ...result[0], hyperloop: undefined })
+      debug(event, state)
+
+      switch (event.type) {
+        case 'cookieSet':
+          return [{
+            ...state,
+            cookies: { ...state.cookies, [event.key]: event.value }
+          }, () => {
+            if (!res.appResponded) {
+              res.cookie(event.key, event.value, event.opts)
+            }
+          }]
+        case 'cookieUnset':
+          return [{ ...state, cookies: { ...state.cookies, [event.key]: null } }, () => {
+            if (!res.appResponded) {
+              res.clearCookie(event.key)
+            }
+          }]
+        default:
+          return App.update(event, state)
       }
-      return result
     },
     view: (state, dispatch) => {
-      if (res.running && state.routeLoaded && !hyperloop.redirected) {
-        if (state.location.path !== req.path) {
-          hyperloop.redirected = true
+      if (!res.appResponded && !state.loading.page && state.view) {
+        res.appResponded = true
+        if (state.location.url !== req.url) {
           return res.redirect(state.location.url)
         }
-        res.running = false
         const appHtml = App.view(state, dispatch)
         const pageHtml = htmlWrapper(state, appHtml, `${webpackConfig.output.publicPath}${webpackStats.compilation.hash}.js`)
         done(null, pageHtml, state.location.status)
