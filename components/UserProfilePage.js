@@ -41,39 +41,28 @@ module.exports = class UserProfilePage extends Component {
                   ${p.username ? [`<h2 class="subtitle is-5 has-text-grey-light">@${p.username}</h2>`] : ''}
                 </div>
               </div>
-              <div class="columns is-size-5 has-text-outlined has-text-centered">
-                <div class="column">
-                  <span>&nbsp&nbsp&nbsp&nbsp${p.public_votes[0] === null ? '0' : p.public_votes.length + 1}</span>
-                  <br />
-                  &nbsp&nbsp${iconTooltipButtonFa('bullhorn', `Votes`)}
-                  <br />
-                </div>
-                <div class="column">
-                  <span>${commentCount(p)}</span>
-                  <br />
-                  ${iconTooltipButtonFar('comment', 'Comments')}
+              <div class="columns is-size-5 has-text-outlined has-text-centered is-mobile">
+                <div class="column icon-tooltip">
+                  <p>${(p.public_votes.length || -1) + 1}</p>
+                  ${iconTooltipButtonFa('check', `Votes`)}
                   <br />
                 </div>
-                <div class="column">
-              <span>${proposalCount(userLegislation)}</span>
-                  <br />
-                  ${iconTooltipButtonFar('file', 'Proposals')}
+                <div class="column icon-tooltip">
+                  <p>${commentCount(p)}</p>
+                  ${iconTooltipButtonFa('comment', 'Comments', true)}
                   <br />
                 </div>
-                <div class="column">
-                  ${[p.direct_proxy_count
-                    ? `&nbsp<span> ${p.direct_proxy_count} </span>`
-                    : `1`
-                  ]}
+                <div class="column icon-tooltip">
+                  <p>${proposalCount(userLegislation)}</p>
+                  ${iconTooltipButtonFa('file', 'Proposals', true)}
                   <br />
-                  ${iconTooltipButtonFar('handshake', 'Directly representing')}
                 </div>
-                <div class="column">
-                  ${[p.max_vote_power
-                    ? `&nbsp<span> ${p.max_vote_power} </span>`
-                    : `1`
-                  ]}
-                  <br />
+                <div class="column icon-tooltip">
+                  <p>${p.direct_proxy_count || '1'}</p>
+                  ${iconTooltipButtonFa('handshake', 'Directly representing', true)}
+                </div>
+                <div class="column icon-tooltip">
+                  <p>${p.max_vote_power || '1'}</p>
                   ${iconTooltipButtonFa('users', 'Indirectly representing')}
                 </div>
               </div>
@@ -116,9 +105,6 @@ module.exports = class UserProfilePage extends Component {
                 ? GhostProfileMessage.for(this) : ''}
             </div>
             <style>
-              .highlight-hover:hover {
-                background: #f6f8fa;
-              }
               .icon-tooltip {
                 position: relative;
               }
@@ -126,10 +112,6 @@ module.exports = class UserProfilePage extends Component {
                 display: none;
                 position: absolute;
                 max-height: 222px;
-              }
-              .icon-tooltip .icon-tooltip-arrow {
-                display: none;
-                position: absolute;
               }
               .icon-tooltip:hover .icon-tooltip-content {
                 display: block;
@@ -149,22 +131,6 @@ module.exports = class UserProfilePage extends Component {
                 left: 0%;
                 right: 100%;
                 transform: translate(-0.5rem, 50%);
-              }
-              .icon-tooltip:hover .icon-tooltip-arrow {
-                border-color: transparent transparent transparent hsl(0, 0%, 100%) !important;
-                z-index: 99999;
-                position: right;
-                display: inline-block;
-                pointer-events: none;
-                border-style: solid;
-                border-width: .5rem;
-                margin-left: -.5rem;
-                margin-top: -.5rem;
-                top: 50%;
-                left: -1px;
-              }
-              .icon-tooltip:hover .has-text-grey-lighter {
-                color: hsl(0, 0%, 75%) !important;
               }
             </style>
           </div>
@@ -371,18 +337,10 @@ function proposalCount(userLegislation) {
   return proposalTracker
 }
 
-const iconTooltipButtonFar = (icon, text) => [`
-  <span class="icon has-text-link icon-tooltip">
-    <i class="far fa-${icon}"></i>
+const iconTooltipButtonFa = (icon, text, far) => [`
+  <span class="icon has-text-link">
+    <i class="fa${far ? 'r' : ''} fa-${icon}"></i>
     <div class="icon-tooltip-content">${text}</div>
-    <div class="icon-tooltip-arrow"></div>
-  </span>
-`]
-const iconTooltipButtonFa = (icon, text) => [`
-  <span class="icon has-text-link icon-tooltip">
-    <i class="fa fa-${icon}"></i>
-    <div class="icon-tooltip-content">${text}</div>
-    <div class="icon-tooltip-arrow"></div>
   </span>
 `]
 class ShareButtons extends Component {
@@ -390,8 +348,8 @@ class ShareButtons extends Component {
     const { selected_profile, user } = this.state
     const share_url = `${WWW_URL}/${selected_profile.username}/`
     const share_text = user && selected_profile.username === user.username
-      ? `I'd like to represent for you on Liquid US, a tool to hold our politicians accountable. Check out my policy positions here and proxy to me if you agree with my priorities`
-      : `${selected_profile.first_name} is using Liquid US to hold our politicians accountable. Check out their policy positions and choose them as a proxy if you agree with their policy priorities. ${selected_profile.last_name}'s Key Votes'`
+      ? `I'd like to represent for you on Liquid US, a tool to hold our politicians accountable. Check out my policy positions at https://liquid.us/${user.username} and proxy to me if you agree with my priorities`
+      : `${selected_profile.first_name} is using Liquid US to hold our politicians accountable. Check out their policy positions at https://liquid.us/${user.username} and choose them as a proxy if you agree with their policy priorities.`
     const subject = user && selected_profile.username === user.username
       ? `I'd like to represent you on key votes`
       : `Thought you'd be interested in this`
