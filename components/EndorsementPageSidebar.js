@@ -1,6 +1,7 @@
 const { WWW_URL } = process.env
+const { signIn, updateNameAndAddress } = require('../effects')
+const { makePoint } = require('../helpers')
 const Component = require('./Component')
-const GoogleAddressAutocompleteScript = require('./EndorsementGoogleAddressAutocompleteScript')
 
 const milestones = [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000]
 function nextMilestone(current) {
@@ -21,15 +22,15 @@ module.exports = class EndorsementPageSidebar extends Component {
       <nav class="box">
         ${module.exports.EndorsementCount.for(this, { measure })}
         ${!measure.user // logged out
-          ? NewSignupEndorseForm.for(this, { measure })
+          ? module.exports.NewSignupEndorseForm.for(this, { measure })
 
           : measure.comment.endorsed // logged in, already endorsed
             ? module.exports.AfterEndorseSocialShare.for(this, { measure })
 
             : // logged in, voted differently or haven't voted
-            LoggedInForm.for(this, { measure })
+            module.exports.LoggedInForm.for(this, { measure })
         }
-        ${measure.user && measure.comment.endorsed && !measure.reply
+        ${measure.user && measure.comment.endorsed && !measure.reply && measure.replyLoaded
           ? module.exports.AfterEndorseComment.for(this, { measure })
           : ''}
       </nav>
@@ -46,7 +47,7 @@ module.exports.EndorsementCount = class EndorsementCount extends Component {
 
     let action = 'endorsed'; let color = 'is-success'
     if (measure.comment.position === 'nay') { action = 'opposed'; color = 'is-danger' }
-    if (measure.comment.position === 'abstain') { action = 'abstained'; color = 'is-dark' }
+    if (measure.comment.position === 'abstain') { action = 'weighed in'; color = 'is-success' }
 
     return this.html`
       <div>
@@ -57,7 +58,12 @@ module.exports.EndorsementCount = class EndorsementCount extends Component {
   }
 }
 
-class NewSignupEndorseForm extends Component {
+module.exports.NewSignupEndorseForm = class NewSignupEndorseForm extends Component {
+  onconnected(event) {
+    if (window.initGoogleAddressAutocomplete) {
+      window.initGoogleAddressAutocomplete(event.currentTarget.getAttribute('id'))
+    }
+  }
   onsubmit(event, formData) {
     if (event) event.preventDefault()
 
@@ -72,111 +78,53 @@ class NewSignupEndorseForm extends Component {
     if (!formData.email || !formData.email.includes('@')) {
       return { error: { email: true } }
     }
-    const { address, lat, lon, city, state } = formData.address
 
-    // Authenticate (sends OTP to email if existing user)
-    const device_desc = this.location.userAgent || 'Unknown'
-    const storage = this.storage
+    return signIn({
+      email: formData.email,
+      location: this.location,
+      storage: this.storage,
+      redirectTo: this.location.url,
+      channel: 'endorsement',
+    })(this.state.dispatch).then((user) => {
+      const { measure } = this.props
+      const { comment, short_id } = measure
+      const vote_id = comment.id
 
-    return this.api('/totp?select=device_id,first_seen', {
-      method: 'POST',
-      headers: { Prefer: 'return=representation' },
-      body: JSON.stringify({
-        email: formData.email,
-        device_desc,
-        channel: 'endorsement',
-      }),
-    })
-    .then((results) => results[0])
-    .then(({ device_id, first_seen }) => {
-      if (event.target && event.target.reset) {
-        event.target.reset()
-      }
-
-      if (first_seen) {
-        // If new user, authenticate immediately without OTP
-        return this.api('/sessions?select=refresh_token,user_id,jwt', {
+      if (user) {
+        return updateNameAndAddress({
+          addressData: {
+            address: formData.address,
+            city: window.lastSelectedGooglePlacesAddress.city,
+            state: window.lastSelectedGooglePlacesAddress.state,
+            geocoords: makePoint(window.lastSelectedGooglePlacesAddress.lon, window.lastSelectedGooglePlacesAddress.lat),
+          },
+          nameData: { first_name, last_name },
+          storage: this.storage,
+          user,
+        })(this.state.dispatch)
+        // Store endorsement
+        .then(() => this.api('/rpc/endorse', {
           method: 'POST',
-          headers: { Prefer: 'return=representation' },
-          body: JSON.stringify({ device_id, device_desc }),
-        }).then((results) => results[0]).then(({ jwt, refresh_token, user_id }) => {
-          const oneYearFromNow = new Date(Date.now() + (365 * 24 * 60 * 60 * 1000))
-
-          storage.set('jwt', jwt, { expires: oneYearFromNow })
-          storage.set('refresh_token', refresh_token, { expires: oneYearFromNow })
-          storage.set('user_id', user_id, { expires: oneYearFromNow })
-
-          // Update users address
-          return this.api(`/user_addresses?select=id&user_id=eq.${user_id}`, {
-            method: 'POST',
-            headers: { Prefer: 'return=representation' },
-            body: JSON.stringify({
-              user_id,
-              address,
-              city,
-              state,
-              geocoords: `POINT(${lon} ${lat})`,
-            })
-          }).then(() => {
-            // Update users name
-            return this.api(`/users?select=id&id=eq.${user_id}`, {
-              method: 'PATCH',
-              headers: { Prefer: 'return=representation' },
-              body: JSON.stringify({
-                first_name,
-                last_name,
-              }),
-              storage,
-            })
-
-            .then(() => { // fetch user
-              return this.api(`/users?select=id,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`)
-              .then((users) => users[0]).then((user) => {
-
-                const { measure } = this.props
-                const { comment, short_id } = measure
-                const vote_id = comment.id
-
-                // Store endorsement
-                return this.api('/rpc/endorse', {
-                  method: 'POST',
-                  body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on' }),
-                })
-
-                // Get new endorsement count
-                .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
-                .then((votes) => {
-                  // And finally re-render with with the newly registered user and updated count
-                  this.setState({
-                    measures: {
-                      ...this.state.measures,
-                      [short_id]: {
-                        ...this.state.measures[short_id],
-                        comment: votes[0] || this.state.measures[short_id].comment,
-                      }
-                    },
-                    user: {
-                      ...user,
-                      first_name,
-                      last_name,
-                      address: { address, city, state },
-                    },
-                  })
-                })
-                .catch((error) => console.log(error))
-              })
-            })
+          body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on' }),
+        }))
+        // Get new endorsement count
+        .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
+        .then((votes) => {
+          // And finally re-render with with the newly registered user and updated count
+          this.setState({
+            measures: {
+              ...this.state.measures,
+              [short_id]: {
+                ...this.state.measures[short_id],
+                comment: votes[0] || this.state.measures[short_id].comment,
+                replyLoaded: true,
+              }
+            },
           })
         })
+        .catch((error) => console.log(error))
       }
-
-      // set some cookie that gets read by SignIn and redirects
-      this.storage.set('sign_in_email', formData.email)
-      this.storage.set('device_id', device_id)
-      this.storage.set('redirect_to', this.location.path)
-      this.location.redirect(303, '/sign_in/verify')
     })
-
   }
   render() {
     const { error = {} } = this.state
@@ -184,7 +132,7 @@ class NewSignupEndorseForm extends Component {
 
     let action = 'Endorse'; let color = 'is-success'
     if (measure.comment.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
-    if (measure.comment.position === 'abstain') { action = 'Join abstention'; color = 'is-dark' }
+    if (measure.comment.position === 'abstain') { action = 'Weigh in'; color = 'is-success' }
 
     return this.html`
       <form method="POST" style="width: 100%;" method="POST" onsubmit=${this} action=${this}>
@@ -215,12 +163,7 @@ class NewSignupEndorseForm extends Component {
         <div class="field">
           <label class="label has-text-grey">Your Address</label>
           <div class="control has-icons-left">
-            <input class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address[address]" id="address_autocomplete_sidebar" placeholder="185 Berry Street, San Francisco, CA 94121" />
-            <input name="address[lat]" id="address_lat_sidebar" type="hidden" />
-            <input name="address[lon]" id="address_lon_sidebar" type="hidden" />
-            <input name="address[city]" id="city_sidebar" type="hidden" />
-            <input name="address[state]" id="state_sidebar" type="hidden" />
-            ${GoogleAddressAutocompleteScript()}
+            <input onconnected=${this} class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete_sidebar" placeholder="185 Berry Street, San Francisco, CA 94121" />
             ${error && error.address
               ? [`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`]
               : [`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`]
@@ -266,29 +209,11 @@ class VotedDifferentlyMessage extends Component {
 }
 
 
-class LoggedInForm extends Component {
-  updateNameAndAddress(addressData, nameData) {
-    // Update users address
-    return this.api(`/user_addresses?select=id&user_id=eq.${addressData.user_id}`, {
-      method: 'POST',
-      headers: { Prefer: 'return=representation' },
-      body: JSON.stringify(addressData)
-    }).then(() => {
-      // Update users name
-      return this.api(`/users?select=id&id=eq.${addressData.user_id}`, {
-        method: 'PATCH',
-        headers: { Prefer: 'return=representation' },
-        body: JSON.stringify(nameData),
-      })
-    }).then(() => {
-      this.setState({
-        user: {
-          ...this.state.user,
-          ...nameData,
-          address: addressData,
-        },
-      })
-    })
+module.exports.LoggedInForm = class LoggedInForm extends Component {
+  onconnected(event) {
+    if (window.initGoogleAddressAutocomplete) {
+      window.initGoogleAddressAutocomplete(event.currentTarget.getAttribute('id'))
+    }
   }
   endorse(endorsement) {
     const short_id = this.props.measure.short_id
@@ -326,14 +251,13 @@ class LoggedInForm extends Component {
     const last_name = formData.name.split(' ').slice(1).join(' ')
     const nameData = { first_name, last_name }
     const addressData = {
-      user_id: user.id,
-      address: formData.address.address,
-      city: formData.address.city,
-      state: formData.address.state,
-      geocoords: `POINT(${formData.address.lon} ${formData.address.lat})`,
+      address: formData.address,
+      city: window.lastSelectedGooglePlacesAddress.city,
+      state: window.lastSelectedGooglePlacesAddress.state,
+      geocoords: makePoint(window.lastSelectedGooglePlacesAddress.lon, window.lastSelectedGooglePlacesAddress.lat),
     }
 
-    return this.updateNameAndAddress(addressData, nameData)
+    return updateNameAndAddress({ addressData, nameData, storage: this.state.storage, user })(this.state.dispatch)
       .then(() => this.endorse(endorsement))
       .catch((error) => console.log(error))
   }
@@ -343,13 +267,13 @@ class LoggedInForm extends Component {
 
     let action = 'Endorse'; let color = 'is-success'
     if (measure.comment.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
-    if (measure.comment.position === 'abstain') { action = 'Join abstention'; color = 'is-dark' }
+    if (measure.comment.position === 'abstain') { action = 'Weigh in'; color = 'is-success' }
 
     const name = [user.first_name, user.last_name].filter(a => a).join(' ')
     const address = user.address ? user.address.address : ''
 
     return this.html`
-      <form method="POST" style="width: 100%;" method="POST" onsubmit=${this} action=${this}>
+      <form method="POST" style="width: 100%;" method="POST" onsubmit=${this}>
         <div class="field">
           <label class="label has-text-grey">Your Name *</label>
           <div class="control has-icons-right">
@@ -369,13 +293,8 @@ class LoggedInForm extends Component {
         <div class="field">
           <label class="label has-text-grey">Your Address</label>
           <div class="control has-icons-right">
-            <input id="address_autocomplete_sidebar" class="input" autocomplete="off" name="address[address]" placeholder="185 Berry Street, San Francisco, CA 94121" value="${address}" disabled=${!!address} />
+            <input onconnected=${this} id="address_autocomplete_sidebar" class="input" autocomplete="off" name="address" placeholder="185 Berry Street, San Francisco, CA 94121" value="${address}" disabled=${!!address} />
             <span class="icon is-small is-right"><i class="${`fa fa-${address ? 'lock' : 'map-marker-alt'}`}"></i></span>
-            <input name="address[lat]" id="address_lat_sidebar" type="hidden" />
-            <input name="address[lon]" id="address_lon_sidebar" type="hidden" />
-            <input name="address[city]" id="city_sidebar" type="hidden" />
-            <input name="address[state]" id="state_sidebar" type="hidden" />
-            ${address ? '' : GoogleAddressAutocompleteScript()}
           </div>
           <p class="is-size-7" style="margin-top: .3rem;">So your reps know you're their constituent.</p>
         </div>
@@ -406,7 +325,7 @@ module.exports.AfterEndorseSocialShare = class AfterEndorseSocialShare extends C
 
     let actionIng = 'endorsing'; let actionTo = 'endorse'
     if (comment.position === 'nay') { actionIng = 'opposing'; actionTo = 'oppose' }
-    if (comment.position === 'abstain') { actionIng = 'abstaining on'; actionTo = 'abstain' }
+    if (comment.position === 'abstain') { actionIng = 'weighing in on'; actionTo = 'weigh in' }
     const share_text = `Join me in ${actionIng} ${title}: ${share_url}`
 
     return this.html`
@@ -470,10 +389,16 @@ module.exports.AfterEndorseComment = class AfterEndorseComment extends Component
     }))
   }
   render() {
+    const { comment } = this.props.measure
     const loading = this.props.loading
+
+    let afterEndorseMessage = 'Tell others why you endorsed'
+    if (comment.position === 'nay') { afterEndorseMessage = 'Tell others why you opposed' }
+    if (comment.position === 'abstain') { afterEndorseMessage = 'Share your feedback, questions and ideas here' }
+
     return this.html`
       <form class="content" onsubmit="${this}">
-        <p>Tell others why you endorsed:</p>
+        <p>${afterEndorseMessage}:</p>
         <div class="field">
           <div class="control">
             <textarea name="content" class="textarea" required style="resize:none;"></textarea>
