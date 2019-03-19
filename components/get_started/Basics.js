@@ -1,7 +1,6 @@
-const { APP_NAME, GOOGLE_GEOCODER_KEY, WWW_DOMAIN } = process.env
-const { api, html, redirect } = require('../../helpers')
-const fetch = require('isomorphic-fetch')
-const GoogleAddressAutocompleteScript = require('../GoogleAddressAutocompleteScript')
+const { APP_NAME, WWW_DOMAIN } = process.env
+const { api, html, makePoint, redirect } = require('../../helpers')
+const { updateNameAndAddress } = require('../../effects')
 
 module.exports = {
   init: ({ location, storage, user }) => [{
@@ -13,10 +12,12 @@ module.exports = {
   }, initialize(user)],
   update: (event, state) => {
     switch (event.type) {
+      case 'addressInputConnected':
+        return [state, initAutocomplete(event.event)]
       case 'error':
         return [{ ...state, error: event.error, loading: false }]
       case 'formSubmitted':
-        return [{ ...state, error: null, loading: true }, patchUser(event.event, state.storage, state.user)]
+        return [{ ...state, error: null, loading: true }, handleFormSubmission(event.event, state.storage, state.user)]
       case 'redirected':
         return [state, redirect(event.url, event.status)]
       case 'loaded':
@@ -45,7 +46,7 @@ module.exports = {
               <div class="field">
                 <label class="label">Your Name:</label>
                 <div class="control has-icons-left">
-                  <input name="address[name]" autocomplete="off" class=${`input ${error && error.name && 'is-danger'}`} placeholder="John Doe" required value="${[user.first_name, user.last_name].filter(a => a).join(' ')}" />
+                  <input name="name" autocomplete="off" class=${`input ${error && error.name && 'is-danger'}`} placeholder="John Doe" required value="${[user.first_name, user.last_name].filter(a => a).join(' ')}" />
                   ${error && error.name
                     ? [`<span class="icon is-small is-left"><i class="fas fa-exclamation-triangle"></i></span>`]
                     : [`<span class="icon is-small is-left"><i class="fa fa-user"></i></span>`]
@@ -56,12 +57,7 @@ module.exports = {
               <div class="field">
                 <label class="label">Your Address:</label>
                 <div class="control has-icons-left">
-                  <input class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address[address]" id="address_autocomplete" required placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" />
-                  <input name="address[lat]" id="address_lat" type="hidden" />
-                  <input name="address[lon]" id="address_lon" type="hidden" />
-                  <input name="address[city]" id="city" type="hidden" />
-                  <input name="address[state]" id="state" type="hidden" />
-                  ${GoogleAddressAutocompleteScript()}
+                  <input onconnected=${(event) => dispatch({ type: 'addressInputConnected', event })} class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete" required placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" />
                   ${error && error.address
                     ? [`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`]
                     : [`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`]
@@ -73,15 +69,11 @@ module.exports = {
                 <label class="label">Are you registered to vote at this address?</label>
                 <div class="control">
                   <div class="select">
-                    <select name="address[voter_status]" required>
+                    <select name="voter_status" required>
                       <option>Pick one</option>
                       <option value="Registered" selected=${user.voter_status === 'Registered'}>Registered to vote</option>
                       <option value="Eligible" selected=${user.voter_status === 'Eligible'}>Not registered to vote</option>
                       <option value="Ineligible" selected=${user.voter_status === 'Ineligible'}>Not eligible to vote</option>
-                      <option value="Organization" selected=${user.voter_status === 'Organization'}>Organization address</option>
-                      <option value="Legislator" selected=${user.voter_status === 'Legislator'}>Legislator address</option>
-                      <option value="Candidate" selected=${user.voter_status === 'Candidate'}>Candidate address</option>
-                      <option value="Media" selected=${user.voter_status === 'Media'}>Media address</option>
                     </select>
                   </div>
                 </div>
@@ -127,116 +119,40 @@ const initialize = (user) => (dispatch) => {
   return dispatch({ type: 'loaded' })
 }
 
-const patchUser = (event, storage, user) => (dispatch) => {
+const initAutocomplete = (event) => () => {
+  if (window.initGoogleAddressAutocomplete) {
+    window.initGoogleAddressAutocomplete(event.currentTarget.getAttribute('id'))
+  }
+}
+
+const handleFormSubmission = (event, storage, user) => (dispatch) => {
   event.preventDefault()
 
   const formData = require('parse-form').parse(event.target).body
 
-  const { address, lat, lon, city, state, voter_status } = formData.address
+  const { address, voter_status } = formData
 
-  const name_pieces = formData.address.name.split(' ')
+  const name_pieces = formData.name.split(' ')
   const first_name = name_pieces[0]
   const last_name = name_pieces.slice(1).join(' ')
 
-  if (formData.address.name.split(' ').length < 2) {
+  if (formData.name.split(' ').length < 2) {
     return dispatch({ type: 'error', error: Object.assign(new Error('Please enter a first and last name'), { name: true }) })
-  } else if (formData.address.name.split(' ').length > 5) {
+  } else if (formData.name.split(' ').length > 5) {
     return dispatch({ type: 'error', error: Object.assign(new Error('Please enter only a first and last name'), { name: true }) })
   }
 
-  if (!lat || !lon) {
-    return fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${formData.address.address}&key=${GOOGLE_GEOCODER_KEY}`)
-      .then(response => response.json())
-      .then(({ results }) => {
-        if (results[0] && results[0].geometry && results[0].geometry.location) {
-          const { location } = results[0].geometry
-          return upsertAddressAndContinue({
-            first_name,
-            last_name,
-            address: results[0].formatted_address || address,
-            voter_status,
-            lat: location.lat,
-            lon: location.lng,
-          }, { storage, user }, dispatch)
-        }
-        return dispatch({
-          type: 'error',
-          error: Object.assign(
-            new Error(`There was a problem processing your address. Please contact support@${WWW_DOMAIN} and let us know.`
-          ), { address: true }),
-        })
-      })
-      .catch(error => {
-        console.log(error)
-        return dispatch({
-          type: 'error',
-          error: Object.assign(
-            new Error(`There was a problem processing your address. Please contact support@${WWW_DOMAIN} and let us know.`
-          ), { address: true }),
-        })
-      })
-  }
-
-  return upsertAddressAndContinue({ first_name, last_name, address, voter_status, lat, lon, city, state }, { storage, user }, dispatch)
-}
-
-const upsertAddressAndContinue = (formData, { storage, user }, dispatch) => {
-  const { first_name, last_name, address, voter_status, lat, lon, city, state } = formData
-
-  let addressUpsert
-
-  if (user.address) {
-    addressUpsert = api(`/user_addresses?select=id&user_id=eq.${user.id}`, {
-      method: 'PATCH',
-      headers: { Prefer: 'return=representation' },
-      body: JSON.stringify({
-        address,
-        city,
-        state,
-        geocoords: `POINT(${lon} ${lat})`,
-      }),
-      storage,
-    })
-  } else {
-    addressUpsert = api(`/user_addresses?select=id&user_id=eq.${user.id}`, {
-      method: 'POST',
-      headers: { Prefer: 'return=representation' },
-      body: JSON.stringify({
-        user_id: user.id,
-        address,
-        city,
-        state,
-        geocoords: `POINT(${lon} ${lat})`,
-      }),
-      storage,
-    })
-  }
-
-  return addressUpsert.then(() => api(`/users?select=id&id=eq.${user.id}`, {
-    method: 'PATCH',
-    headers: { Prefer: 'return=representation' },
-    body: JSON.stringify({
-      first_name,
-      last_name,
-      voter_status,
-    }),
+  return updateNameAndAddress({
+    addressData: {
+      address,
+      city: window.lastSelectedGooglePlacesAddress.city,
+      state: window.lastSelectedGooglePlacesAddress.state,
+      geocoords: makePoint(window.lastSelectedGooglePlacesAddress.lon, window.lastSelectedGooglePlacesAddress.lat),
+    },
+    nameData: { first_name, last_name, voter_status },
     storage,
-  }))
-  .then(() => {
-    dispatch({
-      type: 'userUpdated',
-      user: {
-        ...user,
-        voter_status,
-        first_name,
-        last_name,
-        address: { address, city, state },
-      },
-    })
-    return api('/user_offices', { storage }).then((offices) => {
-      dispatch({ type: 'officesUpdated', offices: offices || [], offices_loaded: true })
-    })
-  })
+    user,
+  })(dispatch)
   .then(() => {
     if (!storage.get('proxying_user_id')) {
       return dispatch({ type: 'redirected', url: '/get_started/verification' })
