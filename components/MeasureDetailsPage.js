@@ -59,7 +59,7 @@ module.exports = class MeasureDetailsPage extends Component {
 
       return this.fetchComments(measure.id, measure.short_id)
         .then(() => this.fetchTopComments(measure.id, measure.short_id))
-        // .then(() => this.fetchConstituentVotes(measure, officeIds)) // TODO disabled too slow
+        .then(() => this.fetchConstituentVotes(measure, officeIds))
         // .then(() => this.fetchProxyVotes(measure.id, measure.short_id)) // TODO broken
     })
     .catch((error) => {
