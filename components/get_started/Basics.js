@@ -74,6 +74,10 @@ module.exports = {
                       <option value="Registered" selected=${user.voter_status === 'Registered'}>Registered to vote</option>
                       <option value="Eligible" selected=${user.voter_status === 'Eligible'}>Not registered to vote</option>
                       <option value="Ineligible" selected=${user.voter_status === 'Ineligible'}>Not eligible to vote</option>
+                      <option value="Organization" selected=${user.voter_status === 'Organization'}>Organization address</option>
+                      <option value="Legislator" selected=${user.voter_status === 'Legislator'}>Legislator address</option>
+                      <option value="Candidate" selected=${user.voter_status === 'Candidate'}>Candidate address</option>
+                      <option value="Media" selected=${user.voter_status === 'Media'}>Media address</option>
                     </select>
                   </div>
                 </div>
