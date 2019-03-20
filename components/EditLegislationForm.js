@@ -2,10 +2,10 @@ const Component = require('./Component')
 
 module.exports = class EditLegislationForm extends Component {
   onkeyup(event) {
-    this.setProps({ [event.target.getAttribute('name')]: event.target.value }).render()
+    this.setProps({ [event.target.getAttribute('name')]: event.target.value }).render(this.props)
   }
   onchange(event) {
-    this.setProps({ [event.target.getAttribute('name')]: event.target.value }).render()
+    this.setProps({ [event.target.getAttribute('name')]: event.target.value }).render(this.props)
   }
   onsubmit(event, form) {
     event.preventDefault()
@@ -34,7 +34,7 @@ module.exports = class EditLegislationForm extends Component {
         summary: form.summary,
         published: false,
         chamber: 'Lower',
-        type: 'HR',
+        type: 'bill',
         short_id: form.short_id,
       })
     })
@@ -79,7 +79,7 @@ module.exports = class EditLegislationForm extends Component {
         ui_error = 'URL ID must be between 2 and 32 characters.'
         break
       case 'duplicate key value violates unique constraint "legislation_unique"':
-        ui_error = 'There is already a bill with this title. Please choose another.'
+        ui_error = 'There is already a bill with this URL. Please choose another.'
         break
       default:
         console.log(api_error)
@@ -92,7 +92,7 @@ module.exports = class EditLegislationForm extends Component {
     const { config, editing_bill = {}, error, legislatures = [], loading } = this.state
     const { WWW_URL } = config
     const { legislature_name, summary, title } = editing_bill
-    const { short_id } = this.props
+    const short_id = this.props.short_id || editing_bill.short_id || ''
     const auto_short_id = (this.props.title || title || '').toLowerCase().replace(/ /g, '-').replace(/[^A-z0-9-_]/g, '').slice(0, 32)
     const l1 = legislatures[0] || {}
     const l2 = legislatures[1] || {}
@@ -116,7 +116,7 @@ module.exports = class EditLegislationForm extends Component {
         <div class="field">
           <label for="Title" class="label has-text-grey">Title</label>
           <div class="control">
-            <input name="title" class="input" type="text" autocomplete="off" placeholder="The Liquid Democracy Act of 2018" onkeyup=${this} onchange=${this} required value="${title || ''}" />
+            <input name="title" class="input" type="text" autocomplete="off" placeholder="The Liquid Democracy Act of 2019" onkeyup=${this} onchange=${this} required value="${title || ''}" />
           </div>
         </div>
         <div class="field">
@@ -126,7 +126,7 @@ module.exports = class EditLegislationForm extends Component {
               <a class="button is-static">${WWW_URL.replace(/https?:\/\//, '')}/legislation/</a>
             </div>
             <div class="control">
-              <input name="short_id" class="input" type="text" placeholder="your-proposed-bill" onchange=${this} value="${!short_id || auto_short_id === short_id ? auto_short_id : short_id}" />
+              <input name="short_id" class="input" type="text" placeholder="your-proposed-bill" onchange=${this} value="${!short_id ? auto_short_id : short_id}" />
             </div>
           </div>
         </div>

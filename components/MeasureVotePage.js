@@ -7,7 +7,7 @@ const fetchVoteCount = require('./MeasureDetailsPage').prototype.fetchConstituen
 
 module.exports = class MeasureVotePage extends Component {
   oninit() {
-    const { measures = {}, reps = [] } = this.state
+    const { measures = {}, offices = [] } = this.state
     const { params } = this.props
 
     if (!measures[params.short_id]) {
@@ -15,8 +15,8 @@ module.exports = class MeasureVotePage extends Component {
     }
 
     return fetchMeasure.call(this, params.short_id).then((measure) => {
-      const repsInChamber = reps.filter(({ office_chamber }) => office_chamber === measure.chamber)
-      const officeId = repsInChamber[0] && repsInChamber[0].office_id
+      const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
+      const officeId = officesInChamber[0] && officesInChamber[0].id
 
       this.setState({
         loading_measure: false,
@@ -85,7 +85,7 @@ class MeasureVotePageLoaded extends Component {
         <div class="container is-widescreen">
           <div class="columns">
             <div class="column is-three-quarters">
-              <h2 class="title is-4 has-text-weight-normal">${l.vote_position ? 'Edit your vote' : 'Vote'} on ${[l.introduced_at ? `${l.type} ${l.number} &mdash; ${l.title}` : l.title]}</h2>
+              <h2 class="title is-4 has-text-weight-normal">${l.vote_position ? 'Edit your vote' : 'Vote'} on ${[l.introduced_at ? `${l.short_id.replace(/^[^-]+-/, '').toUpperCase()} &mdash; ${l.title}` : l.title]}</h2>
             ${(v.id && !user.verified) ? [`
               <div class="notification is-info">
                 <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>

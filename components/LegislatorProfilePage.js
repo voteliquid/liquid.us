@@ -52,7 +52,7 @@ module.exports = class LegislatorProfilePage extends Component {
   render() {
     const { proxied_name, selected_profile, user, reps } = this.state
     const { proxied } = selected_profile
-    const isMyRep = reps && reps.some(rep => rep.username === selected_profile.username)
+    const isMyRep = reps && reps.some(rep => rep.office_holder.username === selected_profile.username)
 
     return this.html`
       <section class="section">

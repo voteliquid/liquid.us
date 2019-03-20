@@ -19,13 +19,13 @@ module.exports = class MeasureVotes extends Component {
     return this.html`
       <div id="votes">
         <form name="vote-filters" style="margin-bottom: 2rem;" class="vote-filters" method="GET" action="${this.location.path}">
+          <div class="field">
+            <h4 class="title is-size-6 has-text-grey has-text-weight-semibold is-inline">
+              All Arguments
+            </h4>
+          </div>
           <div class="field is-horizontal">
             <div class="field-body">
-              <div class="field is-narrow" style="margin-right: 1rem;">
-                <h4 class="title is-size-6 has-text-grey has-text-weight-semibold is-inline">
-                  All Arguments
-                </h4>
-              </div>
               <div class="field is-narrow has-addons">
                 <div class="control">
                   <label for="vote_sort" class="button is-static is-small">
@@ -72,7 +72,7 @@ module.exports = class MeasureVotes extends Component {
         </form>
         ${showMeasureVoteForm ? MeasureVoteForm.for(this, { measure }) : ''}
         ${comments.length
-          ? comments.map(c => Comment.for(this, { ...c, truncated: true }, `comment-${c.id}`))
+          ? comments.map(c => Comment.for(this, c, `comment-${c.id}`))
           : [`<p class="notification has-background-light has-text-grey">No ${position ? `${position} ` : ''}arguments.</p>`]
         }
       </div>

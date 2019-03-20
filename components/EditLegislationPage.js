@@ -6,7 +6,7 @@ module.exports = class EditLegislationPage extends Component {
   oninit() {
     if (!this.state.user) return this.location.redirect('/sign_in')
 
-    this.setState({ editing_bill: {}, loading: 'populating' })
+    this.setState({ editing_bill: {}, loading: 'populating' }).setProps({})
 
     return this.fetchLegislation().then(() => this.setState({ loading: false }))
   }

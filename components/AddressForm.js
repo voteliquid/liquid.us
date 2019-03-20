@@ -1,8 +1,5 @@
-const { GOOGLE_GEOCODER_KEY, WWW_DOMAIN } = process.env
-const { api, combineEffects, html, preventDefault, redirect } = require('../helpers')
-const fetch = require('isomorphic-fetch')
-const GoogleAddressAutocompleteScript = require('./GoogleAddressAutocompleteScript')
-const stateNames = require('datasets-us-states-abbr-names')
+const { html, makePoint, redirect } = require('../helpers')
+const { updateNameAndAddress } = require('../effects')
 
 module.exports = {
   init: [{
@@ -12,18 +9,16 @@ module.exports = {
   }],
   update: (event, state) => {
     switch (event.type) {
+      case 'addressInputConnected':
+        return [state, initAutocomplete(event.event)]
       case 'apiError':
         return [{ ...state, error: event.error }]
       case 'formSubmitted':
-        return [state, combineEffects(
-          preventDefault(event.event),
-          postAddress(event.event.currentTarget, state.user, state.storage)
-        )]
+        return [state, handleFormSubmission(event.event, state.storage, state.user)]
       case 'redirected':
         return [state, redirect(event.url)]
-      case 'repsUpdated':
+      case 'officesUpdated':
       case 'userUpdated':
-      case 'legislaturesUpdated':
       default:
         return [state]
     }
@@ -36,12 +31,7 @@ module.exports = {
             <div class="field">
               <label>Your Address</label>
               <div class="control has-icons-left">
-                <input class=${`input ${error && 'is-danger'}`} name="address" id="address_autocomplete" placeholder="185 Berry Street, San Francisco, CA 94121" />
-                <input name="lat" id="address_lat" type="hidden" />
-                <input name="lon" id="address_lon" type="hidden" />
-                <input name="city" id="city" type="hidden" />
-                <input name="state" id="state" type="hidden" />
-                ${GoogleAddressAutocompleteScript()}
+                <input onconnected=${(event) => dispatch({ type: 'addressInputConnected', event })} class=${`input ${error && 'is-danger'}`} name="address" id="address_autocomplete" placeholder="185 Berry Street, San Francisco, CA 94121" />
                 ${error
                   ? [`<span class="icon is-small is-left"><i class="fas fa-exclamation-triangle"></i></span>`]
                   : [`<span class="icon is-small is-left"><i class="fa fa-map-marker"></i></span>`]
@@ -64,102 +54,30 @@ module.exports = {
   },
 }
 
-const postAddress = (form, user, storage) => (dispatch) => {
-  const { address, lat, lon, city, state } = require('parse-form').parse(form).body
-  if (!lat || !lon) {
-    return fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${GOOGLE_GEOCODER_KEY}`)
-      .then(response => response.json())
-      .then(({ results }) => {
-        if (results[0] && results[0].geometry && results[0].geometry.location) {
-          const { location } = results[0].geometry
-          return upsertAddressAndContinue({
-            address: results[0].formatted_address || address,
-            lat: location.lat,
-            lon: location.lng,
-            city,
-            state,
-            user,
-            storage,
-          })(dispatch)
-        }
-        return { error: `There was a problem processing your address. Please contact support@${WWW_DOMAIN} and let us know.` }
-      })
-      .catch(error => {
-        console.log(error)
-        return { error: `There was a problem processing your address. Please contact support@${WWW_DOMAIN} and let us know.` }
-      })
+const initAutocomplete = (event) => () => {
+  if (window.initGoogleAddressAutocomplete) {
+    window.initGoogleAddressAutocomplete(event.currentTarget.getAttribute('id'))
   }
-
-  return upsertAddressAndContinue({ address, city, state, lat, lon, user, storage })(dispatch)
 }
 
-const upsertAddressAndContinue = ({ address, city, state, lat, lon, user, storage }) => (dispatch) => {
-  let addressUpsert
+const handleFormSubmission = (event, storage, user) => (dispatch) => {
+  event.preventDefault()
 
-  if (user.address) {
-    addressUpsert = api(`/user_addresses?select=id&user_id=eq.${user.id}`, {
-      method: 'PATCH',
-      headers: { Prefer: 'return=representation' },
-      body: JSON.stringify({
-        address,
-        city,
-        state,
-        geocoords: `POINT(${lon} ${lat})`,
-      }),
-      storage,
-    })
-  } else {
-    addressUpsert = api('/user_addresses', {
-      method: 'POST',
-      headers: { Prefer: 'return=representation' },
-      body: JSON.stringify({
-        user_id: user.id,
-        address,
-        city,
-        state,
-        geocoords: `POINT(${lon} ${lat})`,
-      }),
-      storage,
-    })
-  }
+  const formData = require('parse-form').parse(event.target).body
 
-  return addressUpsert
-    .then(() => {
-      return api('/rpc/user_offices', {
-        method: 'POST',
-        body: JSON.stringify({ user_id: user.id }),
-        storage,
-      })
-      .then((reps) => dispatch({ type: 'repsUpdated', reps: reps || [] }))
-    })
-    .then(() => {
-      return api(`/legislatures?or=(short_name.eq.${city},short_name.eq.${state},short_name.eq.US-Congress)`, {
-        storage,
-      }).then((legislatures) => {
-        dispatch({
-          type: 'legislaturesUpdated',
-          legislatures: (legislatures || []).sort((a, b) => {
-            if (a.short_name === city && b.short_name === state) return 1
-            if (a.short_name === state && b.short_name === city) return -1
-            return 0
-          }).map((legislature) => {
-            legislature.abbr = legislature.name
-            legislature.name = stateNames[legislature.name] || legislature.name
-            return legislature
-          }),
-        })
-      })
-    })
-    .then(() => dispatch({
-      type: 'userUpdated',
-      user: {
-        ...user,
-        address,
-      },
-    }))
-    .then(() => dispatch({ type: 'redirected', url: '/' }))
-    .catch((error) => dispatch({
-      type: 'apiError',
-      error: (~error.message.indexOf('constraint "email')) ? 'Invalid email address' : error.message,
-    }))
+  return updateNameAndAddress({
+    addressData: {
+      address: formData.address,
+      city: window.lastSelectedGooglePlacesAddress.city,
+      state: window.lastSelectedGooglePlacesAddress.state,
+      geocoords: makePoint(window.lastSelectedGooglePlacesAddress.lon, window.lastSelectedGooglePlacesAddress.lat),
+    },
+    nameData: {
+      first_name: user.first_name,
+      last_name: user.last_name,
+    },
+    storage,
+    user,
+  })(dispatch)
+  .then(() => dispatch({ type: 'redirected', url: '/' }))
 }

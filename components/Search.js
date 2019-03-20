@@ -30,8 +30,8 @@ module.exports = {
 
         return [state, fetchSearchResult(query)]
       case 'resultFocused':
-        const { id, first_name, last_name, type, number, title } = event.result
-        const measureNum = type && number ? `${type} ${number}` : title
+        const { id, first_name, last_name, short_id, number, title } = event.result
+        const measureNum = number ? short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase() : title
         const inputValue = first_name ? `${first_name} ${last_name}` : measureNum
         return [{
           ...state,
@@ -168,9 +168,9 @@ const truncateResultTitle = (str) => {
 
 const measureSearchResult = ({ author_username, number, type, title, legislature_name, short_id }, dispatch) => {
   const truncatedTitle = truncateResultTitle(title)
-  const measureNum = type && number ? `${type} ${number}` : ''
+  const measureNum = number ? short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase() : ''
   const titleFmt = measureNum ? `${measureNum} ${truncatedTitle}` : truncatedTitle
-  const href = type === 'PN' ? `/nominations/${short_id}` : `/${author_username ? `${author_username}/` : ''}legislation/${short_id}`
+  const href = type === 'nomination' ? `/nominations/${short_id}` : `/${author_username ? `${author_username}/` : ''}legislation/${short_id}`
   return html(short_id)`
     <a onblur="${dispatch}" onclick="${dispatch}" onfocus="${dispatch}" href="${href}" class="search-result" style="display: block; padding: .3rem 1rem;">
       <div class="media is-marginless">

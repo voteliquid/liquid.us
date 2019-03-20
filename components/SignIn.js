@@ -1,5 +1,5 @@
-const { api, html, redirect } = require('../helpers')
-const atob = require('atob')
+const { api, combineEffects, html, preventDefault, redirect } = require('../helpers')
+const { signIn } = require('../effects')
 
 module.exports = {
   init: ({ location, storage, user }) => [{
@@ -15,7 +15,14 @@ module.exports = {
       case 'error':
         return [{ ...state, error: event.error, loading: false }]
       case 'formSubmitted':
-        return [{ ...state, loading: true }, signIn(event.event, state.location, state.storage)]
+        return [{ ...state, loading: true }, combineEffects(
+          preventDefault(event.event),
+          signIn({
+            email: require('parse-form').parse(event.event.target).body.email,
+            location: state.location,
+            storage: state.storage
+          })
+        )]
       case 'proxyProfileReceived':
         return [{ ...state, reqProxyProfile: event.reqProxyProfile }]
       case 'redirected':
@@ -126,157 +133,4 @@ const initialize = (location, storage, user) => (dispatch) => {
   }
 
   dispatch({ type: 'loaded' })
-}
-
-const signIn = module.exports.signIn = (event, location, storage) => (dispatch) => {
-  event.preventDefault()
-
-  const formData = require('parse-form').parse(event.target).body
-
-  const phone_number = location.query.ph ? atob(this.location.query.ph) : null
-  const email = formData.email.toLowerCase().trim()
-  const proxying_user_id = storage.get('proxying_user_id')
-  const vote_position = storage.get('vote_position')
-  const endorsed_vote_id = storage.get('endorsed_vote_id')
-  const endorsed_measure_id = storage.get('endorsed_measure_id')
-  const device_desc = location.userAgent || 'Unknown'
-
-  return api('/totp?select=device_id,first_seen', {
-    method: 'POST',
-    headers: { Prefer: 'return=representation' },
-    body: JSON.stringify({
-      email,
-      phone_number,
-      device_desc,
-    }),
-  })
-  .then((results) => results[0])
-  .then(({ device_id, first_seen }) => {
-    if (event.target && event.target.reset) {
-      event.target.reset()
-    }
-
-    if (first_seen) {
-      return api('/sessions?select=refresh_token,user_id,jwt', {
-        method: 'POST',
-        headers: { Prefer: 'return=representation' },
-        body: JSON.stringify({ device_id, device_desc }),
-      }).then((results) => results[0])
-      .then(({ jwt, refresh_token, user_id }) => {
-        const oneYearFromNow = new Date(Date.now() + (365 * 24 * 60 * 60 * 1000))
-
-        storage.set('jwt', jwt, { expires: oneYearFromNow })
-        storage.set('refresh_token', refresh_token, { expires: oneYearFromNow })
-        storage.set('user_id', user_id, { expires: oneYearFromNow })
-
-        return api(`/users?select=id,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`, {
-          storage,
-        })
-        .then(users => {
-          const proxy_to = location.query.proxy_to
-
-          dispatch({ type: 'userUpdated', user: { ...users[0], address: users[0].address[0] } })
-
-          if (proxying_user_id) {
-            return api('/delegations', {
-              method: 'POST',
-              headers: { Prefer: 'return=representation' }, // returns created delegation in response
-              body: JSON.stringify({
-                from_id: user_id,
-                to_id: proxying_user_id,
-                delegate_rank: 0,
-              }),
-              storage,
-            })
-            .then(() => {
-              storage.set('proxied_user_id', proxying_user_id)
-              storage.unset('proxying_user_id')
-              return dispatch({ type: 'redirected', url: '/get_started', status: 303 })
-            })
-            .catch(error => {
-              console.log(error)
-              return dispatch({ type: 'redirected', url: '/get_started', status: 303 })
-            })
-          }
-
-          if (proxy_to) {
-            return api('/delegations', {
-              method: 'POST',
-              headers: { Prefer: 'return=representation' }, // returns created delegation in response
-              body: JSON.stringify({
-                from_id: user_id,
-                username: proxy_to,
-                delegate_rank: 0,
-              }),
-              storage,
-            })
-            .then(() => {
-              storage.set('proxied_user_id', proxying_user_id)
-              storage.unset('proxying_user_id')
-              return dispatch({ type: 'redirected', url: '/get_started', status: 303 })
-            })
-            .catch(error => {
-              console.log(error)
-              return dispatch({ type: 'redirected', url: '/get_started', status: 303 })
-            })
-          }
-
-          if (endorsed_vote_id) {
-            return api(`/endorsements?user_id=eq.${user_id}`, {
-              method: 'POST',
-              body: JSON.stringify({ user_id, vote_id: endorsed_vote_id, measure_id: endorsed_measure_id }),
-              storage,
-            })
-            .then(() => {
-              storage.unset('endorsed_vote_id')
-              storage.unset('endorsed_measure_id')
-              return dispatch({ type: 'redirected', url: '/get_started', status: 303 })
-            })
-          }
-
-          if (vote_position) {
-            return api('/rpc/vote', {
-              method: 'POST',
-              body: JSON.stringify({
-                user_id,
-                measure_id: storage.get('vote_bill_id'),
-                vote_position,
-                comment: storage.get('vote_comment') || null,
-                public: storage.get('vote_public') === 'true',
-              }),
-              storage,
-            })
-            .then(() => {
-              if (typeof window === 'object' && window._loq) window._loq.push(['tag', 'Voted'])
-              storage.unset('vote_position')
-              storage.unset('vote_bill_id')
-              storage.unset('vote_public')
-              storage.unset('vote_comment')
-              return dispatch({ type: 'redirected', url: '/get_started', status: 303 })
-            })
-            .catch(error => {
-              console.log(error)
-              return dispatch({ type: 'redirected', url: '/get_started', status: 303 })
-            })
-          }
-
-          return dispatch({ type: 'redirected', url: '/get_started', status: 303 })
-        })
-      })
-    }
-
-    storage.set('sign_in_email', email)
-    storage.set('device_id', device_id)
-
-    return dispatch({ type: 'redirected', url: '/sign_in/verify', status: 303 })
-  })
-  .catch((error) => {
-    console.log(error)
-    if (~error.message.indexOf('constraint "email')) {
-      error.message = 'Invalid email address'
-    } else if (error.message !== 'Please wait 10 seconds and try again') {
-      error.message = `There was a problem on our end. Please try again and let us know if you're still encountering a problem.`
-    }
-    dispatch({ type: 'error', error })
-  })
 }

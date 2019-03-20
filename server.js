@@ -43,15 +43,17 @@ require('babel-register')({
   ]
 })
 
-const { serverHyperloopContext: HyperloopContext, combineEffects, loadPage } = require('./helpers')
+const { serverHyperloopContext: HyperloopContext, loadPage } = require('./helpers')
 const webpackConfig = require('./webpack.config')
 const twitterAvatarProxy = require('./middleware/twitter_avatar_proxy')
+const imageProxy = require('./middleware/image_proxy')
 const errorHandler = require('./middleware/error_handler')
 const geoip = require('./middleware/geoip')
 const eztextingWebhook = require('./middleware/eztexting_webhook')
 const redirects = require('./middleware/redirects')
 const twitterUsernameSearch = require('./middleware/twitter_username_search')
 const verifyPhoneNumber = require('./middleware/verify_phone_number')
+const geocode = require('./middleware/geocode')
 const htmlWrapper = require('./components/HtmlWrapper')
 let App = require('./components/App')
 
@@ -137,6 +139,7 @@ compile((err, stats) => {
 
 function startAppServer() {
   server
+    .disable('x-powered-by')
     .enable('trust proxy') // use x-forwarded-by for request ip
     .use(compression())
     .use(cors())
@@ -150,10 +153,12 @@ function startAppServer() {
     .use('/assets', serveStatic(path.join(__dirname, 'public'), { maxAge: '4h' }))
     .get('/rpc/healthcheck', (req, res) => res.status(200).end())
     .get('/rpc/geoip/:ip', geoip)
+    .get('/rpc/image-proxy/:url', imageProxy)
     .get('/rpc/avatarsio/:username', twitterAvatarProxy)
     .post('/rpc/verify_phone_number', bodyParser.json(), verifyPhoneNumber)
     .get('/rpc/eztexting_webhook', eztextingWebhook)
     .post('/rpc/twitter_username_search', bodyParser.json(), twitterUsernameSearch)
+    .post('/rpc/geocode', bodyParser.json(), geocode)
     .get('/hyperloop/:filename', (req, res) => {
       res.setHeader('Content-Type', 'text/javascript')
       mfs.readFile(`/${req.params.filename}`, 'utf8', (error, js) => {
@@ -228,8 +233,11 @@ function runApp(req, res, done) {
     }],
     update: (event, state) => {
       // Intercept app updates and update the hyperloop state.
-      const [appState, appEffect] = App.update(event, state)
-      return [appState, combineEffects(setHyperloopState(appState), appEffect)]
+      const result = App.update(event, state)
+      if (result[0].hyperloop) {
+        Object.assign(result[0].hyperloop.state, { ...result[0], hyperloop: undefined })
+      }
+      return result
     },
     view: (state, dispatch) => {
       if (res.running && state.routeLoaded && !hyperloop.redirected) {
@@ -244,10 +252,4 @@ function runApp(req, res, done) {
       }
     },
   })
-}
-
-function setHyperloopState(state) {
-  if (state.hyperloop) {
-    Object.assign(state.hyperloop.state, { ...state, hyperloop: undefined })
-  }
 }

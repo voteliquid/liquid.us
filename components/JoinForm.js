@@ -1,6 +1,6 @@
 const { APP_NAME } = process.env
-const { api, html, redirect } = require('../helpers')
-const { signIn } = require('./SignIn')
+const { api, combineEffects, html, preventDefault, redirect } = require('../helpers')
+const { signIn } = require('../effects')
 
 module.exports = {
   init: ({ location, storage, user }) => [{
@@ -15,11 +15,20 @@ module.exports = {
   update: (event, state) => {
     switch (event.type) {
       case 'formSubmitted':
-        return [{ ...state, loading: true }, signIn(event.event, state.location, state.storage)]
+        return [{ ...state, loading: true }, combineEffects(
+          preventDefault(event.event),
+          signIn({
+            email: require('parse-form').parse(event.event.target).body.email,
+            location: state.location,
+            storage: state.storage
+          })
+        )]
       case 'metricsReceived':
         return [{ ...state, usersCount: event.usersCount }]
       case 'proxyProfileReceived':
         return [{ ...state, proxyProfile: event.proxyProfile }]
+      case 'userUpdated':
+        return [{ ...state, user: { ...state.user, ...event.user } }]
       case 'redirected':
         return [state, redirect(event.url, 302)]
       case 'error':
@@ -60,9 +69,8 @@ module.exports = {
           <br />
           `] : ''}
 
-        <style>.center-on-small-widths { display: flex; }</style>
-        <div class="columns is-centered center-on-small-widths">
-          <div class="column" style="max-width: 500px;">
+        <div class="level">
+          <div class="level-item has-text-centered">
             <form class="box has-text-centered" method="POST" onsubmit="${(event) => dispatch({ type: 'formSubmitted', event })}">
               <input name="phone_user_id" type="hidden" value="${location.query.sms || ''}" />
 

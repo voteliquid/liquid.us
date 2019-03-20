@@ -1,16 +1,19 @@
 const { ASSETS_URL, NODE_ENV, WWW_DOMAIN } = process.env
 const { avatarURL } = require('../helpers')
 const fs = require('fs')
+const GoogleAddressAutocompleteScript = require('./GoogleAddressAutocompleteScript')
 const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
 
 module.exports = (state, html, bundleUrl) => {
-  const { page_description, page_title, selected_bill, selected_profile } = state
-  const description = page_description || `A new democracy for the modern world.`
+  const { og_title, page_description = 'The Most Powerful Way to Advocate for Your Community.', page_title, selected_bill, selected_profile } = state
   const title = page_title ? `${page_title} | Liquid US` : `Liquid US | Digital Democracy Voting Platform`
-  const profile_image_url = selected_profile ? avatarURL(selected_profile) : ''
-  const measure_image_url = selected_bill && selected_bill.image_name ? `${ASSETS_URL}/measure-images/${selected_bill.image_name}` : ''
-  const wi_image = state.location.query.legislature === 'WI' && state.location.path === '/legislation' && `${ASSETS_URL}/WI.png`
-  const og_image_url = state.og_image_url || wi_image || profile_image_url || measure_image_url || `https://blog.${WWW_DOMAIN}/assets/twitter_large.png`
+
+  // Potential og_image, first one wins
+  const measure_image = selected_bill && selected_bill.image_name ? `${ASSETS_URL}/measure-images/${selected_bill.image_name}` : ''
+  const legislature_image = state.location && state.location.query.legislature && state.location.query.legislature.length === 2 && state.location.path === '/legislation' && `${ASSETS_URL}/legislature-images/${state.location.query.legislature}.png`
+  const profile_image = selected_profile ? avatarURL(selected_profile) : ''
+  const default_image = `https://blog.${WWW_DOMAIN}/assets/twitter_large.png`
+  const og_image_url = state.og_image_url || measure_image || legislature_image || profile_image || default_image
 
   return `
     <!DOCTYPE html>
@@ -22,11 +25,12 @@ module.exports = (state, html, bundleUrl) => {
         <link rel="icon" type="image/png" href=${`${ASSETS_URL}/favicon.png`} />
         <link rel="apple-touch-icon" sizes="180x180" href=${`${ASSETS_URL}/apple-touch-icon.png`}>
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+        <link rel="stylesheet" href=${`${ASSETS_URL}/styles.css`}>
         <style>
           ${nprogressStyle}
 
           body {
+            scroll-behavior: smooth;
             height: 100%;
           }
 
@@ -34,15 +38,7 @@ module.exports = (state, html, bundleUrl) => {
             font-size: .9rem;
           }
 
-          #application {
-            display: flex;
-            min-height: 100vh;
-            flex-direction: column;
-            overflow-x: hidden;
-          }
-
           #wrapper {
-            flex: 1;
             position: relative;
           }
 
@@ -69,25 +65,37 @@ module.exports = (state, html, bundleUrl) => {
             color: hsl(0, 0%, 48%)!important;
           }
 
-          .responsive-video-wrapper {
-            overflow:hidden;
+          .responsive-video-outer {
+            max-width: 560px;
+          }
+
+          .responsive-video-inner {
+            overflow: hidden;
             position: relative;
+            padding-top: 25px;
             padding-bottom: 56.25%; /* 16:9 */
             height: 0;
           }
 
-          .responsive-video-wrapper iframe {
+          .responsive-video-inner iframe {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            max-height: 315px;
-            max-width: 560px;
           }
+
+          .endorse-control .is-light, .endorse-control .is-light:hover {
+            border-color: #cecece;
+          }
+
+          .fix-bulma-centered-text {
+            display: inline-block !important; /* https://github.com/jgthms/bulma/issues/727 */
+          }
+
         </style>
-        <meta property="og:title" content="${wi_image ? `Wisconsin Legislation` : title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
-        <meta property="og:description" content="${wi_image ? `Vote now on extraordinary session bills.` : description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
+        <meta property="og:title" content="${og_title || title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
+        <meta property="og:description" content="${page_description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:image" content="${og_image_url}" />
         <meta property="og:type" content="website" />
         ${responsiveTableStyle}
@@ -97,7 +105,7 @@ module.exports = (state, html, bundleUrl) => {
         </script>
       </head>
       <body>
-        <div id="application">${html}</div>
+        <div id="application" style="overflow-x: hidden;">${html}</div>
 
         <script src="/assets/outdatedbrowser.min.js"></script>
         <script>
@@ -129,7 +137,9 @@ module.exports = (state, html, bundleUrl) => {
         </script>
         <div>
           ${[NODE_ENV === 'production' ? `
+            ${/* LuckyOrange.com */' '}
             <script async src="https://d10lpsik1i8c69.cloudfront.net/w.js"></script>
+            ${/* Google Analytics */' '}
             <script async src="https://www.googletagmanager.com/gtag/js?id=UA-84279342-5"></script>
             <script>
               window.dataLayer = window.dataLayer || [];
@@ -140,6 +150,7 @@ module.exports = (state, html, bundleUrl) => {
             </script>
           ` : '']}
         </div>
+        ${GoogleAddressAutocompleteScript}
         <script src="${bundleUrl}"></script>
       </body>
     </html>
