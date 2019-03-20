@@ -74,7 +74,7 @@ const App = module.exports = {
           scrollToTop(event.location.path !== state.location.path),
           mapEffect('footerEvent', Footer.selectQuote),
           runInSeries(
-            fetchUserAndOffices(state),
+            !state.offices && fetchUserAndOffices(state),
             loadRoute(event.loader)
           )
         )]
@@ -161,12 +161,7 @@ const App = module.exports = {
           isHyperloop && hyperloopEffect
         )]
       case 'userUpdated':
-      case 'userReceived':
-        const user = { ...state.user, ...event.user, jwt: state.storage.get('jwt') }
-        return [{
-          ...state,
-          user,
-        }]
+        return [{ ...state, user: { ...state.user, ...event.user } }]
       default:
         return [state]
     }
@@ -192,6 +187,11 @@ const loadRoute = (loader) => (dispatch) => {
     return loader.then((loaded) => {
       dispatch({ type: 'routeLoaded', program: loaded.default || loaded })
     })
+    .catch((error) => {
+      if (typeof window === 'object' && error.message && error.message.slice(0, 13) === 'Loading chunk') {
+        window.location.reload(true)
+      }
+    })
   }
   dispatch({ type: 'routeLoaded', program: loader.default || loader })
 }
@@ -216,7 +216,7 @@ const fetchUser = (storage) => (dispatch) => {
         ...users[0],
         address: users[0] ? users[0].address[0] : null,
       }
-      dispatch({ type: 'userReceived', user })
+      dispatch({ type: 'userUpdated', user })
       return user
     })
     .catch((error) => {

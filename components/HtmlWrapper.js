@@ -1,6 +1,7 @@
 const { ASSETS_URL, NODE_ENV, WWW_DOMAIN } = process.env
 const { avatarURL } = require('../helpers')
 const fs = require('fs')
+const GoogleAddressAutocompleteScript = require('./GoogleAddressAutocompleteScript')
 const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
 
 module.exports = (state, html, bundleUrl) => {
@@ -136,7 +137,9 @@ module.exports = (state, html, bundleUrl) => {
         </script>
         <div>
           ${[NODE_ENV === 'production' ? `
+            ${/* LuckyOrange.com */' '}
             <script async src="https://d10lpsik1i8c69.cloudfront.net/w.js"></script>
+            ${/* Google Analytics */' '}
             <script async src="https://www.googletagmanager.com/gtag/js?id=UA-84279342-5"></script>
             <script>
               window.dataLayer = window.dataLayer || [];
@@ -147,6 +150,7 @@ module.exports = (state, html, bundleUrl) => {
             </script>
           ` : '']}
         </div>
+        ${GoogleAddressAutocompleteScript}
         <script src="${bundleUrl}"></script>
       </body>
     </html>

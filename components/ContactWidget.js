@@ -49,7 +49,7 @@ const submitMessage = (event, user, url) => (dispatch) => {
   if (message) {
     if (!user) user = { email }
 
-    fetch('https://api.liquid.vote/feedback', {
+    fetch('https://blog-api.liquid.us/feedback', {
       body: JSON.stringify({
         text: message,
         user,

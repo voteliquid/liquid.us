@@ -1,5 +1,5 @@
 const { NODE_ENV, WWW_URL } = process.env
-const { api } = require('./helpers')
+const { api, makePoint } = require('./helpers')
 const atob = require('atob')
 const fetch = require('isomorphic-fetch')
 
@@ -47,21 +47,23 @@ const fetchOffices = exports.fetchOffices = ({ location = {}, storage, user }) =
   })
 }
 
-exports.updateNameAndAddress = ({ addressData, nameData, storage }) => (dispatch) => {
-  // Update users address
-  return api(`/user_addresses?select=id&user_id=eq.${addressData.user_id}`, {
-    method: 'POST',
+exports.updateNameAndAddress = ({ addressData, nameData, storage, user }) => (dispatch) => {
+  // Update users name
+  return api(`/users?select=id&id=eq.${user.id}`, {
+    method: 'PATCH',
     headers: { Prefer: 'return=representation' },
-    body: JSON.stringify(addressData),
+    body: JSON.stringify(nameData),
     storage,
-  }).then(() => {
-    // Update users name
-    return api(`/users?select=id&id=eq.${addressData.user_id}`, {
-      method: 'PATCH',
-      headers: { Prefer: 'return=representation' },
-      body: JSON.stringify(nameData),
-      storage,
-    })
+  })
+  // Update users address
+  .then(() => {
+    if (!addressData.lon) {
+      return geocode(addressData.address).then((newAddressData) => updateAddress(newAddressData, user, storage))
+    }
+    return updateAddress(addressData, user, storage)
+  })
+  .catch((error) => {
+    console.log(error)
   })
   .then(() => {
     const user = { ...nameData, address: addressData }
@@ -70,7 +72,41 @@ exports.updateNameAndAddress = ({ addressData, nameData, storage }) => (dispatch
   })
 }
 
-exports.signIn = ({ location, email, redirectTo = '/get_started', storage }) => (dispatch) => {
+const updateAddress = (addressData, user, storage) => {
+  return api(`/user_addresses?select=id&user_id=eq.${user.id}`, {
+    method: user && user.address && user.address.address ? 'PATCH' : 'POST',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify(user && user.address && user.address.address ? addressData : { ...addressData, user_id: user.id }),
+    storage,
+  })
+}
+
+const geocode = (address) => {
+  return fetch(`/rpc/geocode`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ address }),
+  })
+  .then((res) => res.json())
+  .then(([place]) => {
+    const newAddressData = { address }
+    const geocoords = place.geometry.location
+    newAddressData.geocoords = makePoint(geocoords.lng, geocoords.lat)
+    newAddressData.city = place.address_components.filter((item) => {
+      return item.types.some((type) => type === 'locality')
+    }).map((item) => item.long_name).shift() || ''
+    newAddressData.state = place.address_components.filter((item) => {
+      return item.types.some((type) => type === 'administrative_area_level_1')
+    }).map((item) => item.short_name).shift() || ''
+    return newAddressData
+  })
+  .catch((error) => {
+    console.log(error)
+    return { address }
+  })
+}
+
+exports.signIn = ({ location, channel = 'join-page', email, redirectTo = '/get_started', storage }) => (dispatch) => {
   const phone_number = location.query.ph ? atob(location.query.ph) : null
   const proxying_user_id = storage.get('proxying_user_id')
   const vote_position = storage.get('vote_position')
@@ -85,7 +121,7 @@ exports.signIn = ({ location, email, redirectTo = '/get_started', storage }) => 
       email: email.toLowerCase().trim(),
       phone_number,
       device_desc,
-      channel: 'join-page',
+      channel,
     }),
   })
   .then((results) => results[0])
@@ -109,7 +145,7 @@ exports.signIn = ({ location, email, redirectTo = '/get_started', storage }) => 
         .then(users => {
           const proxy_to = location.query.proxy_to
 
-          dispatch({ type: 'userUpdated', user: { ...users[0], address: users[0].address[0] } })
+          dispatch({ type: 'userUpdated', user: { ...users[0], address: users[0].address[0] }, jwt })
 
           if (proxying_user_id) {
             return api('/delegations', {

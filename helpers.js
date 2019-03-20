@@ -6,6 +6,13 @@ const { wire } = require('viperhtml')
 const pathToRegexp = require('path-to-regexp')
 const url = require('url')
 
+exports.makePoint = (lon, lat) => {
+  if (lon && lat) {
+    return `POINT(${lon} ${lat})`
+  }
+  return null
+}
+
 const routes_ = require('./routes')
 
 const routes = Object.keys(routes_).map((path) => {

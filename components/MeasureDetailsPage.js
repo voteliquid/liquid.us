@@ -58,9 +58,9 @@ module.exports = class MeasureDetailsPage extends Component {
       const officeIds = officesInChamber.map((office) => office.id)
 
       return this.fetchComments(measure.id, measure.short_id)
-        .then(() => this.fetchConstituentVotes(measure, officeIds))
         .then(() => this.fetchTopComments(measure.id, measure.short_id))
-        .then(() => this.fetchProxyVotes(measure.id, measure.short_id))
+        .then(() => this.fetchConstituentVotes(measure, officeIds))
+        // .then(() => this.fetchProxyVotes(measure.id, measure.short_id)) // TODO broken
     })
     .catch((error) => {
       console.log(error)
@@ -129,14 +129,14 @@ module.exports = class MeasureDetailsPage extends Component {
               ...this.state.measures,
               [short_id]: {
                 ...this.state.measures[short_id],
-                proxyVotes: this.dedupeVotes(inheritedVotes.map((vote) => {
+                proxyVotes: (inheritedVotes.map((vote) => {
                   return {
                     ...vote,
                     ...vote.proxy,
                     fullname: vote.proxy && `${vote.proxy.first_name} ${vote.proxy.last_name}`,
                     endorsed_vote: vote.root_vote,
                   }
-                }).concat(proxyVotes)),
+                }).concat(proxyVotes)).filter(item => !item.endorsed_vote),
               },
             },
           })
@@ -144,18 +144,6 @@ module.exports = class MeasureDetailsPage extends Component {
       })
     }
     return Promise.resolve()
-  }
-  dedupeVotes(votes) {
-    const ids = {}
-    const deduped = []
-    votes.forEach((item) => {
-      const id = item.endorsed_vote ? item.endorsed_vote.id : item.id
-      if (!ids[id]) {
-        ids[id] = item
-        deduped.push(item)
-      }
-    })
-    return deduped
   }
   fetchComments(measure_id, short_id) {
     const { query } = this.location
@@ -176,7 +164,7 @@ module.exports = class MeasureDetailsPage extends Component {
           ...this.state.measures,
           [short_id]: {
             ...this.state.measures[short_id],
-            comments,
+            comments: comments.filter((item) => !item.endorsed_vote),
             cur_endorsement: comments.filter(c => c.endorsed)[0]
           },
         },
