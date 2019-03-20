@@ -43,11 +43,6 @@ module.exports = class UserProfilePage extends Component {
               ${user && p.username && user.username === p.username
                 ? [`
                   <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
-                  <style>
-                    .fix-bulma-centered-text {
-                      display: inline-block; /* https://github.com/jgthms/bulma/issues/913 */
-                    }
-                  </style>
                   <button disabled class="button is-link is-outlined is-fullwidth is-medium tooltip is-tooltip-info fix-bulma-centered-text" data-tooltip="You can't proxy to yourself">
                     <span class="icon is-small"><i class="far fa-handshake"></i></span>
                     <span>Proxy</span>
@@ -172,7 +167,7 @@ class PublicVotes extends Component {
             padding-bottom: 1rem;
           }
         </style>
-        ${public_votes.map(public_vote => Comment.for(this, { show_bill: true, ...public_vote, truncated: true, endorsements: false }, `vote-card-${public_vote.id}`))}
+        ${public_votes.map(public_vote => Comment.for(this, { show_bill: true, ...public_vote, endorsements: false }, `vote-card-${public_vote.id}`))}
       </div>
     `
   }
@@ -232,7 +227,7 @@ class ProxyButton extends Component {
     const proxied = selected_profile.proxied
     return this.html`
       <form onsubmit=${this} action=${this} method="POST">
-        <button disabled=${proxied} type="submit" class="${`button is-link is-medium is-fullwidth ${proxied ? '' : 'is-outlined'}`}" style="display: inline-block">&nbsp;<span class="icon is-small"><i class="far fa-handshake"></i></span> <span>${proxied ? 'Proxied' : `Proxy to ${selected_profile.first_name}`}</span></button>
+        <button disabled=${proxied} type="submit" class="${`button is-link is-medium is-fullwidth fix-bulma-centered-text ${proxied ? '' : 'is-outlined'}`}">&nbsp;<span class="icon is-small"><i class="far fa-handshake"></i></span> <span>${proxied ? 'Proxied' : `Proxy to ${selected_profile.first_name}`}</span></button>
         ${proxied
           ? [`
               <div class="content is-size-7">

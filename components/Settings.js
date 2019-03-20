@@ -26,6 +26,7 @@ module.exports = {
           ...state,
           user: {
             ...state.user,
+            inherit_votes: formData.inherit_votes === 'true',
             update_emails_preference: !formData.subscribeUpdates ? 'never' : formData.update_emails_preference,
           },
           settings_unsaved: false,
@@ -37,6 +38,8 @@ module.exports = {
           unsubscribed_drip: event.unsubs.some(({ list }) => list === 'drip'),
           unsubscribed_lifecycle: event.unsubs.some(({ list }) => list === 'lifecycle'),
         }]
+      case 'userUpdated':
+        return [{ ...state, user: event.user }]
       case 'loaded':
       default:
         return [state]
@@ -47,9 +50,11 @@ module.exports = {
       <section class="section">
         <div class="container is-widescreen">
           <h2 class="title is-5">Settings</h2>
-          <h3 class="title is-6">Notifications</h3>
           ${loaded ? '' : ActivityIndicator()}
           <form class="${loaded ? '' : 'is-hidden'}" method="POST" onsubmit=${(event) => dispatch({ type: 'submitted', event })} onchange=${(event) => dispatch({ type: 'changed', event })}>
+            <div class="field">
+              <h3 class="title is-6 is-marginless">Notifications</h3>
+            </div>
             <div class="field">
               <div class="control">
                 <label class="checkbox">
@@ -92,6 +97,20 @@ module.exports = {
               </div>
             </div>
             <div class="field">
+              <h3 class="title is-6 is-marginless">Privacy</h3>
+            </div>
+            <div class="field">
+              <label for="inherit_votes">Votes inherited by proxies should default to:</label>
+              <div class="control">
+                <div class="select is-small">
+                  <select name="inherit_votes">
+                    <option value="true" selected=${user.inherit_votes}>Public (Vote Power: ${user.max_vote_power || 1})</option>
+                    <option value="false" selected=${!user.inherit_votes}>Private (Vote Power: 1)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="field">
               <div class="control">
                 ${settings_unsaved
                   ? [`<button class="button is-primary" type="submit">Save</button>`]
@@ -109,8 +128,16 @@ module.exports = {
 const initialize = (user, storage) => (dispatch) => {
   if (user) {
     api(`/unsubscribes?user_id=eq.${user.id}`, { storage }).then((unsubs) => {
-      dispatch({ type: 'unsubsReceived', unsubs })
-      dispatch({ type: 'loaded' })
+      api('/rpc/max_vote_power', {
+        method: 'POST',
+        body: JSON.stringify({ user_id: user.id, since: new Date('1970').toISOString() }),
+        storage,
+      }).then((max_vote_power) => {
+        user.max_vote_power = max_vote_power || 1
+        dispatch({ type: 'userUpdated', user })
+        dispatch({ type: 'unsubsReceived', unsubs })
+        dispatch({ type: 'loaded' })
+      })
     })
   } else {
     dispatch({ type: 'redirected', url: '/sign_in', status: 403 })
@@ -118,12 +145,13 @@ const initialize = (user, storage) => (dispatch) => {
 }
 
 const patchUserPrefs = (formData, user, storage) => () => {
-  const { subscribeUpdates, subscribeDrip, subscribeLifecycle, update_emails_preference } = formData
+  const { inherit_votes, subscribeUpdates, subscribeDrip, subscribeLifecycle, update_emails_preference } = formData
   return api(`/users?select=id&id=eq.${user.id}`, {
     method: 'PATCH',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({
       update_emails_preference: !subscribeUpdates ? 'never' : update_emails_preference,
+      inherit_votes: inherit_votes === 'true',
     }),
     storage,
   })

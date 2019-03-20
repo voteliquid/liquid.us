@@ -3,7 +3,7 @@ const ordinalSuffix = require('ordinal-suffix')
 
 module.exports = class LegislatorScoreCard extends Component {
   render() {
-    const { representation_grade, representation_percentile,
+    const { representation_percentile,
       elected_office_short_name, first_name, elected_office_chamber,
       party_affiliation, with_constituent_vote_count, constituent_vote_count }
       = this.props
@@ -13,7 +13,7 @@ module.exports = class LegislatorScoreCard extends Component {
         <div class="content">
           <h4 class="has-text-weight-bold has-text-grey-dark is-size-4">${this.possessive(first_name)} Scorecard</h4>
           <p>
-            ${representation_grade && constituent_vote_count ?
+            ${representation_percentile && constituent_vote_count ?
             [`
               <span class="has-text-weight-bold has-text-grey-dark is-size-5">${with_constituent_vote_count || 0} / ${constituent_vote_count || 0}</span>
               <span class="is-size-6 has-text-grey">votes with verified constituents in ${elected_office_short_name}</span>

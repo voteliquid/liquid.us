@@ -32,7 +32,7 @@ module.exports = {
           bottom: 0;
           right: 15px;
           margin-bottom: 0 !important;
-          z-index: 99;
+          z-index: 10;
         }
         .contact-window {
           border: 1px solid #deeaf2;
@@ -49,7 +49,7 @@ const submitMessage = (event, user, url) => (dispatch) => {
   if (message) {
     if (!user) user = { email }
 
-    fetch('https://api.liquid.vote/feedback', {
+    fetch('https://blog-api.liquid.us/feedback', {
       body: JSON.stringify({
         text: message,
         user,

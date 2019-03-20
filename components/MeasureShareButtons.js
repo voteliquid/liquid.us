@@ -18,8 +18,8 @@ module.exports = class LegislationShareButtons extends Component {
     const ClipboardJS = typeof window === 'object' && require('clipboard')
     const { author_username, copied2clipboard, short_id, type, vote_position } = this.props
     const share_url = author_username
-      ? `${WWW_URL}/${author_username}/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
-      : `${WWW_URL}/${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}`
+      ? `${WWW_URL}/${author_username}/${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
+      : `${WWW_URL}/${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
     const twitter_share_text =
       vote_position && vote_position !== 'abstain'
         ? `Join me in voting ${vote_position}. ${share_url}`

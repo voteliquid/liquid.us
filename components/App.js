@@ -1,8 +1,7 @@
-const { NODE_ENV, WWW_URL } = process.env
-const fetch = require('isomorphic-fetch')
 const stateNames = require('datasets-us-states-abbr-names')
 
-const { api, combineEffects, html, loadPage, mapEffect, mapEvent, runInSeries } = require('../helpers')
+const { api, combineEffects, html, loadPage, mapEffect, mapEvent, redirect, runInSeries } = require('../helpers')
+const { fetchOffices } = require('../effects')
 const Navbar = require('./NavBar')
 const Footer = require('./Footer')
 const ContactWidget = require('./ContactWidget')
@@ -50,12 +49,11 @@ const App = module.exports = {
         return [{
           ...state,
           ...event.state,
+          dispatch: event.dispatch,
           hyperloop: state.hyperloop,
           navbar: { ...state.navbar, user: event.state.user || state.user },
           legislatures: event.state.legislatures || state.legislatures,
         }]
-      case 'legislaturesReceived':
-        return [{ ...state, legislatures: event.legislatures }]
       case 'navbarEvent':
         const [navbarState, navbarEffect] = Navbar.update(event.event, { ...state.navbar, user: state.user })
         return [
@@ -76,15 +74,17 @@ const App = module.exports = {
           scrollToTop(event.location.path !== state.location.path),
           mapEffect('footerEvent', Footer.selectQuote),
           runInSeries(
-            fetchUserAndRepsAndLegislatures(state),
+            !state.offices && fetchUserAndOffices(state),
             loadRoute(event.loader)
           )
         )]
-      case 'repsReceived':
+      case 'officesReceived':
         return [{
           ...state,
           geoip: event.geoip || state.geoip,
-          reps: event.reps,
+          offices: event.offices,
+          reps: event.offices.filter((office) => office.office_holder),
+          legislatures: legislaturesFromOffices(event.offices, event.geoip || state.geoip, state.user),
         }]
       case 'routeEvent':
         const [routeState, effect] = state.routeProgram.update(event.event, {
@@ -92,7 +92,9 @@ const App = module.exports = {
           location: state.location,
           storage: state.storage,
           user: state.user,
+          offices: state.offices,
           reps: state.reps,
+          legislatures: state.legislatures,
         })
         switch (event.event.type) {
           case 'contactWidgetOpened':
@@ -115,9 +117,16 @@ const App = module.exports = {
               measuresQuery: state.location.url,
               routeState,
             }, effect]
-          case 'repsLoaded':
-          case 'repsUpdated':
-            return [{ ...state, routeState, reps: event.reps }, mapEffect('routeEvent', effect)]
+          case 'officesLoaded':
+          case 'officesUpdated':
+            return [{
+              ...state,
+              geoip: event.event.geoip || state.geoip,
+              offices: event.event.offices,
+              reps: event.event.offices.filter((office) => office.office_holder),
+              legislatures: legislaturesFromOffices(event.event.offices, event.event.geoip || state.geoip, state.user),
+              routeState,
+            }, mapEffect('routeEvent', effect)]
           case 'userUpdated':
             return [{ ...state, routeState, user: { ...state.user, ...event.event.user } }]
           case 'signedOut':
@@ -129,6 +138,8 @@ const App = module.exports = {
               routeState: { ...routeState, loading: false },
             }, mapEffect('routeEvent', effect)]
         }
+      case 'redirected':
+        return [state, redirect(event.url, event.status)]
       case 'routeLoaded':
         const [routeInitState, routeInitEffect] =
           (event.program && event.program.init)
@@ -149,24 +160,20 @@ const App = module.exports = {
           !isHyperloop && mapEffect('routeEvent', routeInitEffect),
           isHyperloop && hyperloopEffect
         )]
-      case 'userReceived':
-        const user = { ...event.user, jwt: state.storage.get('jwt') }
-        return [{
-          ...state,
-          user,
-        }]
+      case 'userUpdated':
+        return [{ ...state, user: { ...state.user, ...event.user } }]
       default:
         return [state]
     }
   },
   view: (state, dispatch) => {
-    const { contactWidget, geoip, footer, location, routeState, routeProgram, navbar, reps, storage, user } = state
-    const viewRouteState = { ...routeState, geoip, location, reps, storage, user }
+    const { contactWidget, geoip, footer, location, routeState, routeProgram, navbar, legislatures, offices, reps, storage, user } = state
+    const viewRouteState = { ...routeState, geoip, location, offices, legislatures, reps, storage, user }
     return html()`
       <div id="wrapper">
         ${Navbar.view({ ...navbar, user }, mapEvent('navbarEvent', dispatch))}
         <div class="router">
-          ${routeProgram ? routeProgram.view(viewRouteState, mapEvent('routeEvent', dispatch)) : loadingIndicator()}
+          ${routeProgram ? routeProgram.view(viewRouteState, mapEvent('routeEvent', dispatch)) : loadingIndicator({ size: 'large', margin: '2rem' })}
         </div>
       </div>
       <div>${Footer.view(footer, mapEvent('footerEvent', dispatch))}</div>
@@ -180,68 +187,22 @@ const loadRoute = (loader) => (dispatch) => {
     return loader.then((loaded) => {
       dispatch({ type: 'routeLoaded', program: loaded.default || loaded })
     })
+    .catch((error) => {
+      if (typeof window === 'object' && error.message && error.message.slice(0, 13) === 'Loading chunk') {
+        window.location.reload(true)
+      }
+    })
   }
   dispatch({ type: 'routeLoaded', program: loader.default || loader })
 }
 
-const fetchUserAndRepsAndLegislatures = ({ geoip, legislatures, location, storage, reps, user }) => (dispatch) => {
+const fetchUserAndOffices = ({ location, storage, reps, user }) => (dispatch) => {
   if (user) {
-    if (reps) {
-      if (!legislatures) return fetchLegislatures(storage, user, geoip)(dispatch)
-      return Promise.resolve()
-    }
-    return fetchReps({ location, storage, user })(dispatch)
-      .then(() => fetchLegislatures(storage, user, geoip)(dispatch))
+    if (reps) return Promise.resolve()
+    return fetchOffices({ location, storage, user })(dispatch)
   }
   return Promise.resolve(fetchUser(storage)(dispatch))
-    .then((user) =>
-      fetchReps({ location, storage, user })(dispatch)
-        .then(() => fetchLegislatures(storage, user, geoip)(dispatch)))
-}
-
-const fetchReps = ({ location, storage, user }) => (dispatch) => {
-    const address = user && user.address
-
-    if (address) {
-      return api('/rpc/user_offices', {
-        method: 'POST',
-        body: JSON.stringify({ user_id: user.id }),
-        storage,
-      })
-      .then((reps) => dispatch({ type: 'repsReceived', reps: reps || [] }))
-      .catch((error) => dispatch({ type: 'error', error }))
-    }
-
-    let ip = location.ip
-
-    if (!ip || (ip === '::1' && NODE_ENV !== 'production')) ip = '198.27.235.190'
-
-    return fetch(`${WWW_URL}/rpc/geoip/${ip}`, {
-      headers: {
-        Accept: 'application/json',
-      },
-      cache: 'no-cache',
-      mode: 'no-cors',
-    })
-    .then(response => response.json())
-    .then((geoip) => {
-      if (!geoip) {
-        return dispatch({ type: 'repsReceived', reps: [] })
-      }
-      return api('/rpc/point_to_offices', {
-        method: 'POST',
-        body: JSON.stringify({ lon: Number(geoip.lon), lat: Number(geoip.lat) }),
-      })
-      .then(reps => {
-        if (!reps) reps = []
-        storage.set('geoip_house_rep', reps[0] ? reps[0].user_id : 'not_found')
-        dispatch({ type: 'repsReceived', reps, geoip })
-      })
-    })
-    .catch((error) => {
-      console.error(error)
-      dispatch({ type: 'error', error })
-    })
+    .then((user) => fetchOffices({ location, storage, user })(dispatch))
 }
 
 const fetchUser = (storage) => (dispatch) => {
@@ -249,13 +210,13 @@ const fetchUser = (storage) => (dispatch) => {
   const jwt = storage.get('jwt')
   if (userId && jwt) {
     dispatch({ type: 'userRequested' })
-    return api(`/users?select=id,about,intro_video_url,email,first_name,last_name,username,verified,voter_status,update_emails_preference,is_admin,address:user_addresses(id,address,city,state)&id=eq.${userId}`, { storage })
+    return api(`/users?select=id,about,intro_video_url,email,first_name,last_name,username,verified,inherit_votes,voter_status,update_emails_preference,is_admin,address:user_addresses(id,address,city,state)&id=eq.${userId}`, { storage })
     .then(users => {
       const user = {
         ...users[0],
         address: users[0] ? users[0].address[0] : null,
       }
-      dispatch({ type: 'userReceived', user })
+      dispatch({ type: 'userUpdated', user })
       return user
     })
     .catch((error) => {
@@ -265,27 +226,25 @@ const fetchUser = (storage) => (dispatch) => {
   }
 }
 
-const fetchLegislatures = (storage, user, geoip = {}) => (dispatch) => {
+const legislaturesFromOffices = (offices, geoip = {}, user) => {
   const city = user && user.address ? user.address.city : geoip.city
   const state = user && user.address ? user.address.state : geoip.region
-  dispatch({ type: 'legislaturesRequested' })
-  return api(`/legislatures?or=(short_name.eq."${city}, ${state}",short_name.eq.${state},short_name.eq.US-Congress)`, {
-    storage,
-  }).then((legislatures) => {
-    dispatch({
-      type: 'legislaturesReceived',
-      legislatures: (legislatures || []).sort((a, b) => {
-        if (a.short_name === `${city}, ${state}` && b.short_name === state) return 1
-        if (a.short_name === state && b.short_name === `${city}, ${state}`) return -1
-        return 0
-      }).map((legislature) => {
-        legislature.abbr = legislature.name
-        legislature.name = stateNames[legislature.name] || legislature.name
-        return legislature
-      }),
-    })
+
+  const deduped = Object.values(offices.reduce((b, a) => {
+    b[a.legislature.id] = a
+    return b
+  }, {}))
+
+  return deduped.map((office) => office.legislature).sort((a, b) => {
+    if (a.short_name === `${city}, ${state}` && b.short_name === state) return 1
+    if (a.short_name === state && b.short_name === `${city}, ${state}`) return -1
+    return 0
+  }).map((legislature) => {
+    legislature.abbr = legislature.name
+    legislature.name = stateNames[legislature.name] || legislature.name
+    return legislature
   })
-  .catch((error) => dispatch({ type: 'error', error }))
+
 }
 
 const startNProgress = () => () => {
@@ -370,11 +329,11 @@ const initHyperloop = (context, location, Component) => (dispatch) => {
   }
   p.then((html) => {
     const render = context.root.render
-    context.root.render = (props, state) => {
-      dispatch({ type: 'hyperloopStateChanged', state })
-      return render.call(context.root, context.root.props, { ...state, hyperloop: undefined })
+    context.root.render = () => {
+      dispatch({ type: 'hyperloopStateChanged', state: context.state, dispatch })
+      return render.call(context.root, context.root.props, { ...context.state, hyperloop: undefined })
     }
-    dispatch({ type: 'hyperloopStateChanged', state: context.state })
+    dispatch({ type: 'hyperloopStateChanged', state: context.state, dispatch })
     dispatch({
       type: 'hyperloopInitialized',
       program: { view: () => html },

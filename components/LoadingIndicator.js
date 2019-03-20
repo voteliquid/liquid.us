@@ -1,28 +1,35 @@
 const Component = require('./Component')
 
+const sizes = {
+  small: '1.5em',
+  medium: '3em',
+  large: '5em',
+}
+
 module.exports = class LoadingIndicator extends Component {
   render() {
+    const size = sizes[this.props.size || 'medium']
     return this.html`
       <div class="loader">
-        <style>
+        <style>${[`
           .loader,
           .loader:after {
             border-radius: 50%;
-            width: 3rem;
-            height: 3rem;
+            width: ${size};
+            height: ${size};
           }
           .loader {
             display: block;
             overflow: auto;
             position: relative;
-            margin: 1rem auto 1rem;
+            margin: 0 auto;
             font-size: 10px;
             position: relative;
             text-indent: -9999em;
-            border-top: 0.3rem solid rgba(204,204,204, 0.2);
-            border-right: 0.3rem solid rgba(204,204,204, 0.2);
-            border-bottom: 0.3rem solid rgba(204,204,204, 0.2);
-            border-left: 0.3rem solid #cccccc;
+            border-top: 0.4em solid rgba(204,204,204, 0.2);
+            border-right: 0.4em solid rgba(204,204,204, 0.2);
+            border-bottom: 0.4em solid rgba(204,204,204, 0.2);
+            border-left: 0.4em solid #cccccc;
             -webkit-transform: translateZ(0);
             -ms-transform: translateZ(0);
             transform: translateZ(0);
@@ -49,7 +56,7 @@ module.exports = class LoadingIndicator extends Component {
               transform: rotate(360deg);
             }
           }
-        </style>
+        `]}</style>
       </div>
     `
   }

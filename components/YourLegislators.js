@@ -7,28 +7,29 @@ module.exports = {
   init: ({ location, storage, user }) => [{
     location,
     geoip: null,
-    reps: null,
+    offices: null,
     user,
     storage,
-  }, fetchReps(location, storage, user)],
+  }, fetchOffices(location, storage, user)],
   update: (event, state) => {
     switch (event.type) {
       case 'error':
-        return [{ ...state, reps_loaded: true, reps: [] }]
-      case 'repsLoaded':
+        return [{ ...state, offices_loaded: true, offices: [] }]
+      case 'officesLoaded':
       default:
         return [state]
     }
   },
-  view: ({ geoip, location, reps = [], reps_loaded, user }) => {
+  view: ({ geoip, location, offices = [], offices_loaded, user }) => {
+    const reps = offices.filter((office) => office.office_holder)
     return html()`
       <div class="YourLegislators">
         <h2 class="title is-5">Your Elected Congress Members</h2>
-        ${(reps_loaded && (!reps || !reps.length)) ? [`<div class="notification">We weren't able to detect your elected congress members using your location. <a href="/join">Join to set your address</a>.</div>`] : []}
+        ${(offices_loaded && (!reps || !reps.length)) ? [`<div class="notification">We weren't able to detect your elected congress members using your location. <a href="/join">Join to set your address</a>.</div>`] : []}
         <div class="columns">
-          ${reps.map(rep => RepColumn({ rep }))}
+          ${reps.map((office) => RepColumn({ office }))}
         </div>
-        ${geoip && reps && reps.length ? AddAddressNotification({ geoip, user }) : []}
+        ${geoip && offices && offices.length ? AddAddressNotification({ geoip, user }) : []}
         ${user && user.address && [`
           <div class="has-text-right has-text-grey is-size-7">
             <p>Based on your address of <strong>${user.address.address}</strong>. <a href="/change_address?from=${location.path}">Change</a>
@@ -39,16 +40,11 @@ module.exports = {
   },
 }
 
-const fetchReps = (location, storage, user) => (dispatch) => {
+const fetchOffices = (location, storage, user) => (dispatch) => {
   const address = user && user.address
 
   if (address) {
-    return api('/rpc/user_offices', {
-      method: 'POST',
-      body: JSON.stringify({ user_id: user.id }),
-      storage,
-    })
-    .then((reps) => dispatch({ type: 'repsLoaded', reps: reps || [] }))
+    return api('/user_offices', { storage }).then((offices) => dispatch({ type: 'officesLoaded', offices: offices || [] }))
   }
 
   let ip = location.ip || '198.27.235.190'
@@ -65,17 +61,16 @@ const fetchReps = (location, storage, user) => (dispatch) => {
   .then(response => response.json())
   .then((geoip) => {
     if (!geoip) {
-      return dispatch({ type: 'repsLoaded', reps: [] })
+      return dispatch({ type: 'officesLoaded', offices: [] })
     }
     return api('/rpc/point_to_offices', {
       method: 'POST',
       body: JSON.stringify({ lon: Number(geoip.lon), lat: Number(geoip.lat) }),
       storage,
     })
-    .then(reps => {
-      if (!reps) reps = []
-      storage.set('geoip_house_rep', reps[0] ? reps[0].user_id : 'not_found')
-      dispatch({ type: 'repsLoaded', reps, geoip })
+    .then(offices => {
+      if (!offices) offices = []
+      dispatch({ type: 'officesLoaded', offices, geoip })
     })
   })
   .catch((error) => {
@@ -90,9 +85,10 @@ const AddAddressNotification = ({ geoip, user }) => {
   `
 }
 
-const RepColumn = ({ rep }) => {
+const RepColumn = ({ office }) => {
+  const rep = office.office_holder
   return html(`repcolumn-${rep.user_id}`)`
-    <div class="column">${RepCard({ rep })}</div>
+    <div class="column">${RepCard({ rep, office })}</div>
   `
 }
 

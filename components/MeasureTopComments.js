@@ -31,7 +31,7 @@ module.exports = class MeasureTopComments extends Component {
             <div style="padding: 1rem;">
               <h4 style="color: hsl(141, 80%, 38%); padding-bottom: 1rem;" class="${`${vote_position ? 'has-text-weight-semibold' : ''} has-text-centered`}">Top Argument In Favor</h4>
               ${yea
-              ? Comment.for(this, { ...yea, truncated: true }, `topcomment-yea-${yea.id}`)
+              ? Comment.for(this, yea, `topcomment-yea-${yea.id}`)
               : NoArgumentsMsg.for(this, { vote_position, position: 'yea' }, 'noarguments-yea')}
             </div>
           </div>
@@ -39,7 +39,7 @@ module.exports = class MeasureTopComments extends Component {
             <div style="padding: 1rem;">
               <h4 style="padding-bottom: 1rem;" class="${`${vote_position ? 'has-text-weight-semibold' : ''} has-text-centered has-text-danger`}">Top Argument Against</h4>
               ${nay
-              ? Comment.for(this, { ...nay, truncated: true }, `topcomment-nay-${nay.id}`)
+              ? Comment.for(this, nay, `topcomment-nay-${nay.id}`)
               : NoArgumentsMsg.for(this, { vote_position, position: 'nay' }, 'noarguments-nay')}
             </div>
           </div>
@@ -90,7 +90,7 @@ class VoteButtons extends Component {
     const saveVote = require('./MeasureVoteForm').MeasureVoteForm.prototype.onsubmit
     const { measure } = this.props
     const { author_username, short_id, type } = measure
-    const measureUrl = `${author_username ? `/${author_username}/` : '/'}${type === 'PN' ? 'nominations' : 'legislation'}/${short_id}/vote`
+    const measureUrl = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}/vote`
 
     if (measure.vote_position === form.vote_position) {
       return this.location.redirect(303, measureUrl)
@@ -103,7 +103,7 @@ class VoteButtons extends Component {
     const { measure } = this.props
     const { author_username, delegate_name, vote_position } = measure
     const { my_vote = { vote_position } } = measure
-    const measureUrl = `${author_username ? `/${author_username}/` : '/'}${measure.type === 'PN' ? 'nominations' : 'legislation'}/${measure.short_id}/vote`
+    const measureUrl = `${author_username ? `/${author_username}/` : '/'}${measure.type === 'nomination' ? 'nominations' : 'legislation'}/${measure.short_id}/vote`
     return this.html`
       <div onconnected=${this} class="columns is-gapless is-multiline is-marginless">
         ${vote_position === 'abstain' ? [`
@@ -117,7 +117,7 @@ class VoteButtons extends Component {
         <div class="column is-half">
           <form action=${this} method="POST" onsubmit=${this} style="height: 100%;">
             <input type="hidden" name="vote_position" value="yea" />
-            <input type="hidden" name="public" value="${my_vote.public || 'false'}" />
+            <input type="hidden" name="public" value="${typeof my_vote.public === 'boolean' ? my_vote.public : 'true'}" />
             <input type="hidden" name="comment" value="${my_vote.comment || ''}" />
             <button type="submit" style="${`${vote_position && vote_position !== 'yea' ? 'opacity: .3;' : ''} display: block; line-height: 100%; height: 100%; white-space: normal;`}" class="${`${saving_vote ? 'is-loading' : ''} button vote-button-yea is-success has-text-weight-semibold is-fullwidth`}">
               <span class="icon is-small"><i class="fa fa-check"></i></span>
