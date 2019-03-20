@@ -160,7 +160,7 @@ class MeasureVoteCounts extends Component {
     } = measure
 
     const localLegislatureName = offices
-      .filter((office) => office.legislature.name === measure.legislature_name && (!office.chamber || office.chamber === measure.chamber))
+      .filter((office) => office.id && office.legislature.name === measure.legislature_name && (!office.chamber || office.chamber === measure.chamber))
       .map((office) => office.short_name).pop()
     const chamberNames = {
       'U.S. Congress': { Upper: 'Senate', Lower: 'House' },

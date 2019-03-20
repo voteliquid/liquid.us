@@ -71,7 +71,7 @@ module.exports = class MeasureDetailsPage extends Component {
   fetchConstituentVotes(measure, office_ids) {
     const { id, short_id } = measure
     if (!Array.isArray(office_ids)) office_ids = [office_ids]
-    const officeParam = office_ids && measure.legislature_name === 'U.S. Congress' ? `&office_id=in.(${office_ids.join(',')})` : '&limit=1'
+    const officeParam = office_ids ? `&office_id=in.(${office_ids.join(',')})` : '&limit=1'
     return this.api(`/measure_votes?measure_id=eq.${id}${officeParam}`).then((results) => {
       const votes = results[0] || {}
       const measures = this.state.measures || {}
