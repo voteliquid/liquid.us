@@ -41,7 +41,7 @@ module.exports = class UserProfilePage extends Component {
                   ${p.username ? [`<h2 class="subtitle is-5 has-text-grey-light">@${p.username}</h2>`] : ''}
                 </div>
               </div>
-              <div class="columns is-size-5 has-text-outlined has-text-centered is-mobile">
+              <div class="columns is-size-5 has-text-centered is-mobile icon-card">
                 <div class="column icon-tooltip">
                   <p>${(p.public_votes.length || -1) + 1}</p>
                   ${iconTooltipButtonFa('check', `Votes`)}
@@ -59,11 +59,11 @@ module.exports = class UserProfilePage extends Component {
                 </div>
                 <div class="column icon-tooltip">
                   <p>${p.direct_proxy_count || '1'}</p>
-                  ${iconTooltipButtonFa('handshake', 'Directly representing', true)}
+                  ${iconTooltipButtonFa('handshake', `Voters directly represented`, true)}
                 </div>
                 <div class="column icon-tooltip">
                   <p>${p.max_vote_power || '1'}</p>
-                  ${iconTooltipButtonFa('users', 'Indirectly representing')}
+                  ${iconTooltipButtonFa('users', `Voters indirectly represented`)}
                 </div>
               </div>
 
@@ -109,16 +109,21 @@ module.exports = class UserProfilePage extends Component {
                 color: #333;
                 font-size: 14px;
                 overflow: hidden;
-                padding: .4rem .8rem;
+                padding: .4rem;
                 text-align: center;
                 white-space: normal;
-                width: 100px;
+                width: 90px;
                 z-index: 99999;
                 top: auto;
                 bottom: 0%;
                 left: 0%;
-                right: 100%;
+                right: 0%;
                 transform: translate(-0.5rem, 50%);
+              }
+              @media (max-width: 1086px) {
+                .icon-card {
+                  padding: 0rem 0.6rem;
+                }
               }
             </style>
           </div>
@@ -350,7 +355,9 @@ class ShareButtons extends Component {
 
     return this.html`
       <div class="content">
-        <p class="has-text-weight-semibold">${user && selected_profile.username === user.username ? 'Share to get others to proxy to you. They will see all votes and comments that you have marked public.' : `Share to increase the impact ${selected_profile.first_name} is having in the legislative process.`}</p>
+        <p class="has-text-weight-semibold">${user && selected_profile.username === user.username
+          ? 'Share to get others to proxy to you. They will see all votes and comments that you have marked public.'
+          : `Share to increase the impact ${selected_profile.first_name} is having in the legislative process.`}</p>
         <div class="buttons is-centered">
           <a class="button is-link has-text-weight-bold" title="Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">
             <span class="icon"><i class="fab fa-facebook"></i></span>
