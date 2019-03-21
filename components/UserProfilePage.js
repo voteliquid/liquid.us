@@ -348,7 +348,7 @@ class ShareButtons extends Component {
     const share_url = `${WWW_URL}/${selected_profile.username}/`
     const share_text = user && selected_profile.username === user.username
       ? `I'd like to represent for you on Liquid US, a tool to hold our politicians accountable. Check out my policy positions at https://liquid.us/${user.username} and proxy to me if you agree with my priorities`
-      : `${selected_profile.first_name} is using Liquid US to hold our politicians accountable. Check out their policy positions at https://liquid.us/${user.username} and choose them as a proxy if you agree with their policy priorities.`
+      : `${selected_profile.first_name} is using Liquid US to hold our politicians accountable. Check out their policy positions at https://liquid.us/${selected_profile.username} and choose them as a proxy if you agree with their policy priorities.`
     const subject = user && selected_profile.username === user.username
       ? `I'd like to represent you on key votes`
       : `Thought you'd be interested in this`
