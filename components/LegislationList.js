@@ -124,10 +124,32 @@ module.exports = {
         .whole-page {
           background-color: #f6f8fa;
         }
+        .already-voted {
+          font-size: 20px;
+        }
+        .bill-title {
+          margin-bottom: 0.5rem;
+        }
+        .card-content {
+          padding-left: 40px;
+          padding-bottom: 25px
+        }
+        .vote-now {
+          font-size: 20px;
+        }
         @media (max-width: 1086px) {
-
           .whole-page {
             padding: 0;
+          }
+          .card.highlight-hover {
+            padding: 1em;
+          }
+          .card-content {
+            padding-left: 3px;
+            padding-right: 3px;
+          }
+          .summary-bar {
+            padding-top: 5px;
           }
         }
       </style>
@@ -162,7 +184,7 @@ const updateFilter = (event, location, dispatch) => {
 const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
   const showFilters = location.query.show_filters || storage.get('show_filters')
   const from_liquid = location.query.from_liquid || storage.get('from_liquid')
-  const from_leg_body = location.query.from_leg_body || storage.get('from_leg_body')
+  const imported = location.query.imported || storage.get('imported')
   const bills = location.query.floor_consideration || storage.get('bills')
   const nominations = location.query.nominations || storage.get('nominations')
   const resolutions = location.query.resolutions || storage.get('resolutions')
@@ -220,7 +242,7 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
           <div class="column">
             <h3>Type</h3>
             <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(storage, 'from_leg_body')} type="checkbox" name="from_leg_body" checked=${!!from_leg_body} />
+              <input onclick=${toggleFilter(storage, 'imported')} type="checkbox" name="imported" checked=${!!imported} />
               Imported
             </label><br>
             <label class="checkbox has-text-grey">
@@ -320,107 +342,71 @@ const filterTabs = ({ geoip, legislatures, location, storage, user }, dispatch) 
 const measureListRow = (s) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
   const measureUrl = s.author_username ? `/${s.author_username}/legislation/${s.short_id}` : `/legislation/${s.short_id}`
-  const index = s.legislature_name.indexOf(', ')
-  const cityName = s.legislature_name.slice(0, index)
-  const liquidLeg = s.legislature_name === 'U.S. Congress' ? 'Congress' : s.legislature_name.includes(',') ? cityName : s.legislature_name
-  const legisInfo = s.legislature_name === 'U.S. Congress' && s.chamber === 'Upper' ? 'U.S. Senate' : s.sponsor_first_name && s.legislature_name === 'U.S. Congress' ? 'U.S. House' : s.author_username === null && s.chamber === 'Lower' ? `${s.legislature_name} Assembly` : s.author_username === null ? `${s.legislature_name} Senate` : `Liquid ${liquidLeg}`
-  const toAmend = s.title.includes('To amend ')
-  const billToAmend = s.title.includes('A bill to amend ')
-  const relatingTo = s.title.includes('Relating to: ')
-  const titleIndex = s.title.indexOf(' to ')
-  const reviseTitle = `${s.title.charAt(13).toUpperCase() + s.title.slice(14)}`
-  const reviseTitle2 = s.title.slice(titleIndex + 2)
-  const titleRevised = (toAmend || billToAmend) ? `T${reviseTitle2}` : relatingTo ? `${reviseTitle}` : `${s.title}`
-  const authorLink = s.sponsor_first_name ? s.sponsor_username : s.author_username
-  const summaryString = `${legisInfo} Introduced ${(s.sponsor_first_name || s.author_first_name)} ${(s.sponsor_last_name || s.author_last_name)} ${(new Date(s.introduced_at)).toLocaleDateString()}`
-  const stringLengthCheck = stringWidth(summaryString) > 45 ? 'font-size: 10px' : stringWidth(summaryString) <= 45 ? 'font-size: 14px' : ''
+  const shortLegislatureName =
+    s.legislature_name === 'U.S. Congress' ? 'Congress'
+    : s.legislature_name.includes(',') ? s.legislature_name.split(', ')[0]
+    : s.legislature_name
+  const chamber =
+    s.legislature_name === 'U.S. Congress' && s.chamber === 'Upper' ? 'U.S. Senate'
+    : s.sponsor_first_name && s.legislature_name === 'U.S. Congress' ? 'U.S. House'
+    : s.author_username === null && s.chamber === 'Lower' ? `${s.legislature_name} Assembly`
+    : s.author_username === null ? `${s.legislature_name} Senate`
+    : `Liquid ${shortLegislatureName}`
+  const titleRevised =
+    s.title.includes('To amend ') ? `T${s.title.slice(s.title.indexOf(' to ') + 2)}`
+    : s.title.includes('Relating to: ') ? `${s.title.charAt(13).toUpperCase() + s.title.slice(14)}`
+    : s.title
+  const summaryBarFontSize = stringWidth(`Introduced ${chamber} ${(s.sponsor_first_name || s.author_first_name)} ${(s.sponsor_last_name || s.author_last_name)} • ${(new Date(s.introduced_at)).toLocaleDateString()}`) > 46 ? '13' : '15'
+
   return `
     <div class="card highlight-hover">
       <div class="card-content">
-        <div class="title is-4 bill-title"><a href="${measureUrl}">${titleRevised}</a>              ${s.summary ? [`&nbsp${summaryTooltipButton(s.id, s.short_id, s.summary)}`] : ''}
+        <div class="title is-4 bill-title"><a href="${measureUrl}">${titleRevised}</a>
+          ${s.summary ? [`&nbsp${summaryTooltipButton(s.id, s.short_id, s.summary)}`] : ''}
         </div>
         <div class="columns">
           <div class="column">
             <div class="is-size-5">
               ${s.introduced_at
-              ? [`<strong>Status: </strong>${next_action_at
-                ? [`Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}`]
+              ? [`<strong>Status:</strong>
+                ${next_action_at
+                  ? [`Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}`]
                 : s.status === 'Awaiting floor or committee vote'
-                ? `Discharged or reported from committee`
-                : `${s.status}</span>`}
-                <p${s.last_action_at === s.introduced_at ? ' class="is-hidden"' : ''}><strong>Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}</p>
+                  ? `Discharged or reported from committee`
+                  : `${s.status}`}
+                ${s.last_action_at !== s.introduced_at ? [`
+                  <p><strong>Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}</p>
+                `] : ''}
+              `] : []}
             </div>
-            <div class="has-text-grey summary-bar-1">
-              ${s.sponsor_first_name && s.legislature_name ? [`
-                Introduced ${legisInfo}
+            <div class="has-text-grey summary-bar" id=${s.id}>
+              Introduced ${chamber}
+              ${s.sponsor_first_name ? [`
                 <span class="has-text-grey-lighter">&bullet;</span>
-                <a href="${`/${authorLink}`}">${s.sponsor_first_name} ${s.sponsor_last_name}</a>
-                <span class="has-text-grey-lighter">&bullet;</span>
-                ${(new Date(s.introduced_at)).toLocaleDateString()}`]
-                  : s.legislature_name
-                  ? [`${legisInfo}
-                  <span class="has-text-grey-lighter">&bullet;</span>
-                  ${(new Date(s.introduced_at)).toLocaleDateString()}`]
-                  : [`${(new Date(s.introduced_at)).toLocaleDateString()}`]
-                }
-              </div>
-            </div>
-          `] : [`
-            <br>
-            <div class="has-text-grey summary-bar-2">
-              ${s.author_username & s.legislature_name
-                ? [`Published ${legisInfo}
-                ${s.summary ? [`${summaryTooltipButton(s.id, s.short_id, s.summary)}<span class="has-text-grey-lighter">&bullet;</span>`] : ''}
+                <a href="${`/${s.sponsor_username}`}">${s.sponsor_first_name} ${s.sponsor_last_name}</a>
+              `] : s.author_username ? [`
                 <span class="has-text-grey-lighter">&bullet;</span>
                 <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>&nbsp;
-                <span class="has-text-grey-lighter">&bullet;</span>
-                ${(new Date(s.introduced_at)).toLocaleDateString()}`]
-                : `${legisInfo}
-                <span class="has-text-grey-lighter">&bullet;</span>
-                ${`<a href="${`/${authorLink}`}">${s.author_first_name} ${s.author_last_name}</a>&nbsp`}`}
-                <span class="has-text-grey-lighter">&bullet;</span>
-                ${(new Date(s.created_at)).toLocaleDateString()}
+              `] : []}
+              <span class="has-text-grey-lighter">&bullet;</span>
+              ${(new Date(s.introduced_at || s.created_at)).toLocaleDateString()}
             </div>
           </div>
-        </div>
-          `]}
-          <span class="column vote-button is-one-half">
+
+          <span class="column is-one-half">
             ${voteButton(s)}
           </span>
 
         </div>
-        <style>
-          .already-voted {
-            font-size: 20px;
-        }
-          .bill-title {
-            margin-bottom: 0.5rem;
-          }
-          .card-content {
-            padding-left: 40px;
-            padding-bottom: 0.25px
-          }
-          .voted-for {
-
-          }
-          .vote-now {
-            font-size: 20px;
-          }
-          @media (max-width: 1086px) {
-            .card-content {
-              padding-left: 3px;
-              padding-right: 3px;
-            }
-            .summary-bar-1 {
-              padding-top: 5px;
-              ${stringLengthCheck}
-          }
-            .summary-bar-2 {
-              padding-top: 5px;
-            }
-        </style>
       </div>
     </div>
+    <style>
+      @media (max-width: 1086px) {
+        #${s.id} {
+          font-size: ${summaryBarFontSize}px;
+        }
+      }
+    </style>
   `
 }
 
@@ -492,9 +478,9 @@ const initialize = (geoip, prevQuery, location, storage, user) => (dispatch) => 
 
 // check and select other variables
   const from_liquid = query.from_liquid || storage.get('from_liquid')
-  const from_leg_body = query.from_leg_body || storage.get('from_leg_body')
-  const from_liquid_query = from_liquid === 'on' && from_leg_body !== 'on' ? '&introduced_at=is.null' : ''
-  const from_leg_body_query = from_leg_body === 'on' && from_liquid !== 'on' ? '&introduced_at=not.is.null' : ''
+  const imported = query.imported || storage.get('imported')
+  const from_liquid_query = from_liquid === 'on' && imported !== 'on' ? '&introduced_at=is.null' : ''
+  const imported_query = imported === 'on' && from_liquid !== 'on' ? '&introduced_at=not.is.null' : ''
   const nominations = query.nominations || storage.get('nominations')
   const resolutions = query.resolutions || storage.get('resolutions')
   const bills = query.bills || storage.get('bills')
@@ -514,8 +500,7 @@ const initialize = (geoip, prevQuery, location, storage, user) => (dispatch) => 
   ]
 
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const api_url = `/measures_detailed?select=${fields.join(',')}${from_liquid_query}${from_leg_body_query}${status_query}${type_query}${updated_query}${introduced_query}${legCheck}${fts}&published=is.true&order=${lastAction}.desc.nullslast&limit=40`
-
+  const api_url = `/measures_detailed?select=${fields.join(',')}${from_liquid_query}${imported_query}${status_query}${type_query}${updated_query}${introduced_query}${legCheck}${fts}&published=is.true&order=${lastAction}.desc.nullslast&limit=40`
   return api(api_url, { storage }).then((measures) => dispatch({
     type: 'receivedMeasures',
     measures: measures.reduce((b, a) => Object.assign(b, { [a.short_id]: a }), {}),
@@ -596,17 +581,15 @@ const summaryTooltipButton = (id, short_id, summary) => [`
   </a>
 `]
 
-const noBillsMsg = (from_leg_body) => html()`
-<div>
-${from_leg_body === 'on' ? [`
-  <p class="is-size-5">Liquid doesn't have this location's imported bill list yet, please change your selected criteria to view legislative items.
-
-  </p>
-`] : [`
-  <a href="/legislation/propose" class="button is-primary has-text-weight-semibold">
-    <span class="icon"><i class="fa fa-file"></i></span>
-    <span>Add the first policy proposal</span>
-  </a>
-`]}
-</div>
+const noBillsMsg = (imported) => html()`
+  <div>
+    ${imported === 'on' ? [`
+      <p class="is-size-5">Liquid doesn't have this location's imported bill list yet. Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request this location, or change your selected criteria to view legislative items.</p>
+    `] : [`
+      <a href="/legislation/propose" class="button is-primary has-text-weight-semibold">
+        <span class="icon"><i class="fa fa-file"></i></span>
+        <span>Add the first policy proposal</span>
+      </a>
+    `]}
+  </div>
 `
