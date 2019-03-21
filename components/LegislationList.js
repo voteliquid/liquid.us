@@ -36,7 +36,7 @@ module.exports = {
     }
   },
   view: (state, dispatch) => {
-    const { geoip, loading, measuresList, location, measures, storage, user } = state
+    const { geoip, loading, measuresList, legislatures, location, measures, storage, user } = state
     const { query } = location
     const showFilters = location.query.show_filters || storage.get('show_filters')
 
@@ -50,7 +50,7 @@ module.exports = {
               </div><br />
               ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []} <br />
               <div class=${showFilters ? 'is-centered' : 'is-hidden'}>
-                <div class="card filter-tabs">${filterTabs(state, dispatch)}</div>
+                <div class="card filter-tabs">${filterForm(geoip, legislatures, storage, location, user, dispatch)}</div>
               </div>
               ${loading ? activityIndicator() :
                 (!measuresList.length ? noBillsMsg(query.order, query) : measuresList.map((short_id) => ` ${measureListRow(measures[short_id])}`))}
@@ -330,12 +330,6 @@ const addAddressNotification = (geoip = {}, user) => {
       We guessed your location is <strong>${geoip.city}, ${geoip.regionName}.</strong><br />
       But this is only an approximation. <strong><a href="${user ? '/get_started/basics' : '/join'}">${user ? 'Go here' : 'Join'} to set your address</a></strong>.
     </p>
-  `
-}
-
-const filterTabs = ({ geoip, legislatures, location, storage, user }, dispatch) => {
-  return html()`
-      ${filterForm(geoip, legislatures, storage, location, user, dispatch)}
   `
 }
 
