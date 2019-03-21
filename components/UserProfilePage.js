@@ -74,25 +74,13 @@ module.exports = class UserProfilePage extends Component {
                     <span class="icon is-small"><i class="far fa-user-circle"></i></span>
                     <span>Edit Profile</span>
                   </button></a><br /><br />
-                  <button disabled class="button is-link is-outlined is-fullwidth is-medium tooltip is-tooltip-info fix-bulma-centered-text" data-tooltip="Add a bio, video, or picture">
-                    <span class="icon is-small"><i class="far fa-handshake"></i></span>
-                    <span>Proxy</span>
-                  </button>
+
                   `]
                 : ProxyButton.for(this)
               }
-              ${p.public_votes && p.public_votes.length && !user ? [`
-                <div class="content is-size-7 has-text-left">
-                  <br />
-                  <p><strong>${APP_NAME}</strong> lets you vote on any legislative bill, but most of us won't have time to do that.</p>
-                  <p>Proxy to ${p.first_name} to vote for you whenever you don't vote directly yourself.</p>
-               </div>
-             `] : [`<br /><br />`]}
 
              ${ShareButtons.for(this)}
              <br />
-
-
             </div>
             <div class="column">
               ${p.about ? AboutUser.for(this) : ''}
@@ -300,7 +288,13 @@ class ProxyButton extends Component {
                 <p>You've proxied to ${selected_profile.name}. To unproxy or manage your proxies visit your <a href="/proxies">Proxies</a> page.</p>
               </div>
             `]
-          : []
+          : [`
+              <div class="content is-size-7 has-text-left">
+                <br />
+                <p><strong>${APP_NAME}</strong> lets you vote on any legislative bill, but most of us won't have time to do that.</p>
+                <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
+              </div>
+            `]
           }
       </form>
     `
