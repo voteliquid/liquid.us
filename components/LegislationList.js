@@ -43,13 +43,13 @@ module.exports = {
     return html()`
       <div class="section whole-page">
         <div class="columns is-centered">
-          <div class="column">
+          <div class="column is-centered">
             <div class="container bill-details">
               <div class="has-text-centered">
                 ${filterButton(state, dispatch)}&nbsp${proposeButton()}
               </div><br />
               ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []} <br />
-              <div class=${showFilters ? 'is-centered' : 'is-hidden'}>
+              <div class=${showFilters ? 'has-text-centered' : 'is-hidden'}>
                 <div class="card filter-tabs">${filterForm(geoip, legislatures, storage, location, user, dispatch)}</div>
               </div>
               ${loading ? activityIndicator() :
@@ -63,9 +63,9 @@ module.exports = {
           max-width: 1086px;
         }
         .filter-tabs {
-          padding-left: 9rem;
           padding-top: 1rem;
           padding-bottom: 1rem;
+          padding-left: 4rem;
           background-color: #FFF;
         }
         .highlight-hover {
@@ -130,10 +130,6 @@ module.exports = {
         .bill-title {
           margin-bottom: 0.5rem;
         }
-        .card-content {
-          padding-left: 40px;
-          padding-bottom: 25px
-        }
         .vote-now {
           font-size: 20px;
         }
@@ -141,15 +137,11 @@ module.exports = {
           .whole-page {
             padding: 0;
           }
-          .card.highlight-hover {
-            padding: 1em;
+          .bill-details {
+            padding-top:2rem;
           }
-          .card-content {
-            padding-left: 3px;
-            padding-right: 3px;
-          }
-          .summary-bar {
-            padding-top: 5px;
+          .filter-tabs {
+            padding-left: 1rem;
           }
         }
       </style>
@@ -220,19 +212,19 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
       <button type="submit" class="filter-submit is-hidden">Update</button>
       <input type="checkbox" onclick=${toggleFilter(storage, 'show_filters')} name="show_filters" checked=${!!showFilters} class="is-hidden" />
       <div id="filter_checkboxes" style="display:block;">
-        <div class="columns is-centered">
+        <div class="columns has-text-left">
           <div class="column">
             <h3>Jurisdiction</h3>
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'congress')} type="checkbox" name="congress" checked=${!!congress} />
               Congress
             </label>
-              <br>
+              <br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'state')} type="checkbox" name="state" checked=${!!state} />
                 ${userState}
             </label>
-            <br>
+            <br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'city')} type="checkbox" name="city" checked=${!!city} />
               ${userCity}
@@ -252,15 +244,15 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'nominations')} type="checkbox" name="nominations" checked=${!!nominations} />
               Nominations
-            </label><br>
+            </label><br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'from_liquid')} type="checkbox" name="from_liquid" checked=${!!from_liquid} />
               Liquid Proposals
-            </label><br>
+            </label><br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'recent_updates')} type="checkbox" name="recent_update" checked=${!!recent_update} />
               Updated
-            </label><br>
+            </label><br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'resolutions')} type="checkbox" name="resolutions" checked=${!!resolutions} />
               Resolutions
@@ -272,31 +264,32 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'recently_introduced')} type="checkbox" name="recently_introduced" checked=${!!recently_introduced} />
               Introduced
-            </label><br>
+            </label><br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'committee_action')} type="checkbox" name="committee_action" checked=${!!committee_action} />
               Committee Action
-            </label><br>
+            </label><br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'committee_discharged')} type="checkbox" name="committee_discharged" checked=${!!committee_discharged} />
               Committee Discharged
-            </label><br>
+            </label><br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'floor_consideration')} type="checkbox" name="floor_consideration" checked=${!!floor_consideration} />
               Floor Consideration
-            </label><br>
+            </label><br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'passed_one')} type="checkbox" name="passed_one" checked=${!!passed_one} />
               Passed One Chamber
-            </label><br>
+            </label><br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'failed_one')} type="checkbox" name="failed_one" checked=${!!failed_one} />
               Failed or Withdrawn
             </label>
+            <br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'passed_both')} type="checkbox" name="passed_both" checked=${!!passed_both} />
               Passed Both Chambers
-            </label>
+            </label><br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'resolving')} type="checkbox" name="resolving" checked=${!!resolving} />
               Resolving Differences
@@ -308,11 +301,11 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'to_exec')} type="checkbox" name="to_exec" checked=${!!to_exec} />
               To Executive
-            </label><br>
+            </label><br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'enacted')} type="checkbox" name="enacted" checked=${!!enacted} />
               Enacted
-            </label><br>
+            </label><br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'veto')} type="checkbox" name="veto" checked=${!!veto} />
               Vetoed
@@ -356,7 +349,7 @@ const measureListRow = (s) => {
     <div class="card highlight-hover">
       <div class="card-content">
         <div class="title is-4 bill-title"><a href="${measureUrl}">${titleRevised}</a>
-          ${s.summary ? [`&nbsp${summaryTooltipButton(s.id, s.short_id, s.summary)}`] : ''}
+          <span class="is-size-6">${s.summary ? [`&nbsp${summaryTooltipButton(s.id, s.short_id, s.summary)}`] : ''}</span>
         </div>
         <div class="columns">
           <div class="column">
