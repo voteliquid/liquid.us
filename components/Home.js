@@ -1,5 +1,5 @@
 const { APP_NAME, WWW_DOMAIN } = process.env
-const { combineEffects, html, mapEffect, mapEvent } = require('../helpers')
+const { combineEffects, html, mapEffect, mapEvent, redirect } = require('../helpers')
 const JoinForm = require('./JoinForm')
 const YourLegislators = require('./YourLegislators')
 const Video = require('./Video')
@@ -28,10 +28,12 @@ module.exports = {
         return [{ ...state, ...yourLegislatorsState }, mapEffect('yourLegislatorsEffect', yourLegislatorsEffect)]
       case 'joinFormEvent':
         const [joinFormState, joinFormEffect] = JoinForm.update(event.event, { ...state, ...state.joinForm })
-        if (event.event.type === 'redirected') {
-          return [state, joinFormEffect]
+        if (event.event.type === 'userUpdated' || event.event.type === 'loaded' || event.event.type === 'redirected') {
+          return [state, (dispatch) => dispatch(event.event)]
         }
         return [{ ...state, joinForm: joinFormState }, mapEffect('joinFormEvent', joinFormEffect)]
+      case 'redirected':
+        return [state, redirect(event.url, event.status)]
       case 'contactWidgetOpened':
       case 'loaded':
       default:
@@ -266,7 +268,7 @@ module.exports = {
                 </style>
               </div>
               <div class="column">
-                ${Video({ url: 'https://www.youtube.com/embed/XMrRrzYXav8' })}
+                ${Video({ url: 'https://www.youtube.com/embed/NRGRgfSf7Fc' })}
               </div>
             </div>
           </div>

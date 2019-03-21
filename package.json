@@ -11,6 +11,7 @@
   "main": "server.js",
   "dependencies": {
     "@babel/polyfill": "^7.0.0-beta.44",
+    "@google/maps": "^0.5.5",
     "babel": "^6.23.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.3",

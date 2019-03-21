@@ -354,7 +354,7 @@ const measureListRow = (s) => {
         <div class="columns">
           <div class="column">
             <div class="is-size-5">
-              ${s.introduced_at
+              ${s.introduced_at && s.legislature_name !== 'WI'
               ? [`<strong>Status:</strong>
                 ${next_action_at
                   ? [`Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}`]
