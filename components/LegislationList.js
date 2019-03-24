@@ -42,8 +42,8 @@ module.exports = {
 
     return html()`
       <div class="section whole-page">
-        <div class="columns is-centered">
-          <div class="column is-centered">
+        <div>
+          <div class="column">
             <div class="container bill-details">
               <div class="has-text-centered">
                 ${filterButton(state, dispatch)}&nbsp${proposeButton()}
@@ -65,7 +65,6 @@ module.exports = {
         .filter-tabs {
           padding-top: 1rem;
           padding-bottom: 1rem;
-          padding-left: 4rem;
           background-color: #FFF;
         }
         .highlight-hover {
@@ -253,7 +252,7 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
               <input onclick=${toggleFilter(storage, 'recent_updates')} type="checkbox" name="recent_update" checked=${!!recent_update} />
               Updated
             </label><br />
-            <label class="checkbox has-text-grey">
+            <label class="checkbox has-text-grey is-hidden">
               <input onclick=${toggleFilter(storage, 'resolutions')} type="checkbox" name="resolutions" checked=${!!resolutions} />
               Resolutions
             </label>
@@ -348,9 +347,7 @@ const measureListRow = (s) => {
   return `
     <div class="card highlight-hover">
       <div class="card-content">
-        <div class="title is-4 bill-title"><a href="${measureUrl}">${titleRevised}</a>
-          <span class="is-size-6">${s.summary ? [`&nbsp${summaryTooltipButton(s.id, s.short_id, s.summary)}`] : ''}</span>
-        </div>
+        <div class="title is-4 bill-title"><a href="${measureUrl}">${titleRevised}</a></div>
         <div class="columns">
           <div class="column">
             <div class="is-size-5">
@@ -366,17 +363,20 @@ const measureListRow = (s) => {
                 `] : ''}
               `] : []}
             </div>
-            <div class="has-text-grey summary-bar" id=${s.id}>
+            <div class="has-text-grey is-size-6" id=${s.id}>
               Introduced ${chamber}
               ${s.sponsor_first_name ? [`
-                <span class="has-text-grey-lighter">&bullet;</span>
+                <span">&bullet;</span>
                 <a href="${`/${s.sponsor_username}`}">${s.sponsor_first_name} ${s.sponsor_last_name}</a>
               `] : s.author_username ? [`
-                <span class="has-text-grey-lighter">&bullet;</span>
-                <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>&nbsp;
+                <span>&bullet;</span>
+                <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>
               `] : []}
-              <span class="has-text-grey-lighter">&bullet;</span>
+              <span>&bullet;</span>
               ${(new Date(s.introduced_at || s.created_at)).toLocaleDateString()}
+              ${s.summary ? [`<span class="has-text-grey is-hidden-mobile">&bullet;</span>${summaryTooltipButton(s.id, s.short_id, s.summary)}
+              `] : []}
+
             </div>
           </div>
 
@@ -403,81 +403,62 @@ const initialize = (geoip, prevQuery, location, storage, user) => (dispatch) => 
   if (prevQuery === url) return dispatch({ type: 'loaded' })
   const terms = query.terms && query.terms.replace(/[^\w\d ]/g, '').replace(/(hr|s) (\d+)/i, '$1$2').replace(/(\S)\s+(\S)/g, '$1 & $2')
   const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
+  // determine which legislatures to show
   const userCitySt = user && user.address ? `"${user.address.city}, ${user.address.state}"` : geoip ? `"${geoip.city}, ${geoip.region}"` : ''
   const userState = user && user.address ? user.address.state : geoip ? geoip.region : ''
   const congress = query.congress || storage.get('congress')
   const state = query.state || storage.get('state')
   const city = query.city || storage.get('city')
-  const congressName = 'U.S. Congress'
-  const leg_query = congress === 'on' && state === 'on' && city === 'on' ? `${congressName},${userState},${userCitySt}` : congress === 'on' && state === 'on' ? `${congressName},${userState}` : congress === 'on' && city === 'on' ? `${congressName},${userCitySt}` : congress === 'on' ? `${congressName}` : state === 'on' && city === 'on' ? `${userState},${userCitySt}` : state === 'on' ? `${userState}` : city === 'on' ? `${userCitySt}` : `${congressName},${userState},${userCitySt}`
-  const legCheck = `&legislature_name=in.(${leg_query})`
+  const leg_query = `${congress === 'on' ? 'U.S. Congress,' : ''}${state === 'on' ? `${userState},` : ''}${city === 'on' ? `${userCitySt},` : ''}${congress === 'on' || state === 'on' || city === 'on' ? '' : `U.S. Congress,${userCitySt},${userState},`}`
 
 // see which statuses are checked
-  const recently_introduced = query.recently_introduced || storage.get('recently_introduced')
-  const committee_discharged = query.committee_discharged || storage.get('committee_discharged')
-  const floor_consideration = query.floor_consideration || storage.get('floor_consideration')
-  const committee_action = query.committee_action || storage.get('committee_action')
-  const passed_one = query.passed_one || storage.get('passed_one')
-  const failed_one = query.failed_one || storage.get('failed_one')
-  const passed_both = query.passed_both || storage.get('passed_both')
-  const resolving = query.resolving || storage.get('resolving')
-  const to_exec = query.to_exec || storage.get('to_exec')
-  const pending_exec_cal = query.pending_exec_cal || storage.get('pending_exec_cal')
-  const enacted_check = query.enacted || storage.get('enacted')
-  const veto_check = query.veto || storage.get('veto')
-  const withdrawn_check = query.withdrawn || storage.get('withdrawn')
-  const failed_check = query.failed || storage.get('failed')
+  const recently_introduced = query.recently_introduced || storage.get('recently_introduced') === 'on'
+  const committee_discharged = query.committee_discharged || storage.get('committee_discharged') === 'on'
+  const floor_consideration = query.floor_consideration || storage.get('floor_consideration') === 'on'
+  const committee_action = query.committee_action || storage.get('committee_action') === 'on'
+  const passed_one = query.passed_one || storage.get('passed_one') === 'on'
+  const failed_withdrawn = query.failed_one || storage.get('failed_one') === 'on' || query.withdrawn || storage.get('withdrawn') === 'on' || query.failed || storage.get('failed') === 'on'
+  const passed_both = query.passed_both || storage.get('passed_both') === 'on'
+  const resolving = query.resolving || storage.get('resolving') === 'on'
+  const to_exec = query.to_exec || storage.get('to_exec') === 'on'
+  const pending_exec_cal = query.pending_exec_cal || storage.get('pending_exec_cal') === 'on'
+  const enacted_check = query.enacted || storage.get('enacted') === 'on'
+  const veto_check = query.veto || storage.get('veto') === 'on'
   const recent_update = query.recent_update || storage.get('recent_update')
 
-  const cd = committee_discharged === 'on'
-  const flc = floor_consideration === 'on'
-  const ca = committee_action === 'on'
-  const poc = passed_one === 'on'
-  const fw = failed_one === 'on' || withdrawn_check === 'on' || failed_check === 'on'
-  const pbc = passed_both === 'on'
-  const rc = resolving === 'on'
-  const tec = to_exec === 'on'
-  const ecc = pending_exec_cal === 'on'
-  const vc = veto_check === 'on'
-  const ec = enacted_check === 'on'
-  const ri = recently_introduced === 'on'
-
 // set status pull based on which ones are checked
-  const introducedCheck = ri && (flc || cd || ca || poc || fw || pbc || rc || tec || ecc || vc || ec) ? `Introduced,Pending Committee,` : ri ? `Introduced,Pending Committee` : ''
-  const floorCheck = flc && (cd || ca || poc || fw || pbc || rc || tec || ecc || vc || ec) ? 'Floor Consideration,Pending Executive Calendar,' : flc ? 'Floor Consideration,Pending Executive Calendar' : ''
-  const dischargedCheck = cd && (ca || poc || fw || pbc || rc || tec || ecc || vc || ec) ? 'Awaiting floor or committee vote,' : cd ? 'Awaiting floor or committee vote' : ''
-  const committeeActionCheck = ca && (poc || fw || pbc || rc || tec || ecc || vc || ec) ? 'Committee Consideration,' : ca ? 'Committee Consideration' : ''
-  const passedOneCheck = poc && (fw || pbc || rc || tec || ecc || vc || ec) ? 'Passed One Chamber,' : poc ? 'Passed One Chamber' : ''
-  const failedOne = fw && (pbc || rc || tec || ecc || vc || ec) ? 'Failed One Chamber,Withdrawn,Failed or Returned to Executive,' : fw ? 'Failed One Chamber,Withdrawn,Failed or Returned to Executive' : ''
-  const passedBoth = pbc && (rc || tec || ecc || vc || ec) ? 'Passed Both Chambers,' : pbc ? 'Passed Both Chambers' : ''
-  const resolvingCheck = rc && (tec || ecc || vc || ec) ? 'Resolving Differences,' : rc ? 'Resolving Differences' : ''
-  const execCheck = tec && (ecc || vc || ec) ? 'To Executive,' : tec ? 'To Executive' : ''
-  const enactedCheck = ec && vc ? 'Enacted,' : ec ? 'Enacted' : ''
-  const vetoedCheck = vc ? 'Veto Actions' : ''
+  const introducedCheck = recently_introduced ? `Introduced,Pending Committee,` : ''
+  const floorCheck = floor_consideration ? 'Floor Consideration,Pending Executive Calendar,' : ''
+  const dischargedCheck = committee_discharged ? 'Awaiting floor or committee vote,' : ''
+  const committeeActionCheck = committee_action ? 'Committee Consideration,' : ''
+  const passedOneCheck = passed_one ? 'Passed One Chamber,' : ''
+  const failedOne = failed_withdrawn ? 'Failed One Chamber,Withdrawn,Failed or Returned to Executive,' : ''
+  const passedBoth = passed_both ? 'Passed Both Chambers,' : ''
+  const resolvingCheck = resolving ? 'Resolving Differences,' : ''
+  const execCheck = to_exec ? 'To Executive,' : ''
+  const enactedCheck = enacted_check ? 'Enacted,' : ''
+  const vetoedCheck = veto_check ? 'Veto Actions,' : ''
 
-  const updated_query = recently_introduced === 'on' || flc || cd || ca || poc || fw || pbc || rc || tec || ecc || vc || ec ? '' : recent_update === 'on' ? '&status=neq.Introduced' : ''
-  const introduced_query = updated_query === 'on' || flc || cd || ca || poc || fw || pbc || rc || tec || ecc || vc || ec ? '' : recently_introduced === 'on' ? '&status=eq.Introduced' : ''
-  const allStatus = ri || flc || cd || ca || poc || fw || pbc || rc || tec || ecc || vc || ec ? '' : `Introduced,Floor Consideration,Committee Consideration,Passed One Chamber,Failed One Chamber,Passed Both Chambers,Resolving Differences,To Executive,Pending Executive Calendar,Enacted,Withdrawn,Veto Actions,Failed or Returned to Executive`
+  const updated_query = recently_introduced === 'on' || floor_consideration || committee_discharged || committee_action || passed_one || failed_withdrawn || passed_both || resolving || to_exec || pending_exec_cal || veto_check || enacted_check ? '' : recent_update === 'on' ? '&status=neq.Introduced' : ''
+  const introduced_query = updated_query === 'on' || floor_consideration || committee_discharged || committee_action || passed_one || failed_withdrawn || passed_both || resolving || to_exec || pending_exec_cal || veto_check || enacted_check ? '' : recently_introduced === 'on' ? '&status=eq.Introduced' : ''
+  const allStatus = recently_introduced || floor_consideration || committee_discharged || committee_action || passed_one || failed_withdrawn || passed_both || resolving || to_exec || pending_exec_cal || veto_check || enacted_check ? '' : `Introduced,Floor Consideration,Committee Consideration,Passed One Chamber,Failed One Chamber,Passed Both Chambers,Resolving Differences,To Executive,Pending Executive Calendar,Enacted,Withdrawn,Veto Actions,Failed or Returned to Executive,`
+  const status_query = `${introducedCheck}${floorCheck}${dischargedCheck}${committeeActionCheck}${passedOneCheck}${failedOne}${passedBoth}${resolvingCheck}${execCheck}${enactedCheck}${vetoedCheck}${allStatus}`
 
-  const status_query = `&status=in.(${introducedCheck}${floorCheck}${dischargedCheck}${committeeActionCheck}${passedOneCheck}${failedOne}${passedBoth}${resolvingCheck}${execCheck}${enactedCheck}${vetoedCheck}${allStatus})`
   // how to sort bills
-    const lastAction = flc || cd || ca || poc || fw || pbc || rc || tec || ecc || vc || ec || recent_update === 'on' ? 'last_action_at' : 'created_at'
+    const lastAction = floor_consideration || committee_discharged || committee_action || passed_one || failed_withdrawn || passed_both || resolving || to_exec || pending_exec_cal || veto_check || enacted_check || recent_update === 'on' ? 'last_action_at' : 'created_at'
 
 // check and select other variables
   const from_liquid = query.from_liquid || storage.get('from_liquid')
   const imported = query.imported || storage.get('imported')
   const from_liquid_query = from_liquid === 'on' && imported !== 'on' ? '&introduced_at=is.null' : ''
   const imported_query = imported === 'on' && from_liquid !== 'on' ? '&introduced_at=not.is.null' : ''
-  const nominations = query.nominations || storage.get('nominations')
-  const resolutions = query.resolutions || storage.get('resolutions')
-  const bills = query.bills || storage.get('bills')
-  const bo = bills === 'on'
-  const no = nominations === 'on'
-  const ro = resolutions === 'on'
-  const nominations_query = no && (bo || ro) ? 'nomination,' : no ? 'nomination' : ''
-  const resolutions_query = ro && bo ? 'resolution,joint-resolution,' : ro ? 'resolution,joint-resolution' : ''
-  const bills_query = bo ? 'bill' : ''
-  const allType = no || ro || bo ? '' : 'bill,nomination,resolution,constitutional amendment'
+  const nominations = query.nominations || storage.get('nominations') === 'on'
+  const resolutions = query.resolutions || storage.get('resolutions') === 'on'
+  const bills = query.bills || storage.get('bills') === 'on'
+  const nominations_query = nominations && (bills || resolutions) ? 'nomination,' : nominations ? 'nomination' : ''
+  const resolutions_query = resolutions && bills ? 'resolution,joint-resolution,' : resolutions ? 'resolution,joint-resolution' : ''
+  const bills_query = bills ? 'bill' : ''
+  const allType = nominations || resolutions || bills ? '' : 'bill,nomination,resolution,constitutional amendment'
   const type_query = `&type=in.(${nominations_query}${resolutions_query}${bills_query}${allType})`
   const fields = [
     'title', 'number', 'type', 'short_id', 'id', 'status',
@@ -487,7 +468,7 @@ const initialize = (geoip, prevQuery, location, storage, user) => (dispatch) => 
   ]
 
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const api_url = `/measures_detailed?select=${fields.join(',')}${from_liquid_query}${imported_query}${status_query}${type_query}${updated_query}${introduced_query}${legCheck}${fts}&published=is.true&order=${lastAction}.desc.nullslast&limit=40`
+  const api_url = `/measures_detailed?select=${fields.join(',')}${from_liquid_query}${imported_query}${removeEndComma('status', status_query)}${type_query}${updated_query}${introduced_query}${removeEndComma('legislature_name', leg_query)}${fts}&published=is.true&order=${lastAction}.desc.nullslast&limit=40`
   return api(api_url, { storage }).then((measures) => dispatch({
     type: 'receivedMeasures',
     measures: measures.reduce((b, a) => Object.assign(b, { [a.short_id]: a }), {}),
@@ -506,6 +487,9 @@ const votePositionClass = (position) => {
   return ''
 }
 
+const removeEndComma = (filter_name, filter_function) => {
+  return `&${filter_name}=in.(${filter_function.slice(0, filter_function.length - 1)})`
+}
 const voteButton = (s) => {
   let voteBtnTxt = 'Vote'
   let voteBtnClass = 'button is-outlined is-fullwidth vote-now is-primary'
