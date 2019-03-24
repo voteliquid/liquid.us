@@ -93,6 +93,10 @@ module.exports = (state, html, bundleUrl) => {
             display: inline-block !important; /* https://github.com/jgthms/bulma/issues/727 */
           }
 
+          .content s {
+            opacity: 0.65;
+          }
+
         </style>
         <meta property="og:title" content="${og_title || title.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:description" content="${page_description.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />

@@ -102,7 +102,7 @@ module.exports = class Component extends hyperloopComponent {
         if (opts.replaceAmp && char === '&') return '&amp;'
         return char
       })
-      .replace(/&lt;(\/?)(i|p|br|ul|ol|li|strong|a|b)&gt;/gi, (match, p1, p2) => {
+      .replace(/&lt;(\/?)(i|p|br|ul|ol|li|strong|a|b|s)&gt;/gi, (match, p1, p2) => {
         return `<${p1}${p2}>`
       })
       .replace(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/gi, (match) => {
