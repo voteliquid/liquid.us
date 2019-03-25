@@ -1,7 +1,5 @@
 const { api, html, preventDefault, redirect } = require('../helpers')
 const activityIndicator = require('./ActivityIndicator')
-const stringWidth = require('string-width')
-
 
 module.exports = {
   init: ({ geoip, legislatures, location = {}, measures = {}, measuresList = [], measuresQuery, storage, user, showFilters }) => [{
@@ -329,7 +327,7 @@ const measureListRow = (s) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
   const measureUrl = s.author_username ? `/${s.author_username}/legislation/${s.short_id}` : `/legislation/${s.short_id}`
   const shortLegislatureName =
-    s.legislature_name === 'U.S. Congress' ? 'Congress'
+    s.legislature_name === 'U.S. Congress' ? 'U.S.'
     : s.legislature_name.includes(',') ? s.legislature_name.split(', ')[0]
     : s.legislature_name
   const chamber =
@@ -342,16 +340,14 @@ const measureListRow = (s) => {
     s.title.includes('To amend ') ? `T${s.title.slice(s.title.indexOf(' to ') + 2)}`
     : s.title.includes('Relating to: ') ? `${s.title.charAt(13).toUpperCase() + s.title.slice(14)}`
     : s.title
-  const summaryLengthCheck = stringWidth(`Introduced ${chamber} ${(s.sponsor_first_name || s.author_first_name)} ${(s.sponsor_last_name || s.author_last_name)}${(new Date(s.introduced_at)).toLocaleDateString()}`)
-  const summaryBarFontSize = summaryLengthCheck > 49 ? '12' : summaryLengthCheck > 42 ? '13' : '15'
 
   return `
     <div class="card highlight-hover">
       <div class="card-content">
         <div class="title is-4 bill-title"><a href="${measureUrl}">${titleRevised}</a></div>
         <div class="columns">
-          <div class="column">
-            <div class="is-size-5">
+          <div class="column is-size-5">
+            <div>
               ${s.introduced_at && s.legislature_name !== 'WI'
               ? [`<strong>Status:</strong>
                 ${next_action_at
@@ -364,15 +360,15 @@ const measureListRow = (s) => {
                 `] : ''}
               `] : []}
             </div>
-            <div class="has-text-grey" id=${s.id}>
-              Introduced ${chamber}
+            <div class="has-text-grey summary-bar">
               ${s.sponsor_first_name ? [`
+                By <a href="${`/${s.sponsor_username}`}">${s.sponsor_first_name} ${s.sponsor_last_name}</a>
                 <span">&bullet;</span>
-                <a href="${`/${s.sponsor_username}`}">${s.sponsor_first_name} ${s.sponsor_last_name}</a>
               `] : s.author_username ? [`
-                <span>&bullet;</span>
-                <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>
+                By <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>
+                <span">&bullet;</span>
               `] : []}
+              ${chamber}
               <span>&bullet;</span>
               ${(new Date(s.introduced_at || s.created_at)).toLocaleDateString()}
               ${s.summary ? [`<span class="has-text-grey is-hidden-mobile">&bullet;</span>${summaryTooltipButton(s.id, s.short_id, s.summary)}
@@ -390,8 +386,8 @@ const measureListRow = (s) => {
     </div>
     <style>
       @media (max-width: 1086px) {
-        #${s.id} {
-          font-size: ${summaryBarFontSize}px;
+        .summary-bar {
+          font-size: 14px;
         }
       }
     </style>
@@ -516,7 +512,7 @@ const voteButton = (s) => {
     if (s.vote_position === 'abstain') voteBtnIcon = 'far fa-circle'
     if (s.delegate_rank > -1) {
       if (s.delegate_name) {
-        voteBtnTxt = `${s.delegate_name} voted ${position} for you`
+        voteBtnTxt = `${s.delegate_name} ${position === 'Abstain' ? 'abstained' : `voted ${position}`} for you`
       } else {
         voteBtnTxt = `Inherited ${position} vote from proxy`
       }
