@@ -1,6 +1,5 @@
 const { api, html, preventDefault, redirect } = require('../helpers')
 const activityIndicator = require('./ActivityIndicator')
-const stateNames = require('datasets-us-states-abbr-names')
 const stringWidth = require('string-width')
 
 
@@ -43,7 +42,7 @@ module.exports = {
     return html()`
       <div class="section whole-page">
         <div>
-          <div class="column">
+          <div class="column main-column">
             <div class="container bill-details">
               <div class="has-text-centered">
                 ${filterButton(state, dispatch)}&nbsp${proposeButton()}
@@ -137,10 +136,13 @@ module.exports = {
             padding: 0;
           }
           .bill-details {
-            padding-top:2rem;
+            padding-top: 2rem;
           }
           .filter-tabs {
             padding-left: 1rem;
+          }
+          .main-column {
+            padding: 0rem;
           }
         }
       </style>
@@ -149,13 +151,13 @@ module.exports = {
 }
 
 
-const toggleFilter = (storage, filterName) => (event) => {
+const toggleFilter = (storage, filterName, legislature) => (event) => {
   const btn = document.querySelector('.filter-submit')
   if (btn.disabled) {
     event.preventDefault()
   } else {
     if (event.currentTarget && event.currentTarget.checked) {
-      storage.set(filterName, 'on')
+      storage.set(filterName, `${legislature}` || 'on')
     } else {
       storage.unset(filterName)
     }
@@ -198,14 +200,6 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
   const enacted = location.query.enacted || storage.get('enacted')
   const veto = location.query.veto || storage.get('veto')
 
-  // Add legislature from URL to legislature selection
-  if (location.query.legislature && !legislatures.some(({ abbr }) => abbr === location.query.legislature)) {
-    legislatures.push({
-      abbr: location.query.legislature,
-      name: stateNames[location.query.legislature] || location.query.legislature,
-    })
-  }
-
   return html()`
     <form name="legislation_filters" class="is-inline-block is-centered" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
       <button type="submit" class="filter-submit is-hidden">Update</button>
@@ -220,12 +214,12 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
             </label>
               <br />
             <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(storage, 'state')} type="checkbox" name="state" checked=${!!state} />
+              <input onclick=${toggleFilter(storage, 'state', userState)} type="checkbox" name="state" checked=${!!state} />
                 ${userState}
             </label>
             <br />
             <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(storage, 'city')} type="checkbox" name="city" checked=${!!city} />
+              <input onclick=${toggleFilter(storage, 'city', userCity)} type="checkbox" name="city" checked=${!!city} />
               ${userCity}
             </label>
           </div>
@@ -342,7 +336,9 @@ const measureListRow = (s) => {
     s.title.includes('To amend ') ? `T${s.title.slice(s.title.indexOf(' to ') + 2)}`
     : s.title.includes('Relating to: ') ? `${s.title.charAt(13).toUpperCase() + s.title.slice(14)}`
     : s.title
-  const summaryBarFontSize = stringWidth(`Introduced ${chamber} ${(s.sponsor_first_name || s.author_first_name)} ${(s.sponsor_last_name || s.author_last_name)} • ${(new Date(s.introduced_at)).toLocaleDateString()}`) > 46 ? '13' : '15'
+  const summaryLengthCheck = stringWidth(`Introduced ${chamber} ${(s.sponsor_first_name || s.author_first_name)} ${(s.sponsor_last_name || s.author_last_name)}${(new Date(s.introduced_at)).toLocaleDateString()}`)
+  const summaryBarFontSize = summaryLengthCheck > 49 ? '12' : summaryLengthCheck > 42 ? '13' : '15'
+  console.log(s.sponsor_first_name, s.id, stringWidth(`Introduced ${chamber} ${(s.sponsor_first_name || s.author_first_name)} ${(s.sponsor_last_name || s.author_last_name)}${(new Date(s.introduced_at)).toLocaleDateString()}`))
 
   return `
     <div class="card highlight-hover">
@@ -363,7 +359,7 @@ const measureListRow = (s) => {
                 `] : ''}
               `] : []}
             </div>
-            <div class="has-text-grey is-size-6" id=${s.id}>
+            <div class="has-text-grey" id=${s.id}>
               Introduced ${chamber}
               ${s.sponsor_first_name ? [`
                 <span">&bullet;</span>
@@ -409,7 +405,8 @@ const initialize = (geoip, prevQuery, location, storage, user) => (dispatch) => 
   const congress = query.congress || storage.get('congress')
   const state = query.state || storage.get('state')
   const city = query.city || storage.get('city')
-  const leg_query = `${congress === 'on' ? 'U.S. Congress,' : ''}${state === 'on' ? `${userState},` : ''}${city === 'on' ? `${userCitySt},` : ''}${congress === 'on' || state === 'on' || city === 'on' ? '' : `U.S. Congress,${userCitySt},${userState},`}`
+  console.log(state)
+  const leg_query = `${congress ? 'U.S. Congress,' : ''}${state === 'on' ? `${userState},` : state ? `${state},` : ''}${city === 'on' ? `${userCitySt},` : city ? `${city},` : ''}${congress || state || city ? `` : `U.S. Congress,${userCitySt},${userState},`}`
 
 // see which statuses are checked
   const recently_introduced = query.recently_introduced || storage.get('recently_introduced') === 'on'
