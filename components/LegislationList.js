@@ -48,7 +48,7 @@ module.exports = {
                 ${filterButton(state, dispatch)}&nbsp${proposeButton()}
               </div><br />
               ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []} <br />
-              <div class=${showFilters ? 'has-text-centered' : 'is-hidden'}>
+              <div class="${showFilters ? 'has-text-centered' : 'is-hidden'}">
                 <div class="card filter-tabs">${filterForm(geoip, legislatures, storage, location, user, dispatch)}</div>
               </div>
               ${loading ? activityIndicator() :
@@ -177,7 +177,8 @@ const updateFilter = (event, location, dispatch) => {
 const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
   const showFilters = location.query.show_filters || storage.get('show_filters')
   const from_liquid = location.query.from_liquid || storage.get('from_liquid')
-  const imported = location.query.imported || storage.get('imported')
+  const upper = location.query.upper || storage.get('upper')
+  const lower = location.query.lower || storage.get('lower')
   const bills = location.query.floor_consideration || storage.get('bills')
   const nominations = location.query.nominations || storage.get('nominations')
   const resolutions = location.query.resolutions || storage.get('resolutions')
@@ -225,11 +226,20 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
           </div>
 
           <div class="column">
-            <h3>Type</h3>
+            <h3>Chamber</h3>
             <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(storage, 'imported')} type="checkbox" name="imported" checked=${!!imported} />
-              Imported
+              <input onclick=${toggleFilter(storage, 'upper')} type="checkbox" name="upper" checked=${!!upper} />
+              Upper
             </label><br>
+            <label class="checkbox has-text-grey">
+              <input onclick=${toggleFilter(storage, 'lower')} type="checkbox" name="lower" checked=${!!lower} />
+              Lower
+            </label><br />
+            <label class="checkbox has-text-grey">
+              <input onclick=${toggleFilter(storage, 'from_liquid')} type="checkbox" name="from_liquid" checked=${!!from_liquid} />
+              Liquid
+            </label><br /><br />
+            <h3>Type</h3>
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'Bills')} type="checkbox" name="bills" checked=${!!bills} />
               Bills
@@ -237,10 +247,6 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'nominations')} type="checkbox" name="nominations" checked=${!!nominations} />
               Nominations
-            </label><br />
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(storage, 'from_liquid')} type="checkbox" name="from_liquid" checked=${!!from_liquid} />
-              Liquid Proposals
             </label><br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'recent_updates')} type="checkbox" name="recent_update" checked=${!!recent_update} />
@@ -338,7 +344,6 @@ const measureListRow = (s) => {
     : s.title
   const summaryLengthCheck = stringWidth(`Introduced ${chamber} ${(s.sponsor_first_name || s.author_first_name)} ${(s.sponsor_last_name || s.author_last_name)}${(new Date(s.introduced_at)).toLocaleDateString()}`)
   const summaryBarFontSize = summaryLengthCheck > 49 ? '12' : summaryLengthCheck > 42 ? '13' : '15'
-  console.log(s.sponsor_first_name, s.id, stringWidth(`Introduced ${chamber} ${(s.sponsor_first_name || s.author_first_name)} ${(s.sponsor_last_name || s.author_last_name)}${(new Date(s.introduced_at)).toLocaleDateString()}`))
 
   return `
     <div class="card highlight-hover">
@@ -409,19 +414,19 @@ const initialize = (geoip, prevQuery, location, storage, user) => (dispatch) => 
   const leg_query = `${congress ? 'U.S. Congress,' : ''}${state === 'on' ? `${userState},` : state ? `${state},` : ''}${city === 'on' ? `${userCitySt},` : city ? `${city},` : ''}${congress || state || city ? `` : `U.S. Congress,${userCitySt},${userState},`}`
 
 // see which statuses are checked
-  const recently_introduced = query.recently_introduced || storage.get('recently_introduced') === 'on'
-  const committee_discharged = query.committee_discharged || storage.get('committee_discharged') === 'on'
-  const floor_consideration = query.floor_consideration || storage.get('floor_consideration') === 'on'
-  const committee_action = query.committee_action || storage.get('committee_action') === 'on'
-  const passed_one = query.passed_one || storage.get('passed_one') === 'on'
-  const failed_withdrawn = query.failed_one || storage.get('failed_one') === 'on' || query.withdrawn || storage.get('withdrawn') === 'on' || query.failed || storage.get('failed') === 'on'
-  const passed_both = query.passed_both || storage.get('passed_both') === 'on'
-  const resolving = query.resolving || storage.get('resolving') === 'on'
-  const to_exec = query.to_exec || storage.get('to_exec') === 'on'
-  const pending_exec_cal = query.pending_exec_cal || storage.get('pending_exec_cal') === 'on'
-  const enacted_check = query.enacted || storage.get('enacted') === 'on'
-  const veto_check = query.veto || storage.get('veto') === 'on'
-  const recent_update = query.recent_update || storage.get('recent_update')
+  const recently_introduced = (query.recently_introduced || storage.get('recently_introduced')) === 'on'
+  const committee_discharged = (query.committee_discharged || storage.get('committee_discharged')) === 'on'
+  const floor_consideration = (query.floor_consideration || storage.get('floor_consideration')) === 'on'
+  const committee_action = (query.committee_action || storage.get('committee_action')) === 'on'
+  const passed_one = (query.passed_one || storage.get('passed_one')) === 'on'
+  const failed_withdrawn = (query.failed_one || storage.get('failed_one') === 'on') || query.withdrawn || storage.get('withdrawn') === 'on' || (query.failed || storage.get('failed') === 'on')
+  const passed_both = (query.passed_both || storage.get('passed_both') === 'on')
+  const resolving = (query.resolving || storage.get('resolving') === 'on')
+  const to_exec = (query.to_exec || storage.get('to_exec') === 'on')
+  const pending_exec_cal = (query.pending_exec_cal || storage.get('pending_exec_cal') === 'on')
+  const enacted_check = (query.enacted || storage.get('enacted') === 'on')
+  const veto_check = (query.veto || storage.get('veto') === 'on')
+  const recent_update = (query.recent_update || storage.get('recent_update'))
 
 // set status pull based on which ones are checked
   const introducedCheck = recently_introduced ? `Introduced,Pending Committee,` : ''
@@ -444,11 +449,24 @@ const initialize = (geoip, prevQuery, location, storage, user) => (dispatch) => 
   // how to sort bills
     const lastAction = floor_consideration || committee_discharged || committee_action || passed_one || failed_withdrawn || passed_both || resolving || to_exec || pending_exec_cal || veto_check || enacted_check || recent_update === 'on' ? 'last_action_at' : 'created_at'
 
-// check and select other variables
-  const from_liquid = query.from_liquid || storage.get('from_liquid')
-  const imported = query.imported || storage.get('imported')
-  const from_liquid_query = from_liquid === 'on' && imported !== 'on' ? '&introduced_at=is.null' : ''
-  const imported_query = imported === 'on' && from_liquid !== 'on' ? '&introduced_at=not.is.null' : ''
+// chamber query
+  const liquid = query.from_liquid || storage.get('from_liquid')
+  const lower = query.upper || storage.get('lower')
+  const upper = query.upper || storage.get('upper')
+  const chamber_query = `&chamber=in.(${upper === 'on' && liquid === 'on'
+    ? 'Upper,Lower'
+    : upper === 'on'
+    ? 'Upper'
+    : liquid === 'on'
+    ? 'Lower'
+    : 'Upper,Lower'})`
+  const liquid_query = liquid === 'on' && (upper === 'on' || lower === 'on')
+  ? ''
+  : upper === 'on' || lower === 'on'
+  ? '&introduced_at=not.is.null'
+  : liquid === 'on'
+  ? '&introduced_at=is.null'
+  : ''
   const nominations = query.nominations || storage.get('nominations') === 'on'
   const resolutions = query.resolutions || storage.get('resolutions') === 'on'
   const bills = query.bills || storage.get('bills') === 'on'
@@ -465,7 +483,7 @@ const initialize = (geoip, prevQuery, location, storage, user) => (dispatch) => 
   ]
 
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const api_url = `/measures_detailed?select=${fields.join(',')}${from_liquid_query}${imported_query}${removeEndComma('status', status_query)}${type_query}${updated_query}${introduced_query}${removeEndComma('legislature_name', leg_query)}${fts}&published=is.true&order=${lastAction}.desc.nullslast&limit=40`
+  const api_url = `/measures_detailed?select=${fields.join(',')}${chamber_query}${liquid_query}${removeEndComma('status', status_query)}${type_query}${updated_query}${introduced_query}${removeEndComma('legislature_name', leg_query)}${fts}&published=is.true&order=${lastAction}.desc.nullslast&limit=40`
   return api(api_url, { storage }).then((measures) => dispatch({
     type: 'receivedMeasures',
     measures: measures.reduce((b, a) => Object.assign(b, { [a.short_id]: a }), {}),
@@ -549,10 +567,10 @@ const summaryTooltipButton = (id, short_id, summary) => [`
   </a>
 `]
 
-const noBillsMsg = (imported) => html()`
+const noBillsMsg = (upper, lower) => html()`
   <div>
-    ${imported === 'on' ? [`
-      <p class="is-size-5">Liquid doesn't have this location's imported bill list yet. Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request this location, or change your selected criteria to view legislative items.</p>
+    ${upper === 'on' || lower === 'on' ? [`
+      <p class="is-size-5">Liquid doesn't have this legislature's bill list yet. Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request this location, or change your selected criteria to view legislative items.</p>
     `] : [`
       <a href="/legislation/propose" class="button is-primary has-text-weight-semibold">
         <span class="icon"><i class="fa fa-file"></i></span>
