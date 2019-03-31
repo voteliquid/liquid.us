@@ -47,11 +47,11 @@ const submitMessage = (event, user, url) => (dispatch) => {
   const message = event.target.querySelector('textarea[name="message"]')
   const email = event.target.querySelector('input[name="email"]')
   if (message) {
-    if (!user) user = { email }
+    if (!user) user = { email: email.value }
 
     fetch('https://blog-api.liquid.us/feedback', {
       body: JSON.stringify({
-        text: message,
+        text: message.value,
         user,
         url,
       }),
