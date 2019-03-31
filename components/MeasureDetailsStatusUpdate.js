@@ -4,7 +4,21 @@ module.exports = class MeasureDetailsStatusUpdate extends Component {
   render() {
     const { selected_bill = {}, user } = this.state
     const l = selected_bill
+    const next_action_at = l.next_agenda_action_at || l.next_agenda_begins_at
+    const index = l.legislature_name.indexOf(',')
 
+    const status = l.published === false
+    ? `Draft legislation created on ${(new Date(l.created_at)).toLocaleDateString()}`
+    : next_action_at
+    ? [`
+      Scheduled for House floor action ${!l.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
+      <br />
+    `]
+    : l.status === 'Introduced' && l.sponsor_username === null
+    ? `Published on Liquid ${l.legislature_name === 'U.S. Congress' ? 'Congress' : index ? l.legislature_name.slice(0, index) : l.legislature_name}`
+    : l.status === 'Introduced'
+    ? `Introduced on ${(new Date(l.introduced_at)).toLocaleDateString()}`
+    : `${l.status}`
     const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
 
     return this.html`
@@ -21,7 +35,7 @@ module.exports = class MeasureDetailsStatusUpdate extends Component {
           <div class="columns">
             <div class="column is-two-thirds-tablet is-three-quarters-desktop">
               <h2 class="title has-text-weight-normal is-4">${title}</h2>
-              <h2 class="title is-5">Current Status: ${l.status}</h2>
+              <h2 class="title is-5">Current Status: ${status}</h2>
               <h2 class="title is-5">New Status:</h2>
               ${this.state.loading === 'populating' ? ' ' : EditStatusForm.for(this)}
               <br />
@@ -158,14 +172,29 @@ class EditStatusForm extends Component {
 
   render() {
     const { selected_bill = {}, error, loading } = this.state
-    const { status } = selected_bill
-console.log(status)
+    const { created_at, introduced_at, status, sponsor_username, legislature_name, next_agenda_action_at, next_agenda_begins_at, published } = selected_bill
+    const index = legislature_name.indexOf(',')
+    const next_action_at = next_agenda_action_at || next_agenda_begins_at
+
+    const reviseStatus = published === false
+    ? `Draft legislation created on ${(new Date(created_at)).toLocaleDateString()}`
+    : next_action_at
+    ? [`
+      Scheduled for House floor action ${!next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
+      <br />
+    `]
+    : status === 'Introduced' && sponsor_username === null
+    ? `Published on Liquid ${legislature_name === 'U.S. Congress' ? 'Congress' : index ? legislature_name.slice(0, index) : legislature_name}`
+    : status === 'Introduced'
+    ? `Introduced on ${(new Date(introduced_at)).toLocaleDateString()}`
+    : `${status}`
+
     return this.html`
       <form method="POST" onsubmit=${this} action=${this}>
         ${error ? [`<div class="notification is-danger">${error}</div>`] : ''}
         <div class="field">
           <div class="control">
-            <input name="status" class="input" type="text" autocomplete="off" placeholder="${status}" onkeyup=${this} onchange=${this} required value="${status || ''}" />
+            <input name="status" class="input" type="text" autocomplete="off" placeholder="${reviseStatus}" onkeyup="${this}" onchange="${this}" required value="${reviseStatus || ''}" />
           </div>
         </div>
         <div class="field is-grouped">
