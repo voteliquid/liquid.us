@@ -5,7 +5,7 @@ const LoadingIndicator = require('./LoadingIndicator')
 const Sidebar = require('./EndorsementPageSidebar')
 const MobileForm = require('./EndorsementPageMobileForm')
 const MeasureSummary = require('./MeasureSummary')
-const { fetchConstituentVotes } = require('./MeasureDetailsPage').prototype
+const { fetchConstituentVotes } = require('../effects')
 const stateNames = require('datasets-us-states-abbr-names')
 const { EndorsementCount } = require('./EndorsementPageSidebar')
 
@@ -51,11 +51,11 @@ module.exports = class CommentPage extends Component {
         },
       })
 
-      const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
-      const officeId = officesInChamber[0] && officesInChamber[0].id
+      const officesInChamber = offices.filter(({ chamber, legislature }) => chamber === measure.chamber && measure.legislature_name === legislature.name)
+      const officeIds = officesInChamber.map((office) => office.id)
 
       Promise.all([
-        fetchConstituentVotes.call(this, measure, officeId),
+        fetchConstituentVotes.call(this, measure, officeIds),
         this.fetchEndorsementComments(comment, params.short_id),
         this.fetchEndorsementComment(comment, params.short_id, user),
         this.fetchLastVotePublic(),

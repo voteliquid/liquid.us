@@ -3,6 +3,7 @@ const Component = require('./Component')
 const LoadingIndicator = require('./LoadingIndicator')
 const MeasureDetails = require('./MeasureDetails')
 const NotFound = require('./NotFound')
+const { fetchConstituentVotes } = require('../effects')
 
 module.exports = class MeasureDetailsPage extends Component {
   oninit() {
@@ -54,36 +55,18 @@ module.exports = class MeasureDetailsPage extends Component {
         },
       })
 
-      const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
+      const officesInChamber = offices.filter(({ chamber, legislature }) => chamber === measure.chamber && measure.legislature_name === legislature.name)
       const officeIds = officesInChamber.map((office) => office.id)
 
       return this.fetchComments(measure.id, measure.short_id)
         .then(() => this.fetchTopComments(measure.id, measure.short_id))
-        .then(() => this.fetchConstituentVotes(measure, officeIds))
+        .then(() => fetchConstituentVotes.call(this, measure, officeIds))
         // .then(() => this.fetchProxyVotes(measure.id, measure.short_id)) // TODO broken
     })
     .catch((error) => {
       console.log(error)
       this.location.setStatus(404)
       return { error, loading_measure: false }
-    })
-  }
-  fetchConstituentVotes(measure, office_ids) {
-    const { id, short_id } = measure
-    if (!Array.isArray(office_ids)) office_ids = [office_ids]
-    const officeParam = office_ids ? `&office_id=in.(${office_ids.join(',')})` : '&limit=1'
-    return this.api(`/measure_votes?measure_id=eq.${id}${officeParam}`).then((results) => {
-      const votes = results[0] || {}
-      const measures = this.state.measures || {}
-      this.setState({
-        measures: {
-          ...measures,
-          [short_id]: {
-            ...measures[short_id],
-            ...votes
-          },
-        },
-      })
     })
   }
   fetchTopComments(id, short_id) {

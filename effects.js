@@ -3,6 +3,24 @@ const { api, makePoint } = require('./helpers')
 const atob = require('atob')
 const fetch = require('isomorphic-fetch')
 
+exports.fetchConstituentVotes = function fetchConstituentVotes(measure, office_ids) {
+  const { id, short_id } = measure
+  const officeParam = office_ids.length ? `&or.(office_id.in.(${office_ids.join(',')},office_id.is.null)` : '&limit=1'
+  return this.api(`/measure_votes?measure_id=eq.${id}${officeParam}`).then((results) => {
+    const votes = results[0] || {}
+    const measures = this.state.measures || {}
+    this.setState({
+      measures: {
+        ...measures,
+        [short_id]: {
+          ...measures[short_id],
+          ...votes
+        },
+      },
+    })
+  })
+}
+
 const fetchOffices = exports.fetchOffices = ({ location = {}, storage, user }) => (dispatch) => {
   const address = user && user.address
 
