@@ -8,7 +8,13 @@ module.exports = (req, res, next) => {
     Promise,
   })
 
-  client.geocode({ address: req.body.address }).asPromise()
+  client.geocode({
+    address: req.body.address,
+    components: {
+      country: 'US',
+      administrative_area: req.body.state,
+    },
+  }).asPromise()
     .then((gres) => res.json(gres.json.results))
     .catch(next)
 }

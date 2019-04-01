@@ -76,7 +76,7 @@ exports.updateNameAndAddress = ({ addressData, nameData, storage, user }) => (di
   // Update users address
   .then(() => {
     if (!addressData.lon) {
-      return geocode(addressData.address).then((newAddressData) => updateAddress(newAddressData, user, storage))
+      return geocode(addressData.address, addressData.state).then((newAddressData) => updateAddress(newAddressData, user, storage))
     }
     return updateAddress(addressData, user, storage)
   })
@@ -99,14 +99,15 @@ const updateAddress = (addressData, user, storage) => {
   })
 }
 
-const geocode = (address) => {
+const geocode = (address, state) => {
   return fetch(`/rpc/geocode`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ address }),
+    body: JSON.stringify({ address, state }),
   })
   .then((res) => res.json())
   .then(([place]) => {
+    if (!place) return Promise.reject(new Error(`Could not find address. Try including a city and state, or contact support if the address includes city and state.`))
     const newAddressData = { address }
     const geocoords = place.geometry.location
     newAddressData.geocoords = makePoint(geocoords.lng, geocoords.lat)
