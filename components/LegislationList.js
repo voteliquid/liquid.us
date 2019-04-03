@@ -224,7 +224,7 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
           </div>
 
           <div class="column">
-            <h3>Chamber</h3>
+            <h3>Type</h3>
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'upper')} type="checkbox" name="upper" checked=${!!upper} />
               Upper
@@ -236,8 +236,7 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'from_liquid')} type="checkbox" name="from_liquid" checked=${!!from_liquid} />
               Liquid
-            </label><br /><br />
-            <h3>Type</h3>
+            </label><br />
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'Bills')} type="checkbox" name="bills" checked=${!!bills} />
               Bills
