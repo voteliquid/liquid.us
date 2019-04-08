@@ -3,17 +3,22 @@ const Component = require('./Component')
 const Comment = require('./Comment')
 
 module.exports = class UserProfilePage extends Component {
-  render() {
-    const { proxied_name, selected_profile: p, user } = this.state
+  oninit() {
+    return this.fetchYourProposedLegislation()
+  }
+  fetchYourProposedLegislation() {
+    this.setState({ loading: true })
+    return this.api(`/measures_detailed?author_id=eq.${this.state.selected_profile.user_id}&order=created_at.desc`)
+      .then(userLegislation => this.setState({ loading: false, userLegislation }))
+  }
 
+  render() {
+    const { proxied_name, selected_profile: p, user, userLegislation } = this.state
     return this.html`
       <section class="section">
         <div class="container is-widescreen">
           ${user && !user.verified ?
             UnverifiedNotification.for(this) : []
-          }
-          ${user && p.username && user.username === p.username ?
-            YourProfileNotification.for(this) : []
           }
           ${proxied_name ? [`
             <div class="notification is-info">
@@ -36,38 +41,91 @@ module.exports = class UserProfilePage extends Component {
                   ${p.username ? [`<h2 class="subtitle is-5 has-text-grey-light">@${p.username}</h2>`] : ''}
                 </div>
               </div>
-              ${[p.direct_proxy_count
-                ? `<h3 class="subtitle is-6"><span class="icon"><i class="fa fa-users"></i></span> Represents ${p.direct_proxy_count} ${p.direct_proxy_count === 1 ? 'person' : 'people'} directly, and ${p.max_vote_power || 0} ${p.max_vote_power === 1 ? 'person' : 'people'} indirectly</h3>`
-                : `<h3 class="subtitle is-6"><span class="icon"><i class="fa fa-users"></i></span> Represents 1 person</h3>`
-              ]}
+              <div class="columns is-size-5 has-text-centered is-mobile icon-card">
+                <div class="column icon-tooltip">
+                  <p>${(p.public_votes.length || -1) + 1}</p>
+                  ${iconTooltipButtonFa('check', `Votes`)}
+                  <br />
+                </div>
+                <div class="column icon-tooltip">
+                  <p>${commentCount(p)}</p>
+                  ${iconTooltipButtonFa('comment', 'Comments', true)}
+                  <br />
+                </div>
+                <div class="column icon-tooltip">
+                  <p>${proposalCount(userLegislation)}</p>
+                  ${iconTooltipButtonFa('file', 'Proposals', true)}
+                  <br />
+                </div>
+                <div class="column icon-tooltip">
+                  <p>${p.direct_proxy_count || '1'}</p>
+                  ${iconTooltipButtonFa('handshake', `Voters directly represented`, true)}
+                </div>
+                <div class="column icon-tooltip">
+                  <p>${p.max_vote_power || '1'}</p>
+                  ${iconTooltipButtonFa('users', `Voters indirectly represented`)}
+                </div>
+              </div>
+
               ${user && p.username && user.username === p.username
                 ? [`
                   <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
-                  <button disabled class="button is-link is-outlined is-fullwidth is-medium tooltip is-tooltip-info fix-bulma-centered-text" data-tooltip="You can't proxy to yourself">
-                    <span class="icon is-small"><i class="far fa-handshake"></i></span>
-                    <span>Proxy</span>
-                  </button>
+                  <a href="/edit_profile"><button class="button is-link is-outlined is-fullwidth is-medium tooltip is-tooltip-info fix-bulma-centered-text" data-tooltip="Add a bio, video, or picture">
+                    <span class="icon is-small"><i class="far fa-user-circle"></i></span>
+                    <span>Edit Profile</span>
+                  </button></a><br /><br />
+
                   `]
                 : ProxyButton.for(this)
               }
-              ${p.public_votes && p.public_votes.length && !user ? [`
-                <div class="content is-size-7 has-text-left">
-                  <br />
-                  <p><strong>${APP_NAME}</strong> lets you vote on any legislative bill, but most of us won't have time to do that.</p>
-                  <p>Proxy to ${p.first_name} to vote for you whenever you don't vote directly yourself.</p>
-               </div>
-             `] : []}
+
+             ${ShareButtons.for(this)}
+             <br />
             </div>
             <div class="column">
+              ${p.about ? AboutUser.for(this) : ''}
               ${(!p.about && !p.public_votes.length)
                 ? EmptyProfileExplainer.for(this) : ''}
-              ${p.about
-                ? AboutUser.for(this) : ''}
+
               ${p.public_votes.length
                 ? PublicVotes.for(this) : ''}
               ${!p.username
                 ? GhostProfileMessage.for(this) : ''}
             </div>
+            <style>
+              .icon-tooltip {
+                position: relative;
+              }
+              .icon-tooltip .icon-tooltip-content {
+                display: none;
+                position: absolute;
+                max-height: 222px;
+              }
+              .icon-tooltip:hover .icon-tooltip-content {
+                display: block;
+                background: hsl(0, 0%, 100%) !important;
+                box-shadow: 0px 4px 15px hsla(0, 0%, 0%, 0.15);
+                border: 1px solid hsl(0, 0%, 87%);
+                color: #333;
+                font-size: 14px;
+                overflow: hidden;
+                padding: .4rem;
+                text-align: center;
+                white-space: normal;
+                width: 90px;
+                z-index: 99999;
+                top: auto;
+                bottom: 0%;
+                left: 0%;
+                right: 0%;
+                transform: translate(-0.5rem, 50%);
+              }
+              @media (max-width: 1086px) {
+                .icon-card {
+                  padding: 0rem 0.6rem;
+                }
+              }
+            </style>
           </div>
         </div>
       </section>
@@ -235,7 +293,13 @@ class ProxyButton extends Component {
                 <p>You've proxied to ${selected_profile.name}. To unproxy or manage your proxies visit your <a href="/proxies">Proxies</a> page.</p>
               </div>
             `]
-          : []
+          : [`
+              <div class="content is-size-7 has-text-left">
+                <br />
+                <p><strong>${APP_NAME}</strong> lets you vote on any legislative bill, but most of us won't have time to do that.</p>
+                <p>Proxy to ${selected_profile.first_name} to vote for you whenever you don't vote directly yourself.</p>
+              </div>
+            `]
           }
       </form>
     `
@@ -252,26 +316,61 @@ class UnverifiedNotification extends Component {
   }
 }
 
-class YourProfileNotification extends Component {
+function commentCount(p) {
+  let commentTracker = 0
+  let i
+  for (i = 0; i < p.public_votes.length + 1; i++) {
+    if (p.public_votes[i] && p.public_votes[i].comment !== null) {
+      commentTracker += 1
+    }
+} return commentTracker
+}
+function proposalCount(userLegislation) {
+  let proposalTracker = 0
+  let i
+  for (i = 0; i < userLegislation.length + 1; i++) {
+    if (userLegislation[i] && userLegislation[i].published === true) {
+      proposalTracker++
+    }
+  }
+  return proposalTracker
+}
+
+const iconTooltipButtonFa = (icon, text, far) => [`
+  <span class="icon has-text-link">
+    <i class="fa${far ? 'r' : ''} fa-${icon}"></i>
+    <div class="icon-tooltip-content">${text}</div>
+  </span>
+`]
+class ShareButtons extends Component {
   render() {
-    const { selected_profile } = this.state
+    const { selected_profile, user } = this.state
+    const share_url = `${WWW_URL}/${selected_profile.username}/`
+    const share_text = user && selected_profile.username === user.username
+      ? `I'd like to represent for you on Liquid US, a tool to hold our politicians accountable. Check out my policy positions at https://liquid.us/${user.username} and proxy to me if you agree with my priorities`
+      : `${selected_profile.first_name} is using Liquid US to hold our politicians accountable. Check out their policy positions at https://liquid.us/${selected_profile.username} and choose them as a proxy if you agree with their policy priorities.`
+    const subject = user && selected_profile.username === user.username
+      ? `I'd like to represent you on key votes`
+      : `Thought you'd be interested in this`
 
     return this.html`
-      <div class="notification">
-        <h4 class="title is-5">This is your profile page.</h4>
-        <div class="columns is-multiline">
-          <div class="column is-half">
-            <span class="icon"><i class="fa fa-users"></i></span> Share the URL <strong><a href="${`${WWW_URL}/${selected_profile.username}`}">${WWW_DOMAIN}/${selected_profile.username}</a></strong> with others to easily proxy to you.
-          </div>
-          <div class="column is-half">
-            <span class="icon"><i class="fa fa-camera"></i></span> Change your photo by signing in to <a href="https://www.gravatar.com"><strong>Gravatar</strong></a> with your same email.
-          </div>
-          <div class="column is-half">
-            <span class="icon"><i class="fa fa-edit"></i></span> Check <em>Public</em> when you <a href="/legislation"><strong>vote</strong></a> to build your public voting record.
-          </div>
-          <div class="column is-half">
-            <span class="icon"><i class="fas fa-user-circle"></i></span> <a href="/edit_profile"><strong>Edit Profile</strong></a> to add an intro video or bio to your page.
-          </div>
+      <div class="content">
+        <p class="has-text-weight-semibold">${user && selected_profile.username === user.username
+          ? 'Share to get others to proxy to you. They will see all votes and comments that you have marked public.'
+          : `Share to increase the impact ${selected_profile.first_name} is having in the legislative process.`}</p>
+        <div class="buttons is-centered">
+          <a class="button is-link has-text-weight-bold" title="Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">
+            <span class="icon"><i class="fab fa-facebook"></i></span>
+            <span>Post on Facebook</span>
+          </a>
+          <a class="button is-link has-text-weight-bold" title="Twitter" target="_blank" href="${`https://twitter.com/intent/tweet?text=${share_text}`}">
+            <span class="icon"><i class="fab fa-twitter"></i></span>
+            <span>Tweet your people</span>
+          </a>
+          <a class="button is-link has-text-weight-bold" title="Email" target="_blank" href="${`mailto:?subject=${subject}&body=${share_text}`}">
+            <span class="icon"><i class="fa fa-envelope"></i></span>
+            <span>Email</span>
+          </a>
         </div>
       </div>
     `
