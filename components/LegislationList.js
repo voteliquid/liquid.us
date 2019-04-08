@@ -230,7 +230,7 @@ const measureListRow = (s) => {
               ${s.summary ? [`
                 <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
               `] : []}
-              <p${s.legislature_name === 'WI' ? ' class="is-hidden"' : ''}><strong class="has-text-grey">Status:</strong>
+              <p><strong class="has-text-grey">Status:</strong>
               ${next_action_at ? [`
                 Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
               `] : `${s.status}`}</p>
