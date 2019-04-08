@@ -1,5 +1,6 @@
 const Component = require('./Component')
 const LoadingIndicator = require('./LoadingIndicator')
+const { fetchConstituentVotes } = require('../effects')
 
 class MeasureVoteBox extends Component {
   oninit() {
@@ -69,14 +70,13 @@ class MeasureVoteForm extends Component {
     const fetchMeasure = require('./MeasureDetailsPage').prototype.fetchMeasure
     const fetchComments = require('./MeasureDetailsPage').prototype.fetchComments
     const fetchTopComments = require('./MeasureDetailsPage').prototype.fetchTopComments
-    const fetchConstituentVotes = require('./MeasureDetailsPage').prototype.fetchConstituentVotes
 
     const { measure } = this.props
     const { user, offices = [] } = this.state
     const { redirect } = this.location
     const { storage } = this
-    const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
-    const officeId = officesInChamber[0] && officesInChamber[0].id
+    const officesInChamber = offices.filter(({ chamber, legislature }) => chamber === measure.chamber && measure.legislature_name === legislature.name)
+    const officeIds = officesInChamber.map((office) => office.id)
 
     if (!form.vote_position) {
       return { error: 'You must choose a position.' }
@@ -109,7 +109,7 @@ class MeasureVoteForm extends Component {
     .then(() => fetchMeasure.call(this, measure.short_id))
     .then(() => fetchComments.call(this, measure.id, measure.short_id))
     .then(() => fetchTopComments.call(this, measure.id, measure.short_id))
-    .then(() => fetchConstituentVotes.call(this, measure, officeId))
+    .then(() => fetchConstituentVotes.call(this, measure, officeIds))
     .then(() => this.api(`/votes?measure_id=eq.${measure.id}&user_id=eq.${user.id}&delegate_rank=eq.-1`).then(votes => {
       if (this.isBrowser && window._loq) window._loq.push(['tag', 'Voted'])
       const my_vote = votes[0]

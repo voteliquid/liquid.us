@@ -24,7 +24,7 @@ module.exports = {
         return [state]
     }
   },
-  view: ({ isOpen }, dispatch) => {
+  view: (state, dispatch) => {
     return html()`
       <style>
         .contact-btn, .contact-window {
@@ -38,20 +38,20 @@ module.exports = {
           border: 1px solid #deeaf2;
         }
       </style>
-      ${isOpen ? contactWidgetForm({}, dispatch) : contactWidgetButton({}, dispatch)}
+      ${state.isOpen ? contactWidgetForm(state, dispatch) : contactWidgetButton(state, dispatch)}
     `
   },
 }
 
 const submitMessage = (event, user, url) => (dispatch) => {
-  const message = event.target.querySelector('input[name="message"]')
+  const message = event.target.querySelector('textarea[name="message"]')
   const email = event.target.querySelector('input[name="email"]')
   if (message) {
-    if (!user) user = { email }
+    if (!user) user = { email: email.value }
 
     fetch('https://blog-api.liquid.us/feedback', {
       body: JSON.stringify({
-        text: message,
+        text: message.value,
         user,
         url,
       }),

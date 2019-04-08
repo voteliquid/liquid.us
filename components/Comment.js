@@ -2,6 +2,7 @@ const { WWW_URL } = process.env
 const Component = require('./Component')
 const timeAgo = require('timeago.js')
 const stateNames = require('datasets-us-states-abbr-names')
+const { fetchConstituentVotes } = require('../effects')
 
 module.exports = class Comment extends Component {
   onclick(event) {
@@ -90,11 +91,9 @@ module.exports = class Comment extends Component {
           }
         }
       })
-      /* TODO disabled until query can be optimized
-      const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
-      const officeId = officesInChamber[0] && officesInChamber[0].id
-      return this.fetchConstituentVotes(measure, officeId)
-      */
+      const officesInChamber = offices.filter(({ chamber, legislature }) => chamber === measure.chamber && measure.legislature_name === legislature.name)
+      const officeIds = officesInChamber.map((office) => office.id)
+      return fetchConstituentVotes.call(this, measure, officeIds)
     })
     .then(() => this.fetchTopComments(measure_id, short_id))
     .then(() => this.fetchComments(measure_id, short_id))
@@ -145,9 +144,9 @@ module.exports = class Comment extends Component {
           }
         }
       })
-      const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
-      const officeId = officesInChamber[0] && officesInChamber[0].id
-      return this.fetchConstituentVotes(measure, officeId)
+      const officesInChamber = offices.filter(({ chamber, legislature }) => chamber === measure.chamber && measure.legislature_name === legislature.name)
+      const officeIds = officesInChamber.map((office) => office.id)
+      return fetchConstituentVotes.call(this, measure, officeIds)
     })
     .then(() => this.fetchTopComments(measure_id, short_id))
     .then(() => this.fetchComments(measure_id, short_id))
@@ -192,23 +191,6 @@ module.exports = class Comment extends Component {
         })
     }
     return Promise.resolve()
-  }
-  fetchConstituentVotes(measure, office_id) {
-    const { id, short_id } = measure
-    const officeParam = office_id && measure.legislature_name === 'U.S. Congress' ? `&office_id=eq.${office_id}` : '&limit=1'
-    return this.api(`/measure_votes?measure_id=eq.${id}${officeParam}`).then((results) => {
-      const votes = results[0] || {}
-      const measures = this.state.measures || {}
-      this.setState({
-        measures: {
-          ...measures,
-          [short_id]: {
-            ...measures[short_id],
-            ...votes
-          },
-        },
-      })
-    })
   }
 
   fetchTopComments(id, short_id) {

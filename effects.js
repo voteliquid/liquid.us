@@ -3,6 +3,24 @@ const { api, makePoint } = require('./helpers')
 const atob = require('atob')
 const fetch = require('isomorphic-fetch')
 
+exports.fetchConstituentVotes = function fetchConstituentVotes(measure, office_ids) {
+  const { id, short_id } = measure
+  const officeParam = office_ids.length ? `&or.(office_id.in.(${office_ids.join(',')},office_id.is.null)` : '&limit=1'
+  return this.api(`/measure_votes?measure_id=eq.${id}${officeParam}`).then((results) => {
+    const votes = results[0] || {}
+    const measures = this.state.measures || {}
+    this.setState({
+      measures: {
+        ...measures,
+        [short_id]: {
+          ...measures[short_id],
+          ...votes
+        },
+      },
+    })
+  })
+}
+
 const fetchOffices = exports.fetchOffices = ({ location = {}, storage, user }) => (dispatch) => {
   const address = user && user.address
 
@@ -58,7 +76,7 @@ exports.updateNameAndAddress = ({ addressData, nameData, storage, user }) => (di
   // Update users address
   .then(() => {
     if (!addressData.lon) {
-      return geocode(addressData.address).then((newAddressData) => updateAddress(newAddressData, user, storage))
+      return geocode(addressData.address, addressData.state).then((newAddressData) => updateAddress(newAddressData, user, storage))
     }
     return updateAddress(addressData, user, storage)
   })
@@ -81,14 +99,15 @@ const updateAddress = (addressData, user, storage) => {
   })
 }
 
-const geocode = (address) => {
+const geocode = (address, state) => {
   return fetch(`/rpc/geocode`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ address }),
+    body: JSON.stringify({ address, state }),
   })
   .then((res) => res.json())
   .then(([place]) => {
+    if (!place) return Promise.reject(new Error(`Could not find address. Try including a city and state, or contact support if the address includes city and state.`))
     const newAddressData = { address }
     const geocoords = place.geometry.location
     newAddressData.geocoords = makePoint(geocoords.lng, geocoords.lat)

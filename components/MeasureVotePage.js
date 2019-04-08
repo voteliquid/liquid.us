@@ -3,7 +3,7 @@ const LoadingIndicator = require('./LoadingIndicator')
 const MeasureVoteForm = require('./MeasureVoteForm')
 const Sidebar = require('./MeasureDetailsSidebar')
 const fetchMeasure = require('./MeasureDetailsPage').prototype.fetchMeasure
-const fetchVoteCount = require('./MeasureDetailsPage').prototype.fetchConstituentVotes
+const { fetchConstituentVotes: fetchVoteCount } = require('../effects')
 
 module.exports = class MeasureVotePage extends Component {
   oninit() {
@@ -15,8 +15,8 @@ module.exports = class MeasureVotePage extends Component {
     }
 
     return fetchMeasure.call(this, params.short_id).then((measure) => {
-      const officesInChamber = offices.filter(({ chamber }) => chamber === measure.chamber)
-      const officeId = officesInChamber[0] && officesInChamber[0].id
+      const officesInChamber = offices.filter(({ chamber, legislature }) => chamber === measure.chamber && measure.legislature_name === legislature.name)
+      const officeIds = officesInChamber.map((office) => office.id)
 
       this.setState({
         loading_measure: false,
@@ -26,7 +26,7 @@ module.exports = class MeasureVotePage extends Component {
         },
       })
 
-      return fetchVoteCount.call(this, measure, officeId).then(() => {
+      return fetchVoteCount.call(this, measure, officeIds).then(() => {
         return this.fetchVote(measure)
       })
     })
