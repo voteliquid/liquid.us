@@ -70,6 +70,9 @@ module.exports = {
         .highlight-hover:hover {
           background: #f6f8fa;
         }
+        .juridstiction {
+          padding-left: 10rem;
+        }
         .summary-tooltip {
           position: relative;
         }
@@ -200,12 +203,12 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
   const veto = location.query.veto || storage.get('veto')
 
   return html()`
-    <form name="legislation_filters" class="is-inline-block is-centered" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
+    <form name="legislation_filters" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
       <button type="submit" class="filter-submit is-hidden">Update</button>
       <input type="checkbox" onclick=${toggleFilter(storage, 'show_filters')} name="show_filters" checked=${!!showFilters} class="is-hidden" />
-      <div id="filter_checkboxes" style="display:block;">
+      <div id="filter_checkboxes">
         <div class="columns has-text-left">
-          <div class="column">
+          <div class="column juridstiction">
             <h3>Jurisdiction</h3>
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'congress')} type="checkbox" name="congress" checked=${!!congress} />
@@ -223,7 +226,7 @@ const filterForm = (geoip, legislatures, storage, location, user, dispatch) => {
             </label>
           </div>
 
-          <div class="column">
+          <div class="column type">
             <h3>Type</h3>
             <label class="checkbox has-text-grey">
               <input onclick=${toggleFilter(storage, 'upper')} type="checkbox" name="upper" checked=${!!upper} />
