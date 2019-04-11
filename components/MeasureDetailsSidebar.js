@@ -222,7 +222,7 @@ class MeasureVoteCounts extends Component {
                 <td class="has-text-right">${measure[`${chamber === 'Upper' ? 'upper' : 'lower'}_nays`] || ''}</td>
                 ` : `
                 <td class="has-text-right" colspan="2">
-                  ${measure.lower_yeas ? '' : measure.passed_lower_at ? 'Passed unanimously' : 'No vote yet'}
+                  ${measure.lower_yeas ? '' : measure.passed_lower_at ? 'Passed' : 'No vote yet'}
                 </td>
                 `}
               </tr>
@@ -236,7 +236,7 @@ class MeasureVoteCounts extends Component {
                 <td class="has-text-right">${measure[`${chamber === 'Upper' ? 'lower' : 'upper'}_nays`] || ''}</td>
                 ` : `
                 <td class="has-text-right" colspan="2">
-                  ${measure.upper_yeas ? '' : measure.passed_upper_at ? 'Passed unanimously' : ' No vote yet'}
+                  ${measure.upper_yeas ? '' : measure.passed_upper_at ? 'Passed' : ' No vote yet'}
                 </td>
                 `}
               </tr>
