@@ -38,14 +38,17 @@ module.exports = class MeasureDetailsPage extends Component {
         window.history.replaceState(window.history.state, page_title, document.location)
       }
       const isCity = ~measure.legislature_name.indexOf(',')
+      const inlineImageMatch = measure && measure.summary && measure.summary.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
+      const inlineImage = inlineImageMatch && inlineImageMatch[0]
       const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+      const ogImage = inlineImage || measureImage
       this.setState({
         loading_measure: false,
         showMeasureVoteForm: this.location.query.action === 'add-argument',
         page_title: title,
         page_description: `Discuss with your fellow voters & be heard by your elected officials.`,
         selected_bill: measure,
-        og_image_url: measureImage,
+        og_image_url: ogImage,
         measures: {
           ...this.state.measures,
           [measure.short_id]: {
