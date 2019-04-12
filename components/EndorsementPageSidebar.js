@@ -105,7 +105,7 @@ module.exports.NewSignupEndorseForm = class NewSignupEndorseForm extends Compone
         // Store endorsement
         .then(() => this.api('/rpc/endorse', {
           method: 'POST',
-          body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on' }),
+          body: JSON.stringify({ user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on', data: formData.share_data === 'on' }),
         }))
         // Get new endorsement count
         .then(() => this.api(`/votes_detailed?id=eq.${vote_id}`))
@@ -180,11 +180,68 @@ module.exports.NewSignupEndorseForm = class NewSignupEndorseForm extends Compone
             </label>
           </div>
         </div>
+        <div class="${`field ${measure.author_username === measure.comment.username || measure.comment.public === false ? '' : 'is-hidden'}`}">
+          <div class="control share-tooltip">
+            <label class="checkbox">
+              <input name="share_bill_author" type="checkbox" checked />
+              Share my contact information with ${measure.author_first_name} ${measure.author_last_name}
+            </label>
+            &nbsp<div class="share-tooltip-content">Receive updates about this proposal and related bills.</div>
+          </div>
+        </div>
+        <div class="${`field share-tooltip ${measure.author_username === measure.comment.username || measure.comment.public === false ? 'is-hidden' : ''}`}">
+          <div class="is-size-6">Share my contact information with:</div>
+          <div class="field">
+            <div class="control">
+              <label class="checkbox">
+                &nbsp&nbsp<input name="share_comment_author" type="checkbox" checked />
+                ${measure.comment.fullname}
+              </label>
+            </div>
+            <div class="control">
+              <label class="checkbox">
+                &nbsp&nbsp<input name="share_bill_author" type="checkbox" checked />
+                ${measure.author_first_name} ${measure.author_last_name}
+              </label>
+            </div>
+          </div>
+          &nbsp<div class="share-tooltip-content">Receive updates about this proposal and related bills.</div>
+        </div>
         <div class="field">
           <div class="control">
             <button class=${`button ${color} is-fullwidth has-text-weight-bold is-size-5`} type="submit">${action}</button>
           </div>
-        </div>
+          <style>
+          .share-tooltip {
+            position: relative;
+          }
+          .share-tooltip .share-tooltip-content {
+            display: none;
+            position: absolute;
+            max-height: 222px;
+          }
+          .share-tooltip:hover .share-tooltip-content {
+            display: block;
+            background: hsl(0, 0%, 100%) !important;
+            box-shadow: 0px 4px 15px hsla(0, 0%, 0%, 0.15);
+            border: 1px solid hsl(0, 0%, 87%);
+            color: #333;
+            font-size: 14px;
+            overflow: hidden;
+            padding: .4rem;
+            text-align: center;
+            white-space: normal;
+            width: 200px;
+            z-index: 99999;
+            top: auto;
+            bottom: 0%;
+            left: 0%;
+            right: 0%;
+            transform: translate(-0.5rem, 50%);
+          }
+        </style>
+      </div>
+
       </form>
     `
   }
@@ -241,7 +298,7 @@ module.exports.LoggedInForm = class LoggedInForm extends Component {
     const { measure } = this.props
     const { comment } = measure
     const vote_id = comment.id
-    const endorsement = { user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on' }
+    const endorsement = { user_id: user.id, vote_id, measure_id: measure.id, public: formData.is_public === 'on', data: formData.share_data === 'on' }
 
     if (user.first_name) {
       return this.endorse(endorsement).catch((error) => console.log(error))
@@ -299,12 +356,39 @@ module.exports.LoggedInForm = class LoggedInForm extends Component {
           <p class="is-size-7" style="margin-top: .3rem;">So your reps know you're their constituent.</p>
         </div>
         <div class="field">
-          <div class="control">
+          <div class="control" style="max-width: 1rem">
             <label class="checkbox">
               <input name="is_public" type="checkbox" checked=${last_vote_public} />
               Share my name publicly
             </label>
           </div>
+        </div>
+        <div class="${`field ${measure.author_username === measure.comment.username || measure.comment.public === false ? '' : 'is-hidden'}`}">
+          <div class="control share-tooltip">
+            <label class="checkbox">
+              <input name="share_bill_author" type="checkbox" checked />
+              Share my contact information with ${measure.author_first_name} ${measure.author_last_name}
+            </label>
+            &nbsp<div class="share-tooltip-content">Receive updates about this proposal and related bills.</div>
+          </div>
+        </div>
+        <div class="${`field share-tooltip ${measure.author_username === measure.comment.username || measure.comment.public === false ? 'is-hidden' : ''}`}">
+          <div class="is-size-6">Share my contact information with:</div>
+          <div class="field">
+            <div class="control">
+              <label class="checkbox">
+                &nbsp&nbsp<input name="share_comment_author" type="checkbox" checked />
+                ${measure.comment.fullname}
+              </label>
+            </div>
+            <div class="control">
+              <label class="checkbox">
+                &nbsp&nbsp<input name="share_bill_author" type="checkbox" checked />
+                ${measure.author_first_name} ${measure.author_last_name}
+              </label>
+            </div>
+          </div>
+          &nbsp<div class="share-tooltip-content">Receive updates about this proposal and related bills.</div>
         </div>
         <div class="field">
           <div class="control">

@@ -249,6 +249,14 @@ class MeasureVoteForm extends Component {
             <textarea name="comment" autocomplete="off" class="textarea" placeholder="Add an argument. Why are you voting this way?" value=${v.comment || ''}></textarea>
           </div>
         </div>
+        <div class="${`field ${l.sponsor_username !== null ? 'is-hidden' : ''}`}">
+          <div class="control share-tooltip">
+              <input name="share_data" type="checkbox" checked />
+              Share my contact information with ${l.author_first_name} ${l.author_last_name}
+            </label>
+          </div>
+          <div>Receive updates on related proposals</div>
+        </div>
         <div class="field is-horizontal">
           <div class="field is-grouped">
             <div class="control">
@@ -266,6 +274,35 @@ class MeasureVoteForm extends Component {
               </div>
             </div>
           </div>
+          <style>
+          .share-tooltip {
+            position: relative;
+          }
+          .share-tooltip .share-tooltip-content {
+            display: none;
+            position: absolute;
+            max-height: 222px;
+          }
+          .share-tooltip:hover .share-tooltip-content {
+            display: block;
+            background: hsl(0, 0%, 100%) !important;
+            box-shadow: 0px 4px 15px hsla(0, 0%, 0%, 0.15);
+            border: 1px solid hsl(0, 0%, 87%);
+            color: #333;
+            font-size: 14px;
+            overflow: hidden;
+            padding: .4rem;
+            text-align: center;
+            white-space: normal;
+            width: 200px;
+            z-index: 99999;
+            top: auto;
+            bottom: 0%;
+            left: 0%;
+            right: 0%;
+            transform: translate(-0.5rem, 50%);
+          }
+        </style>
         </div>
         <hr />
       </form>
