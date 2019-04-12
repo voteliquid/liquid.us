@@ -53,14 +53,14 @@ module.exports = class Comment extends Component {
   endorse() {
     const { measures = {}, offices = [], user } = this.state
     const endorsed_vote = !(this.state.user && this.state.user.id === this.props.user_id && this.props.comment) && this.props.endorsed_vote
-    const { fullname, measure_id, short_id, id: vote_id, public: is_public } = endorsed_vote || this.props
+    const { author_username, fullname, measure_id, short_id, type, id: vote_id, public: is_public } = endorsed_vote || this.props
     const measure = measures[short_id]
     const position = measure && measure.vote_position
     if (!user) {
       this.storage.set('endorsed_vote_id', vote_id)
       this.storage.set('endorsed_measure_id', measure_id)
       this.storage.set('endorsed_url', `/legislation/${short_id}/votes/${vote_id}`)
-      return this.location.redirect('/join')
+      return this.location.redirect(`${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}/votes/${vote_id}`)
     }
     if (position) {
       let confirmation_text = 'You\'ve already '
