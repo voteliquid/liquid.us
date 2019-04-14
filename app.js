@@ -4,6 +4,7 @@ const { logError } = require('./effects/error')
 const footer = require('./views/footer')
 const loadingIndicator = require('./views/activity-indicator')
 const navbar = require('./views/navbar')
+const notFoundPage = require('./views/not-found-page')
 const errorPage = require('./views/error-page')
 const searchModel = require('./models/search')
 const { fetchMetrics } = require('./effects/metrics')
@@ -194,7 +195,7 @@ module.exports = {
 
 const routeOrErrorView = (state, dispatch) => {
   try {
-    return state.view(state, dispatch)
+    return state.location.status === 404 ? notFoundPage(state, dispatch) : state.view(state, dispatch)
   } catch (error) {
     logError(error)()
     return errorPage(state, dispatch)

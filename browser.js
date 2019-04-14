@@ -45,8 +45,8 @@ const listeners = (dispatch) => ({
 })
 
 // Register browser history listeners
-const watchHistory = (dispatch) => {
-  loadPage(window.location.pathname + window.location.search, 200, dispatch)
+const watchHistory = (status) => (dispatch) => {
+  loadPage(window.location.pathname + window.location.search, status || 404, dispatch)
 
   const { click, popstate, redirect } = window.__listeners || {}
   window.removeEventListener('popstate', popstate)
@@ -66,7 +66,7 @@ runtime({
     browser: true,
     firstPageLoad: true,
     cookies: cookies.all(),
-  }, combineEffects([watchHistory, App.init[1]])],
+  }, combineEffects([watchHistory(initState.location.status), App.init[1]])],
   update: (event, state) => {
     debug(event, state)
 
