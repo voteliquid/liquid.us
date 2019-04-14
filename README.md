@@ -52,11 +52,11 @@ The reason it returns an array is for easy destructuring.
 
 #### Effects
 
-Effects are functions which take the current state as its argument, and return a new function that takes a
-dispatch function as its argument, which is used to dispatch new events.
+Effects are functions which take the dispatch function as the argument, and
+dispatch new events after performing some side effect.
 
 ```javascript
-const effect = (state) => (dispatch) => {
+const effect = (dispatch) => {
   someAsyncFunction(() => {
     dispatch({ type: 'eventName', data: { some: 'event data' }, otherData: { some: 'other event data' } })
   })
@@ -74,7 +74,7 @@ Views are functions that take two arguments `state` and `dispatch`, and return H
 const { html } = require('../helpers')
 
 const view = (state, dispatch) => {
-  return html()`
+  return html`
     <div onclick=${(event) => dispatch({ type: 'someClickEvent', event })}>Hello, World</div>
   `
 }
