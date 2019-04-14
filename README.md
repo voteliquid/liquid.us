@@ -80,9 +80,16 @@ const view = (state, dispatch) => {
 }
 ```
 
-#### Helpers for handling forms
+#### Helpers
 
 ##### helpers.handleForm(dispatch, event)
 
 This helper can be used for submit and change form events. It will deal with parsing the form values and merging them
 into the event object before dispatching.
+
+#### Debugging
+
+To debug the application, enable
+[debug](https://github.com/visionmedia/debug#readme) output by setting the
+`DEBUG=liquid:*` environment variable or `localStorage.setItem('debug', 'liquid:*')` in the
+browser. Every event and associated state change will be logged to the console.
