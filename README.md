@@ -20,6 +20,12 @@ npm start
 
 Your local version should now be running at [`http://localhost:3000`](http://localhost:3000).
 
+#### On Microsoft Windows
+```
+C:\...\liquid.us>.template.env.bat
+C:\...\liquid.us>npm start
+```
+
 ### Architecture
 
 At a high-level, the webapp is a single function (State, Event) -> (State, HTML Event) that is run whenever an event is
