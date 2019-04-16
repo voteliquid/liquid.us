@@ -21,9 +21,38 @@ npm start
 Your local version should now be running at [`http://localhost:3000`](http://localhost:3000).
 
 #### On Microsoft Windows
+
+Read `.template.env` and write your own `environment.bat` file. It should look like the text below:
+
 ```
-C:\...\liquid.us>.template.env.bat
-C:\...\liquid.us>npm start
+set API_URL=https://api.liquid.us
+
+set APP_NAME=Liquid
+
+set WWW_PORT=3000
+set WWW_URL=http://localhost:%WWW_PORT%
+set WWW_DOMAIN=liquid.us
+
+set ASSETS_URL=%WWW_URL%/assets
+set APP_LOGO=%WWW_URL%/assets/liquid-us-logo.png
+
+set GOOGLE_GEOCODER_KEY=AIzaSyCJYJN-fUm5FqN8-DvFYz-9GH8hokSCbdQ
+
+set NODE_ENV=development
+
+set STRIPE_API_PUBLIC_KEY=pk_test_hLhLcJepsaktxBMieH9tApxE
+
+set TWILIO_ACCOUNT_SID=
+set TWILIO_AUTH_TOKEN=
+
+set IPAPI_KEY=
+```
+
+Then run your `environment.bat` file and start the server:
+
+```
+environment.bat
+npm start
 ```
 
 ### Architecture
