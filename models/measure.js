@@ -74,6 +74,30 @@ module.exports = (event, state) => {
           },
         },
       }]
+    case 'measure:userMeasureReceived':
+      if (!event.measure) {
+        return [{ ...state, loading: { ...state.loading, page: false, measure: false } }]
+      }
+      return [{
+        ...state,
+        loading: { ...state.loading, page: false, measure: false },
+        measures: {
+          ...state.measures,
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
+            ...event.measure,
+            votes: state.measures[event.measure.short_id] ? (state.measures[event.measure.short_id].votes || []) : [],
+            // only store ids on measure to keep one vote object shared by various views
+            topYea: event.topYea ? event.topYea.id : null,
+            topNay: event.topNay ? event.topNay.id : null,
+            votePower: event.votePower ? event.votePower : (state.measures[event.measure.short_id] && state.measures[event.measure.short_id].votePower),
+          },
+        },
+        votes: (event.votes || []).concat([event.topYea, event.topNay].filter(v => v)).reduce((votes, vote) => {
+          votes[vote.id] = { ...votes[vote.id], ...vote }
+          return votes
+        }, state.votes),
+      }]
     case 'measure:received':
     case 'measure:updated':
       if (!event.measure) {
@@ -224,11 +248,11 @@ const fetchUserMeasures = (user) => (dispatch) => {
 
 const fetchUserMeasure = (shortId, user) => (dispatch) => {
   if (!shortId) {
-    return dispatch({ type: 'measure:received', measure: null })
+    return dispatch({ type: 'measure:userMeasureReceived', measure: null })
   }
   return api(dispatch, `/measures_detailed?author_id=eq.${user.id}&short_id=eq.${shortId}`, { user }).then(([measure]) => {
     if (measure) {
-      dispatch({ type: 'measure:received', measure })
+      dispatch({ type: 'measure:userMeasureReceived', measure })
     } else {
       dispatch({ type: 'redirected', status: 302, url: `/legislation/${measure.short_id}` })
     }
