@@ -73,15 +73,15 @@ module.exports = (state, dispatch) => {
 
 const autoSubmit = () => document.querySelector('.filter-submit').click()
 
-const toggleDirectVotes = (cookies, dispatch) => (event) => {
+const toggleDirectVotes = (cookies, dispatch, filterName) => (event) => {
   const btn = document.querySelector('.filter-submit')
   if (btn.disabled) {
     event.preventDefault()
   } else {
     if (event.currentTarget && event.currentTarget.checked) {
-      dispatch({ type: 'cookieSet', key: 'hide_direct_votes', value: 'on' })
+      dispatch({ type: 'cookieSet', key: `${filterName}`, value: 'on' })
     } else {
-      dispatch({ type: 'cookieUnset', key: 'hide_direct_votes' })
+      dispatch({ type: 'cookieUnset', key: `${filterName}` })
     }
     btn.click()
   }
@@ -98,6 +98,8 @@ const updateFilter = (event, location, dispatch) => {
 
 const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
   const hide_direct_votes = location.query.hide_direct_votes || cookies.hide_direct_votes
+  const upper = location.query.upper || cookies.upper
+
   const legislatureQuery = decodeURIComponent(location.query.legislature).replace(/\+/g, ' ')
 
   // Add legislature from URL to legislature selection
@@ -114,8 +116,12 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
       <div class="field is-grouped is-grouped-right">
         <div class="${`control ${user ? '' : 'is-hidden'}`}">
           <label class="checkbox has-text-grey">
-            <input onclick=${toggleDirectVotes(cookies, dispatch)} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
+            <input onclick=${toggleDirectVotes(cookies, dispatch, 'hide_direct_votes')} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
             Hide voted
+          </label>
+          <label class="checkbox has-text-grey">
+            <input onclick=${toggleDirectVotes(cookies, dispatch, 'upper')} type="checkbox" name="upper" checked=${!!upper} />
+            Upper
           </label>
         </div>
         <div class="control" style="margin-left: 10px; margin-right: 0;">

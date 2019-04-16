@@ -17,7 +17,7 @@ module.exports = (event, state) => {
               title: 'Legislation',
               ogImage: query.legislature && query.legislature.length === 2 && `${ASSETS_URL}/legislature-images/${query.legislature}.png`
             },
-          }, fetchMeasures({ hide_direct_votes: state.cookies.hide_direct_votes, ...state.location.query }, state.user)]
+          }, fetchMeasures({ hide_direct_votes: state.cookies.hide_direct_votes, ...state.location.query }, state.cookies, state.location.query, state.user)]
         case '/legislation/:shortId':
         case '/nominations/:shortId':
         case '/:username/legislation/:shortId':
@@ -183,10 +183,9 @@ module.exports = (event, state) => {
   }
 }
 
-const fetchMeasures = (params, user) => (dispatch) => {
-  const terms = params.terms && params.terms.replace(/[^\w\d ]/g, '').replace(/(hr|s) (\d+)/i, '$1$2').replace(/(\S)\s+(\S)/g, '$1 & $2')
+const fetchMeasures = (params, cookies, query, user) => (dispatch) => {
+  const terms = query.terms && query.terms.replace(/[^\w\d ]/g, '').replace(/(hr|s) (\d+)/i, '$1$2').replace(/(\S)\s+(\S)/g, '$1 & $2')
   const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
-
   const orders = {
     upcoming: '&status=not.eq.Introduced&introduced_at=not.is.null&failed_lower_at=is.null&failed_upper_at=is.null&or=(passed_lower_at.is.null,passed_upper_at.is.null,and(passed_lower_at.is.null,passed_upper_at.is.null))&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc',
     new: '&introduced_at=not.is.null&order=introduced_at.desc,number.desc',
@@ -195,9 +194,8 @@ const fetchMeasures = (params, user) => (dispatch) => {
 
   const order = orders[params.order || 'upcoming']
 
-  const hide_direct_votes = params.hide_direct_votes
-  const hide_direct_votes_params = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
-
+  const hide_direct_votes_params = cookies.hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
+  const upper = cookies.upper === 'on' ? '&chamber=in.(Upper)' : ''
   const legislature = `&legislature_name=eq.${params.legislature || 'U.S. Congress'}`
 
   const fields = [
@@ -207,7 +205,7 @@ const fetchMeasures = (params, user) => (dispatch) => {
     'summary', 'legislature_name', 'published', 'created_at', 'author_first_name', 'author_last_name', 'author_username',
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}${fts}${legislature}&type=not.eq.nomination${order}&limit=40`
+  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}${upper}${fts}${legislature}&type=not.eq.nomination${order}&limit=40`
 
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
