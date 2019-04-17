@@ -187,16 +187,77 @@ const fetchMeasures = (params, cookies, query, user) => (dispatch) => {
   const terms = query.terms && query.terms.replace(/[^\w\d ]/g, '').replace(/(hr|s) (\d+)/i, '$1$2').replace(/(\S)\s+(\S)/g, '$1 & $2')
   const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
   const orders = {
-    upcoming: '&status=not.eq.Introduced&introduced_at=not.is.null&failed_lower_at=is.null&failed_upper_at=is.null&or=(passed_lower_at.is.null,passed_upper_at.is.null,and(passed_lower_at.is.null,passed_upper_at.is.null))&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc',
-    new: '&introduced_at=not.is.null&order=introduced_at.desc,number.desc',
-    proposed: '&published=is.true&introduced_at=is.null&order=created_at.desc,title.asc',
+    upcoming: '&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc',
+
   }
+console.log(params.order)
+
+  const hide_direct_votes_params = cookies.hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
+  // chamber query
+    const chamber_query = cookies.from_upper === 'on' && (cookies.from_lower === 'on' || cookies.from_liquid === 'on')
+      ? 'Upper,Lower'
+      : cookies.from_upper === 'on'
+      ? 'Upper'
+      : cookies.from_liquid === 'on' || cookies.from_lower === 'on'
+      ? 'Lower'
+      : 'Upper,Lower'
+
+// see which statuses are checked
+  const recently_introduced = cookies.recently_introduced === 'on'
+  const committee_discharged = cookies.committee_discharged === 'on'
+  const floor_consideration = cookies.floor_consideration === 'on'
+  const committee_action = cookies.committee_action === 'on'
+  const passed_one = cookies.passed_one === 'on'
+  const failed_withdrawn = cookies.failed_one === 'on' || cookies.withdrawn === 'on' || cookies.failed === 'on'
+  const passed_both = cookies.passed_both === 'on'
+  const resolving = cookies.resolving === 'on'
+  const to_exec = cookies.to_exec === 'on'
+  const pending_exec_cal = cookies.pending_exec_cal === 'on'
+  const enacted_check = cookies.enacted === 'on'
+  const veto_check = cookies.veto === 'on'
 
   const order = orders[params.order || 'upcoming']
 
-  const hide_direct_votes_params = cookies.hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
-  const upper = cookies.upper === 'on' ? '&chamber=in.(Upper)' : ''
+  const status_query = `${recently_introduced
+      ? `Introduced,Pending Committee,`
+      : ''}${floor_consideration
+      ? 'Floor Consideration,Pending Executive Calendar,'
+      : ''}${committee_discharged
+      ? 'Awaiting floor or committee vote,'
+      : ''}${committee_action
+      ? 'Committee Consideration,'
+      : ''}${passed_one
+      ? 'Passed One Chamber,'
+      : ''}${failed_withdrawn
+      ? 'Failed One Chamber,Withdrawn,Failed or Returned to Executive,'
+      : ''}${passed_both
+      ? 'Passed Both Chambers,'
+      : ''}${resolving
+      ? 'Resolving Differences,'
+      : ''}${to_exec
+      ? 'To Executive,'
+      : ''}${enacted_check
+      ? 'Enacted,'
+      : ''}${veto_check
+      ? 'Veto Actions,'
+      : ''}${recently_introduced || floor_consideration || committee_discharged || committee_action || passed_one || failed_withdrawn || passed_both || resolving || to_exec || pending_exec_cal || veto_check || enacted_check
+      ? ''
+      : `Introduced,Floor Consideration,Awaiting floor or committee vote,Committee Consideration,Passed One Chamber,Failed One Chamber,Passed Both Chambers,Resolving Differences,To Executive,Pending Executive Calendar,Enacted,Withdrawn,Veto Actions,Failed or Returned to Executive,`}`
+
+      const type_query = `${cookies.nominations === 'on'
+      ? 'nomination,'
+      : ''}${cookies.resolutions === 'on'
+      ? 'resolution,joint-resolution,'
+      : ''}${cookies.bills === 'on'
+      ? 'bill,'
+      : ''}${cookies.nominations !== 'on' && cookies.resolutions !== 'on' && cookies.bills !== 'on'
+        ? 'bill,nomination,resolution,constitutional amendment,'
+        : ''}`
+
   const legislature = `&legislature_name=eq.${params.legislature || 'U.S. Congress'}`
+  const removeEndComma = (filter_function) => {
+    return `${filter_function.slice(0, filter_function.length - 1)}`
+  }
 
   const fields = [
     'title', 'number', 'type', 'short_id', 'id', 'status',
@@ -205,8 +266,8 @@ const fetchMeasures = (params, cookies, query, user) => (dispatch) => {
     'summary', 'legislature_name', 'published', 'created_at', 'author_first_name', 'author_last_name', 'author_username',
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}${upper}${fts}${legislature}&type=not.eq.nomination${order}&limit=40`
-
+  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}&chamber=in.(${chamber_query})&status=in.(${removeEndComma(status_query)})&type=in.(${removeEndComma(type_query)})${fts}${legislature}${order}&limit=40`
+console.log(status_query)
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
     .catch((error) => {
