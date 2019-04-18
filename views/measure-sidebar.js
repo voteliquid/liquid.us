@@ -145,14 +145,22 @@ const measureVoteCounts = ({ measure, offices }) => {
     legislature_name, chamber, delegate_name, vote_position, short_id
   } = measure
 
-  const localLegislatureName = offices
+  const firstChamber = offices
     .filter((office) => office.id && office.legislature.name === measure.legislature_name && (!office.chamber || office.chamber === measure.chamber))
     .map((office) => office.short_name).pop()
+
+  const stateDistrict = chamber === 'Upper'
+  ? firstChamber.replace(firstChamber[2], ' S.D. ')
+  : offices[4].name.includes('Assembly')
+  ? firstChamber.replace('L', ' A.D. ')
+  : offices[4].name.includes('House') || offices[4].name.includes('Representative')
+  ? firstChamber.replace('L', ' H.D. ')
+  : firstChamber.replace('L', ' L.D. ')
+    console.log(offices)
   const chamberNames = {
     'U.S. Congress': { Upper: 'Senate', Lower: 'House' },
     'CA': { Upper: 'Senate', Lower: 'Assembly' },
   }
-
   return html`
     <div class="panel-block">
       <div style="width: 100%;">
@@ -187,9 +195,9 @@ const measureVoteCounts = ({ measure, offices }) => {
               <td class="has-text-right">${yeas || 0}</td>
               <td class="has-text-right">${nays || 0}</td>
             </tr>
-            ${offices.length && localLegislatureName ? html`
+            ${offices.length && firstChamber ? html`
             <tr>
-              <td class="has-text-left has-text-grey">${localLegislatureName}</td>
+              <td class="has-text-left has-text-grey">${measure.legislature_name.length === 2 ? stateDistrict : firstChamber}</td>
               <td class="has-text-right">${constituent_yeas || 0}</td>
               <td class="has-text-right">${constituent_nays || 0}</td>
             </tr>
