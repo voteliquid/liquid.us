@@ -148,22 +148,6 @@ const measureVoteCounts = ({ measure, offices }) => {
   const localLegislatureName = offices
     .filter((office) => office.id && office.legislature.name === measure.legislature_name && (!office.chamber || office.chamber === measure.chamber))
     .map((office) => office.short_name).pop()
-  const cityDistrict = legislature_name.includes(',') ? localLegislatureName.split('-') : ''
-
-
-  const districtName = legislature_name.includes('Congress')
-  ? localLegislatureName
-  : measure.legislature_name.includes(',')
-  ? `District ${cityDistrict[2]}`
-  : localLegislatureName && chamber === 'Upper'
-  ? localLegislatureName.replace('U', ' S.D. ')
-  : localLegislatureName && (offices[3].name.includes('Assembly') || offices[4].name.includes('Assembly'))
-  ? localLegislatureName.replace('L', ' A.D. ')
-  : localLegislatureName && (offices[3].name.includes('House') || offices[3].name.includes('Representative') || offices[4].name.includes('House') || offices[4].name.includes('Representative'))
-  ? localLegislatureName.replace('L', ' H.D. ')
-  : localLegislatureName && (offices[3].name.includes('Legislature') || offices[4].name.includes('Legislature'))
-  ? localLegislatureName.replace('L', ' L.D. ')
-  : ''
 
   const chamberNames = {
     'U.S. Congress': { Upper: 'Senate', Lower: 'House' },
@@ -205,7 +189,7 @@ const measureVoteCounts = ({ measure, offices }) => {
             </tr>
             ${offices.length && localLegislatureName ? html`
             <tr>
-              <td class="has-text-left has-text-grey">${districtName}</td>
+              <td class="has-text-left has-text-grey">${districtName(measure, offices, localLegislatureName)}</td>
               <td class="has-text-right">${constituent_yeas || 0}</td>
               <td class="has-text-right">${constituent_nays || 0}</td>
             </tr>
@@ -265,7 +249,22 @@ const measureRepsPanel = ({ measure, reps }) => {
     </div>
   `
 }
-
+const districtName = (measure, offices, localLegislatureName) => {
+  const cityDistrict = measure.legislature_name.includes(',') ? localLegislatureName.split('-') : ''
+    if (measure.legislature_name.includes('Congress')) {
+    return localLegislatureName
+  } else if (measure.legislature_name.includes(',')) {
+    return `District ${cityDistrict[2]}`
+  } else if (measure.chamber === 'Upper') {
+    return localLegislatureName.replace('U', ' S.D. ')
+  } else if (offices[3].name.includes('Assembly') || offices[4].name.includes('Assembly')) {
+    return localLegislatureName.replace('L', ' A.D. ')
+  } else if (offices[3].name.includes('House') || offices[3].name.includes('Representative') || offices[4].name.includes('House') || offices[4].name.includes('Representative')) {
+    return localLegislatureName.replace('L', ' H.D. ')
+  } else if (offices[3].name.includes('Legislature') || offices[4].name.includes('Legislature')) {
+    return localLegislatureName.replace('L', ' L.D. ')
+  }
+}
 const repSnippet = ({ rep, office }) => html`
   <div>
     <div class="media" style="margin-bottom: .5rem;">
