@@ -6,7 +6,7 @@ const editButtons = require('./measure-edit-buttons')
 const shareButtons = require('./measure-share-buttons')
 
 module.exports = (state, dispatch) => {
-  const { measure, offices } = state
+  const { measure, offices, user } = state
   const l = measure
   const reps = state.reps.filter(({ chamber, legislature }) => {
     return chamber === l.chamber && (stateAbbr[legislature.name] || legislature.name) === l.legislature_name
@@ -30,7 +30,7 @@ module.exports = (state, dispatch) => {
       </div>
       ${reps && reps.length ? measureRepsPanel({ measure, reps }) : ''}
       ${panelTitleBlock('Votes')}
-      ${measureVoteCounts({ measure, offices })}
+      ${measureVoteCounts({ measure, offices, user })}
       ${panelTitleBlock('Info')}
       ${measureInfoPanel({ measure, showStatusTracker })}
       ${measureActionsPanel(state, dispatch)}
@@ -145,18 +145,26 @@ const measureVoteCounts = ({ measure, offices }) => {
     legislature_name, chamber, delegate_name, vote_position, short_id
   } = measure
 
-  const firstChamber = offices
+  const localLegislatureName = offices
     .filter((office) => office.id && office.legislature.name === measure.legislature_name && (!office.chamber || office.chamber === measure.chamber))
     .map((office) => office.short_name).pop()
+  const cityDistrict = legislature_name.includes(',') ? localLegislatureName.split('-') : ''
 
-  const stateDistrict = chamber === 'Upper'
-  ? firstChamber.replace(firstChamber[2], ' S.D. ')
-  : offices[4].name.includes('Assembly')
-  ? firstChamber.replace('L', ' A.D. ')
-  : offices[4].name.includes('House') || offices[4].name.includes('Representative')
-  ? firstChamber.replace('L', ' H.D. ')
-  : firstChamber.replace('L', ' L.D. ')
-    console.log(offices)
+
+  const districtName = legislature_name.includes('Congress')
+  ? localLegislatureName
+  : measure.legislature_name.includes(',')
+  ? `District ${cityDistrict[2]}`
+  : localLegislatureName && chamber === 'Upper'
+  ? localLegislatureName.replace('U', ' S.D. ')
+  : localLegislatureName && (offices[3].name.includes('Assembly') || offices[4].name.includes('Assembly'))
+  ? localLegislatureName.replace('L', ' A.D. ')
+  : localLegislatureName && (offices[3].name.includes('House') || offices[3].name.includes('Representative') || offices[4].name.includes('House') || offices[4].name.includes('Representative'))
+  ? localLegislatureName.replace('L', ' H.D. ')
+  : localLegislatureName && (offices[3].name.includes('Legislature') || offices[4].name.includes('Legislature'))
+  ? localLegislatureName.replace('L', ' L.D. ')
+  : ''
+
   const chamberNames = {
     'U.S. Congress': { Upper: 'Senate', Lower: 'House' },
     'CA': { Upper: 'Senate', Lower: 'Assembly' },
@@ -195,9 +203,9 @@ const measureVoteCounts = ({ measure, offices }) => {
               <td class="has-text-right">${yeas || 0}</td>
               <td class="has-text-right">${nays || 0}</td>
             </tr>
-            ${offices.length && firstChamber ? html`
+            ${offices.length && localLegislatureName ? html`
             <tr>
-              <td class="has-text-left has-text-grey">${measure.legislature_name.length === 2 ? stateDistrict : firstChamber}</td>
+              <td class="has-text-left has-text-grey">${districtName}</td>
               <td class="has-text-right">${constituent_yeas || 0}</td>
               <td class="has-text-right">${constituent_nays || 0}</td>
             </tr>
