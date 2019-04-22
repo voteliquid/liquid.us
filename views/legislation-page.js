@@ -1,17 +1,16 @@
-const { APP_NAME } = process.env
 const { html } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
 const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = (state, dispatch) => {
-  const { loading, measures, measuresByUrl, location } = state
+  const { cookies, geoip, legislatures, loading, measures, measuresByUrl, location, user } = state
   const { query, url } = location
 
   return html`
     <div class="section">
       <div class="container is-widescreen">
         <div class="has-text-right has-text-left-mobile">${proposeButton()}</div>
-        ${filterTabs(state, dispatch)}
+        ${filterForm(geoip, legislatures, cookies, location, user, dispatch)}
         ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
           (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId])))}
         <style>
@@ -116,6 +115,11 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
   const to_exec = location.query.to_exec || cookies.to_exec
   const enacted = location.query.enacted || cookies.enacted
   const veto = location.query.veto || cookies.veto
+  const congress = location.query.congress || cookies.congress
+  const state = location.query.state || cookies.state
+  const city = location.query.state || cookies.city
+  const userCity = user && user.address ? user.address.city : geoip ? geoip.city : ''
+  const userState = user && user.address ? user.address.state : geoip ? geoip.regionName : ''
 
   const legislatureQuery = decodeURIComponent(location.query.legislature).replace(/\+/g, ' ')
 
@@ -129,9 +133,27 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
 
   return html`
     <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
-      <input name="order" type="hidden" value="${location.query.order || 'upcoming'}" />
       <div class="field is-grouped is-grouped-right">
         <div class="${`control ${user ? '' : 'is-hidden'}`}">
+        <div id="filter_checkboxes">
+          <div class="columns has-text-left">
+            <div class="column juridstiction">
+              <h3>Jurisdiction</h3>
+              <label class="checkbox has-text-grey">
+                <input onclick=${toggleFilter(cookies, dispatch, 'congress')} type="checkbox" name="congress" checked=${!!congress} />
+                Congress
+              </label>
+                <br />
+              <label class="checkbox has-text-grey">
+                <input onclick=${toggleFilter(cookies, dispatch, 'state', userState)} type="checkbox" name="state" checked=${!!state} />
+                ${userState}
+              </label>
+              <br />
+              <label class="checkbox has-text-grey">
+                <input onclick=${toggleFilter(cookies, dispatch, 'city', userCity)} type="checkbox" name="city" checked=${!!city} />
+                ${userCity}
+              </label>
+            </div>
           <div class="column type">
             <h3>Type</h3>
             <label class="checkbox has-text-grey">
@@ -222,7 +244,7 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
           </div>
         </div>
         <div class="control" style="margin-left: 10px; margin-right: 0;">
-          <div class="select">
+          <div class="select is-hidden">
             <select autocomplete="off" name="legislature" onchange=${autoSubmit}>
               ${legislatures.map(({ abbr, name }) => {
                 return html`<option value="${abbr}" selected=${abbr === legislatureQuery}>${name}</option>`
@@ -246,42 +268,6 @@ const addAddressNotification = (geoip = {}, user) => {
   `
 }
 
-const makeFilterQuery = (order, query) => {
-  const newQuery = Object.assign({}, query, { order, terms: (query.terms || '') })
-  return Object.keys(newQuery).filter((key) => key).map(key => {
-    return `${key}=${newQuery[key]}`
-  }).join('&')
-}
-
-const filterTabs = ({ geoip, legislatures, location, cookies, user }, dispatch) => {
-  const { query } = location
-  const orderDescriptions = {
-    upcoming: 'Bills upcoming for a vote in the legislature.',
-    new: 'Bills recently introduced.',
-    proposed: `Bills introduced on ${APP_NAME}`,
-  }
-
-  return html`
-    <div>
-      <div class="tabs">
-        <ul>
-          <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('upcoming', query)}`}">Upcoming for vote</a></li>
-          <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('new', query)}`}">Recently introduced</a></li>
-          <li class="${query.order === 'proposed' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('proposed', query)}`}">Introduced on ${APP_NAME}</a></li>
-        </ul>
-      </div>
-      <div class="columns">
-        <div class="column">
-          <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
-        </div>
-        <div class="column has-text-right has-text-left-mobile">
-          ${filterForm(geoip, legislatures, cookies, location, user, dispatch)}
-        </div>
-      </div>
-      <div></div>
-    </div>
-  `
-}
 
 const measureListRow = (s) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
