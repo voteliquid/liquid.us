@@ -69,7 +69,7 @@ module.exports = (state, dispatch) => {
             <span class="has-text-grey-light">
               ${user && user.id === user_id ? html`
                 <span class="has-text-grey-lighter">&bullet;</span>
-                <a href="${measure_url}" class="has-text-grey-light">
+                <a href="${`${measure_url}#measure-vote-form`}" onclick=${(event) => dispatch({ type: 'measure:voteFormActivated', measure, event })} class="has-text-grey-light">
                   <span class="icon is-small"><i class="fas fa-pencil-alt"></i></span>
                   <span>Edit</span>
                 </a>

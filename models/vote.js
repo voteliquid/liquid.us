@@ -196,7 +196,7 @@ const vote = ({ event, measure, ...form }, user) => (dispatch) => {
     user,
   })
   .then(() => {
-    dispatch({ type: 'measure:voteFormActivated', measure })
+    dispatch({ type: 'measure:voteFormToggled', measure })
     return api(dispatch, `/votes_detailed?user_id=eq.${user.id}&measure_id=eq.${measure.id}`, { user })
   })
   .then(([vote]) => dispatch({ type: 'vote:updated', vote }))

@@ -36,7 +36,7 @@ const listeners = (dispatch) => ({
     const anchor = node.tagName === 'A' ? node : (parent && parent.tagName === 'A' && parent)
     const href = anchor && anchor.getAttribute('href')
 
-    if (!event.metaKey && href && href[0] === '/' && href !== url) {
+    if (!event.metaKey && href && href[0] === '/' && href.split('#')[0] !== url) {
       event.preventDefault()
       window.history.pushState({}, null, href)
       loadPage(href, 200, dispatch)

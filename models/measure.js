@@ -28,9 +28,17 @@ module.exports = (event, state) => {
               ...state.location,
               description: `Discuss with your fellow voters & be heard by your elected officials.`,
             },
+            measures: {
+              ...state.measures,
+              [state.location.params.shortId]: {
+                ...state.measures[state.location.params.shortId],
+                showVoteForm: state.location.hash === 'measure-vote-form',
+              },
+            },
           }, combineEffectsInSeries([
             fetchMeasureVotes(state.location.params.shortId, state.location.query.order, state.location.query.position, state.user),
             fetchMeasure(state.location.params.shortId, state.offices, state.user),
+            state.location.hash === 'measure-vote-form' && scrollVoteFormIntoView,
           ])]
         case '/legislation/propose':
         case '/:username/legislation/:shortId/edit':
@@ -164,6 +172,19 @@ module.exports = (event, state) => {
     case 'measure:published':
       return [state, publish(event.measure, state.user)]
     case 'measure:voteFormActivated':
+      if (!event.measure) return [state]
+      return [{
+        ...state,
+        measures: {
+          ...state.measures,
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
+            showVoteForm: true,
+          },
+        },
+      }, combineEffects([preventDefault(event.event), scrollVoteFormIntoView])]
+    case 'measure:voteFormToggled':
+      if (!event.measure) return [state]
       return [{
         ...state,
         measures: {
@@ -322,9 +343,9 @@ const scrollVoteFormIntoView = () => {
   const elem = document.getElementById('measure-vote-form')
 
   if (elem) {
-    const pos = elem.getBoundingClientRect()
-    if (pos) {
-      window.scrollTo(0, pos.y, { behavior: 'smooth' })
+    const scrollY = elem.getBoundingClientRect().top + window.scrollY
+    if (scrollY) {
+      window.scrollTo(0, scrollY, { behavior: 'smooth' })
     }
   }
 }
@@ -352,6 +373,6 @@ const measureOgImage = (measure) => {
   const isCity = ~measure.legislature_name.indexOf(',')
   const inlineImageMatch = measure && measure.summary && measure.summary.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
   const inlineImage = inlineImageMatch && inlineImageMatch[0]
-  const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+  const measureImage = !isCity ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
   return dbImage || inlineImage || measureImage
 }
