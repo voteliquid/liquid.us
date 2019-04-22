@@ -130,7 +130,7 @@ const ghostProfileMessage = (profile) => {
   return html`
     <div class="content">
       <p>
-        Are you ${profile.name}? <a target="_blank" href="${`mailto:support@${WWW_DOMAIN}?subject=Claiming+twitter/${profile.twitter_username}&body=I will send twitter.com/VoteLiquid a DM from @${profile.twitter_username}`}"><strong>Claim this profile</strong></a>.
+        Are you ${profile.name}? <a target="_blank" href="${`mailto:support@${WWW_DOMAIN}?subject=Claiming+twitter/${profile.twitter_username}&body=I will send twitter.com/Liquid_US a DM from @${profile.twitter_username}`}"><strong>Claim this profile</strong></a>.
       </p>
     </div>
   `
