@@ -3,9 +3,11 @@ const { api } = require('../helpers')
 exports.fetchMeasure = (shortId, offices, user) => (dispatch) => {
   return api(dispatch, `/measures_detailed?short_id=eq.${shortId}`, { user }).then(([measure]) => {
     if (measure) {
-      const officesInChamber = offices.filter(({ chamber, legislature }) => chamber === measure.chamber && measure.legislature_name === legislature.name)
-      const officeIds = officesInChamber.map((office) => office.id)
-      const officeParam = officeIds.length ? `&or.(office_id.in.(${officeIds.join(',')},office_id.is.null)` : '&limit=1'
+      const officesInChamber = offices.filter(({ chamber, legislature }) => {
+        return chamber === measure.chamber && measure.legislature_name === legislature.name
+      })
+      const officeId = officesInChamber.map((office) => office.id).shift()
+      const officeParam = officeId ? `&office_id=eq.${officeId}` : '&office_id=is.null'
       return Promise.all([
         api(dispatch, `/measure_votes?measure_id=eq.${measure.id}${officeParam}`, { user }),
         api(dispatch, `/votes_detailed?measure_id=eq.${measure.id}&public=eq.true&comment=not.is.null&comment=not.eq.&position=eq.yea&order=proxy_vote_count.desc.nullslast,created_at.desc`, { user }),
