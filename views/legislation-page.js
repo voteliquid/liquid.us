@@ -1,90 +1,145 @@
 const { html } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
-const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = (state, dispatch) => {
   const { cookies, geoip, legislatures, loading, measures, measuresByUrl, location, user } = state
   const { query, url } = location
+  const showFilters = location.query.show_filters || cookies.show_filters
 
   return html`
-    <div class="section">
-      <div class="container is-widescreen">
-        <div class="has-text-right has-text-left-mobile">${proposeButton()}</div>
-        ${filterForm(geoip, legislatures, cookies, location, user, dispatch)}
-        ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
-          (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId])))}
-        <style>
-          .highlight-hover:hover {
-            background: #f6f8fa;
-          }
-          .summary-tooltip {
-            position: relative;
-          }
-          .summary-tooltip .summary-tooltip-content {
-            display: none;
-            position: absolute;
-            max-height: 222px;
-          }
-          .summary-tooltip .summary-tooltip-arrow {
-            display: none;
-            position: absolute;
-          }
-          .summary-tooltip:hover .summary-tooltip-content {
-            display: block;
-            background: hsl(0, 0%, 100%) !important;
-            box-shadow: 0px 4px 15px hsla(0, 0%, 0%, 0.15);
-            border: 1px solid hsl(0, 0%, 87%);
-            color: #333;
-            font-size: 14px;
-            overflow: hidden;
-            padding: .4rem .8rem;
-            text-align: left;
-            white-space: normal;
-            width: 400px;
-            z-index: 99999;
-            top: auto;
-            bottom: 50%;
-            left: auto;
-            right: 100%;
-            transform: translate(-0.5rem, 50%);
-          }
-          .summary-tooltip:hover .summary-tooltip-arrow {
-            border-color: transparent transparent transparent hsl(0, 0%, 100%) !important;
-            z-index: 99999;
-            position: absolute;
-            display: inline-block;
-            pointer-events: none;
-            border-style: solid;
-            border-width: .5rem;
-            margin-left: -.5rem;
-            margin-top: -.5rem;
-            top: 50%;
-            left: -1px;
-          }
-          .summary-tooltip:hover .has-text-grey-lighter {
-            color: hsl(0, 0%, 75%) !important;
-          }
-        </style>
-      </div>
-    </div>
-  `
-}
+      <div class="section whole-page">
+        <div>
+          <div class="column main-column">
+            <div class="container bill-details">
+              <div class="has-text-centered">
+                ${filterButton(state)}&nbsp${proposeButton()}
+              </div><br />
+              ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []} <br />
+              <div class="${showFilters === 'on' ? 'has-text-centered' : 'is-hidden'}">
+                ${filterForm(geoip, legislatures, cookies, location, user, dispatch)}
+              </div><br />
+              ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
+              (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId])))}
+            </div>
+          </div>
+          <style>
+            .bill-details {
+              max-width: 1086px;
+            }
+            .exec-action {
+              padding-left: 5rem;
+            }
+            .filter-tabs {
+              padding-top: 1rem;
+              padding-bottom: 1rem;
+              background-color: #FFF;
+            }
+            .highlight-hover {
+              background-color: #FFF;
+            }
+            .highlight-hover:hover {
+              background: #f6f8fa;
+            }
+            .juridstiction {
+              padding-left: 5rem;
+            }
+            .leg-action {
+              width: 470px;
+            }
+            .summary-tooltip {
+              position: relative;
+            }
+            .summary-tooltip .summary-tooltip-content {
+              display: none;
+              position: absolute;
+              max-height: 222px;
+            }
+            .summary-tooltip .summary-tooltip-arrow {
+              display: none;
+              position: absolute;
+            }
+            .summary-tooltip:hover .summary-tooltip-content {
+              display: block;
+              background: hsl(0, 0%, 100%) !important;
+              box-shadow: 0px 4px 15px hsla(0, 0%, 0%, 0.15);
+              border: 1px solid hsl(0, 0%, 87%);
+              color: #333;
+              font-size: 14px;
+              overflow: hidden;
+              padding: .4rem .8rem;
+              text-align: left;
+              white-space: normal;
+              width: 400px;
+              z-index: 99999;
+              top: auto;
+              bottom: 50%;
+              left: auto;
+              right: 100%;
+              transform: translate(-0.5rem, 50%);
+            }
+            .summary-tooltip:hover .summary-tooltip-arrow {
+              border-color: transparent transparent transparent hsl(0, 0%, 100%) !important;
+              z-index: 99999;
+              position: absolute;
+              display: inline-block;
+              pointer-events: none;
+              border-style: solid;
+              border-width: .5rem;
+              margin-left: -.5rem;
+              margin-top: -.5rem;
+              top: 50%;
+              left: -1px;
+            }
+            .summary-tooltip:hover .has-text-grey-lighter {
+              color: hsl(0, 0%, 75%) !important;
+            }
+            .whole-page {
+              background-color: #f6f8fa;
+            }
+            .already-voted {
+              font-size: 20px;
+            }
+            .bill-title {
+              margin-bottom: 0.5rem;
+            }
+            .vote-now {
+              font-size: 20px;
+            }
+            @media (max-width: 1086px) {
+              .whole-page {
+                padding: 0;
+              }
+              .bill-details {
+                padding-top: 2rem;
+              }
+              .filter-tabs {
+                padding-left: 1rem;
+              }
+              .main-column {
+                padding: 0rem;
+              }
+            }
+          </style>
+          </div>
+        </div>
+      `
+    }
 
-const autoSubmit = () => document.querySelector('.filter-submit').click()
-
-const toggleFilter = (cookies, dispatch, filterName) => (event) => {
+const toggleFilter = (cookies, dispatch, filterName, value) => (event) => {
   const btn = document.querySelector('.filter-submit')
+  console.log('test', value)
   if (btn.disabled) {
     event.preventDefault()
   } else {
     if (event.currentTarget && event.currentTarget.checked) {
-      dispatch({ type: 'cookieSet', key: `${filterName}`, value: 'on' })
+      dispatch({ type: 'cookieSet', key: `${filterName}`, value: `${value}` })
     } else {
       dispatch({ type: 'cookieUnset', key: `${filterName}` })
     }
     btn.click()
   }
 }
+
 
 const updateFilter = (event, location, dispatch) => {
   event.preventDefault()
@@ -96,6 +151,7 @@ const updateFilter = (event, location, dispatch) => {
 }
 
 const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
+  const showFilters = location.query.show_filters || cookies.show_filters
   const hide_direct_votes = location.query.hide_direct_votes || cookies.hide_direct_votes
   const from_upper = location.query.upper || cookies.from_upper
   const from_lower = location.query.from_lower || cookies.from_lower
@@ -121,140 +177,123 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
   const userCity = user && user.address ? user.address.city : geoip ? geoip.city : ''
   const userState = user && user.address ? user.address.state : geoip ? geoip.regionName : ''
 
-  const legislatureQuery = decodeURIComponent(location.query.legislature).replace(/\+/g, ' ')
-
-  // Add legislature from URL to legislature selection
-  if (location.query.legislature && !legislatures.some(({ abbr }) => abbr === location.query.legislature)) {
-    legislatures.push({
-      abbr: location.query.legislature,
-      name: stateNames[location.query.legislature] || location.query.legislature,
-    })
-  }
-
   return html`
     <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
       <div class="field is-grouped is-grouped-right">
         <div class="${`control ${user ? '' : 'is-hidden'}`}">
-        <div id="filter_checkboxes">
-          <div class="columns has-text-left">
-            <div class="column juridstiction">
-              <h3>Jurisdiction</h3>
-              <label class="checkbox has-text-grey">
-                <input onclick=${toggleFilter(cookies, dispatch, 'congress')} type="checkbox" name="congress" checked=${!!congress} />
-                Congress
-              </label>
+          <input type="checkbox" onclick=${toggleFilter(cookies, dispatch, 'show_filters', 'on')} name="show_filters" checked=${!!showFilters} class="is-hidden" />
+          <div id="filter_checkboxes">
+            <div class="columns has-text-left">
+              <div class="column juridstiction">
+                <h3>Jurisdiction</h3>
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'congress', 'on')} type="checkbox" name="congress" checked=${!!congress} />
+                  Congress
+                </label>
+                  <br />
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'state', `${userState}`)} type="checkbox" name="state" checked=${!!state} />
+                  ${userState}
+                </label>
                 <br />
-              <label class="checkbox has-text-grey">
-                <input onclick=${toggleFilter(cookies, dispatch, 'state', userState)} type="checkbox" name="state" checked=${!!state} />
-                ${userState}
-              </label>
-              <br />
-              <label class="checkbox has-text-grey">
-                <input onclick=${toggleFilter(cookies, dispatch, 'city', userCity)} type="checkbox" name="city" checked=${!!city} />
-                ${userCity}
-              </label>
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'city', `"${userCity}, ${userState}"`)} type="checkbox" name="city" checked=${!!city} />
+                  ${userCity}
+                </label>
+              </div>
+              <div class="column type">
+                <h3>Type</h3>
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'from_upper', 'on')} type="checkbox" name="from_upper" checked=${!!from_upper} />
+                  Upper
+                </label><br>
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'from_lower', 'on')} type="checkbox" name="from_lower" checked=${!!from_lower} />
+                  Lower
+                </label><br />
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'from_liquid', 'on')} type="checkbox" name="from_liquid" checked=${!!from_liquid} />
+                  Liquid
+                </label><br />
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'bills', 'on')} type="checkbox" name="bills" checked=${!!bills} />
+                  Bills
+                </label><br>
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'nominations', 'on')} type="checkbox" name="nominations" checked=${!!nominations} />
+                  Nominations
+                </label><br />
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'recent_updates', 'on')} type="checkbox" name="recent_update" checked=${!!recent_update} />
+                  Updated
+                </label><br />
+                <label class="checkbox has-text-grey is-hidden">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'resolutions', 'on')} type="checkbox" name="resolutions" checked=${!!resolutions} />
+                  Resolutions
+                </label>
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'hide_direct_votes', 'on')} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
+                  Voted directly
+                </label>
+              </div>
+
+              <div class="column leg-action">
+                <h3>Legislative Action</h3>
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'recently_introduced', 'on')} type="checkbox" name="recently_introduced" checked=${!!recently_introduced} />
+                  Introduced
+                </label><br />
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'committee_action', 'on')} type="checkbox" name="committee_action" checked=${!!committee_action} />
+                  Committee Action
+                </label><br />
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'committee_discharged', 'on')} type="checkbox" name="committee_discharged" checked=${!!committee_discharged} />
+                  Committee Discharged
+                </label><br />
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'floor_consideration', 'on')} type="checkbox" name="floor_consideration" checked=${!!floor_consideration} />
+                  Floor Consideration
+                </label><br />
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'passed_one', 'on')} type="checkbox" name="passed_one" checked=${!!passed_one} />
+                  Passed One Chamber
+                </label><br />
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'failed_one', 'on')} type="checkbox" name="failed_one" checked=${!!failed_one} />
+                  Failed or Withdrawn
+                </label>
+                <br />
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'passed_both', 'on')} type="checkbox" name="passed_both" checked=${!!passed_both} />
+                  Passed Both Chambers
+                </label><br />
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'resolving', 'on')} type="checkbox" name="resolving" checked=${!!resolving} />
+                  Resolving Differences
+                </label>
+              </div>
+
+              <div class="column exec-action">
+                <h3>Executive Action</h3>
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'to_exec', 'on')} type="checkbox" name="to_exec" checked=${!!to_exec} />
+                  To Executive
+                </label><br />
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'enacted', 'on')} type="checkbox" name="enacted" checked=${!!enacted} />
+                  Enacted
+                </label><br />
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'veto', 'on')} type="checkbox" name="veto" checked=${!!veto} />
+                  Vetoed
+                </label>
+              </div>
             </div>
-          <div class="column type">
-            <h3>Type</h3>
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'from_upper')} type="checkbox" name="from_upper" checked=${!!from_upper} />
-              Upper
-            </label><br>
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'from_lower')} type="checkbox" name="from_lower" checked=${!!from_lower} />
-              Lower
-            </label><br />
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'from_liquid')} type="checkbox" name="from_liquid" checked=${!!from_liquid} />
-              Liquid
-            </label><br />
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'bills')} type="checkbox" name="bills" checked=${!!bills} />
-              Bills
-            </label><br>
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'nominations')} type="checkbox" name="nominations" checked=${!!nominations} />
-              Nominations
-            </label><br />
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'recent_updates')} type="checkbox" name="recent_update" checked=${!!recent_update} />
-              Updated
-            </label><br />
-            <label class="checkbox has-text-grey is-hidden">
-              <input onclick=${toggleFilter(cookies, dispatch, 'resolutions')} type="checkbox" name="resolutions" checked=${!!resolutions} />
-              Resolutions
-            </label>
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'hide_direct_votes')} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
-              Voted directly
-            </label>
-          </div>
-
-          <div class="column">
-            <h3>Legislative Action</h3>
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'recently_introduced')} type="checkbox" name="recently_introduced" checked=${!!recently_introduced} />
-              Introduced
-            </label><br />
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'committee_action')} type="checkbox" name="committee_action" checked=${!!committee_action} />
-              Committee Action
-            </label><br />
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'committee_discharged')} type="checkbox" name="committee_discharged" checked=${!!committee_discharged} />
-              Committee Discharged
-            </label><br />
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'floor_consideration')} type="checkbox" name="floor_consideration" checked=${!!floor_consideration} />
-              Floor Consideration
-            </label><br />
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'passed_one')} type="checkbox" name="passed_one" checked=${!!passed_one} />
-              Passed One Chamber
-            </label><br />
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'failed_one')} type="checkbox" name="failed_one" checked=${!!failed_one} />
-              Failed or Withdrawn
-            </label>
-            <br />
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'passed_both')} type="checkbox" name="passed_both" checked=${!!passed_both} />
-              Passed Both Chambers
-            </label><br />
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'resolving')} type="checkbox" name="resolving" checked=${!!resolving} />
-              Resolving Differences
-            </label>
-          </div>
-
-          <div class="column">
-            <h3>Executive Action</h3>
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'to_exec')} type="checkbox" name="to_exec" checked=${!!to_exec} />
-              To Executive
-            </label><br />
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'enacted')} type="checkbox" name="enacted" checked=${!!enacted} />
-              Enacted
-            </label><br />
-            <label class="checkbox has-text-grey">
-              <input onclick=${toggleFilter(cookies, dispatch, 'veto')} type="checkbox" name="veto" checked=${!!veto} />
-              Vetoed
-            </label>
-          </div>
-        </div>
-        <div class="control" style="margin-left: 10px; margin-right: 0;">
-          <div class="select is-hidden">
-            <select autocomplete="off" name="legislature" onchange=${autoSubmit}>
-              ${legislatures.map(({ abbr, name }) => {
-                return html`<option value="${abbr}" selected=${abbr === legislatureQuery}>${name}</option>`
-              })}
-            </select>
           </div>
         </div>
         <button type="submit" class="filter-submit is-hidden">Update</button>
       </div>
-      ${(!user || !user.address) && geoip ? addAddressNotification(geoip, user) : ''}
     </form>
   `
 }
@@ -267,7 +306,6 @@ const addAddressNotification = (geoip = {}, user) => {
     </p>
   `
 }
-
 
 const measureListRow = (s) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
@@ -354,7 +392,20 @@ const proposeButton = () => html`
     <span class="has-text-weight-semibold">Propose Legislation</span>
   </a>
 `
+// determine whether to show filters
 
+const filterButton = ({ location, cookies }) => {
+  const showFilters = location.query.show_filters || cookies.show_filters
+  return html`
+    <button onclick="${toggleShowFilters}" class="button is-link is-outlined">
+    <span class="icon"><i class="fa fa-filter"></i></span>
+    <span class="has-text-weight-semibold">${showFilters ? 'Hide Filters' : 'Show Filters'}</span>
+  </button>
+`
+}
+const toggleShowFilters = () => {
+  document.querySelector('[name="show_filters"]').click()
+}
 const summaryTooltipButton = (id, short_id, summary) => html`
   <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">
     <br />
@@ -367,26 +418,12 @@ const summaryTooltipButton = (id, short_id, summary) => html`
   </a>
 `
 
-const noBillsMsg = (order, query) => html`
+const noBillsMsg = (upper, lower) => html`
   <div>
-    ${order !== 'proposed' ? html`
-      <p class="is-size-5">Liquid doesn't have this location's bill list yet,
-        <a href="${`/legislation?${makeQuery('proposed', query)}`}">
-        click here to view manually added items.
-        </a>
-      </p>
-    ` : html`
-      <a href="/legislation/propose" class="button is-primary has-text-weight-semibold">
-        <span class="icon"><i class="fa fa-file"></i></span>
-        <span>Add the first policy proposal</span>
-      </a>
-    `}
+    ${upper === 'on' || lower === 'on' ? [`
+      <p class="is-size-5">Liquid doesn't have this legislature's bill list yet. Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request this location, or change your selected criteria to view legislative items.</p>
+    `] : [`
+      No policies match the current criteria.
+    `]}
   </div>
 `
-
-const makeQuery = (order, query) => {
-  const newQuery = Object.assign({}, query, { order, terms: query.terms || '' })
-  return Object.keys(newQuery).map(key => {
-    return `${key}=${newQuery[key]}`
-  }).join('&')
-}

@@ -214,7 +214,7 @@ const fetchMeasures = (params, cookies, geoip, query, user) => (dispatch) => {
   const congress = cookies.congress === 'on'
   const state = cookies.state
   const city = cookies.city
-  const legislature = `${congress ? 'U.S. Congress,' : ''}${state === 'on' ? `${userState},` : ''}${city === 'on' ? `${userCitySt},` : ''}${congress || state || city ? `` : `U.S. Congress,${userCitySt},${userState},`}`
+  const leg_query = `${congress ? 'U.S. Congress,' : ''}${state === 'on' ? `${userState},` : state ? `${state},` : ''}${city === 'on' ? `${userCitySt},` : city ? `${city},` : ''}${congress || state || city ? `` : `U.S. Congress,${userCitySt},${userState},`}`
 
 // see which statuses are checked
   const recently_introduced = cookies.recently_introduced === 'on'
@@ -277,7 +277,8 @@ const fetchMeasures = (params, cookies, geoip, query, user) => (dispatch) => {
     'summary', 'legislature_name', 'published', 'created_at', 'author_first_name', 'author_last_name', 'author_username',
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}&chamber=in.(${chamber_query})${liquid_query}&status=in.(${removeEndComma(status_query)})&type=in.(${removeEndComma(type_query)})&legislature_name=in.${removeEndComma(legislature)}${order}&limit=40`
+  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}&chamber=in.(${chamber_query})${liquid_query}&status=in.(${removeEndComma(status_query)})&type=in.(${removeEndComma(type_query)})&legislature_name=in.(${removeEndComma(leg_query)})${order}&limit=40`
+  console.log(url)
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
     .catch((error) => {
