@@ -234,7 +234,7 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
       : ''}${floor_consideration
       ? 'Floor Consideration,Pending Executive Calendar,'
       : ''}${committee_discharged
-      ? 'Awaiting floor or committee vote,'
+      ? 'Awaiting%20floor or committee vote,'
       : ''}${committee_action
       ? 'Committee Consideration,'
       : ''}${passed_one
@@ -251,9 +251,8 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
       ? 'Enacted,'
       : ''}${veto_check
       ? 'Veto Actions,'
-      : ''}${recently_introduced || floor_consideration || committee_discharged || committee_action || passed_one || failed_withdrawn || passed_both || resolving || to_exec || veto_check || enacted_check
-      ? ''
-      : `Introduced,Floor Consideration,Awaiting floor or committee vote,Committee Consideration,Passed One Chamber,Failed One Chamber,Passed Both Chambers,Resolving Differences,To Executive,Pending Executive Calendar,Enacted,Withdrawn,Veto Actions,Failed or Returned to Executive,`}`
+      : ''}`
+      const isStatusChecked = recently_introduced || floor_consideration || committee_discharged || committee_action || passed_one || failed_withdrawn || passed_both || resolving || to_exec || veto_check || enacted_check ? `&status=in.(${removeEndComma(status_query)})` : ''
       const type_query = `${cookies.nominations === 'on'
       ? 'nomination,'
       : ''}${cookies.resolutions === 'on'
@@ -275,7 +274,7 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
     'summary', 'legislature_name', 'published', 'created_at', 'author_first_name', 'author_last_name', 'author_username',
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}&chamber=in.(${chamber_query})${liquid_query}&status=in.(${removeEndComma(status_query)})&type=in.(${removeEndComma(type_query)})&legislature_name=in.(${removeEndComma(leg_query)})${order}&limit=40`
+  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}&chamber=in.(${chamber_query})${liquid_query}&type=in.(${removeEndComma(type_query)})&legislature_name=in.(${removeEndComma(leg_query)})${order}&limit=40`
 
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
