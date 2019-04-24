@@ -24,10 +24,7 @@ module.exports = (state, dispatch) => {
           </div>
           <style>
             .bill-details {
-              max-width: 1086px;
-            }
-            .exec-action {
-              padding-left: 5rem;
+              max-width: 1500px;
             }
             .filter-tabs {
               padding-top: 1rem;
@@ -40,8 +37,8 @@ module.exports = (state, dispatch) => {
             .highlight-hover:hover {
               background: #f6f8fa;
             }
-            .juridstiction {
-              padding-left: 5rem;
+            .filter_checkboxes {
+              max-width: 1500px;
             }
             .leg-action {
               width: 470px;
@@ -127,7 +124,6 @@ module.exports = (state, dispatch) => {
 
 const toggleFilter = (cookies, dispatch, filterName, value) => (event) => {
   const btn = document.querySelector('.filter-submit')
-  console.log('test', value)
   if (btn.disabled) {
     event.preventDefault()
   } else {
@@ -180,15 +176,14 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
   const state = location.query.state || cookies.state
   const city = location.query.city || cookies.city
 
-console.log('t', cookies.city)
   return html`
     <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch, userState, state, userCity, city)}">
       <div class="field is-grouped is-grouped-right">
-        <div class="${`control ${user ? '' : 'is-hidden'}`}">
+        <div class="control has-text-centered">
           <input type="checkbox" onclick=${toggleFilter(cookies, dispatch, 'show_filters', 'on')} name="show_filters" checked=${!!showFilters} class="is-hidden" />
           <div id="filter_checkboxes">
             <div class="columns has-text-left">
-              <div class="column juridstiction">
+              <div class="column">
                 <h3>Jurisdiction</h3>
                 <div>
                   <label class="checkbox has-text-grey">
@@ -198,14 +193,14 @@ console.log('t', cookies.city)
                 </div>
                 <div>
                   <label class="checkbox has-text-grey">
-                    <input onclick=${toggleFilter(cookies, dispatch, 'state', `${state}`)} type="checkbox" name="state" checked=${!!state} />
+                    <input onclick=${toggleFilter(cookies, dispatch, 'state', `${userState}`)} type="checkbox" name="state" checked=${!!state} />
                     ${state || userState}
                   </label>
                 </div>
                 <div>
                   <label class="checkbox has-text-grey">
                     <input onclick=${toggleFilter(cookies, dispatch, 'city', `${userCity}, ${userState}`)} type="checkbox" name="city" checked=${!!city} />
-                    ${city || `${userCity}, ${userState}`}
+                    ${city ? city.replace('%20', ' ') : `${userCity}, ${userState}`}
                   </label>
                 </div>
               </div>
@@ -403,7 +398,8 @@ const proposeButton = () => html`
 // determine whether to show filters
 
 const filterButton = ({ location, cookies }) => {
-  const showFilters = location.query.show_filters || cookies.show_filters
+  const showFilters = location.query.show_filters === 'on' || cookies.show_filters === 'on'
+  console.log(cookies.show_filters)
   return html`
     <button onclick="${toggleShowFilters}" class="button is-link is-outlined">
     <span class="icon"><i class="fa fa-filter"></i></span>

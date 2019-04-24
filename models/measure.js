@@ -204,11 +204,6 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
     ? '&published=is.true&introduced_at=is.null'
     : ''
 
-  /*
-  https://api.liquid.us/measures_detailed?select=title,number,type,short_id,id,status,sponsor_username,sponsor_first_name,sponsor_last_name,introduced_at,last_action_at,next_agenda_begins_at,next_agenda_action_at,summary,legislature_name,published,created_at,author_first_name,author_last_name,author_username,vote_position,delegate_rank,delegate_name&chamber=in.(Upper,Lower)&or=(status.in.(Floor%20Consideration,Awaiting%20floor%20or%20committee%20vote,Committee%20Consideration,Passed%20One%20Chamber,Failed%20One%20Chamber,Passed%20Both%20Chambers,Resolving%20Differences,To%20Executive,Pending%20Executive%20Calendar,Enacted,Withdrawn,Veto%20Actions,Failed%20or%20Returned%20to%20Executive),introduced_at.is.null)&type=in.(bill,nomination,resolution,constitutional%20amendment)&legislature_name=in.(U.S.%20Congress,%22Madison,%20WI%22,WI)&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc&limit=40
-
-    */
-
 // determine which legislatures to show
   const userCitySt = user && user.address
     ? `"${user.address.city}, ${user.address.state}"`
@@ -231,7 +226,6 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
   const passed_both = cookies.passed_both === 'on'
   const resolving = cookies.resolving === 'on'
   const to_exec = cookies.to_exec === 'on'
-  const pending_exec_cal = cookies.pending_exec_cal === 'on'
   const enacted_check = cookies.enacted === 'on'
   const veto_check = cookies.veto === 'on'
 
@@ -257,10 +251,9 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
       ? 'Enacted,'
       : ''}${veto_check
       ? 'Veto Actions,'
-      : ''}${recently_introduced || floor_consideration || committee_discharged || committee_action || passed_one || failed_withdrawn || passed_both || resolving || to_exec || pending_exec_cal || veto_check || enacted_check
+      : ''}${recently_introduced || floor_consideration || committee_discharged || committee_action || passed_one || failed_withdrawn || passed_both || resolving || to_exec || veto_check || enacted_check
       ? ''
       : `Introduced,Floor Consideration,Awaiting floor or committee vote,Committee Consideration,Passed One Chamber,Failed One Chamber,Passed Both Chambers,Resolving Differences,To Executive,Pending Executive Calendar,Enacted,Withdrawn,Veto Actions,Failed or Returned to Executive,`}`
-
       const type_query = `${cookies.nominations === 'on'
       ? 'nomination,'
       : ''}${cookies.resolutions === 'on'
@@ -283,7 +276,6 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
   const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}&chamber=in.(${chamber_query})${liquid_query}&status=in.(${removeEndComma(status_query)})&type=in.(${removeEndComma(type_query)})&legislature_name=in.(${removeEndComma(leg_query)})${order}&limit=40`
-  console.log(url)
 
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
