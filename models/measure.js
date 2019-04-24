@@ -17,7 +17,7 @@ module.exports = (event, state) => {
               title: 'Legislation',
               ogImage: query.legislature && query.legislature.length === 2 && `${ASSETS_URL}/legislature-images/${query.legislature}.png`
             },
-          }, fetchMeasures({ hide_direct_votes: state.cookies.hide_direct_votes, ...state.location.query }, state.cookies, state.geoip, state.location.query, state.user)]
+          }, fetchMeasures({ hide_direct_votes: state.cookies.hide_direct_votes, ...state.location.query }, state.cookies, state.geoip, state.location.query, state.user, state.location)]
         case '/legislation/:shortId':
         case '/nominations/:shortId':
         case '/:username/legislation/:shortId':
@@ -183,7 +183,7 @@ module.exports = (event, state) => {
   }
 }
 
-const fetchMeasures = (params, cookies, geoip, query, user) => (dispatch) => {
+const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispatch) => {
 
   const order = '&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc'
 
@@ -204,6 +204,11 @@ const fetchMeasures = (params, cookies, geoip, query, user) => (dispatch) => {
     ? '&published=is.true&introduced_at=is.null'
     : ''
 
+  /*
+  https://api.liquid.us/measures_detailed?select=title,number,type,short_id,id,status,sponsor_username,sponsor_first_name,sponsor_last_name,introduced_at,last_action_at,next_agenda_begins_at,next_agenda_action_at,summary,legislature_name,published,created_at,author_first_name,author_last_name,author_username,vote_position,delegate_rank,delegate_name&chamber=in.(Upper,Lower)&or=(status.in.(Floor%20Consideration,Awaiting%20floor%20or%20committee%20vote,Committee%20Consideration,Passed%20One%20Chamber,Failed%20One%20Chamber,Passed%20Both%20Chambers,Resolving%20Differences,To%20Executive,Pending%20Executive%20Calendar,Enacted,Withdrawn,Veto%20Actions,Failed%20or%20Returned%20to%20Executive),introduced_at.is.null)&type=in.(bill,nomination,resolution,constitutional%20amendment)&legislature_name=in.(U.S.%20Congress,%22Madison,%20WI%22,WI)&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc&limit=40
+
+    */
+
 // determine which legislatures to show
   const userCitySt = user && user.address
     ? `"${user.address.city}, ${user.address.state}"`
@@ -212,10 +217,10 @@ const fetchMeasures = (params, cookies, geoip, query, user) => (dispatch) => {
     : ''
   const userState = user && user.address ? user.address.state : geoip ? geoip.region : ''
   const congress = cookies.congress === 'on'
-  const state = cookies.state
-  const city = cookies.city
-  const leg_query = `${congress ? 'U.S. Congress,' : ''}${state === 'on' ? `${userState},` : state ? `${state},` : ''}${city === 'on' ? `${userCitySt},` : city ? `${city},` : ''}${congress || state || city ? `` : `U.S. Congress,${userCitySt},${userState},`}`
 
+  const state = location.query.state
+  const city = location.query.city
+  const leg_query = `${congress ? 'U.S. Congress,' : ''}${state ? `${state},` : ''}${city ? `"${city}",` : ''}${congress || state || city ? `` : `U.S. Congress,${userCitySt},${userState},`}`
 // see which statuses are checked
   const recently_introduced = cookies.recently_introduced === 'on'
   const committee_discharged = cookies.committee_discharged === 'on'
@@ -279,6 +284,7 @@ const fetchMeasures = (params, cookies, geoip, query, user) => (dispatch) => {
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
   const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}&chamber=in.(${chamber_query})${liquid_query}&status=in.(${removeEndComma(status_query)})&type=in.(${removeEndComma(type_query)})&legislature_name=in.(${removeEndComma(leg_query)})${order}&limit=40`
   console.log(url)
+
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
     .catch((error) => {
@@ -286,7 +292,6 @@ const fetchMeasures = (params, cookies, geoip, query, user) => (dispatch) => {
       dispatch({ type: 'measure:receivedList', measures: [] })
     })
 }
-
 const fetchUserMeasures = (user) => (dispatch) => {
   return api(dispatch, `/measures_detailed?author_id=eq.${user.id}&order=created_at.desc`, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))

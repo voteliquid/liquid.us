@@ -141,10 +141,13 @@ const toggleFilter = (cookies, dispatch, filterName, value) => (event) => {
 }
 
 
-const updateFilter = (event, location, dispatch) => {
+const updateFilter = (event, location, dispatch, userState, state, userCity, city) => {
   event.preventDefault()
   const formData = require('parse-form').parse(event.target).body
   const formUrl = `${location.path}?${Object.keys(formData).map((key) => {
+    if (key === 'state') { return `state=${formData[key] === 'on' ? userState : state}` }
+    if (key === 'city') { return `city=${formData[key] === 'on' ? `${userCity}, ${userState}` : city}` }
+
     return `${key}=${formData[key]}`
   }).join('&')}`
   dispatch({ type: 'redirected', url: formUrl })
@@ -172,13 +175,14 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
   const enacted = location.query.enacted || cookies.enacted
   const veto = location.query.veto || cookies.veto
   const congress = location.query.congress || cookies.congress
-  const state = location.query.state || cookies.state
-  const city = location.query.state || cookies.city
-  const userCity = user && user.address ? user.address.city : geoip ? geoip.city : ''
   const userState = user && user.address ? user.address.state : geoip ? geoip.regionName : ''
+  const userCity = user && user.address ? user.address.city : geoip ? geoip.city : ''
+  const state = location.query.state || cookies.state
+  const city = location.query.city || cookies.city
 
+console.log('t', cookies.city)
   return html`
-    <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
+    <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch, userState, state, userCity, city)}">
       <div class="field is-grouped is-grouped-right">
         <div class="${`control ${user ? '' : 'is-hidden'}`}">
           <input type="checkbox" onclick=${toggleFilter(cookies, dispatch, 'show_filters', 'on')} name="show_filters" checked=${!!showFilters} class="is-hidden" />
@@ -186,20 +190,24 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
             <div class="columns has-text-left">
               <div class="column juridstiction">
                 <h3>Jurisdiction</h3>
-                <label class="checkbox has-text-grey">
-                  <input onclick=${toggleFilter(cookies, dispatch, 'congress', 'on')} type="checkbox" name="congress" checked=${!!congress} />
-                  Congress
-                </label>
-                  <br />
-                <label class="checkbox has-text-grey">
-                  <input onclick=${toggleFilter(cookies, dispatch, 'state', `${userState}`)} type="checkbox" name="state" checked=${!!state} />
-                  ${userState}
-                </label>
-                <br />
-                <label class="checkbox has-text-grey">
-                  <input onclick=${toggleFilter(cookies, dispatch, 'city', `"${userCity}, ${userState}"`)} type="checkbox" name="city" checked=${!!city} />
-                  ${userCity}
-                </label>
+                <div>
+                  <label class="checkbox has-text-grey">
+                    <input onclick=${toggleFilter(cookies, dispatch, 'congress', 'on')} type="checkbox" name="congress" checked=${!!congress} />
+                    Congress
+                  </label>
+                </div>
+                <div>
+                  <label class="checkbox has-text-grey">
+                    <input onclick=${toggleFilter(cookies, dispatch, 'state', `${state}`)} type="checkbox" name="state" checked=${!!state} />
+                    ${state || userState}
+                  </label>
+                </div>
+                <div>
+                  <label class="checkbox has-text-grey">
+                    <input onclick=${toggleFilter(cookies, dispatch, 'city', `${userCity}, ${userState}`)} type="checkbox" name="city" checked=${!!city} />
+                    ${city || `${userCity}, ${userState}`}
+                  </label>
+                </div>
               </div>
               <div class="column type">
                 <h3>Type</h3>
