@@ -28,7 +28,7 @@ module.exports = (state, dispatch) => {
               ${measureSummary({ ...measure, alwaysExpanded: true, size: 5 }, dispatch)}
             </div>
             <div class="small-screens-only">
-              ${mobileHoverBar({ vote }, dispatch)}
+              ${vote.showMobileEndorsementForm ? '' : mobileHoverBar({ vote }, dispatch)}
             </div>
             ${(vote.replies || []).map(endorsementCommentReply)}
           </div>
