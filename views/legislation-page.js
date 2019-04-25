@@ -40,9 +40,6 @@ module.exports = (state, dispatch) => {
             .filter_checkboxes {
               max-width: 1500px;
             }
-            .leg-action {
-              width: 470px;
-            }
             .summary-tooltip {
               position: relative;
             }
@@ -183,13 +180,19 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
 
   return html`
     <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch, userState, state, userCity, city)}">
-      <div class="field is-grouped is-grouped-right">
-        <div class="control has-text-centered">
+      <div class="field is-grouped is-grouped-center">
+        <div class="control">
           <input type="checkbox" onclick=${toggleFilter(cookies, dispatch, 'show_filters', 'on')} name="show_filters" checked=${!!showFilters} class="is-hidden" />
           <div id="filter_checkboxes">
             <div class="columns has-text-left">
-              <div class="column">
+              <div class="column" style="width: 270px">
                 <h3>Chamber</h3>
+                <div>
+                  <label class="checkbox has-text-grey">
+                    <input onclick=${toggleFilter(cookies, dispatch, 'liquid_us', 'on')} type="checkbox" name="liquid_us" checked=${!!liquid_us} />
+                    Liquid Congress
+                  </label>
+                </div>
                 <div>
                   <label class="checkbox has-text-grey">
                     <input onclick=${toggleFilter(cookies, dispatch, 'us_house', 'on')} type="checkbox" name="us_house" checked=${!!us_house} />
@@ -204,14 +207,8 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
                 </div>
                 <div>
                   <label class="checkbox has-text-grey">
-                    <input onclick=${toggleFilter(cookies, dispatch, 'liquid_us', 'on')} type="checkbox" name="liquid_us" checked=${!!liquid_us} />
-                    Liquid Congress
-                  </label>
-                </div>
-                <div>
-                  <label class="checkbox has-text-grey">
-                    <input onclick=${toggleFilter(cookies, dispatch, 'state_upper', `${userState}`)} type="checkbox" name="state_upper" checked=${!!state_upper} />
-                    ${state_upper ? `${state} Upper` : `${userState} Upper`}
+                    <input onclick=${toggleFilter(cookies, dispatch, 'liquid_state', `${userState}`)} type="checkbox" name="liquid_state" checked=${!!liquid_state} />
+                    ${liquid_state ? `Liquid ${state}` : `Liquid ${userState}`}
                   </label>
                 </div>
                 <div>
@@ -222,8 +219,8 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
                 </div>
                 <div>
                   <label class="checkbox has-text-grey">
-                    <input onclick=${toggleFilter(cookies, dispatch, 'liquid_state', `${userState}`)} type="checkbox" name="liquid_state" checked=${!!liquid_state} />
-                    ${liquid_state ? `Liquid ${state}` : `Liquid ${userState}`}
+                    <input onclick=${toggleFilter(cookies, dispatch, 'state_upper', `${userState}`)} type="checkbox" name="state_upper" checked=${!!state_upper} />
+                    ${state_upper ? `${state} Upper` : `${userState} Upper`}
                   </label>
                 </div>
                 <div>
@@ -263,7 +260,7 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
                 </label>
               </div>
 
-              <div class="column leg-action">
+              <div class="column" style="width: 230px">
                 <h3>Legislative Action</h3>
                 <label class="checkbox has-text-grey">
                   <input onclick=${toggleFilter(cookies, dispatch, 'recently_introduced', 'on')} type="checkbox" name="recently_introduced" checked=${!!recently_introduced} />
@@ -343,8 +340,8 @@ const measureListRow = (s) => {
             <div class="is-size-7 has-text-grey">
               <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &mdash;
               ${s.sponsor_first_name
-                ? html`Introduced by&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;on ${(new Date(s.introduced_at)).toLocaleDateString()}`
-                : html`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()}`
+                ? html`Introduced by&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;on ${(new Date(s.introduced_at)).toLocaleDateString()} - ${s.legislature_name}`
+                : html`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()} - ${s.legislature_name}`
               }
               ${s.summary ? html`
                 <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
@@ -359,8 +356,8 @@ const measureListRow = (s) => {
               <div class="is-size-7 has-text-grey">
                 ${s.author_username
                   ? html`Authored by <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>`
-                  : html`Authored by Anonymous`}
-                on ${(new Date(s.created_at)).toLocaleDateString()}
+                  : html`Authored by Anonymous `}
+                on ${(new Date(s.created_at)).toLocaleDateString()} - ${s.legislature_name}
               </div>
             `}
           </div>
