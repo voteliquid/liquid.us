@@ -5,7 +5,8 @@ const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = (state, dispatch) => {
   const { key, measure, vote, show_bill, user } = state
-  const endorsed_vote = !(user && user.id === vote.user_id && vote.comment) && vote.endorsed_vote
+  const isOwnVote = user && user.id === vote.user_id
+  const endorsed_vote = !(isOwnVote && vote.comment) && vote.endorsed_vote
   const {
     comment, author_username, endorsed, updated_at, fullname, id,
     number, proxy_vote_count, position, short_id, title, type,
@@ -28,7 +29,7 @@ module.exports = (state, dispatch) => {
 
   return html`
     <div class="comment" style="margin-bottom: 1.5em;">
-      ${endorsed_vote ? html`<p class="is-size-7 has-text-grey" style="margin-bottom: 1em;">Endorsed by <a href="${`/${vote.username}`}">${vote.fullname}</a>${endorsement_public ? '' : ' privately'}:</p>` : ''}
+      ${endorsed_vote ? html`<p class="is-size-7 has-text-grey" style="margin-bottom: 1em;">Endorsed by <a href="${`/${vote.username}`}">${vote.fullname}</a>${(isOwnVote && endorsement_public) || vote.public ? '' : ' privately'}:</p>` : ''}
       <div class="media">
         <div class="media-left">
           <div class="image is-32x32">
@@ -69,7 +70,7 @@ module.exports = (state, dispatch) => {
             <span class="has-text-grey-light">
               ${user && user.id === user_id ? html`
                 <span class="has-text-grey-lighter">&bullet;</span>
-                <a href="${measure_url}" class="has-text-grey-light">
+                <a href="${`${measure_url}#measure-vote-form`}" onclick=${(event) => dispatch({ type: 'measure:voteFormActivated', measure, event })} class="has-text-grey-light">
                   <span class="icon is-small"><i class="fas fa-pencil-alt"></i></span>
                   <span>Edit</span>
                 </a>

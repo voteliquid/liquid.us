@@ -65,6 +65,8 @@ module.exports = {
           loading: { page: state.loading.page },
           error: event.error,
         }, logError(event.error)]
+      case 'import':
+        return require('./models/import')(event, state)
       case 'measure':
         return require('./models/measure')(event, state)
       case 'metricsReceived':
@@ -134,6 +136,10 @@ module.exports = {
             case '/:username/legislation/:shortId':
             case '/:username/legislation/:shortId/edit':
               return require('./models/measure')(event, state)
+            case '/legislation/:shortId/import':
+            case '/nominations/:shortId/import':
+            case '/:username/legislation/:shortId/import':
+              return require('./models/import')(event, state)
             case '/legislation/:shortId/votes/:voteId':
             case '/nominations/:shortId/votes/:voteId':
             case '/:username/legislation/:shortId/votes/:voteId':

@@ -28,9 +28,17 @@ module.exports = (event, state) => {
               ...state.location,
               description: `Discuss with your fellow voters & be heard by your elected officials.`,
             },
+            measures: {
+              ...state.measures,
+              [state.location.params.shortId]: {
+                ...state.measures[state.location.params.shortId],
+                showVoteForm: state.location.hash === 'measure-vote-form',
+              },
+            },
           }, combineEffectsInSeries([
             fetchMeasureVotes(state.location.params.shortId, state.location.query.order, state.location.query.position, state.user),
             fetchMeasure(state.location.params.shortId, state.offices, state.user),
+            state.location.hash === 'measure-vote-form' && scrollVoteFormIntoView,
           ])]
         case '/legislation/propose':
         case '/:username/legislation/:shortId/edit':
@@ -73,6 +81,30 @@ module.exports = (event, state) => {
             votePower: event.votePower,
           },
         },
+      }]
+    case 'measure:userMeasureReceived':
+      if (!event.measure) {
+        return [{ ...state, loading: { ...state.loading, page: false, measure: false } }]
+      }
+      return [{
+        ...state,
+        loading: { ...state.loading, page: false, measure: false },
+        measures: {
+          ...state.measures,
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
+            ...event.measure,
+            votes: state.measures[event.measure.short_id] ? (state.measures[event.measure.short_id].votes || []) : [],
+            // only store ids on measure to keep one vote object shared by various views
+            topYea: event.topYea ? event.topYea.id : null,
+            topNay: event.topNay ? event.topNay.id : null,
+            votePower: event.votePower ? event.votePower : (state.measures[event.measure.short_id] && state.measures[event.measure.short_id].votePower),
+          },
+        },
+        votes: (event.votes || []).concat([event.topYea, event.topNay].filter(v => v)).reduce((votes, vote) => {
+          votes[vote.id] = { ...votes[vote.id], ...vote }
+          return votes
+        }, state.votes),
       }]
     case 'measure:received':
     case 'measure:updated':
@@ -140,6 +172,19 @@ module.exports = (event, state) => {
     case 'measure:published':
       return [state, publish(event.measure, state.user)]
     case 'measure:voteFormActivated':
+      if (!event.measure) return [state]
+      return [{
+        ...state,
+        measures: {
+          ...state.measures,
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
+            showVoteForm: true,
+          },
+        },
+      }, combineEffects([preventDefault(event.event), scrollVoteFormIntoView])]
+    case 'measure:voteFormToggled':
+      if (!event.measure) return [state]
       return [{
         ...state,
         measures: {
@@ -286,11 +331,11 @@ const fetchUserMeasures = (user) => (dispatch) => {
 
 const fetchUserMeasure = (shortId, user) => (dispatch) => {
   if (!shortId) {
-    return dispatch({ type: 'measure:received', measure: null })
+    return dispatch({ type: 'measure:userMeasureReceived', measure: null })
   }
   return api(dispatch, `/measures_detailed?author_id=eq.${user.id}&short_id=eq.${shortId}`, { user }).then(([measure]) => {
     if (measure) {
-      dispatch({ type: 'measure:received', measure })
+      dispatch({ type: 'measure:userMeasureReceived', measure })
     } else {
       dispatch({ type: 'redirected', status: 302, url: `/legislation/${measure.short_id}` })
     }
@@ -314,7 +359,7 @@ const insertMeasure = (measure, form, user) => (dispatch) => {
       published: false,
       chamber: 'Lower',
       type: 'bill',
-      short_id: form.short_id,
+      short_id: form.short_id.toLowerCase(),
     }),
     user,
   })
@@ -328,7 +373,7 @@ const updateMeasure = (measure, form, user) => (dispatch) => {
   return api(dispatch, `/measures?id=eq.${measure.id}`, {
     method: 'PATCH',
     headers: { Prefer: 'return=representation' },
-    body: JSON.stringify(form),
+    body: JSON.stringify({ ...form, short_id: form.short_id.toLowerCase() }),
     user,
   })
   .then(() => api(dispatch, `/measures_detailed?id=eq.${measure.id}`, { user }))
@@ -360,9 +405,9 @@ const scrollVoteFormIntoView = () => {
   const elem = document.getElementById('measure-vote-form')
 
   if (elem) {
-    const pos = elem.getBoundingClientRect()
-    if (pos) {
-      window.scrollTo(0, pos.y, { behavior: 'smooth' })
+    const scrollY = elem.getBoundingClientRect().top + window.scrollY
+    if (scrollY) {
+      window.scrollTo(0, scrollY, { behavior: 'smooth' })
     }
   }
 }
@@ -390,6 +435,6 @@ const measureOgImage = (measure) => {
   const isCity = ~measure.legislature_name.indexOf(',')
   const inlineImageMatch = measure && measure.summary && measure.summary.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
   const inlineImage = inlineImageMatch && inlineImageMatch[0]
-  const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+  const measureImage = !isCity ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
   return dbImage || inlineImage || measureImage
 }
