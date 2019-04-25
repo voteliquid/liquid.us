@@ -352,7 +352,7 @@ const measureListRow = (s) => {
               <p><strong class="has-text-grey">Status:</strong>
               ${next_action_at ? html`
                 Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
-              ` : s.status}</p>
+              ` : s.status === 'Awaiting floor or committee vote' ? 'Discharged from committee' : s.status}</p>
               <p><strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}</p>
             </div>
             ` : html`
