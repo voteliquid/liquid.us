@@ -297,7 +297,7 @@ const insertMeasure = (measure, form, user) => (dispatch) => {
       published: false,
       chamber: 'Lower',
       type: 'bill',
-      short_id: form.short_id,
+      short_id: form.short_id.toLowerCase(),
     }),
     user,
   })
@@ -311,7 +311,7 @@ const updateMeasure = (measure, form, user) => (dispatch) => {
   return api(dispatch, `/measures?id=eq.${measure.id}`, {
     method: 'PATCH',
     headers: { Prefer: 'return=representation' },
-    body: JSON.stringify(form),
+    body: JSON.stringify({ ...form, short_id: form.short_id.toLowerCase() }),
     user,
   })
   .then(() => api(dispatch, `/measures_detailed?id=eq.${measure.id}`, { user }))
