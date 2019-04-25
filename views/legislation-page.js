@@ -265,8 +265,8 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
                 <label class="checkbox has-text-grey">
                   <input onclick=${toggleFilter(cookies, dispatch, 'recently_introduced', 'on')} type="checkbox" name="recently_introduced" checked=${!!recently_introduced} />
                   Introduced
-                </label><br />
-                <label class="checkbox has-text-grey">
+                </label>
+                <label class="checkbox has-text-grey is-hidden">
                   <input onclick=${toggleFilter(cookies, dispatch, 'committee_action', 'on')} type="checkbox" name="committee_action" checked=${!!committee_action} />
                   Committee Action
                 </label><br />
