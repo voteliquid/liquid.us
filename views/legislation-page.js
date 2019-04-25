@@ -14,10 +14,10 @@ module.exports = (state, dispatch) => {
               <div class="has-text-centered">
                 ${filterButton(state)}&nbsp${proposeButton()}
               </div><br />
-              ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []} <br />
               <div class="${showFilters === 'on' ? 'has-text-centered' : 'is-hidden'}">
                 ${filterForm(geoip, legislatures, cookies, location, user, dispatch)}
               </div><br />
+              ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []} <br />
               ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
               (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId])))}
             </div>
