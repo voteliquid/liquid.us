@@ -202,7 +202,6 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
     : cookies.liquid_us || cookies.liquid_state || cookies.liquid_city
     ? '&published=is.true&introduced_at=is.null'
     : ''
-console.log('chamber', chamber_query, 'liquid_query', liquid_query, cookies.state)
 // determine which legislatures to show
   const userCitySt = user && user.address
     ? `"${user.address.city}, ${user.address.state}"`

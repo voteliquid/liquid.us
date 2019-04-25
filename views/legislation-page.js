@@ -170,7 +170,7 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
   const us_house = location.query.us_house || cookies.us_house
   const us_senate = location.query.us_senate || cookies.us_senate
   const liquid_us = location.query.liquid_us || cookies.liquid_us
-  const userState = user && user.address ? user.address.state : geoip ? geoip.regionName : ''
+  const userState = user && user.address ? user.address.state : geoip ? geoip.region : ''
   const userCity = user && user.address ? user.address.city : geoip ? geoip.city : ''
   const state_upper = location.query.state_upper || cookies.state_upper
   const state_lower = location.query.state_lower || cookies.state_lower
