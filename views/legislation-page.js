@@ -437,12 +437,12 @@ const summaryTooltipButton = (id, short_id, summary) => html`
   </a>
 `
 
-const noBillsMsg = (upper, lower) => html`
+const noBillsMsg = (state_upper, state_lower) => html`
   <div>
-    ${upper === 'on' || lower === 'on' ? [`
-      <p class="is-size-5">Liquid doesn't have this legislature's bill list yet. Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request this location, or change your selected criteria to view legislative items.</p>
+    ${state_upper === 'on' || state_lower === 'on' ? [`
+      <p class="is-size-5">Liquid doesn't have this legislature's bill list yet. Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request this location, or change your selected criteria.</p>
     `] : [`
-      No policies match the current criteria.
+      No policies match the current criteria. Propose a bill or change your selected filters.
     `]}
   </div>
 `
