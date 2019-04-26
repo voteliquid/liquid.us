@@ -46,7 +46,7 @@ module.exports = (state, dispatch) => {
       </div>
       <div class="field">
         <div class="control">
-          <button class=${`button ${color} is-fullwidth has-text-weight-bold is-size-5 ${loading.vote ? 'is-loading' : ''}`} disabled=${loading.vote} type="submit">${action}</button>
+          <button class=${`button ${color} is-fullwidth has-text-weight-bold fix-bulma-centered-text is-size-5 ${loading.vote ? 'is-loading' : ''}`} disabled=${loading.vote} type="submit">${action}</button>
         </div>
       </div>
     </form>
