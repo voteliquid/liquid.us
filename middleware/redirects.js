@@ -14,8 +14,8 @@ server
   .all('/reps/:username', (req, res) => res.redirect(301, `/${req.params.username}`))
   .all('/new-homepage', (req, res) => res.redirect(301, '/'))
   .all('/elon', (req, res) => res.redirect(301, '/twitter/elonmusk'))
-  .all('/wisconsin', (req, res) => res.redirect(301, '/legislation?order=proposed&legislature=WI&terms='))
-  .all('/madison', (req, res) => res.redirect(301, '/legislation?order=proposed&legislature=Madison,%20WI&terms='))
+  .all('/wisconsin', (req, res) => res.redirect(301, '/legislation?state=WI&liquid_state=true&state=WI&state_lower=true&state=WI&state_upper=true'))
+  .all('/madison', (req, res) => res.redirect(301, '/legislation?&city=Madison,%20WI&liquid_city=true'))
 
   // Redirect from old to new get_started flow
   .all('/verification', (req, res) => res.redirect(301, '/get_started'))
