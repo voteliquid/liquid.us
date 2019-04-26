@@ -1,13 +1,21 @@
 const { html } = require('../helpers')
+const activityIndicator = require('./activity-indicator')
 const editLegislationForm = require('./edit-legislation-form')
 
 module.exports = (state, dispatch) => {
-  const { username, verified } = state.user
+  const { location, measures = {}, user } = state
+  const measure = location.params.shortId && measures[location.params.shortId]
   return html`
     <section class="section">
       <div class="container is-widescreen">
-        <h2 class="title is-5">Propose New Legislation</h2>
-        ${username ? editLegislationForm(state, dispatch) : publicProfileRequiredMsg(verified)}
+        <h2 class="title is-5">${measure ? 'Edit Legislation' : 'Propose New Legislation'}</h2>
+        ${user.username
+          ? location.params.shortId
+            ? measure
+              ? measure.published ? alreadyPublishedMsg() : editLegislationForm(state, dispatch)
+              : activityIndicator()
+            : editLegislationForm(state, dispatch)
+          : publicProfileRequiredMsg(user.verified)}
       </div>
     </section>
   `
@@ -21,6 +29,14 @@ const publicProfileRequiredMsg = (verified) => {
         ? html`<a href="/get_started">Choose a username</a> and make a public profile.</a>`
         : html`<a href="/get_started">Verify your identity</a> to choose a username and make a public profile.</a>`
       }
+    </p>
+  `
+}
+
+const alreadyPublishedMsg = () => {
+  return html`
+    <p class="notification">
+      Measures cannot be edited after they are published.
     </p>
   `
 }
