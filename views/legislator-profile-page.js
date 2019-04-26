@@ -155,7 +155,7 @@ const latestVotesTableRow = ({ user, vote, profile }) => {
         </td>
         <td style="white-space: nowrap;" class="has-text-centered responsive-inline-block">${
           vote.current_user_vote_delegate_name
-            ? `
+            ? html`
               <span class="responsive-label">${vote.current_user_vote_delegate_name ? 'Your vote was inherited from' : ''} </span>
               <span>${vote.current_user_vote_delegate_name || ''}</span>
               `
