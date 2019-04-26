@@ -53,7 +53,7 @@ module.exports = (state, dispatch) => {
             ${source_url ? html`<span class="is-size-7"> via <a href="${source_url}" target="_blank">${source_url.split('/')[2] || source_url}</a></span>` : ''}
           </div>
           ${show_bill ? html`<div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>` : ''}
-          ${comment ? commentContent(key, vote, dispatch) : ''}
+          ${comment ? commentContent(key, endorsed_vote || vote, dispatch) : ''}
           <div class="${`${!is_public ? 'is-hidden' : ''} endorse-control is-size-7`}">
             <a href="#" onclick=${(event) => dispatch({ type: endorsed ? 'vote:unendorsed' : 'vote:endorsed', measure, vote, event })} class="${`endorse-btn has-text-weight-semibold has-text-grey button is-small ${endorsed ? 'is-light' : ''}`}">
               <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
