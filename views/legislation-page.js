@@ -138,14 +138,12 @@ const updateFilter = (event, location, dispatch, userState, state, userCity, cit
   event.preventDefault()
   const formData = require('parse-form').parse(event.target).body
   const formUrl = `${location.path}?${Object.keys(formData).map((key) => {
-    if (key === 'state_upper') { return `state=${formData[key] === 'on' ? userState : state}&state_upper=${formData[key] === 'on'}` }
-    if (key === 'state_lower') { return `state=${formData[key] === 'on' ? userState : state}&state_lower=${formData[key] === 'on'}` }
-    if (key === 'liquid_state') { return `state=${formData[key] === 'on' ? userState : state}&liquid_state=${formData[key] === 'on'}` }
+
     if (key === 'liquid_city') { return `city=${formData[key] === 'on' ? `${userCity}, ${userState}` : city}&liquid_city=${formData[key] === 'on'}` }
 
     return `${key}=${formData[key]}`
   }).join('&')}`
-  dispatch({ type: 'redirected', url: formUrl })
+  dispatch({ type: 'redirected', url: formUrl.includes('state_upper=on') || formUrl.includes('state_lower=on') || formUrl.includes('liquid_state=on') ? `${formUrl}${`&state=${state === 'on' || state === undefined ? userState : state}`}` : formUrl })
 }
 
 const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
@@ -208,19 +206,19 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
                 <div>
                   <label class="checkbox has-text-grey">
                     <input onclick=${toggleFilter(cookies, dispatch, 'liquid_state', `${userState}`)} type="checkbox" name="liquid_state" checked=${!!liquid_state} />
-                    ${liquid_state ? `Liquid ${state}` : `Liquid ${userState}`}
+                    ${state ? `Liquid ${state}` : `Liquid ${userState}`}
                   </label>
                 </div>
                 <div>
                   <label class="checkbox has-text-grey">
                     <input onclick=${toggleFilter(cookies, dispatch, 'state_lower', `${userState}`)} type="checkbox" name="state_lower" checked=${!!state_lower} />
-                    ${state_lower ? `${state} Lower` : `${userState} Lower`}
+                    ${state ? `${state} Lower` : `${userState} Lower`}
                   </label>
                 </div>
                 <div>
                   <label class="checkbox has-text-grey">
                     <input onclick=${toggleFilter(cookies, dispatch, 'state_upper', `${userState}`)} type="checkbox" name="state_upper" checked=${!!state_upper} />
-                    ${state_upper ? `${state} Upper` : `${userState} Upper`}
+                    ${state ? `${state} Upper` : `${userState} Upper`}
                   </label>
                 </div>
                 <div>
