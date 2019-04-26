@@ -338,9 +338,8 @@ const measureListRow = (s) => {
             <h3><a href="${measureUrl}">${s.title}</a></h3>
             ${s.introduced_at ? html`
             <div class="is-size-7 has-text-grey">
-              <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &mdash;
               ${s.sponsor_first_name
-                ? html`Introduced by&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;on ${(new Date(s.introduced_at)).toLocaleDateString()} - ${s.legislature_name}`
+                ? html`By&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a> - ${(new Date(s.introduced_at)).toLocaleDateString()} - ${s.legislature_name}`
                 : html`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()} - ${s.legislature_name}`
               }
               ${s.summary ? html`
