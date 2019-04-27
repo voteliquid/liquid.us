@@ -9,13 +9,14 @@ module.exports = (event, state) => {
     case 'pageLoaded':
       switch (state.location.route) {
         case '/legislation':
+        console.log(state.location.query)
           return [{
             ...state,
             loading: { ...state.loading, page: !state.browser, measures: true },
             location: {
               ...state.location,
               title: 'Legislation',
-              ogImage: query.legislature && query.legislature.length === 2 && `${ASSETS_URL}/legislature-images/${query.legislature}.png`
+              ogImage: query.state && `${ASSETS_URL}/legislature-images/${query.state}.png`
             },
           }, fetchMeasures({ hide_direct_votes: state.cookies.hide_direct_votes, ...state.location.query }, state.cookies, state.geoip, state.location.query, state.user, state.location)]
         case '/legislation/:shortId':
