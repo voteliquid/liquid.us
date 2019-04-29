@@ -249,7 +249,7 @@ const fetchMeasures = (params, user) => (dispatch) => {
     'title', 'number', 'type', 'short_id', 'id', 'status',
     'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
     'introduced_at', 'last_action_at', 'next_agenda_begins_at', 'next_agenda_action_at',
-    'summary', 'legislature_name', 'published', 'created_at', 'author_first_name', 'author_last_name', 'author_username',
+    'summary', 'legislature_name', 'published', 'created_at', 'author_first_name', 'author_last_name', 'author_username', 'policy_area'
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
   const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}${fts}${legislature}&type=not.eq.nomination${order}&limit=40`
