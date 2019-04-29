@@ -190,15 +190,12 @@ const measureListRow = (s, url) => {
         <div class="columns">
           <div class="column">
             <h3><a href="${measureUrl}">${s.title}</a></h3>
-            <div class="${s.policy_area ? 'is-size-7 has-text-grey' : 'is-hidden'}">
-              <b>Policy area:</b> <a href="${subjectUrl(url, s.policy_area)}">${s.policy_area}</a>
-            </div>
             ${s.introduced_at ? html`
             <div class="is-size-7 has-text-grey">
-              <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &mdash;
-              ${s.sponsor_first_name
-                ? html`Introduced by&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;on ${(new Date(s.introduced_at)).toLocaleDateString()}`
-                : html`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()}`
+              <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span>
+                ${s.sponsor_first_name
+                ? html`&mdash; <a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a> &bullet; <a href="${subjectUrl(url, s.policy_area)}">${s.policy_area}</a>${s.policy_area ? ' • ' : ''}${(new Date(s.introduced_at)).toLocaleDateString()}`
+                : html`—${(new Date(s.introduced_at)).toLocaleDateString()}`
               }
               ${s.summary ? html`
                 <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
