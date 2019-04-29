@@ -13,7 +13,7 @@ module.exports = (state, dispatch) => {
         <div class="has-text-right has-text-left-mobile">${proposeButton()}</div>
         ${filterTabs(state, dispatch)}
         ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
-          (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId])))}
+          (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId], location.url)))}
         <style>
           .highlight-hover:hover {
             background: #f6f8fa;
@@ -180,7 +180,7 @@ const filterTabs = ({ geoip, legislatures, location, cookies, user }, dispatch) 
   `
 }
 
-const measureListRow = (s) => {
+const measureListRow = (s, url) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
   const measureUrl = s.author_username ? `/${s.author_username}/legislation/${s.short_id}` : `/legislation/${s.short_id}`
 
@@ -190,6 +190,9 @@ const measureListRow = (s) => {
         <div class="columns">
           <div class="column">
             <h3><a href="${measureUrl}">${s.title}</a></h3>
+            <div class="${s.policy_area ? 'is-size-7 has-text-grey' : 'is-hidden'}">
+              <b>Policy area:</b> <a href="${subjectUrl(url, s.policy_area)}">${s.policy_area}</a>
+            </div>
             ${s.introduced_at ? html`
             <div class="is-size-7 has-text-grey">
               <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &mdash;
@@ -231,6 +234,11 @@ const votePositionClass = (position) => {
   return ''
 }
 
+const subjectUrl = (url, policy_area) => {
+  if (url.includes('terms')) { return url.replace('&terms', `&policy_area=${policy_area}&terms`) }
+  if (url.includes('legislature')) { return url.replace('&legislature', `&policy_area=${policy_area}&legislature`) }
+  return `${url}?order=upcoming&policy_area=${policy_area}&legislature=U.S. Congress`
+}
 const voteButton = (s) => {
   let voteBtnTxt = 'Vote'
   let voteBtnClass = 'button is-small is-outlined is-primary'
