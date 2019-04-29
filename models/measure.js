@@ -242,6 +242,7 @@ const fetchMeasures = (params, user) => (dispatch) => {
 
   const hide_direct_votes = params.hide_direct_votes
   const hide_direct_votes_params = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
+  const policy_area_query = params.policy_area ? `&policy_area=eq.${params.policy_area}` : ''
 
   const legislature = `&legislature_name=eq.${params.legislature || 'U.S. Congress'}`
 
@@ -252,8 +253,9 @@ const fetchMeasures = (params, user) => (dispatch) => {
     'summary', 'legislature_name', 'published', 'created_at', 'author_first_name', 'author_last_name', 'author_username', 'policy_area'
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}${fts}${legislature}&type=not.eq.nomination${order}&limit=40`
+  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}${policy_area_query}${fts}${legislature}&type=not.eq.nomination${order}&limit=40`
 
+  console.log(url)
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
     .catch((error) => {
