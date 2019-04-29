@@ -195,7 +195,7 @@ const measureListRow = (s, url) => {
               <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span>
                 ${s.sponsor_first_name
                 ? html`&mdash; <a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a> &bullet; <a href="${subjectUrl(url, s.policy_area)}">${s.policy_area}</a>${s.policy_area ? ' • ' : ''}${(new Date(s.introduced_at)).toLocaleDateString()}`
-                : html`—${(new Date(s.introduced_at)).toLocaleDateString()}`
+                : html`— Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()}`
               }
               ${s.summary ? html`
                 <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
