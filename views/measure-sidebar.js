@@ -32,7 +32,7 @@ module.exports = (state, dispatch) => {
       ${panelTitleBlock('Votes')}
       ${measureVoteCounts({ measure, offices })}
       ${panelTitleBlock('Info')}
-      ${measureInfoPanel({ measure, showStatusTracker })}
+      ${measureInfoPanel({ measure, showStatusTracker }, state.location.url)}
       ${measureActionsPanel(state, dispatch)}
     </nav>
   `
@@ -85,7 +85,7 @@ const measureInfoPanel = ({ measure, showStatusTracker }) => {
   const {
     introduced_at, created_at, author_username, sponsor_username,
     sponsor_first_name, sponsor_last_name, author_first_name,
-    author_last_name, type, number, congress, chamber, legislature_name
+    author_last_name, type, number, congress, chamber, legislature_name, policy_area
   } = measure
 
   let bill_details_name = false
@@ -122,6 +122,14 @@ const measureInfoPanel = ({ measure, showStatusTracker }) => {
                 : author_username
                   ? html`<a href="${`/${author_username}`}">${author_first_name} ${author_last_name}</a>`
                   : ''}
+            </div>
+          </div>
+          <div class="${policy_area ? 'column is-one-third' : 'is-hidden'}">
+            <div class="has-text-grey">Subject</div>
+          </div>
+          <div class="${policy_area ? 'column is-two-thirds' : 'is-hidden'}">
+            <div class="has-text-right">
+              ${html`<a href="${`/legislation?order=upcoming&policy_area=${policy_area}`}">${policy_area}</a>`}
             </div>
           </div>
           ${bill_details_url ? html`
