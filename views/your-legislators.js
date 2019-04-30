@@ -13,7 +13,7 @@ module.exports = ({ geoip, reps = [], user }) => {
         backgroundColor: 'inherit',
         padding: 0,
       }}>We weren't able to detect your elected congress members using your location. <a href="/join">Join to set your address</a>.</div>` : ''}
-      <div class="columns">
+      <div class="columns is-multiline">
         ${reps.map((office) => RepColumn({ office }))}
       </div>
       ${geoip && reps && reps.length ? AddAddressNotification({ geoip, user }) : ''}
@@ -35,7 +35,7 @@ const AddAddressNotification = ({ geoip, user }) => {
 const RepColumn = ({ office }) => {
   const rep = office.office_holder
   return html`
-    <div class="column">${repCard({ rep, office })}</div>
+    <div class="column is-one-third"><div style=${{ padding: '1em' }}>${repCard({ rep, office })}</div></div>
   `
 }
 
