@@ -32,7 +32,7 @@ module.exports = (state, dispatch) => {
       ${panelTitleBlock('Votes')}
       ${measureVoteCounts({ measure, offices })}
       ${panelTitleBlock('Info')}
-      ${measureInfoPanel({ measure, showStatusTracker }, state.location.url)}
+      ${measureInfoPanel({ measure, showStatusTracker })}
       ${measureActionsPanel(state, dispatch)}
     </nav>
   `
@@ -124,14 +124,16 @@ const measureInfoPanel = ({ measure, showStatusTracker }) => {
                   : ''}
             </div>
           </div>
-          <div class="${policy_area ? 'column is-one-third' : 'is-hidden'}">
-            <div class="has-text-grey">Subject</div>
-          </div>
-          <div class="${policy_area ? 'column is-two-thirds' : 'is-hidden'}">
-            <div class="has-text-right">
-              ${html`<a href="${`/legislation?order=upcoming&policy_area=${policy_area}`}">${policy_area}</a>`}
+          ${policy_area ? html`
+            <div class="column is-one-third">
+              <div class="has-text-grey">Subject</div>
             </div>
-          </div>
+            <div class="column is-two-thirds">
+              <div class="has-text-right">
+                <a href="${`/legislation?policy_area=${policy_area}`}">${policy_area}</a>
+              </div>
+            </div>
+          ` : ''}
           ${bill_details_url ? html`
             <div class="column is-one-third"><div class="has-text-grey">Full text</div></div>
             <div class="column is-two-thirds">

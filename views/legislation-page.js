@@ -90,8 +90,9 @@ const toggleDirectVotes = (cookies, dispatch) => (event) => {
 const updateFilter = (event, location, dispatch) => {
   event.preventDefault()
   const formData = require('parse-form').parse(event.target).body
+
   if (formData.legislature !== 'U.S. Congress') {
-    formData.policy_area = ''
+    formData.policy_area = '' // Only U.S. Congress has policy areas
   }
   const formUrl = `${location.path}?${Object.keys(formData).map((key) => {
     return `${key}=${formData[key]}`
@@ -117,9 +118,9 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
       <input name="order" type="hidden" value="${location.query.order || 'upcoming'}" />
       <div class="field is-grouped is-grouped-right">
         ${location.query.policy_area ?
-          html`<div class="${`control ${location.query.policy_area ? '' : 'is-hidden'}`}">
+          html`<div class="control">
             <label class="checkbox has-text-grey">
-              <input onclick=${removePolicyArea} type="checkbox" checked="true">
+              <input onclick=${removePolicyArea} type="checkbox" checked>
               ${location.query.policy_area.replace(/%20/g, ' ')}
             </label>
           </div>`
