@@ -192,18 +192,22 @@ const measureListRow = (s, url) => {
             <h3><a href="${measureUrl}">${s.title}</a></h3>
             ${s.introduced_at ? html`
             <div class="is-size-7 has-text-grey">
-              <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span>&mdash; 
-              ${s.sponsor_first_name
-              ? html`<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a> &bullet; <a href="${subjectUrl(url, s.policy_area)}">${s.policy_area}</a>${s.policy_area ? ' • ' : ''}${(new Date(s.introduced_at)).toLocaleDateString()}`
-              : html`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()}`
-              }
+              <p>
+                <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &bullet;
+                ${s.policy_area ? html`<a href="${subjectUrl(url, s.policy_area)}">${s.policy_area}</a> • ` : ''}
+                Introduced
+                ${s.sponsor_first_name ?
+                  html`by <a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>` : ''}
+                on ${(new Date(s.introduced_at)).toLocaleDateString()}
+              </p>
               ${s.summary ? html`
                 <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
               ` : ''}
               <p><strong class="has-text-grey">Status:</strong>
-              ${next_action_at ? html`
+                ${next_action_at ? html`
                 Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
-              ` : s.status}</p>
+                ` : s.status}
+              </p>
               <p><strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}</p>
             </div>
             ` : html`
