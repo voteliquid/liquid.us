@@ -13,7 +13,7 @@ module.exports = (state, dispatch) => {
         <div class="has-text-right has-text-left-mobile">${proposeButton()}</div>
         ${filterTabs(state, dispatch)}
         ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
-          (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId])))}
+          (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId], query)))}
         <style>
           .highlight-hover:hover {
             background: #f6f8fa;
@@ -90,6 +90,9 @@ const toggleDirectVotes = (cookies, dispatch) => (event) => {
 const updateFilter = (event, location, dispatch) => {
   event.preventDefault()
   const formData = require('parse-form').parse(event.target).body
+  if (formData.legislature !== 'U.S. Congress') {
+    formData.policy_area = '' // Only U.S. Congress has policy areas
+  }
   const formUrl = `${location.path}?${Object.keys(formData).map((key) => {
     return `${key}=${formData[key]}`
   }).join('&')}`
@@ -110,8 +113,17 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
 
   return html`
     <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
+      <input name="policy_area" type="hidden" value="${location.query.policy_area}" />
       <input name="order" type="hidden" value="${location.query.order || 'upcoming'}" />
       <div class="field is-grouped is-grouped-right">
+        ${location.query.policy_area ? html`
+          <div class="control">
+            <label class="checkbox has-text-grey">
+              <input onclick=${removePolicyArea} type="checkbox" checked>
+              ${location.query.policy_area.replace(/%20/g, ' ')}
+            </label>
+          </div>
+        ` : ''}
         <div class="${`control ${user ? '' : 'is-hidden'}`}">
           <label class="checkbox has-text-grey">
             <input onclick=${toggleDirectVotes(cookies, dispatch)} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
@@ -180,7 +192,7 @@ const filterTabs = ({ geoip, legislatures, location, cookies, user }, dispatch) 
   `
 }
 
-const measureListRow = (s) => {
+const measureListRow = (s, query) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
   const measureUrl = s.author_username ? `/${s.author_username}/legislation/${s.short_id}` : `/legislation/${s.short_id}`
 
@@ -191,26 +203,35 @@ const measureListRow = (s) => {
           <div class="column">
             <h3><a href="${measureUrl}">${s.title}</a></h3>
             ${s.introduced_at ? html`
-            <div class="is-size-7 has-text-grey">
-              <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &mdash;
-              ${s.sponsor_first_name
-                ? html`Introduced by&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>&nbsp;on ${(new Date(s.introduced_at)).toLocaleDateString()}`
-                : html`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()}`
-              }
-              ${s.summary ? html`
-                <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
-              ` : ''}
-              <p><strong class="has-text-grey">Status:</strong>
-              ${next_action_at ? html`
-                Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
-              ` : s.status}</p>
-              <p><strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}</p>
-            </div>
+              <div class="is-size-7 has-text-grey">
+                <p>
+                  <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &bullet;
+                  ${s.policy_area ? html`
+                    <a href=${`/legislation?${makeQuery({ policy_area: s.policy_area }, query)}`}>${s.policy_area}</a> •
+                  ` : ''}
+                  Introduced
+                  ${s.sponsor_first_name ? html`
+                    by <a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>
+                  ` : ''}
+                  on ${(new Date(s.introduced_at)).toLocaleDateString()}
+                </p>
+                ${s.summary ? html`
+                  <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
+                ` : ''}
+                <p>
+                  <strong class="has-text-grey">Status:</strong>
+                  ${next_action_at ? html`
+                    Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
+                  ` : s.status}
+                </p>
+                <p><strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}</p>
+              </div>
             ` : html`
               <div class="is-size-7 has-text-grey">
                 ${s.author_username
                   ? html`Authored by <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>`
-                  : html`Authored by Anonymous`}
+                  : html`Authored by Anonymous`
+                }
                 on ${(new Date(s.created_at)).toLocaleDateString()}
               </div>
             `}
@@ -282,7 +303,7 @@ const noBillsMsg = (order, query) => html`
   <div>
     ${order !== 'proposed' ? html`
       <p class="is-size-5">Liquid doesn't have this location's bill list yet,
-        <a href="${`/legislation?${makeQuery('proposed', query)}`}">
+        <a href="${`/legislation?${makeQuery({ order: 'proposed' }, query)}`}">
         click here to view manually added items.
         </a>
       </p>
@@ -295,9 +316,15 @@ const noBillsMsg = (order, query) => html`
   </div>
 `
 
-const makeQuery = (order, query) => {
-  const newQuery = Object.assign({}, query, { order, terms: query.terms || '' })
+const makeQuery = (newFilters, oldQuery) => {
+  const newQuery = Object.assign(oldQuery, newFilters, { terms: oldQuery.terms || '' })
   return Object.keys(newQuery).map(key => {
     return `${key}=${newQuery[key]}`
   }).join('&')
+}
+
+const removePolicyArea = (event) => {
+  event.preventDefault()
+  document.querySelector('[name=policy_area]').value = ''
+  document.querySelector('.filter-submit').click()
 }

@@ -85,7 +85,7 @@ const measureInfoPanel = ({ measure, showStatusTracker }) => {
   const {
     introduced_at, created_at, author_username, sponsor_username,
     sponsor_first_name, sponsor_last_name, author_first_name,
-    author_last_name, type, number, congress, chamber, legislature_name
+    author_last_name, type, number, congress, chamber, legislature_name, policy_area
   } = measure
 
   let bill_details_name = false
@@ -124,6 +124,16 @@ const measureInfoPanel = ({ measure, showStatusTracker }) => {
                   : ''}
             </div>
           </div>
+          ${policy_area ? html`
+            <div class="column is-one-third">
+              <div class="has-text-grey">Subject</div>
+            </div>
+            <div class="column is-two-thirds">
+              <div class="has-text-right">
+                <a href="${`/legislation?policy_area=${policy_area}`}">${policy_area}</a>
+              </div>
+            </div>
+          ` : ''}
           ${bill_details_url ? html`
             <div class="column is-one-third"><div class="has-text-grey">Full text</div></div>
             <div class="column is-two-thirds">
