@@ -1,5 +1,5 @@
 const { APP_NAME } = process.env
-const { html } = require('../helpers')
+const { html, capitalize } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
 const stateNames = require('datasets-us-states-abbr-names')
 
@@ -201,7 +201,7 @@ const measureListRow = (s, query) => {
       <div class="card-content">
         <div class="columns">
           <div class="column">
-            <h3><a href="${measureUrl}">${s.title}</a></h3>
+            <h3><a href="${measureUrl}">${simplifyTitle(s.title)}</a></h3>
             ${s.introduced_at ? html`
               <div class="is-size-7 has-text-grey">
                 <p>
@@ -244,6 +244,10 @@ const measureListRow = (s, query) => {
       </div>
     </div>
   `
+}
+
+const simplifyTitle = (title) => {
+  return capitalize(title.replace(/^Relating to: /, ''))
 }
 
 const votePositionClass = (position) => {
