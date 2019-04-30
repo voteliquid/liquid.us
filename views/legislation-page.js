@@ -90,7 +90,6 @@ const toggleDirectVotes = (cookies, dispatch) => (event) => {
 const updateFilter = (event, location, dispatch) => {
   event.preventDefault()
   const formData = require('parse-form').parse(event.target).body
-
   if (formData.legislature !== 'U.S. Congress') {
     formData.policy_area = '' // Only U.S. Congress has policy areas
   }
@@ -117,14 +116,14 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
       <input name="policy_area" type="hidden" value="${location.query.policy_area}" />
       <input name="order" type="hidden" value="${location.query.order || 'upcoming'}" />
       <div class="field is-grouped is-grouped-right">
-        ${location.query.policy_area ?
-          html`<div class="control">
+        ${location.query.policy_area ? html`
+          <div class="control">
             <label class="checkbox has-text-grey">
               <input onclick=${removePolicyArea} type="checkbox" checked>
               ${location.query.policy_area.replace(/%20/g, ' ')}
             </label>
-          </div>`
-        : ''}
+          </div>
+        ` : ''}
         <div class="${`control ${user ? '' : 'is-hidden'}`}">
           <label class="checkbox has-text-grey">
             <input onclick=${toggleDirectVotes(cookies, dispatch)} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
@@ -204,30 +203,35 @@ const measureListRow = (s, query) => {
           <div class="column">
             <h3><a href="${measureUrl}">${s.title}</a></h3>
             ${s.introduced_at ? html`
-            <div class="is-size-7 has-text-grey">
-              <p>
-                <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &bullet;
-                ${s.policy_area ? html`<a href=${`/legislation?${makeQuery({ policy_area: s.policy_area }, query)}`}>${s.policy_area}</a> • ` : ''}
-                Introduced
-                ${s.sponsor_first_name ?
-                  html`by <a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>` : ''}
-                on ${(new Date(s.introduced_at)).toLocaleDateString()}
-              </p>
-              ${s.summary ? html`
-                <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
-              ` : ''}
-              <p><strong class="has-text-grey">Status:</strong>
-                ${next_action_at ? html`
-                Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
-                ` : s.status}
-              </p>
-              <p><strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}</p>
-            </div>
+              <div class="is-size-7 has-text-grey">
+                <p>
+                  <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &bullet;
+                  ${s.policy_area ? html`
+                    <a href=${`/legislation?${makeQuery({ policy_area: s.policy_area }, query)}`}>${s.policy_area}</a> •
+                  ` : ''}
+                  Introduced
+                  ${s.sponsor_first_name ? html`
+                    by <a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>
+                  ` : ''}
+                  on ${(new Date(s.introduced_at)).toLocaleDateString()}
+                </p>
+                ${s.summary ? html`
+                  <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
+                ` : ''}
+                <p>
+                  <strong class="has-text-grey">Status:</strong>
+                  ${next_action_at ? html`
+                    Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
+                  ` : s.status}
+                </p>
+                <p><strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}</p>
+              </div>
             ` : html`
               <div class="is-size-7 has-text-grey">
                 ${s.author_username
                   ? html`Authored by <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>`
-                  : html`Authored by Anonymous`}
+                  : html`Authored by Anonymous`
+                }
                 on ${(new Date(s.created_at)).toLocaleDateString()}
               </div>
             `}
@@ -319,8 +323,8 @@ const makeQuery = (newFilters, oldQuery) => {
   }).join('&')
 }
 
-  const removePolicyArea = (event) => {
-    event.preventDefault()
-    document.querySelector('[name=policy_area]').value = ''
-    document.querySelector('.filter-submit').click()
-  }
+const removePolicyArea = (event) => {
+  event.preventDefault()
+  document.querySelector('[name=policy_area]').value = ''
+  document.querySelector('.filter-submit').click()
+}
