@@ -1,5 +1,5 @@
 const { APP_NAME } = process.env
-const { html } = require('../helpers')
+const { html, capitalize } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
 const stateNames = require('datasets-us-states-abbr-names')
 
@@ -189,7 +189,7 @@ const measureListRow = (s) => {
       <div class="card-content">
         <div class="columns">
           <div class="column">
-            <h3><a href="${measureUrl}">${titleRevised(s)}</a></h3>
+            <h3><a href="${measureUrl}">${simplifyTitle(s.title)}</a></h3>
             ${s.introduced_at ? html`
             <div class="is-size-7 has-text-grey">
               <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &mdash;
@@ -225,18 +225,10 @@ const measureListRow = (s) => {
   `
 }
 
-const titleRevised = (s) => {
-  if (s.title.includes('To amend ')) {
-    return `T${s.title.slice(s.title.indexOf(' to ') + 2)}`
-  } else if (s.title.includes(`(FE)`)) {
-     return `${s.title.charAt(13).toUpperCase() + s.title.slice(14, s.title.length - 6)}`
-  } else if (s.title.includes('Relating to: ')) {
-    return `${s.title.charAt(13).toUpperCase() + s.title.slice(14, s.title.length - 1)}`
-  } else if (s.title[s.title.length - 1] === '.') {
-    return s.title.slice(0, s.title.length - 1)
-  }
-    return s.title
+const simplifyTitle = (title) => {
+  return capitalize(title.replace(/^Relating to: /, ''))
 }
+
 const votePositionClass = (position) => {
   if (position === 'yea') return 'is-success'
   if (position === 'nay') return 'is-danger'
