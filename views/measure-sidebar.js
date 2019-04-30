@@ -6,7 +6,7 @@ const editButtons = require('./measure-edit-buttons')
 const shareButtons = require('./measure-share-buttons')
 
 module.exports = (state, dispatch) => {
-  const { measure, offices, user } = state
+  const { measure, offices } = state
   const l = measure
   const reps = state.reps.filter(({ chamber, legislature }) => {
     return chamber === l.chamber && (stateAbbr[legislature.name] || legislature.name) === l.legislature_name
@@ -30,7 +30,7 @@ module.exports = (state, dispatch) => {
       </div>
       ${reps && reps.length ? measureRepsPanel({ measure, reps }) : ''}
       ${panelTitleBlock('Votes')}
-      ${measureVoteCounts({ measure, offices, user })}
+      ${measureVoteCounts({ measure, offices })}
       ${panelTitleBlock('Info')}
       ${measureInfoPanel({ measure, showStatusTracker })}
       ${measureActionsPanel(state, dispatch)}
@@ -153,6 +153,7 @@ const measureVoteCounts = ({ measure, offices }) => {
     'U.S. Congress': { Upper: 'Senate', Lower: 'House' },
     'CA': { Upper: 'Senate', Lower: 'Assembly' },
   }
+
   return html`
     <div class="panel-block">
       <div style="width: 100%;">
@@ -249,21 +250,33 @@ const measureRepsPanel = ({ measure, reps }) => {
     </div>
   `
 }
-const districtName = (measure, offices, localLegislatureName) => {
-  const cityDistrict = measure.legislature_name.includes(',') ? localLegislatureName.split('-') : ''
-    if (measure.legislature_name.includes('Congress')) {
-    return localLegislatureName
-  } else if (measure.legislature_name.includes(',')) {
-    return `District ${cityDistrict[2]}`
-  } else if (measure.chamber === 'Upper') {
-    return localLegislatureName.replace('U', ' S.D. ')
-  } else if (offices[3].name.includes('Assembly') || offices[4].name.includes('Assembly')) {
-    return localLegislatureName.replace('L', ' A.D. ')
-  } else if (offices[3].name.includes('House') || offices[3].name.includes('Representative') || offices[4].name.includes('House') || offices[4].name.includes('Representative')) {
-    return localLegislatureName.replace('L', ' H.D. ')
-  } else if (offices[3].name.includes('Legislature') || offices[4].name.includes('Legislature')) {
-    return localLegislatureName.replace('L', ' L.D. ')
+const districtName = (measure, offices, apiDistrictName) => {
+  // National bills are already labelled well
+  if (measure.legislature_name.includes('Congress')) {
+    return apiDistrictName
   }
+
+  // City bills: just show final district number
+  if (measure.legislature_name.includes(',')) {
+    return `District ${apiDistrictName.match(/[0-9]+$/)[0]}`
+  }
+
+  // All states call their upper chamber 'Senate'
+  if (measure.chamber === 'Upper') {
+    return apiDistrictName.replace('U', ' S.D. ')
+  }
+
+  // Nebraska has a unicameral state legislture
+  if (measure.legislature_name === 'NE') {
+    return apiDistrictName.replace('L', ' L.D. ')
+  }
+
+  // background: https://en.wikipedia.org/wiki/List_of_United_States_state_legislatures
+  if (offices.some(o => o.name && o.name.includes('Assembly'))) {
+    return apiDistrictName.replace('L', ' A.D. ')
+  }
+
+  return apiDistrictName.replace('L', ' H.D. ')
 }
 const repSnippet = ({ rep, office }) => html`
   <div>
