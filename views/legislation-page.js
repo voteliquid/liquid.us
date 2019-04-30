@@ -101,7 +101,7 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
   const legislatureQuery = decodeURIComponent(location.query.legislature).replace(/\+/g, ' ')
 
   // Add legislature from URL to legislature selection
-  if (location.query.legislature && !legislatures.some(({ abbr }) => abbr === location.query.legislature)) {
+  if (location.query.legislature && !legislatures.some(({ abbr }) => abbr === location.query.legislature.replace(/%20/g, ' '))) {
     legislatures.push({
       abbr: location.query.legislature,
       name: stateNames[location.query.legislature] || location.query.legislature,
