@@ -17,7 +17,7 @@ module.exports = (state, dispatch) => {
           <br />
           <br />
           <h3 class="subtitle is-3 is-size-4-mobile delayed1">Built for the legislative process</h3>
-          <h4 class="subtitle is-3 is-size-4-mobile delayed1">Easily invite your community to support your position</h4>
+          <h4 class="subtitle is-3 is-size-4-mobile delayed1">Easily invite your community to support your positions</h4>
           <h4 class="subtitle is-3 is-size-4-mobile delayed1">Address verification so reps hear their constituents</h4>
           <br />
           <br />
