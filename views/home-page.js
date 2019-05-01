@@ -112,7 +112,7 @@ module.exports = (state, dispatch) => {
           <br />
           <br />
           <br />
-          <h3 class="subtitle is-4 is-size-3-desktop reveal">Lead your community publicly when you want</h3>
+          <h3 class="subtitle is-4 is-size-3-desktop reveal">Lead your communities publicly when you want</h3>
           <br />
           <br />
           <br />
