@@ -19,7 +19,7 @@ module.exports = ({ rep, office }) => {
           minHeight: '120px'
         }}>
           <p class="is-small">
-            <a href=${`/${rep.username}`}>
+            <a href=${`/${rep.username}`} style="word-break: normal;">
               <strong>${rep.first_name} ${rep.last_name}</strong> <small>${rep.twitter_username && `@${rep.twitter_username}`}</small>
             </a>
             <br />
