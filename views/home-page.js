@@ -108,15 +108,35 @@ module.exports = (state, dispatch) => {
           <br />
           <br />
           <br />
-          <h3 class="subtitle is-4 is-size-3-desktop reveal">You always stay in control</h3>
+          <br />
+          <br />
+          <div class="columns">
+            <div class="column">
+              <h3 class="subtitle is-4 is-size-3-desktop reveal">Lead your communities publicly when you want</h3>
+            </div>
+            <div class="column has-text-right-tablet">
+              <img src="/assets/public_vote_sample.png" class="vote-sample">
+              <style>
+                img.vote-sample {
+                  max-width: 498px;
+                  width: 100%;
+                  box-shadow: 0px 9px 10px 5px #dcdcdc;
+                  border: 5px solid white;
+                }
+              </style>
+            </div>
+          </div>
           <br />
           <br />
           <br />
-          <h3 class="subtitle is-4 is-size-3-desktop reveal">Lead your communities publicly when you want</h3>
-          <br />
-          <br />
-          <br />
-          <h4 class="subtitle is-4 is-size-3-desktop reveal">Weigh in privately when preferred</h4>
+          <div class="columns">
+            <div class="column">
+              <h4 class="subtitle is-4 is-size-3-desktop reveal">Weigh in privately when preferred</h4>
+            </div>
+            <div class="column has-text-right-tablet">
+              <img src="/assets/private_vote_sample.png" class="vote-sample">
+            </div>
+          </div>
         </div>
       </div>
     </section>
