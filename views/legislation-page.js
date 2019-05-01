@@ -19,7 +19,7 @@ module.exports = (state, dispatch) => {
               </div><br />
               ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []} <br />
               ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
-              (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId])))}
+              (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId], query)))}
             </div>
           </div>
           <style>
@@ -324,7 +324,7 @@ const addAddressNotification = (geoip = {}, user) => {
   `
 }
 
-const measureListRow = (s) => {
+const measureListRow = (s, query) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
   const measureUrl = s.author_username ? `/${s.author_username}/legislation/${s.short_id}` : `/legislation/${s.short_id}`
 
@@ -336,10 +336,17 @@ const measureListRow = (s) => {
             <h3><a href="${measureUrl}">${s.title}</a></h3>
             ${s.introduced_at ? html`
             <div class="is-size-7 has-text-grey">
-              ${s.sponsor_first_name
-                ? html`By&nbsp;<a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a> - ${(new Date(s.introduced_at)).toLocaleDateString()} - ${s.legislature_name}`
-                : html`Introduced on ${(new Date(s.introduced_at)).toLocaleDateString()} - ${s.legislature_name}`
-              }
+            <p>
+              <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &bullet;
+              ${s.policy_area ? html`
+                <a href=${`/legislation?${makeQuery({ policy_area: s.policy_area }, query)}`}>${s.policy_area}</a> •
+              ` : ''}
+              Introduced in ${s.legislature_name}
+              ${s.sponsor_first_name ? html`
+                by <a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>
+              ` : ''}
+              on ${(new Date(s.introduced_at)).toLocaleDateString()}
+            </p>
               ${s.summary ? html`
                 <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
               ` : ''}
@@ -444,3 +451,9 @@ const noBillsMsg = (state_upper, state_lower) => html`
     `}
   </div>
 `
+const makeQuery = (newFilters, oldQuery) => {
+  const newQuery = Object.assign(oldQuery, newFilters, { terms: oldQuery.terms || '' })
+  return Object.keys(newQuery).map(key => {
+    return `${key}=${newQuery[key]}`
+  }).join('&')
+}
