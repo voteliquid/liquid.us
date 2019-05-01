@@ -1,4 +1,5 @@
 const { capitalize, html } = require('../helpers')
+
 const activityIndicator = require('./activity-indicator')
 
 module.exports = (state, dispatch) => {
@@ -349,6 +350,7 @@ const chamberName = (s) => {
    if (s.chamber === 'Upper') { return `the ${s.legislature_name} Senate` }
   // Lower works for the two states we currently have, but other states have different name for Assembly
 }
+
 const measureListRow = (s, query) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
   const measureUrl = s.author_username ? `/${s.author_username}/legislation/${s.short_id}` : `/legislation/${s.short_id}`
