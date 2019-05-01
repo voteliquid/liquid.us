@@ -6,7 +6,7 @@ module.exports = (measure, dispatch) => {
   const index = short_id.indexOf('-')
   const bill_id = short_id.slice(index + 1)
   const summary = type === 'nomination' && measure.summary ? `Confirmation of ${measure.summary}` : linkifyUrls(measure.summary)
-  const link = measure.legislature_name === "U.S. Congress" ? `"https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text"` : measure.legislature_name === "WI" ? `https://docs.legis.wisconsin.gov/${congress}/proposals/reg/asm/bill/${bill_id}` : measure.legislature_name === "CA" ? `https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=${congress}0${bill_id.toUpperCase()}` : ''
+  const link = measure.legislature_name === "U.S. Congress" ? `https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}/text` : measure.legislature_name === "WI" ? `https://docs.legis.wisconsin.gov/${congress}/proposals/reg/asm/bill/${bill_id}` : measure.legislature_name === "CA" ? `https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=${congress}0${bill_id.toUpperCase()}` : ''
 
   const summaryLink =
     measure.author_id === null

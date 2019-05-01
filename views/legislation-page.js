@@ -1,4 +1,4 @@
-const { html } = require('../helpers')
+const { capitalize, html } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
 
 module.exports = (state, dispatch) => {
@@ -138,6 +138,9 @@ const toggleFilter = (cookies, dispatch, filterName, value) => (event) => {
 const updateFilter = (event, location, dispatch, userState, state, userCity, city) => {
   event.preventDefault()
   const formData = require('parse-form').parse(event.target).body
+  if (formData.legislature !== 'U.S. Congress') {
+    formData.policy_area = '' // Only U.S. Congress has policy areas
+  }
   const formUrl = `${location.path}?${Object.keys(formData).map((key) => {
 
     if (key === 'liquid_city') { return `city=${formData[key] === 'on' ? `${userCity}, ${userState}` : city}&liquid_city=${formData[key] === 'on'}` }
@@ -346,7 +349,7 @@ const measureListRow = (s, query) => {
       <div class="card-content">
         <div class="columns">
           <div class="column">
-            <h3><a href="${measureUrl}">${s.title}</a></h3>
+            <h3><a href="${measureUrl}">${simplifyTitle(s.title)}</a></h3>
             ${s.introduced_at ? html`
             <div class="is-size-7 has-text-grey">
             <p>
@@ -386,6 +389,10 @@ const measureListRow = (s, query) => {
       </div>
     </div>
   `
+}
+
+const simplifyTitle = (title) => {
+  return capitalize(title.replace(/^Relating to: /, ''))
 }
 
 const votePositionClass = (position) => {

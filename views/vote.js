@@ -53,7 +53,7 @@ module.exports = (state, dispatch) => {
             ${source_url ? html`<span class="is-size-7"> via <a href="${source_url}" target="_blank">${source_url.split('/')[2] || source_url}</a></span>` : ''}
           </div>
           ${show_bill ? html`<div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>` : ''}
-          ${comment ? commentContent(key, vote, dispatch) : ''}
+          ${comment ? commentContent(key, endorsed_vote || vote, dispatch) : ''}
           <div class="${`${!is_public ? 'is-hidden' : ''} endorse-control is-size-7`}">
             <a href="#" onclick=${(event) => dispatch({ type: endorsed ? 'vote:unendorsed' : 'vote:endorsed', measure, vote, event })} class="${`endorse-btn has-text-weight-semibold has-text-grey button is-small ${endorsed ? 'is-light' : ''}`}">
               <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
@@ -90,33 +90,24 @@ module.exports = (state, dispatch) => {
   `
 }
 
-const breakOnWord = (str) => {
-  let len = 0
-  const truncated = str.split('\n').reduce((memo, line, index) => {
-    if (len > 300) return memo
-    len += 1
-    const words = line.split(' ').reduce((memo2, word) => {
-      if (len > 300) return memo2
-      len += word.length + 1
-      return `${memo2} ${word}`
-    }, '')
-    // Workaround for callback never called if initialValue is falsey.
-    if (index === 0) { return words }
-    return `${memo}\n${words}`
-  }, 'see comment about initialValue workaround')
-  if (str.length > truncated.length) {
-    return `${truncated}...`
-  }
-  return truncated
+const truncateOnWord = (str, max = 300) => {
+  const { length, truncated } = str.split(' ').reduce(({ length, truncated }, word) => {
+    const newLength = length + word.length + 1
+    if (newLength >= max) return { length: newLength, truncated }
+    return { length: newLength, truncated: `${truncated} ${word}` }
+  }, { length: 0, truncated: '' })
+
+  const isTruncated = length >= max
+  return { isTruncated, truncated: isTruncated ? `${truncated}...` : truncated }
 }
 
 const commentContent = (key, vote, dispatch) => {
   const { expanded = false } = vote
   const comment = vote.comment || ''
-  const showExpander = comment.length > 300
+  const { isTruncated: showExpander, truncated } = truncateOnWord(comment, 300)
   return html`
     <div class="content" style="margin: .25rem 0 .75rem;">
-      ${{ html: linkifyUrls(expanded || !showExpander ? comment : breakOnWord(comment)) }}
+      ${{ html: linkifyUrls(expanded || !showExpander ? comment : truncated) }}
       <span class="${showExpander ? '' : 'is-hidden'}">
         <a href="#" onclick=${(event) => dispatch({ type: 'vote:toggledExpanded', event, vote })} class="is-size-7">
           <span>show ${expanded ? 'less' : 'more'}</span>

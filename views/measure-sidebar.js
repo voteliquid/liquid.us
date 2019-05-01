@@ -85,7 +85,7 @@ const measureInfoPanel = ({ measure, showStatusTracker }) => {
   const {
     introduced_at, created_at, author_username, sponsor_username,
     sponsor_first_name, sponsor_last_name, author_first_name,
-    author_last_name, type, number, congress, chamber, legislature_name
+    author_last_name, type, number, congress, chamber, legislature_name, policy_area
   } = measure
 
   let bill_details_name = false
@@ -124,6 +124,16 @@ const measureInfoPanel = ({ measure, showStatusTracker }) => {
                   : ''}
             </div>
           </div>
+          ${policy_area ? html`
+            <div class="column is-one-third">
+              <div class="has-text-grey">Subject</div>
+            </div>
+            <div class="column is-two-thirds">
+              <div class="has-text-right">
+                <a href="${`/legislation?policy_area=${policy_area}`}">${policy_area}</a>
+              </div>
+            </div>
+          ` : ''}
           ${bill_details_url ? html`
             <div class="column is-one-third"><div class="has-text-grey">Full text</div></div>
             <div class="column is-two-thirds">
@@ -148,6 +158,7 @@ const measureVoteCounts = ({ measure, offices }) => {
   const localLegislatureName = offices
     .filter((office) => office.id && office.legislature.name === measure.legislature_name && (!office.chamber || office.chamber === measure.chamber))
     .map((office) => office.short_name).pop()
+
   const chamberNames = {
     'U.S. Congress': { Upper: 'Senate', Lower: 'House' },
     'CA': { Upper: 'Senate', Lower: 'Assembly' },
@@ -189,7 +200,7 @@ const measureVoteCounts = ({ measure, offices }) => {
             </tr>
             ${offices.length && localLegislatureName ? html`
             <tr>
-              <td class="has-text-left has-text-grey">${localLegislatureName}</td>
+              <td class="has-text-left has-text-grey">${districtName(measure, offices, localLegislatureName)}</td>
               <td class="has-text-right">${constituent_yeas || 0}</td>
               <td class="has-text-right">${constituent_nays || 0}</td>
             </tr>
@@ -249,7 +260,34 @@ const measureRepsPanel = ({ measure, reps }) => {
     </div>
   `
 }
+const districtName = (measure, offices, apiDistrictName) => {
+  // National bills are already labelled well
+  if (measure.legislature_name.includes('Congress')) {
+    return apiDistrictName
+  }
 
+  // City bills: just show final district number
+  if (measure.legislature_name.includes(',')) {
+    return `District ${apiDistrictName.match(/[0-9]+$/)[0]}`
+  }
+
+  // All states call their upper chamber 'Senate'
+  if (measure.chamber === 'Upper') {
+    return apiDistrictName.replace('U', ' S.D. ')
+  }
+
+  // Nebraska has a unicameral state legislture
+  if (measure.legislature_name === 'NE') {
+    return apiDistrictName.replace('L', ' L.D. ')
+  }
+
+  // background: https://en.wikipedia.org/wiki/List_of_United_States_state_legislatures
+  if (offices.some(o => o.name && o.name.includes('Assembly'))) {
+    return apiDistrictName.replace('L', ' A.D. ')
+  }
+
+  return apiDistrictName.replace('L', ' H.D. ')
+}
 const repSnippet = ({ rep, office }) => html`
   <div>
     <div class="media" style="margin-bottom: .5rem;">

@@ -17,7 +17,7 @@ module.exports = (state, dispatch) => {
           <br />
           <br />
           <h3 class="subtitle is-3 is-size-4-mobile delayed1">Built for the legislative process</h3>
-          <h4 class="subtitle is-3 is-size-4-mobile delayed1">Easily invite your community to support your position</h4>
+          <h4 class="subtitle is-3 is-size-4-mobile delayed1">Easily invite your community to support your positions</h4>
           <h4 class="subtitle is-3 is-size-4-mobile delayed1">Address verification so reps hear their constituents</h4>
           <br />
           <br />
@@ -88,7 +88,7 @@ module.exports = (state, dispatch) => {
     <section class="hero is-dark is-bold is-fullheight">
       <div class="hero-body">
         <div class="container">
-          <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Most petitions today do not verify who is signing. Liquid <span class="has-text-info">verifies constituent identities</span> so reps know what real residents want.</h2>
+          <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Most online petitions today do not verify who is signing. Liquid <span class="has-text-info">verifies constituent identities</span> so reps know what real residents want.</h2>
           <br />
           <br />
           <br />
@@ -104,19 +104,40 @@ module.exports = (state, dispatch) => {
     <section class="hero is-light is-bold is-fullheight">
       <div class="hero-body">
         <div class="container">
+          <br />
           <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal"><strong>You control your privacy</strong></h2>
           <br />
           <br />
           <br />
-          <h3 class="subtitle is-4 is-size-3-desktop reveal">You always stay in control</h3>
+          <br />
+          <br />
+          <div class="columns">
+            <div class="column">
+              <h3 class="subtitle is-4 is-size-3-desktop reveal">Lead your communities publicly when you want</h3>
+            </div>
+            <div class="column has-text-right-tablet">
+              <img src="/assets/public_vote_sample.png" class="vote-sample">
+              <style>
+                img.vote-sample {
+                  max-width: 498px;
+                  width: 100%;
+                  box-shadow: 0px 9px 10px 5px #dcdcdc;
+                  border: 5px solid white;
+                }
+              </style>
+            </div>
+          </div>
           <br />
           <br />
           <br />
-          <h3 class="subtitle is-4 is-size-3-desktop reveal">Lead your community publicly when you want</h3>
-          <br />
-          <br />
-          <br />
-          <h4 class="subtitle is-4 is-size-3-desktop reveal">Weigh in privately when preferred</h4>
+          <div class="columns">
+            <div class="column">
+              <h4 class="subtitle is-4 is-size-3-desktop reveal">Weigh in privately when preferred</h4>
+            </div>
+            <div class="column has-text-right-tablet">
+              <img src="/assets/private_vote_sample.png" class="vote-sample">
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -154,7 +175,7 @@ module.exports = (state, dispatch) => {
           <br />
           <br />
           <div class="reveal">
-            <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">Phase 1 - ${APP_NAME} Scorecards</h3>
+            <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">① ${APP_NAME} Scorecards</h3>
             <h4 class="subtitle is-5 is-size-4-desktop">Politicians are <em>automatically graded</em> for how much they follow their constituents' votes.</h4>
             ${yourLegislators(state)}
             <br />
@@ -170,10 +191,20 @@ module.exports = (state, dispatch) => {
           <br />
           <br />
           <div class="reveal">
-            <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">Phase 2 — Liquid Candidates</h3>
-            <h4 class="subtitle is-5 is-size-4-desktop">Pledged to vote on everything as directed by their local liquid democracy.</h4>
+            <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">② Liquid Candidates</h3>
+            <h4 class="subtitle is-5 is-size-4-desktop">Pledged to vote as directed by their local liquid democracy.</h4>
             <h4 class="subtitle is-5 is-size-4-desktop">Voters can elect this upgraded representation, <em>when we're ready</em>, one seat at a time.</h4>
-            <h4 class="subtitle is-5 is-size-4-desktop"><a href="http://liquidcandidates.com" target="_blank"><span class="icon"><i class="fa fa-star"></i></span>&nbsp; <span>Meet the <strong>growing list of Digital Democracy Candidates</strong></span></a>.</h4>
+            <div class="has-text-centered">
+              <a href="${`https://blog.${WWW_DOMAIN}/2017/07/04/running-liquid-democracy-candidates/`}" target="_blank">
+                <img src="/assets/app-announces-vote.png" style="max-width: 498px; width: 100%; box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5); border: 1px solid white;">
+              </a>
+            </div>
+            <br />
+            <h4 class="subtitle is-5 is-size-4-desktop">
+              <a href="http://liquidcandidates.com" target="_blank">
+                <span class="icon" style="font-size: 12px;position: relative;bottom: 3px;"><i class="fa fa-star"></i></span>
+                <span>Meet the <strong>growing list of Digital Democracy Candidates</strong></span></a>.
+            </h4>
           </div>
           <br />
           <br />
@@ -207,7 +238,7 @@ module.exports = (state, dispatch) => {
                 <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/05/12/liquid-democracy-can-completely-eliminate-gerrymandering/`}" target="_blank">Liquid Democracy Can Completely Eliminate Gerrymandering</a></p>
                 <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2017/10/27/liquid-democracy-is-not-direct-democracy/`}" target="_blank">Liquid Democracy Is Not Direct Democracy, and That's a Good Thing</a></p>
                 <p class="reveal"><a href="${`https://blog.${WWW_DOMAIN}/2016/10/13/dont-care-about-politics/`}" target="_blank">Don't Care About Politics? Liquid Democracy Is Easier for You Too</a></p>
-                <p class="reveal"><a href="${`http://secure.${WWW_DOMAIN}`}" target="_blank">Secure Internet Voting</a></p>
+                <p class="reveal"><a href="${`http://secure.united.vote`}" target="_blank">Secure Internet Voting</a></p>
               </section>
               <style>
                 .space-out-multiline p {
