@@ -339,7 +339,16 @@ const addAddressNotification = (geoip = {}, user) => {
     </p>
   `
 }
-
+const chamberName = (s) => {
+   if (s.legislature_name.includes('Congress') && s.sponsor_username && s.chamber === 'Upper') { return 'the U.S. Senate' }
+   if (s.legislature_name.includes('Congress') && s.sponsor_username) { return 'the U.S. House' }
+   if (s.legislature_name.includes('Congress')) { return 'Liquid Congress' }
+   if (s.legislature_name.includes(',')) { return `Liquid ${s.legislature_name.split(',')[0]}` }
+   if (s.author_username) { return `Liquid ${s.legislature_name}` }
+   if (s.chamber === 'Lower' || s.short_id.includes('-ab')) { return `the ${s.legislature_name} Assembly` }
+   if (s.chamber === 'Upper') { return `the ${s.legislature_name} Senate` }
+  // this last one works for the two states we currently have, but other states have different name for Assembly
+}
 const measureListRow = (s, query) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
   const measureUrl = s.author_username ? `/${s.author_username}/legislation/${s.short_id}` : `/legislation/${s.short_id}`
@@ -350,18 +359,21 @@ const measureListRow = (s, query) => {
         <div class="columns">
           <div class="column">
             <h3><a href="${measureUrl}">${simplifyTitle(s.title)}</a></h3>
-            ${s.introduced_at ? html`
             <div class="is-size-7 has-text-grey">
             <p>
-              <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &bullet;
+              ${!s.author_username ? html`
+                <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &bullet;
+              ` : ''}
               ${s.policy_area ? html`
                 <a href=${`/legislation?${makeQuery({ policy_area: s.policy_area }, query)}`}>${s.policy_area}</a> •
               ` : ''}
-              Introduced in ${s.legislature_name}
+              Introduced in ${chamberName(s)}
               ${s.sponsor_first_name ? html`
                 by <a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>
-              ` : ''}
-              on ${(new Date(s.introduced_at)).toLocaleDateString()}
+              ` : s.author_username ? html`
+                by <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>`
+                : ``}
+              on ${s.author_username ? (new Date(s.created_at)).toLocaleDateString() : (new Date(s.introduced_at)).toLocaleDateString()}
             </p>
               ${s.summary ? html`
                 <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
@@ -372,14 +384,6 @@ const measureListRow = (s, query) => {
               ` : s.status === 'Awaiting floor or committee vote' ? 'Discharged from committee' : s.status}</p>
               <p><strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}</p>
             </div>
-            ` : html`
-              <div class="is-size-7 has-text-grey">
-                ${s.author_username
-                  ? html`Authored by <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>`
-                  : html`Authored by Anonymous `}
-                on ${(new Date(s.created_at)).toLocaleDateString()} - ${s.legislature_name}
-              </div>
-            `}
           </div>
           <div class="column is-one-quarter has-text-right-tablet has-text-left-mobile">
             ${voteButton(s)}
