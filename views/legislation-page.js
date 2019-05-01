@@ -115,10 +115,10 @@ module.exports = (state, dispatch) => {
               }
             }
           </style>
-          </div>
         </div>
-      `
-    }
+      </div>
+    `
+  }
 
 const toggleFilter = (cookies, dispatch, filterName, value) => (event) => {
   const btn = document.querySelector('.filter-submit')
@@ -282,17 +282,17 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
                   Passed One Chamber
                 </label><br />
                 <label class="checkbox has-text-grey">
-                  <input onclick=${toggleFilter(cookies, dispatch, 'failed_one', 'on')} type="checkbox" name="failed_one" checked=${!!failed_one} />
-                  Failed or Withdrawn
-                </label>
-                <br />
-                <label class="checkbox has-text-grey">
                   <input onclick=${toggleFilter(cookies, dispatch, 'passed_both', 'on')} type="checkbox" name="passed_both" checked=${!!passed_both} />
                   Passed Both Chambers
                 </label><br />
                 <label class="checkbox has-text-grey">
                   <input onclick=${toggleFilter(cookies, dispatch, 'resolving', 'on')} type="checkbox" name="resolving" checked=${!!resolving} />
                   Resolving Differences
+                </label>
+                <br />
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'failed_one', 'on')} type="checkbox" name="failed_one" checked=${!!failed_one} />
+                  Failed or Withdrawn
                 </label>
               </div>
 
@@ -347,7 +347,7 @@ const chamberName = (s) => {
    if (s.author_username) { return `Liquid ${s.legislature_name}` }
    if (s.chamber === 'Lower' || s.short_id.includes('-ab')) { return `the ${s.legislature_name} Assembly` }
    if (s.chamber === 'Upper') { return `the ${s.legislature_name} Senate` }
-  // this last one works for the two states we currently have, but other states have different name for Assembly
+  // Lower works for the two states we currently have, but other states have different name for Assembly
 }
 const measureListRow = (s, query) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
@@ -470,7 +470,6 @@ const noBillsMsg = (state_upper, state_lower) => html`
     ${state_upper === 'on' || state_lower === 'on' ? [`
       <p>Liquid doesn't have this legislature's bill list yet. Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request this location, or change your selected criteria.</p>
     `] : html`
-
       No policies match the current criteria. <a href="/legislation/propose">Propose a bill</a> or change your selected filters.
     `}
   </div>

@@ -233,6 +233,20 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
 
   const order = '&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc'
   const hide_direct_votes_params = cookies.hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
+
+  const type_query = `${cookies.nominations === 'on'
+    ? 'nomination,'
+    : ''}${cookies.resolutions === 'on'
+    ? 'resolution,joint-resolution,constitutional amendment,'
+    : ''}${cookies.bills === 'on'
+    ? 'bill,'
+    : ''}${cookies.nominations !== 'on' && cookies.resolutions !== 'on' && cookies.bills !== 'on'
+    ? 'bill,nomination,resolution,constitutional amendment,'
+    : ''}`
+
+  const summary_available = cookies.summary_available === 'on' ? '&summary=not.is.null' : ''
+
+  const policy_area_query = params.policy_area ? `&policy_area=eq.${params.policy_area}` : ''
 // see if upper, lower, liquid checked
   const chamber_query = (cookies.us_senate || cookies.state_upper) && (cookies.us_house || cookies.state_lower || cookies.liquid_us || cookies.liquid_state || cookies.liquid_city)
     ? 'Upper,Lower'
@@ -260,6 +274,7 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
   const stateCheck = location.query.state_upper || location.query.state_lower || location.query.liquid_state
   const cityCheck = location.query.city_council || location.query.liquid_city
   const leg_query = `${congress ? 'U.S. Congress,' : ''}${stateCheck ? `${location.query.state},` : ''}${cityCheck ? `"${location.query.city}",` : ''}${congress || stateCheck || cityCheck ? `` : `U.S. Congress,${userCitySt},${userState},`}`
+
 // see which statuses are checked
   const recently_introduced = cookies.recently_introduced === 'on'
   const committee_discharged = cookies.committee_discharged === 'on'
@@ -293,23 +308,10 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
       : ''}${veto_check
       ? 'Veto Actions,'
       : ''}`
-      const removeEndComma = (filter_function) => {
-        return `${filter_function.slice(0, filter_function.length - 1)}`
-      }
-      const isStatusChecked = recently_introduced || committee_discharged || committee_action || passed_one || failed_withdrawn || passed_both || resolving || to_exec || veto_check || enacted_check ? `&status=in.(${removeEndComma(status_query)})` : '&or=(status.in.(Floor%20Consideration,Awaiting%20floor%20or%20committee%20vote,Committee%20Consideration,Passed%20One%20Chamber,Failed%20One%20Chamber,Passed%20Both%20Chambers,Resolving%20Differences,To%20Executive,Pending%20Executive%20Calendar,Enacted,Withdrawn,Veto%20Actions,Failed%20or%20Returned%20to%20Executive),introduced_at.is.null)'
-      const type_query = `${cookies.nominations === 'on'
-      ? 'nomination,'
-      : ''}${cookies.resolutions === 'on'
-      ? 'resolution,joint-resolution,'
-      : ''}${cookies.bills === 'on'
-      ? 'bill,'
-      : ''}${cookies.nominations !== 'on' && cookies.resolutions !== 'on' && cookies.bills !== 'on'
-        ? 'bill,nomination,resolution,constitutional amendment,'
-        : ''}`
 
-  const summary_available = cookies.summary_available === 'on' ? '&summary=not.is.null' : ''
-
-  const policy_area_query = params.policy_area ? `&policy_area=eq.${params.policy_area}` : ''
+  const isStatusChecked = recently_introduced || committee_discharged || committee_action || passed_one || failed_withdrawn || passed_both || resolving || to_exec || veto_check || enacted_check
+  ? `&status=in.(${removeEndComma(status_query)})`
+  : '&or=(status.in.(Floor%20Consideration,Awaiting%20floor%20or%20committee%20vote,Committee%20Consideration,Passed%20One%20Chamber,Failed%20One%20Chamber,Passed%20Both%20Chambers,Resolving%20Differences,To%20Executive,Pending%20Executive%20Calendar,Enacted,Withdrawn,Veto%20Actions,Failed%20or%20Returned%20to%20Executive),introduced_at.is.null)'
 
   const fields = [
     'title', 'number', 'type', 'short_id', 'id', 'status',
@@ -439,4 +441,8 @@ const measureOgImage = (measure) => {
   const inlineImage = inlineImageMatch && inlineImageMatch[0]
   const measureImage = !isCity ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
   return dbImage || inlineImage || measureImage
+}
+
+const removeEndComma = (filter_function) => {
+  return `${filter_function.slice(0, filter_function.length - 1)}`
 }
