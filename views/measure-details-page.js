@@ -13,7 +13,6 @@ module.exports = (state, dispatch) => {
   return html`
     <section class="section">
       <div class="container is-widescreen">
-        ${l.published ? '' : unpublishedMsg(measure, user)}
         ${(l.vote_position && !user.verified) ? html`
           <p class="notification is-info">
             <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
@@ -36,13 +35,3 @@ module.exports = (state, dispatch) => {
     </section>
   `
 }
-
-const unpublishedMsg = (measure, user) => html`
-  <div class="notification">
-    <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
-    ${user && measure.author_id === user.id
-      ? `Your proposed legislation is unpublished. You can continue to edit it until you decide to publish.`
-      : `This proposed legislation is a draft. The author may continue to make changes until it's published.`
-    }
-  </div>
-`

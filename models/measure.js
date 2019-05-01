@@ -169,8 +169,6 @@ module.exports = (event, state) => {
           [state.location.url]: event.measures.map(({ short_id }) => short_id),
         },
       }]
-    case 'measure:published':
-      return [state, publish(event.measure, state.user)]
     case 'measure:voteFormActivated':
       if (!event.measure) return [state]
       return [{
@@ -235,7 +233,7 @@ const fetchMeasures = (params, user) => (dispatch) => {
   const orders = {
     upcoming: '&status=not.eq.Introduced&introduced_at=not.is.null&failed_lower_at=is.null&failed_upper_at=is.null&or=(passed_lower_at.is.null,passed_upper_at.is.null,and(passed_lower_at.is.null,passed_upper_at.is.null))&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc',
     new: '&introduced_at=not.is.null&order=introduced_at.desc,number.desc',
-    proposed: '&published=is.true&introduced_at=is.null&order=created_at.desc,title.asc',
+    proposed: '&introduced_at=is.null&order=created_at.desc,title.asc',
   }
 
   const order = orders[params.order || 'upcoming']
@@ -250,7 +248,7 @@ const fetchMeasures = (params, user) => (dispatch) => {
     'title', 'number', 'type', 'short_id', 'id', 'status',
     'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
     'introduced_at', 'last_action_at', 'next_agenda_begins_at', 'next_agenda_action_at',
-    'summary', 'legislature_name', 'published', 'created_at', 'author_first_name', 'author_last_name', 'author_username', 'policy_area'
+    'summary', 'legislature_name', 'created_at', 'author_first_name', 'author_last_name', 'author_username', 'policy_area'
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
   const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}${policy_area_query}${fts}${legislature}&type=not.eq.nomination${order}&limit=40`
@@ -295,7 +293,6 @@ const insertMeasure = (measure, form, user) => (dispatch) => {
       legislature_id: form.legislature_id,
       title: form.title,
       summary: form.summary,
-      published: false,
       chamber: 'Lower',
       type: 'bill',
       short_id: form.short_id.toLowerCase(),
@@ -349,20 +346,6 @@ const scrollVoteFormIntoView = () => {
       window.scrollTo(0, scrollY, { behavior: 'smooth' })
     }
   }
-}
-
-const publish = (measure, user) => (dispatch) => {
-  return api(dispatch, `/measures?id=eq.${measure.id}`, {
-    method: 'PATCH',
-    headers: { Prefer: 'return=representation' },
-    body: JSON.stringify({ published: true }),
-    user,
-  })
-  .then(() => dispatch({ type: 'measure:updated', measure: { ...measure, published: true } }))
-  .catch((error) => {
-    error.message = 'There was a problem publishing your legislation. Please contact support.'
-    dispatch({ type: 'error', error })
-  })
 }
 
 const isMeasureDetailPage = (route) => {
