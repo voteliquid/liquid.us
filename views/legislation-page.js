@@ -17,6 +17,7 @@ module.exports = (state, dispatch) => {
               <div class="${showFilters === 'on' ? 'has-text-centered' : 'is-hidden'}">
                 ${filterForm(geoip, legislatures, cookies, location, user, dispatch)}
               </div><br />
+              ${query.policy_area ? subjectCheckbox(location.query.policy_area) : ''}
               ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []} <br />
               ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
               (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId], query)))}
@@ -178,6 +179,7 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
 
   return html`
     <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch, userState, state, userCity, city)}">
+      <input name="policy_area" type="hidden" value="${location.query.policy_area}" />
       <div class="field is-grouped is-grouped-center">
         <div class="control">
           <input type="checkbox" onclick=${toggleFilter(cookies, dispatch, 'show_filters', 'on')} name="show_filters" checked=${!!showFilters} class="is-hidden" />
@@ -312,6 +314,17 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
         <button type="submit" class="filter-submit is-hidden">Update</button>
       </div>
     </form>
+  `
+}
+const subjectCheckbox = (policy_area) => {
+
+return html`
+  <div class="control has-text-centered is-size-5">
+    <label class="checkbox has-text-grey">
+      <input onclick=${removePolicyArea} type="checkbox" checked>
+      ${policy_area.replace(/%20/g, ' ')}
+    </label>
+  </div>
   `
 }
 
@@ -456,4 +469,10 @@ const makeQuery = (newFilters, oldQuery) => {
   return Object.keys(newQuery).map(key => {
     return `${key}=${newQuery[key]}`
   }).join('&')
+}
+
+const removePolicyArea = (event) => {
+  event.preventDefault()
+  document.querySelector('[name=policy_area]').value = ''
+  document.querySelector('.filter-submit').click()
 }
