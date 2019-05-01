@@ -104,6 +104,7 @@ module.exports = (state, dispatch) => {
     <section class="hero is-light is-bold is-fullheight">
       <div class="hero-body">
         <div class="container">
+          <br />
           <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal"><strong>You control your privacy</strong></h2>
           <br />
           <br />
@@ -193,7 +194,17 @@ module.exports = (state, dispatch) => {
             <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">② Liquid Candidates</h3>
             <h4 class="subtitle is-5 is-size-4-desktop">Pledged to vote as directed by their local liquid democracy.</h4>
             <h4 class="subtitle is-5 is-size-4-desktop">Voters can elect this upgraded representation, <em>when we're ready</em>, one seat at a time.</h4>
-            <h4 class="subtitle is-5 is-size-4-desktop"><a href="http://liquidcandidates.com" target="_blank"><span class="icon"><i class="fa fa-star"></i></span>&nbsp; <span>Meet the <strong>growing list of Digital Democracy Candidates</strong></span></a>.</h4>
+            <div class="has-text-centered">
+              <a href="${`https://blog.${WWW_DOMAIN}/2017/07/04/running-liquid-democracy-candidates/`}" target="_blank">
+                <img src="/assets/app-announces-vote.png" style="max-width: 498px; width: 100%; box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5); border: 1px solid white;">
+              </a>
+            </div>
+            <br />
+            <h4 class="subtitle is-5 is-size-4-desktop">
+              <a href="http://liquidcandidates.com" target="_blank">
+                <span class="icon" style="font-size: 12px;position: relative;bottom: 3px;"><i class="fa fa-star"></i></span>
+                <span>Meet the <strong>growing list of Digital Democracy Candidates</strong></span></a>.
+            </h4>
           </div>
           <br />
           <br />
