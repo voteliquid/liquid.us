@@ -4,9 +4,10 @@ const endorsementCount = require('./endorsement-count')
 const endorsementForm = require('./endorsement-form')
 const endorsementSignupForm = require('./endorsement-signup-form')
 const endorsementSocialShare = require('./endorsement-social-share')
+const endorsementPhoneReps = require('./endorsement-phone-reps')
 
 module.exports = (state, dispatch) => {
-  const { loading, measure, vote, user } = state
+  const { loading, measure, vote, user, reps } = state
   const reply = (vote.replies || []).filter(({ user_id }) => (user && user.id === user_id))[0]
 
   return html`
@@ -19,15 +20,18 @@ module.exports = (state, dispatch) => {
         }
         <nav class="box">
           ${endorsementCount(vote)}
-          ${!user || loading.endorsedFromSignupForm // logged out
-            ? endorsementSignupForm(state, dispatch)
-            : vote.endorsed // logged in, already endorsed
-              ? endorsementSocialShare(measure, vote)
-              : endorsementForm(state, dispatch) // logged in, voted differently or haven't voted
+          ${!user || loading.endorsedFromSignupForm
+            ? endorsementSignupForm(state, dispatch) // case 1: not logged in
+            : !vote.endorsed
+              ? endorsementForm(state, dispatch) // - case 2: logged in, haven't endorsed
+              : html`
+                ${endorsementPhoneReps({ measure, reps })}
+                ${!reply
+                  ? endorsementComment(state, dispatch) // - case 3: endorsed, haven't commented
+                  : endorsementSocialShare(measure, vote) // - case 4: after commenting
+                }
+              `
           }
-          ${user && !loading.endorsedFromSignupForm && vote.endorsed && !reply
-            ? endorsementComment(state, dispatch)
-            : ''}
         </nav>
       </div>
       <button class="${`modal-close is-large ${vote.showMobileEndorsementForm ? '' : 'is-hidden'}`}" aria-label="close" onclick=${(event) => dispatch({ type: 'vote:toggledMobileEndorsementForm', vote, event })}></button>

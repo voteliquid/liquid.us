@@ -14,7 +14,7 @@ module.exports = (measure, vote) => {
 
   return html`
     <div class="content">
-      <p class="has-text-weight-semibold">Increase your impact by asking your friends and family to ${actionTo}.</p>
+      <p class="has-text-weight-semibold">Share your comment and invite your friends and family to ${actionTo} as well.</p>
       <div class="buttons is-centered">
         <a class="button is-link has-text-weight-bold" title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">
           <span class="icon"><i class="fab fa-facebook"></i></span>
