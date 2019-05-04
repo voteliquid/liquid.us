@@ -12,7 +12,7 @@ module.exports = (state, dispatch) => {
         ${user.username
           ? location.params.shortId
             ? measure
-              ? measure.published ? alreadyPublishedMsg() : editLegislationForm(state, dispatch)
+              ? editLegislationForm(state, dispatch)
               : activityIndicator()
             : editLegislationForm(state, dispatch)
           : publicProfileRequiredMsg(user.verified)}
@@ -29,14 +29,6 @@ const publicProfileRequiredMsg = (verified) => {
         ? html`<a href="/get_started">Choose a username</a> and make a public profile.</a>`
         : html`<a href="/get_started">Verify your identity</a> to choose a username and make a public profile.</a>`
       }
-    </p>
-  `
-}
-
-const alreadyPublishedMsg = () => {
-  return html`
-    <p class="notification">
-      Measures cannot be edited after they are published.
     </p>
   `
 }

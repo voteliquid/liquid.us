@@ -477,7 +477,7 @@ const noBillsMsg = (state_upper, state_lower) => html`
   </div>
 `
 const makeQuery = (newFilters, oldQuery) => {
-  const newQuery = Object.assign(oldQuery, newFilters, { terms: oldQuery.terms || '' })
+  const newQuery = Object.assign({}, oldQuery, newFilters, { terms: oldQuery.terms || '' })
   return Object.keys(newQuery).map(key => {
     return `${key}=${newQuery[key]}`
   }).join('&')

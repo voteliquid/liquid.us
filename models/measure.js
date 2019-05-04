@@ -170,8 +170,6 @@ module.exports = (event, state) => {
           [state.location.url]: event.measures.map(({ short_id }) => short_id),
         },
       }]
-    case 'measure:published':
-      return [state, publish(event.measure, state.user)]
     case 'measure:voteFormActivated':
       if (!event.measure) return [state]
       return [{
@@ -260,7 +258,7 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
     : cookies.us_senate || cookies.us_house || cookies.state_upper || cookies.state_lower
     ? '&introduced_at=not.is.null'
     : cookies.liquid_us || cookies.liquid_state || cookies.liquid_city
-    ? '&published=is.true&introduced_at=is.null'
+    ? '&introduced_at=is.null'
     : ''
 // determine which legislatures to show
   const userCitySt = user && user.address
@@ -317,7 +315,7 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
     'title', 'number', 'type', 'short_id', 'id', 'status',
     'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
     'introduced_at', 'last_action_at', 'next_agenda_begins_at', 'next_agenda_action_at',
-    'summary', 'legislature_name', 'published', 'created_at', 'author_first_name', 'author_last_name', 'author_username', 'policy_area', 'chamber'
+    'summary', 'legislature_name', 'created_at', 'author_first_name', 'author_last_name', 'author_username', 'policy_area', 'chamber'
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
   const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}&chamber=in.(${chamber_query})${isStatusChecked}${liquid_query}${policy_area_query}&type=in.(${removeEndComma(type_query)})&legislature_name=in.(${removeEndComma(leg_query)})${summary_available}${order}&limit=40`
@@ -361,7 +359,6 @@ const insertMeasure = (measure, form, user) => (dispatch) => {
       legislature_id: form.legislature_id,
       title: form.title,
       summary: form.summary,
-      published: false,
       chamber: 'Lower',
       type: 'bill',
       short_id: form.short_id.toLowerCase(),
@@ -415,20 +412,6 @@ const scrollVoteFormIntoView = () => {
       window.scrollTo(0, scrollY, { behavior: 'smooth' })
     }
   }
-}
-
-const publish = (measure, user) => (dispatch) => {
-  return api(dispatch, `/measures?id=eq.${measure.id}`, {
-    method: 'PATCH',
-    headers: { Prefer: 'return=representation' },
-    body: JSON.stringify({ published: true }),
-    user,
-  })
-  .then(() => dispatch({ type: 'measure:updated', measure: { ...measure, published: true } }))
-  .catch((error) => {
-    error.message = 'There was a problem publishing your legislation. Please contact support.'
-    dispatch({ type: 'error', error })
-  })
 }
 
 const isMeasureDetailPage = (route) => {

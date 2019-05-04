@@ -46,10 +46,10 @@ const panelTitleBlock = (title) => html`
 
 const measureActionsPanel = (state, dispatch) => {
   const { measure, user } = state
-  const { author_id, published } = measure
+  const { author_id } = measure
   return html`
     <div class="panel-block is-size-7 has-background-light" style="justify-content: center;">
-      ${user && user.id === author_id && !published ? editButtons(state, measure, dispatch) : shareButtons(measure)}
+      ${user && user.id === author_id ? editButtons(state, measure, dispatch) : shareButtons(measure)}
     </div>
   `
 }

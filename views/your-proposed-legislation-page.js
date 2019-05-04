@@ -55,7 +55,7 @@ const proposedLegislationItem = (state, measure, dispatch) => {
       <div class="card-content">
         <div class="columns">
           <div class="column">
-            <h3>${l.published ? '' : html`<span class="tag is-warning">Draft</span>`} <a href="${`/${user.username}/legislation/${l.short_id}`}">${l.title}</a></h3>
+            <h3><a href="${`/${user.username}/legislation/${l.short_id}`}">${l.title}</a></h3>
             <p class="is-size-7 has-text-grey">
               Proposed for ${l.legislature_name} &bullet; ${l.author_username
             ? html`Authored by <a href="${`/${l.author_username}`}">${l.author_first_name} ${l.author_last_name}</a> on ${(new Date(l.created_at)).toLocaleDateString()}`
@@ -63,7 +63,7 @@ const proposedLegislationItem = (state, measure, dispatch) => {
             </p>
           </div>
           <div class="column has-text-right has-text-left-mobile">
-            ${!l.published ? editButtons(state, measure, dispatch) : ''}
+            ${editButtons(state, measure, dispatch)}
           </div>
         </div>
       </div>
