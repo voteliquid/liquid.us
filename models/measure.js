@@ -229,7 +229,7 @@ module.exports = (event, state) => {
 
 const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispatch) => {
 
-  const order = '&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc'
+  const order = '&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,created_at.desc.nullslast,number.desc'
   const hide_direct_votes_params = cookies.hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
 
   const type_query = `${cookies.nominations === 'on'
