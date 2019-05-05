@@ -9,7 +9,6 @@ module.exports = (state, dispatch) => {
   const measure = measures[location.params.shortId]
   const l = measure
   const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
-  const expanded = measure.expanded === false ? false : location.query.show_more === 'true'
 
   return html`
     <section class="section">
@@ -24,7 +23,7 @@ module.exports = (state, dispatch) => {
         <div class="columns">
           <div class="column is-two-thirds-tablet is-three-quarters-desktop">
             <h2 class="title has-text-weight-normal is-4">${title}</h2>
-            ${l.type !== 'nomination' ? measureSummary({ ...measure, expanded }, dispatch) : ''}
+            ${l.type !== 'nomination' ? measureSummary({ ...measure }, dispatch) : ''}
             ${topComments({ ...state, measure, yea: votes[l.topYea], nay: votes[l.topNay] }, dispatch)}
             ${measureVotes({ ...state, measure }, dispatch)}
           </div>
