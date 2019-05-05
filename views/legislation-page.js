@@ -380,11 +380,13 @@ const measureListRow = (s, query) => {
               ${s.summary ? html`
                 <p class="is-hidden-tablet"><strong class="has-text-grey">Has summary</strong></p>
               ` : ''}
-              <p><strong class="has-text-grey">Status:</strong>
-              ${next_action_at ? html`
-                Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
-              ` : s.status === 'Awaiting floor or committee vote' ? 'Discharged from committee' : s.status}</p>
-              <p><strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}</p>
+              <div class="${s.author_username ? 'is-hidden' : ''}">
+                <p><strong class="has-text-grey">Status:</strong>
+                ${next_action_at ? html`
+                  Scheduled for House floor action ${!s.next_agenda_action_at ? 'during the week of' : 'on'} ${new Date(next_action_at).toLocaleDateString()}
+                ` : s.status === 'Awaiting floor or committee vote' ? 'Discharged from committee' : s.status}</p>
+                <p><strong class="has-text-grey">Last action:</strong> ${new Date(s.last_action_at).toLocaleDateString()}</p>
+              </div>
             </div>
           </div>
           <div class="column is-one-quarter has-text-right-tablet has-text-left-mobile">
