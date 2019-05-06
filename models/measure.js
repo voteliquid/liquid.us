@@ -15,7 +15,7 @@ module.exports = (event, state) => {
             location: {
               ...state.location,
               title: 'Legislation',
-              ogImage: query.state && `${ASSETS_URL}/legislature-images/${query.state}.png`
+              ogImage: query.state && !query.us_senate && !query.liquid_us && !query.us_house && !query.liquid_city && `${ASSETS_URL}/legislature-images/${query.state}.png`
             },
           }, fetchMeasures({ hide_direct_votes: state.cookies.hide_direct_votes, ...state.location.query }, state.cookies, state.geoip, state.location.query, state.user, state.location)]
         case '/legislation/:shortId':
