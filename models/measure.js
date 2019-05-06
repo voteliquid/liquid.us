@@ -9,7 +9,6 @@ module.exports = (event, state) => {
     case 'pageLoaded':
       switch (state.location.route) {
         case '/legislation':
-        console.log(state.location.query)
           return [{
             ...state,
             loading: { ...state.loading, page: !state.browser, measures: true },
@@ -246,20 +245,14 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
 
   const policy_area_query = params.policy_area ? `&policy_area=eq.${params.policy_area}` : ''
 // see if upper, lower, liquid checked
-  const chamber_query = (cookies.us_senate || cookies.state_upper) && (cookies.us_house || cookies.state_lower || cookies.liquid_us || cookies.liquid_state || cookies.liquid_city)
+  const liquidCheck = cookies.liquid_us || cookies.liquid_state || cookies.liquid_city
+  const chamber_query = (cookies.us_senate || cookies.state_upper) && (cookies.us_house || cookies.state_lower || liquidCheck)
     ? 'Upper,Lower'
     : cookies.us_senate || cookies.state_upper
     ? 'Upper'
-    : cookies.us_house || cookies.state_lower || cookies.liquid_us || cookies.liquid_state || cookies.liquid_city
+    : cookies.us_house || cookies.state_lower || liquidCheck
     ? 'Lower'
     : 'Upper,Lower'
-  const liquid_query = cookies.us_senate && (cookies.from_upper || cookies.us_house)
-    ? ''
-    : cookies.us_senate || cookies.us_house || cookies.state_upper || cookies.state_lower
-    ? '&introduced_at=not.is.null'
-    : cookies.liquid_us || cookies.liquid_state || cookies.liquid_city
-    ? '&introduced_at=is.null'
-    : ''
 // determine which legislatures to show
   const userCitySt = user && user.address
     ? `"${user.address.city}, ${user.address.state}"`
@@ -274,6 +267,7 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
   const leg_query = `${congress ? 'U.S. Congress,' : ''}${stateCheck ? `${location.query.state},` : ''}${cityCheck ? `"${location.query.city}",` : ''}${congress || stateCheck || cityCheck ? `` : `U.S. Congress,${userCitySt},${userState},`}`
 
 // see which statuses are checked
+  const liquid_introduced = cookies.liquid_introduced === 'on'
   const recently_introduced = cookies.recently_introduced === 'on'
   const committee_discharged = cookies.committee_discharged === 'on'
   const committee_action = cookies.committee_action === 'on'
@@ -307,9 +301,13 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
       ? 'Veto Actions,'
       : ''}`
 
-  const isStatusChecked = recently_introduced || committee_discharged || committee_action || passed_one || failed_withdrawn || passed_both || resolving || to_exec || veto_check || enacted_check
-  ? `&status=in.(${removeEndComma(status_query)})`
-  : '&or=(status.in.(Floor%20Consideration,Awaiting%20floor%20or%20committee%20vote,Committee%20Consideration,Passed%20One%20Chamber,Failed%20One%20Chamber,Passed%20Both%20Chambers,Resolving%20Differences,To%20Executive,Pending%20Executive%20Calendar,Enacted,Withdrawn,Veto%20Actions,Failed%20or%20Returned%20to%20Executive),introduced_at.is.null)'
+  const statusLiquidCheck = liquid_introduced && status_query
+    ? `&or=(status.in.(${removeEndComma(status_query)}),introduced_at.is.null)`
+    : status_query
+    ? `&status=in.(${removeEndComma(status_query)})&introduced_at.not.is.null`
+    : liquid_introduced
+    ? '&introduced_at=is.null'
+    : ''
 
   const fields = [
     'title', 'number', 'type', 'short_id', 'id', 'status',
@@ -318,8 +316,8 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
     'summary', 'legislature_name', 'created_at', 'author_first_name', 'author_last_name', 'author_username', 'policy_area', 'chamber'
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}&chamber=in.(${chamber_query})${isStatusChecked}${liquid_query}${policy_area_query}&type=in.(${removeEndComma(type_query)})&legislature_name=in.(${removeEndComma(leg_query)})${summary_available}${order}&limit=40`
-
+  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}&chamber=in.(${chamber_query})${statusLiquidCheck}${policy_area_query}&type=in.(${removeEndComma(type_query)})&legislature_name=in.(${removeEndComma(leg_query)})${summary_available}${order}&limit=40`
+console.log(url, 'test')
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
     .catch((error) => {

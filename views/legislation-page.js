@@ -158,6 +158,7 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
   const nominations = location.query.nominations || cookies.nominations
   const resolutions = location.query.resolutions || cookies.resolutions
   const recently_introduced = location.query.recently_introduced || cookies.recently_introduced
+  const liquid_introduced = location.query.liquid_introduced || cookies.liquid_introduced
   const committee_action = location.query.committee_action || cookies.committee_action
   const committee_discharged = location.query.committee_discharged || cookies.committee_discharged
   const passed_one = location.query.passed_one || cookies.passed_one
@@ -266,6 +267,10 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
 
               <div class="column" style="width: 230px">
                 <h3>Legislative Action</h3>
+                <label class="checkbox has-text-grey">
+                  <input onclick=${toggleFilter(cookies, dispatch, 'liquid_introduced', 'on')} type="checkbox" name="liquid_introduced" checked=${!!liquid_introduced} />
+                  Proposed on Liquid
+                </label>
                 <label class="checkbox has-text-grey">
                   <input onclick=${toggleFilter(cookies, dispatch, 'recently_introduced', 'on')} type="checkbox" name="recently_introduced" checked=${!!recently_introduced} />
                   Introduced
