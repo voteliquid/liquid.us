@@ -301,11 +301,13 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
       ? 'Veto Actions,'
       : ''}`
 
-  const statusLiquidCheck = liquid_introduced && status_query
+  const statusLiquidCheck = (liquid_introduced || liquidCheck) && status_query && (cookies.us_senate || cookies.state_upper || cookies.us_house || cookies.state_lower)
     ? `&or=(status.in.(${removeEndComma(status_query)}),introduced_at.is.null)`
+    : (liquid_introduced || liquidCheck) && (status_query || cookies.us_senate || cookies.state_upper || cookies.us_house || cookies.state_lower)
+    ? `&introduced_at=is.null&status=in.(${removeEndComma(status_query)})`
     : status_query
     ? `&status=in.(${removeEndComma(status_query)})&introduced_at.not.is.null`
-    : liquid_introduced
+    : liquid_introduced || liquidCheck
     ? '&introduced_at=is.null'
     : ''
 
@@ -317,7 +319,7 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
   const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}&chamber=in.(${chamber_query})${statusLiquidCheck}${policy_area_query}&type=in.(${removeEndComma(type_query)})&legislature_name=in.(${removeEndComma(leg_query)})${summary_available}${order}&limit=40`
-console.log(url, 'test')
+
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
     .catch((error) => {
