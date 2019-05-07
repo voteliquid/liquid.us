@@ -5,11 +5,7 @@ module.exports = ({ measure, reps }) => {
   const targetReps = reps.filter(r =>
     [r.legislature.short_name, r.legislature.name].includes(measure.legislature_name)
   )
-  .map(r => ({ ...r, // TODO: Temp code to add placeholder phone numbers for CA Reps
-    // Remove this map function once we get phone numbers from the API
-    phone: r.legislature.name === 'CA' ? '5109876543' : null
-  }))
-  .filter(r => r.phone)
+  .filter(r => r.office_holder.elected_office_phone)
 
   return html`
     <div class="content">
@@ -27,6 +23,7 @@ const rep = (r) => {
   const nameLine = isState
     ? `${rep.first_name} ${rep.last_name}, ${r.legislature.short_name}`
     : `${r.chamber === 'Upper' ? 'Sen' : 'Rep'}. ${rep.first_name} ${rep.last_name}`
+  const phone = rep.elected_office_phone.replace(/-/g, '')
   const displayNum = (phone) => `(${phone.slice(0, 3)}) ${phone.slice(3, 6)}-${phone.slice(6)}`
 
   return html.for(r, `call-rep-${r.id}`)`
@@ -39,7 +36,7 @@ const rep = (r) => {
         </div>
         <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
           ${nameLine}<br />
-          <a class="button is-success is-small" src=${`tel:+1${r.phone}`}>${displayNum(r.phone)}</a>
+          <a class="button is-success is-small" src=${`tel:+1${phone}`}>${displayNum(phone)}</a>
         </div>
       </div>
     </div>
