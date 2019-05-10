@@ -40,12 +40,7 @@ module.exports = ({ rep, office }) => {
                   percentile among ${rep.elected_office_chamber === 'Lower' ? 'House' : 'Senate'} ${rep.party_affiliation}s
                 </span>
               ` : ''}
-            ` : html`
-              <span class="has-text-weight-bold is-size-7">
-                <span class="icon"><i class="far fa-plus-square"></i></span>
-                Need more constituent votes.
-              </span>
-            `}
+            ` : ''}
           </p>
         </div>
       </div>

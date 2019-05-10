@@ -33,6 +33,7 @@ module.exports = (event, state) => {
               [state.location.params.shortId]: {
                 ...state.measures[state.location.params.shortId],
                 showVoteForm: state.location.hash === 'measure-vote-form',
+                expanded: state.location.query.show_more === 'true',
               },
             },
           }, combineEffectsInSeries([
