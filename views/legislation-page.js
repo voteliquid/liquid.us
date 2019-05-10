@@ -6,6 +6,7 @@ module.exports = (state, dispatch) => {
   const { cookies, geoip, legislatures, loading, measures, measuresByUrl, location, user } = state
   const { query, url } = location
   const showFilters = location.query.show_filters || cookies.show_filters
+  console.log('tttt', query.order, query)
 
   return html`
       <div class="section whole-page">
@@ -438,12 +439,17 @@ const summaryTooltipButton = (id, short_id, summary) => html`
   </a>
 `
 
-const noBillsMsg = (state_upper, state_lower) => html`
+const noBillsMsg = (order, query) => html`
   <div class="is-size-5">
-    ${state_upper === 'on' || state_lower === 'on' ? [`
-      <p>Liquid doesn't have this legislature's bill list yet. Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request this location, or change your selected criteria.</p>
-    `] : html`
-      No policies match the current criteria. <a href="/legislation/propose">Propose a bill</a> or change your selected filters.
+      ${(query.state || query.city) && query.liquid_introduced ? html`
+        <p>Liquid doesn't have this legislature's bill list yet and no items have been added to Liquid. Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request that we import bills from this legislature, <a href="/legislation/propose">propose a bill,</a>or change your selected criteria.</p>
+      ` : (query.state || query.city) ? html`
+        <p>Liquid doesn't have this legislature's bill list yet. Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request this location, or change your selected criteria.</p>
+      ` : query.liquid_introduced
+      ? html`
+        <p>No bills have been introduced on Liquid in this area. <a href="/legislation/propose">Propose a bill</a> or change your selected criteria.</p>
+      ` : html`
+        <p>No policies match the current criteria. <a href="/legislation/propose">Propose a bill</a> or change your selected filters.</p>
     `}
   </div>
 `
