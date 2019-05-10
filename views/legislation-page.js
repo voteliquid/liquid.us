@@ -442,9 +442,11 @@ const summaryTooltipButton = (id, short_id, summary) => html`
 const noBillsMsg = (order, query) => html`
   <div class="is-size-5">
       ${(query.state || query.city) && query.liquid_introduced ? html`
-        <p>Liquid doesn't have this legislature's bill list yet and no items have been added to Liquid. Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request that we import bills from this legislature, <a href="/legislation/propose">propose a bill,</a>or change your selected criteria.</p>
+        <p>Either no bills have the selected status or Liquid doesn't have this legislature's bill list. No items have been added to Liquid in this area.</p><br />
+        <p>Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request that we import bills from this location, <a href="/legislation/propose">propose a bill,</a> or change your selected criteria.</p>
       ` : (query.state || query.city) ? html`
-        <p>Liquid doesn't have this legislature's bill list yet. Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request this location, or change your selected criteria.</p>
+        <p>Either no bills have the selected status or Liquid doesn't have this legislature's bill list yet.</p><br />
+        <p>Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request we import bills from this location, or change your selected criteria.</p>
       ` : query.liquid_introduced
       ? html`
         <p>No bills have been introduced on Liquid in this area. <a href="/legislation/propose">Propose a bill</a> or change your selected criteria.</p>
