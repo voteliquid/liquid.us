@@ -244,15 +244,7 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
   const summary_available = cookies.summary_available === 'on' ? '&summary=not.is.null' : ''
 
   const policy_area_query = params.policy_area ? `&policy_area=eq.${params.policy_area}` : ''
-// see if upper, lower, liquid checked
-  const liquidCheck = cookies.liquid_us || cookies.liquid_state || cookies.liquid_city
-  const chamber_query = (cookies.us_senate || cookies.state_upper) && (cookies.us_house || cookies.state_lower || liquidCheck)
-    ? 'Upper,Lower'
-    : cookies.us_senate || cookies.state_upper
-    ? 'Upper'
-    : cookies.us_house || cookies.state_lower || liquidCheck
-    ? 'Lower'
-    : 'Upper,Lower'
+
 // determine which legislatures to show
   const userCitySt = user && user.address
     ? `"${user.address.city}, ${user.address.state}"`
@@ -260,24 +252,23 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
     ? `"${geoip.city}, ${geoip.region}"`
     : ''
   const userState = user && user.address ? user.address.state : geoip ? geoip.region : ''
-  const congress = cookies.us_senate === 'on' || cookies.liquid_us === 'on' || cookies.us_house === 'on'
-
-  const stateCheck = location.query.state_upper || location.query.state_lower || location.query.liquid_state
-  const cityCheck = location.query.city_council || location.query.liquid_city
-  const leg_query = `${congress ? 'U.S. Congress,' : ''}${stateCheck ? `${location.query.state},` : ''}${cityCheck ? `"${location.query.city}",` : ''}${congress || stateCheck || cityCheck ? `` : `U.S. Congress,${userCitySt},${userState},`}`
+  const congress = cookies.congress || location.query.congress
+  const state = location.query.state || cookies.state
+  const city = location.query.city || cookies.city
+  const leg_query = `${congress ? 'U.S. Congress,' : ''}${state ? `${state},` : ''}${city ? `"${city}",` : ''}${congress || state || city ? `` : `U.S. Congress,${userCitySt},${userState},`}`
 
 // see which statuses are checked
-  const liquid_introduced = cookies.liquid_introduced === 'on'
-  const recently_introduced = cookies.recently_introduced === 'on'
-  const committee_discharged = cookies.committee_discharged === 'on'
-  const committee_action = cookies.committee_action === 'on'
-  const passed_one = cookies.passed_one === 'on'
-  const failed_withdrawn = cookies.failed_one === 'on' || cookies.withdrawn === 'on' || cookies.failed === 'on'
-  const passed_both = cookies.passed_both === 'on'
-  const resolving = cookies.resolving === 'on'
-  const to_exec = cookies.to_exec === 'on'
-  const enacted_check = cookies.enacted === 'on'
-  const veto_check = cookies.veto === 'on'
+  const liquid_introduced = cookies.liquid_introduced === 'on' || location.query.liquid_introduced === 'on'
+  const recently_introduced = cookies.recently_introduced === 'on' || location.query.recently_introduced === 'on'
+  const committee_discharged = cookies.committee_discharged === 'on' || location.query.committee_discharged === 'on'
+  const committee_action = cookies.committee_action === 'on' || location.query.committee_action === 'on'
+  const passed_one = cookies.passed_one === 'on' || location.query.passed_one === 'on'
+  const failed_withdrawn = cookies.failed_one === 'on' || cookies.withdrawn === 'on' || cookies.failed === 'on' || location.query.failed_one === 'on' || location.query.withdrawn === 'on' || location.query.failed === 'on'
+  const passed_both = cookies.passed_both === 'on' || location.query.passed_both === 'on'
+  const resolving = cookies.resolving === 'on' || location.query.resolving === 'on'
+  const to_exec = cookies.to_exec === 'on' || location.query.to_exec === 'on'
+  const enacted_check = cookies.enacted === 'on' || location.query.enacted === 'on'
+  const veto_check = cookies.veto === 'on' || location.query.veto === 'on'
 
   const status_query = `${recently_introduced
       ? `Introduced,Pending Committee,`
@@ -301,14 +292,12 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
       ? 'Veto Actions,'
       : ''}`
 
-  const statusLiquidCheck = (liquid_introduced || liquidCheck) && status_query && (cookies.us_senate || cookies.state_upper || cookies.us_house || cookies.state_lower)
+  const statusLiquidCheck = liquid_introduced && status_query
     ? `&or=(status.in.(${removeEndComma(status_query)}),introduced_at.is.null)`
-    : (liquid_introduced || liquidCheck) && (status_query || cookies.us_senate || cookies.state_upper || cookies.us_house || cookies.state_lower)
-    ? `&introduced_at=is.null&status=in.(${removeEndComma(status_query)})`
+    : liquid_introduced
+    ? `&introduced_at=is.null`
     : status_query
-    ? `&status=in.(${removeEndComma(status_query)})&introduced_at.not.is.null`
-    : liquid_introduced || liquidCheck
-    ? '&introduced_at=is.null'
+    ? `&status=in.(${removeEndComma(status_query)})&introduced_at=not.is.null`
     : ''
 
   const fields = [
@@ -318,8 +307,8 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
     'summary', 'legislature_name', 'created_at', 'author_first_name', 'author_last_name', 'author_username', 'policy_area', 'chamber'
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}&chamber=in.(${chamber_query})${statusLiquidCheck}${policy_area_query}&type=in.(${removeEndComma(type_query)})&legislature_name=in.(${removeEndComma(leg_query)})${summary_available}${order}&limit=40`
-
+  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}${statusLiquidCheck}${policy_area_query}&type=in.(${removeEndComma(type_query)})&legislature_name=in.(${removeEndComma(leg_query)})${summary_available}${order}&limit=40`
+console.log(url)
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
     .catch((error) => {

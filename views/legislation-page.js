@@ -121,13 +121,13 @@ module.exports = (state, dispatch) => {
     `
   }
 
-const toggleFilter = (cookies, dispatch, filterName, value) => (event) => {
+const toggleFilter = (cookies, dispatch, filterName) => (event) => {
   const btn = document.querySelector('.filter-submit')
   if (btn.disabled) {
     event.preventDefault()
   } else {
     if (event.currentTarget && event.currentTarget.checked) {
-      dispatch({ type: 'cookieSet', key: `${filterName}`, value: `${value}` })
+      dispatch({ type: 'cookieSet', key: `${filterName}` })
     } else {
       dispatch({ type: 'cookieUnset', key: `${filterName}` })
     }
@@ -144,11 +144,12 @@ const updateFilter = (event, location, dispatch, userState, state, userCity, cit
   }
   const formUrl = `${location.path}?${Object.keys(formData).map((key) => {
 
-    if (key === 'liquid_city') { return `city=${formData[key] === 'on' ? `${userCity}, ${userState}` : city}&liquid_city=${formData[key] === 'on'}` }
+    if (key === 'city') { return `city=${formData[key] === 'on' ? `${userCity}, ${userState}` : city}` }
+    if (key === 'state') { return `state=${formData[key] === 'on' ? `${userState}` : state}` }
 
     return `${key}=${formData[key]}`
   }).join('&')}`
-  dispatch({ type: 'redirected', url: formUrl.includes('state_upper=on') || formUrl.includes('state_lower=on') || formUrl.includes('liquid_state=on') ? `${formUrl}${`&state=${state === 'on' || state === undefined ? userState : state}`}` : formUrl })
+  dispatch({ type: 'redirected', url: formUrl })
 }
 
 const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
@@ -168,16 +169,9 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
   const to_exec = location.query.to_exec || cookies.to_exec
   const enacted = location.query.enacted || cookies.enacted
   const veto = location.query.veto || cookies.veto
-  const us_house = location.query.us_house || cookies.us_house
-  const us_senate = location.query.us_senate || cookies.us_senate
-  const liquid_us = location.query.liquid_us || cookies.liquid_us
+  const congress = location.query.congress || cookies.congress
   const userState = user && user.address ? user.address.state : geoip ? geoip.region : ''
   const userCity = user && user.address ? user.address.city : geoip ? geoip.city : ''
-  const state_upper = location.query.state_upper || cookies.state_upper
-  const state_lower = location.query.state_lower || cookies.state_lower
-  const liquid_state = location.query.liquid_state || cookies.liquid_state
-  const city_council = location.query.city_council || cookies.city_council
-  const liquid_city = location.query.liquid_city || cookies.liquid_city
   const summary_available = location.summary_available || cookies.summary_available
   const state = location.query.state || cookies.state
   const city = location.query.city || cookies.city
@@ -191,53 +185,23 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
           <div id="filter_checkboxes">
             <div class="columns has-text-left">
               <div class="column" style="width: 270px">
-                <h3>Chamber</h3>
+                <h3>Juridstiction</h3>
                 <div>
                   <label class="checkbox has-text-grey">
-                    <input onclick=${toggleFilter(cookies, dispatch, 'liquid_us', 'on')} type="checkbox" name="liquid_us" checked=${!!liquid_us} />
-                    Liquid Congress
+                    <input onclick=${toggleFilter(cookies, dispatch, 'congress', 'on')} type="checkbox" name="congress" checked=${!!congress} />
+                    Congress
                   </label>
                 </div>
                 <div>
                   <label class="checkbox has-text-grey">
-                    <input onclick=${toggleFilter(cookies, dispatch, 'us_house', 'on')} type="checkbox" name="us_house" checked=${!!us_house} />
-                    U.S. House
+                    <input onclick=${toggleFilter(cookies, dispatch, 'state', `${userState}`)} type="checkbox" name="state" checked=${!!state} />
+                    ${state ? `${state}` : `${userState}`}
                   </label>
                 </div>
                 <div>
                   <label class="checkbox has-text-grey">
-                    <input onclick=${toggleFilter(cookies, dispatch, 'us_senate', 'on')} type="checkbox" name="us_senate" checked=${!!us_senate} />
-                    U.S. Senate
-                  </label>
-                </div>
-                <div>
-                  <label class="checkbox has-text-grey">
-                    <input onclick=${toggleFilter(cookies, dispatch, 'liquid_state', `${userState}`)} type="checkbox" name="liquid_state" checked=${!!liquid_state} />
-                    ${state ? `Liquid ${state}` : `Liquid ${userState}`}
-                  </label>
-                </div>
-                <div>
-                  <label class="checkbox has-text-grey">
-                    <input onclick=${toggleFilter(cookies, dispatch, 'state_lower', `${userState}`)} type="checkbox" name="state_lower" checked=${!!state_lower} />
-                    ${state ? `${state} Lower` : `${userState} Lower`}
-                  </label>
-                </div>
-                <div>
-                  <label class="checkbox has-text-grey">
-                    <input onclick=${toggleFilter(cookies, dispatch, 'state_upper', `${userState}`)} type="checkbox" name="state_upper" checked=${!!state_upper} />
-                    ${state ? `${state} Upper` : `${userState} Upper`}
-                  </label>
-                </div>
-                <div>
-                  <label class="checkbox has-text-grey is-hidden">
-                    <input onclick=${toggleFilter(cookies, dispatch, 'city_council', `${userCity}, ${userState}`)} type="checkbox" name="city_council" checked=${!!city_council} />
-                    ${city_council && city ? `${city.slice(0, ',')} Council` : `${userCity} Council`}
-                  </label>
-                </div>
-                <div>
-                  <label class="checkbox has-text-grey">
-                    <input onclick=${toggleFilter(cookies, dispatch, 'liquid_city', `${userCity}, ${userState}`)} type="checkbox" name="liquid_city" checked=${!!liquid_city} />
-                    ${liquid_city === true ? `Liquid ${city.slice(0, ',')}` : `Liquid ${userCity}`}
+                    <input onclick=${toggleFilter(cookies, dispatch, 'city', `${userCity}, ${userState}`)} type="checkbox" name="city" checked=${!!city} />
+                    ${city ? `${city.split(',')[0]}` : `${userCity}`}
                   </label>
                 </div>
               </div>
