@@ -6,7 +6,6 @@ module.exports = (state, dispatch) => {
   const { cookies, geoip, legislatures, loading, measures, measuresByUrl, location, user } = state
   const { query, url } = location
   const showFilters = location.query.show_filters || cookies.show_filters
-  console.log('tttt', query.order, query)
 
   return html`
       <div class="section whole-page">
@@ -226,7 +225,7 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
                 </label>
                 <label class="${`checkbox has-text-grey control ${user ? '' : 'is-hidden'}`}">
                   <input onclick=${toggleFilter(cookies, dispatch, 'hide_direct_votes', 'on')} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
-                  Hide My Votes
+                  Directly Voted
                 </label>
               </div>
 
@@ -310,16 +309,6 @@ const addAddressNotification = (geoip = {}, user) => {
     </p>
   `
 }
-const chamberName = (s) => {
-   if (s.legislature_name.includes('Congress') && s.sponsor_username && s.chamber === 'Upper') { return 'the U.S. Senate' }
-   if (s.legislature_name.includes('Congress') && s.sponsor_username) { return 'the U.S. House' }
-   if (s.legislature_name.includes('Congress')) { return 'Liquid Congress' }
-   if (s.legislature_name.includes(',')) { return `Liquid ${s.legislature_name.split(',')[0]}` }
-   if (s.author_username) { return `Liquid ${s.legislature_name}` }
-   if (s.chamber === 'Lower' || s.short_id.includes('-ab')) { return `the ${s.legislature_name} Assembly` }
-   if (s.chamber === 'Upper') { return `the ${s.legislature_name} Senate` }
-  // Lower works for the two states we currently have, but other states have different name for Assembly
-}
 
 const measureListRow = (s, query) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
@@ -337,9 +326,24 @@ const measureListRow = (s, query) => {
                 <span class="has-text-weight-bold">${s.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}</span> &bullet;
               ` : ''}
               ${s.policy_area ? html`
-                <a href=${`/legislation?${makeQuery({ policy_area: s.policy_area }, query)}`}>${s.policy_area}</a> •
+                <a href=${`/legislation?${makeQuery({ policy_area: s.policy_area }, s, query)}`}>${s.policy_area}</a> •
               ` : ''}
-              Introduced in ${chamberName(s)}
+              Introduced in ${s.legislature_name.includes('Congress') && s.sponsor_username
+                ? html`
+                <a href=${`/legislation?${makeQuery({ congress: 'on' }, s, query)}`}>Congress</a>
+                ` : s.legislature_name.includes('Congress')
+                ? html`
+                <a href=${`/legislation?${makeQuery({ congress: 'on', liquid_introduced: 'on' }, s, query)}`}>Liquid Congress</a>
+                ` : s.legislature_name.includes(',')
+                ? html`
+                <a href=${`/legislation?${makeQuery({ city: `on`, liquid_introduced: 'on' }, s, query)}`}>Liquid ${s.legislature_name.split(',')[0]}</a>
+                ` : s.author_username
+                ? html`
+                <a href=${`/legislation?${makeQuery({ state: `on`, liquid_introduced: 'on' }, s, query)}`}>Liquid ${s.legislature_name}</a>
+                ` : html`
+                <a href=${`/legislation?${makeQuery({ state: `on` }, s, query)}`}>${s.legislature_name}</a>
+                `
+                }
               ${s.sponsor_first_name ? html`
                 by <a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>
               ` : s.author_username ? html`
@@ -455,11 +459,15 @@ const noBillsMsg = (order, query) => html`
     `}
   </div>
 `
-const makeQuery = (newFilters, oldQuery) => {
-  const newQuery = Object.assign({}, oldQuery, newFilters, { terms: oldQuery.terms || '' })
-  return Object.keys(newQuery).map(key => {
-    return `${key}=${newQuery[key]}`
-  }).join('&')
+const makeQuery = (newFilters, s, oldQuery) => {
+  if (oldQuery) {
+    const newQuery = Object.assign({}, oldQuery, newFilters, { terms: oldQuery.terms || '' })
+    return Object.keys(newQuery).map(key => {
+      if (key === 'city') { return `city=${s.legislature_name}` }
+      if (key === 'state') { return `state=${s.legislature_name}` }
+      return `${key}=${newQuery[key]}`
+    }).join('&')
+  }
 }
 
 const removePolicyArea = (event) => {
