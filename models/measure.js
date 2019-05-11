@@ -15,7 +15,7 @@ module.exports = (event, state) => {
             location: {
               ...state.location,
               title: 'Legislation',
-              ogImage: query.state && !query.us_senate && !query.liquid_us && !query.us_house && !query.liquid_city && `${ASSETS_URL}/legislature-images/${query.state}.png`
+              ogImage: query.state && !query.congress && !query.city && `${ASSETS_URL}/legislature-images/${query.state}.png`
             },
           }, fetchMeasures({ hide_direct_votes: state.cookies.hide_direct_votes, ...state.location.query }, state.cookies, state.geoip, state.location.query, state.user, state.location)]
         case '/legislation/:shortId':
@@ -309,7 +309,7 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
   const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}${statusLiquidCheck}${policy_area_query}&type=in.(${removeEndComma(type_query)})&legislature_name=in.(${removeEndComma(leg_query)})${summary_available}${order}&limit=40`
-console.log(url)
+
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
     .catch((error) => {
