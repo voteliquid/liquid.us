@@ -13,7 +13,7 @@ module.exports = (state, dispatch) => {
   const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
   const hideTargetReps = (l) => (
     l.author_username === 'councilmemberbas'
-    || l.short_id === 'stop-$148m-jail'
+    || l.short_id === 'stop-227M-jail'
   )
 
   return html`
