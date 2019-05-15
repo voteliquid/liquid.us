@@ -121,7 +121,7 @@ module.exports = (event, state) => {
         loading: { ...state.loading, page: isMeasureDetailPage(state.location.route) ? false : state.loading.page, measure: false },
         location: {
           ...state.location,
-          title: isMeasureDetailPage(state.location.route) ? `${event.measure.legislature_name}: ${event.measure.title}` : state.location.title,
+          title: isMeasureDetailPage(state.location.route) ? `${hideTargetReps ? '' : `${event.measure.legislature_name}: `}${event.measure.title}` : state.location.title,
           ogImage: isMeasureDetailPage(state.location.route) && measureOgImage(event.measure),
         },
         measures: {
@@ -352,6 +352,10 @@ const scrollVoteFormIntoView = () => {
 const isMeasureDetailPage = (route) => {
   return route === '/legislation/:shortId' || route === '/nominations/:shortId' || route === '/:username/legislation/:shortId' || route === '/:username/legislation/:shortId/edit'
 }
+
+const hideTargetReps = (l) => (
+  l.short_id === 'stop-227M-jail'
+)
 
 const measureOgImage = (measure) => {
   const dbImage = measure.image_name ? `${ASSETS_URL}/measure-images/${measure.image_name}` : ''
