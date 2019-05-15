@@ -15,6 +15,9 @@ module.exports = (state, dispatch) => {
   const measureUrl = l.author_username
     ? `/${l.author_username}/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
     : `/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
+  const hideTargetReps = (l) => (
+    l.short_id === 'stop-227M-jail'
+  )
 
   return html`
     <nav class="panel">
@@ -28,7 +31,7 @@ module.exports = (state, dispatch) => {
           ${stateNames[l.legislature_name] || l.legislature_name}
         </h4>
       </div>
-      ${reps && reps.length ? measureRepsPanel({ measure, reps }) : ''}
+      ${reps && reps.length && !hideTargetReps ? measureRepsPanel({ measure, reps }) : ''}
       ${panelTitleBlock('Votes')}
       ${measureVoteCounts({ measure, offices })}
       ${panelTitleBlock('Info')}
