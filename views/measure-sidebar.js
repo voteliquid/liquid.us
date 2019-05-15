@@ -28,7 +28,7 @@ module.exports = (state, dispatch) => {
           </a>
         </h3>
         <h4 class="subtitle is-size-7 has-text-grey is-uppercase has-text-weight-semibold">
-          ${stateNames[l.legislature_name] || l.legislature_name}
+          ${hideTargetReps ? 'Dane County' : stateNames[l.legislature_name] || l.legislature_name}
         </h4>
       </div>
       ${reps && reps.length && !hideTargetReps ? measureRepsPanel({ measure, reps }) : ''}
