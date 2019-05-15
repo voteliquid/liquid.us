@@ -33,7 +33,7 @@ module.exports = (state, dispatch) => {
       </div>
       ${reps && reps.length && !hideTargetReps ? measureRepsPanel({ measure, reps }) : ''}
       ${panelTitleBlock('Votes')}
-      ${measureVoteCounts({ measure, offices })}
+      ${measureVoteCounts({ measure, offices }, hideTargetReps)}
       ${panelTitleBlock('Info')}
       ${measureInfoPanel({ measure, showStatusTracker })}
       ${measureActionsPanel(state, dispatch)}
@@ -152,7 +152,7 @@ const measureInfoPanel = ({ measure, showStatusTracker }) => {
   `
 }
 
-const measureVoteCounts = ({ measure, offices }) => {
+const measureVoteCounts = ({ measure, offices }, hideTargetReps) => {
   const {
     type, constituent_yeas, constituent_nays, yeas, nays,
     legislature_name, chamber, delegate_name, vote_position, short_id
@@ -201,7 +201,7 @@ const measureVoteCounts = ({ measure, offices }) => {
               <td class="has-text-right">${yeas || 0}</td>
               <td class="has-text-right">${nays || 0}</td>
             </tr>
-            ${offices.length && localLegislatureName ? html`
+            ${offices.length && localLegislatureName && !hideTargetReps ? html`
             <tr>
               <td class="has-text-left has-text-grey">${districtName(measure, offices, localLegislatureName)}</td>
               <td class="has-text-right">${constituent_yeas || 0}</td>
