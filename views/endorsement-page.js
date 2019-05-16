@@ -22,7 +22,7 @@ module.exports = (state, dispatch) => {
         <div class="columns">
           <div class="column">
             <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>
-            ${hideTargetReps(l) ? '' : targetReps({ measure, vote, ...state }, dispatch)}
+            ${hideTargetReps ? '' : targetReps({ measure, vote, ...state }, dispatch)}
             <div class="small-screens-only">
               ${endorsementCount(vote, 'small-screen')}
             </div>
