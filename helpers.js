@@ -103,7 +103,7 @@ exports.linkifyUrls = (text = '') => {
           url = `https://media.cityofmadison.com/Mediasite/Play/${videoMatch[6]}`
         }
         return `
-          <div class="responsive-video-outer" style="margin: 0 auto;"><div class="responsive-video-inner"><iframe width="560" height="315" src="${url}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></div></div>
+          <div style="max-width: 100%; background: hsla(0, 0%, 87%, 0.25);"><div class="responsive-video-outer" style="margin: 0 auto;"><div class="responsive-video-inner"><iframe width="560" height="315" src="${url}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></div></div></div>
         `
       }
       if (url.match(/\.(png|jpg|jpeg|gif)$/i)) {
