@@ -59,6 +59,8 @@ const watchHistory = (status) => (dispatch) => {
   window.addEventListener('click', l.click)
 }
 
+let prevState = null
+
 runtime({
   ...App,
   init: [{
@@ -91,7 +93,8 @@ runtime({
     if (starting && !state.loading.page && state.view) {
       starting = false
     }
-    if (!starting) {
+    if (!starting && state !== prevState) {
+      prevState = state
       lighterhtml.render(node, () => App.view(state, dispatch))
     }
   },

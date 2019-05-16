@@ -57,13 +57,11 @@ module.exports = (event, state) => {
         },
       }, combineEffects([preventDefault(event.event), reportVote(event.vote, state.user)])]
     case 'vote:endorsed':
-      return [{
-        ...state,
-        loading: { ...state.loading, vote: true },
-      }, combineEffectsInSeries([
+      // TODO cannot change state here otherwise iframes in comments will re-render and Chrome will dismiss the confirm dialog whenever an iframe loads.
+      return [state, combineEffectsInSeries([
         preventDefault(event.event),
-        typeof event.name !== 'undefined' && state.user && updateNameAndAddressFromEndorsement(event, state.user),
         endorse(event.vote, state.user, event.measure),
+        typeof event.name !== 'undefined' && state.user && updateNameAndAddressFromEndorsement(event, state.user),
         fetchMeasure(event.vote.short_id, state.offices, state.user),
         fetchMeasureVotes(event.vote.short_id, state.location.query.order, state.location.query.position, state.user),
       ])]
