@@ -121,7 +121,7 @@ module.exports = (event, state) => {
         loading: { ...state.loading, page: isMeasureDetailPage(state.location.route) ? false : state.loading.page, measure: false },
         location: {
           ...state.location,
-          title: isMeasureDetailPage(state.location.route) ? `${hideTargetReps ? '' : `${event.measure.legislature_name}: `}${event.measure.title}` : state.location.title,
+          title: isMeasureDetailPage(state.location.route) ? `${hideLegNameSocial ? '' : `${event.measure.legislature_name}: `}${event.measure.title}` : state.location.title,
           ogImage: isMeasureDetailPage(state.location.route) && measureOgImage(event.measure),
         },
         measures: {
@@ -353,7 +353,7 @@ const isMeasureDetailPage = (route) => {
   return route === '/legislation/:shortId' || route === '/nominations/:shortId' || route === '/:username/legislation/:shortId' || route === '/:username/legislation/:shortId/edit'
 }
 
-const hideTargetReps = (l) => (
+const hideLegNameSocial = (l) => (
   l.short_id === 'stop-227M-jail'
 )
 

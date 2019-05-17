@@ -15,7 +15,7 @@ module.exports = (state, dispatch) => {
   const measureUrl = l.author_username
     ? `/${l.author_username}/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
     : `/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
-  const hideTargetReps = (l) => (
+  const daneCheck = (l) => (
     l.short_id === 'stop-227M-jail'
   )
 
@@ -28,12 +28,12 @@ module.exports = (state, dispatch) => {
           </a>
         </h3>
         <h4 class="subtitle is-size-7 has-text-grey is-uppercase has-text-weight-semibold">
-          ${hideTargetReps ? 'Dane County' : stateNames[l.legislature_name] || l.legislature_name}
+          ${daneCheck ? 'Dane County' : stateNames[l.legislature_name] || l.legislature_name}
         </h4>
       </div>
-      ${reps && reps.length && !hideTargetReps ? measureRepsPanel({ measure, reps }) : ''}
+      ${reps && reps.length && !daneCheck ? measureRepsPanel({ measure, reps }) : ''}
       ${panelTitleBlock('Votes')}
-      ${measureVoteCounts({ measure, offices }, hideTargetReps)}
+      ${measureVoteCounts({ measure, offices }, daneCheck)}
       ${panelTitleBlock('Info')}
       ${measureInfoPanel({ measure, showStatusTracker })}
       ${measureActionsPanel(state, dispatch)}
@@ -152,7 +152,7 @@ const measureInfoPanel = ({ measure, showStatusTracker }) => {
   `
 }
 
-const measureVoteCounts = ({ measure, offices }, hideTargetReps) => {
+const measureVoteCounts = ({ measure, offices }, daneCheck) => {
   const {
     type, constituent_yeas, constituent_nays, yeas, nays,
     legislature_name, chamber, delegate_name, vote_position, short_id
@@ -197,11 +197,11 @@ const measureVoteCounts = ({ measure, offices }, hideTargetReps) => {
               <td class="has-text-right">Nay</td>
             </tr>
             <tr>
-              <td class="has-text-left has-text-grey">${hideTargetReps ? 'All Votes' : legislature_name.replace(' Congress', '')}</td>
+              <td class="has-text-left has-text-grey">${daneCheck ? 'All Votes' : legislature_name.replace(' Congress', '')}</td>
               <td class="has-text-right">${yeas || 0}</td>
               <td class="has-text-right">${nays || 0}</td>
             </tr>
-            ${offices.length && localLegislatureName && !hideTargetReps ? html`
+            ${offices.length && localLegislatureName && !daneCheck ? html`
             <tr>
               <td class="has-text-left has-text-grey">${districtName(measure, offices, localLegislatureName)}</td>
               <td class="has-text-right">${constituent_yeas || 0}</td>
