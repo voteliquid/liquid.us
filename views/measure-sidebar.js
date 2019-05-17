@@ -33,7 +33,7 @@ module.exports = (state, dispatch) => {
       </div>
       ${reps && reps.length && !daneCheck ? measureRepsPanel({ measure, reps }) : ''}
       ${panelTitleBlock('Votes')}
-      ${measureVoteCounts({ measure, offices }, daneCheck)}
+      ${measureVoteCounts({ measure, offices, daneCheck })}
       ${panelTitleBlock('Info')}
       ${measureInfoPanel({ measure, showStatusTracker })}
       ${measureActionsPanel(state, dispatch)}
@@ -152,7 +152,7 @@ const measureInfoPanel = ({ measure, showStatusTracker }) => {
   `
 }
 
-const measureVoteCounts = ({ measure, offices }, daneCheck) => {
+const measureVoteCounts = ({ measure, offices, daneCheck }) => {
   const {
     type, constituent_yeas, constituent_nays, yeas, nays,
     legislature_name, chamber, delegate_name, vote_position, short_id
