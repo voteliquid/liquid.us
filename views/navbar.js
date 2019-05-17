@@ -55,7 +55,7 @@ const style = `
       padding: 0;
     }
     .propose-button {
-      max-height: 28px;
+      margin: 0 0 1 0
     }
     a.navbar-item:hover {
       background-color: #f5f5f5 !important;
@@ -90,10 +90,12 @@ const navbarAuthed = ({ location, user }) => {
   const { path } = location
 
   return html`
-    <a class="button is-primary" style="margin-top: 1rem" href="/legislation/propose">
-      <span class="icon"><i class="fa fa-file"></i></span>
-      <span class="has-text-weight-semibold">Propose</span>
-    </a>
+    <div class="buttons is-centered">
+      <a class="button is-primary" style="margin-top: 1.5rem" href="/legislation/propose">
+        <span class="icon"><i class="fa fa-file"></i></span>
+        <span class="has-text-weight-semibold">Propose</span>
+      </a>
+    </div>
     <a class=${`navbar-item ${path.slice(0, 12) === '/legislation' ? 'is-active' : ''}`} href="/legislation">Browse</a>
     <div class="navbar-item has-dropdown is-hoverable">
       <a class="navbar-link" href="${username_url}">${user.first_name || 'You'}</a>
