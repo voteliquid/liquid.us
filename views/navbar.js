@@ -89,7 +89,10 @@ const navbarAuthed = ({ location, user }) => {
 
   return html`
     <a class=${`navbar-item ${path.slice(0, 12) === '/legislation' ? 'is-active' : ''}`} href="/legislation">Legislation</a>
-    <a class=${`navbar-item ${path.slice(0, 8) === '/proxies' ? 'is-active' : ''}`} href="/proxies">Your Proxies</a>
+    <a class="button is-primary" style="margin-top: 1rem;" href="/legislation/propose">
+      <span class="icon"><i class="fa fa-file"></i></span>
+      <span class="has-text-weight-semibold">Propose</span>
+    </a>
     <div class="navbar-item has-dropdown is-hoverable">
       <a class="navbar-link" href="${username_url}">${user.first_name || 'You'}</a>
       <div class="navbar-dropdown is-right">
@@ -99,9 +102,7 @@ const navbarAuthed = ({ location, user }) => {
             : ''
         }
         <a class=${`navbar-item ${path === username_url ? 'is-active' : ''}`} href=${username_url}>Profile</a>
-        ${user.username
-          ? html`<a class=${`navbar-item ${path === '/edit_profile' ? 'is-active' : ''}`} href="/edit_profile">Edit Profile</a>`
-          : ''}
+        <a class=${`navbar-item ${path.slice(0, 8) === '/proxies' ? 'is-active' : ''}`} href="/proxies">Your Proxies</a>
         <a class=${`navbar-item ${path === `/legislation/yours` ? 'is-active' : ''}`} href="/legislation/yours">Proposed Legislation</a>
         <a class=${`navbar-item ${path === '/settings' ? 'is-active' : ''}`} href="/settings">Settings</a>
         <a class=${`navbar-item ${path === '/sign_out' ? 'is-active' : ''}`} href=${`${WWW_URL}/sign_out`}>Sign out</a>
