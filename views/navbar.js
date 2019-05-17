@@ -88,7 +88,7 @@ const navbarAuthed = ({ location, user }) => {
   const { path } = location
 
   return html`
-    <a class=${`navbar-item ${path.slice(0, 12) === '/legislation' ? 'is-active' : ''}`} href="/legislation">Legislation</a>
+    <a class=${`navbar-item ${path.slice(0, 12) === '/legislation' ? 'is-active' : ''}`} href="/legislation">Browse</a>
     <a class="button is-primary" style="margin-top: 1rem;" href="/legislation/propose">
       <span class="icon"><i class="fa fa-file"></i></span>
       <span class="has-text-weight-semibold">Propose</span>
