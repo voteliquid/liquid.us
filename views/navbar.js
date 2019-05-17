@@ -10,10 +10,6 @@ module.exports = ({ navbar: { hamburgerVisible }, location, search, user }, disp
           <a class="navbar-item" href="/">
             <img src="${APP_LOGO}" alt="${APP_NAME}" />
           </a>
-          <a class="button is-primary propose-button" style="margin-top: 1rem" href="/legislation/propose">
-            <span class="icon"><i class="fa fa-file"></i></span>
-            <span class="has-text-weight-semibold">Propose</span>
-          </a>
           <div role="button" href="#" aria-label="menu" aria-expanded="${hamburgerVisible ? 'true' : 'false'}" class="${`navbar-burger burger ${hamburgerVisible ? 'is-active' : ''}`}" onclick=${(event) => dispatch({ type: 'navHamburgerToggled', event })}>
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
@@ -21,7 +17,7 @@ module.exports = ({ navbar: { hamburgerVisible }, location, search, user }, disp
           </div>
         </div>
         <div class=${`navbar-menu ${hamburgerVisible ? 'is-active' : ''}`}>
-          <div class="navbar-item" style="flex-grow: 1; max-width: 500px;">
+          <div class="navbar-item" style="flex-grow: 1;">
             ${searchView(search, mapEvent('search', dispatch))}
           </div>
           <div class="navbar-end">
@@ -52,7 +48,7 @@ const style = `
   @media (max-width: 720px) {
     .navbar-brand .navbar-item img {
       margin: 4px 0;
-      max-height: 30px;
+      max-height: 40px;
       padding-left: 12px;
     }
     .navbar {
@@ -94,6 +90,10 @@ const navbarAuthed = ({ location, user }) => {
   const { path } = location
 
   return html`
+    <a class="button is-primary" style="margin-top: 1rem" href="/legislation/propose">
+      <span class="icon"><i class="fa fa-file"></i></span>
+      <span class="has-text-weight-semibold">Propose</span>
+    </a>
     <a class=${`navbar-item ${path.slice(0, 12) === '/legislation' ? 'is-active' : ''}`} href="/legislation">Browse</a>
     <div class="navbar-item has-dropdown is-hoverable">
       <a class="navbar-link" href="${username_url}">${user.first_name || 'You'}</a>
