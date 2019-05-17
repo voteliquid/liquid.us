@@ -10,7 +10,6 @@ module.exports = (state, dispatch) => {
   return html`
     <div class="section">
       <div class="container is-widescreen">
-        <div class="has-text-right has-text-left-mobile">${proposeButton()}</div>
         ${filterTabs(state, dispatch)}
         ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
           (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId], query)))}
