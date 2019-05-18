@@ -1,17 +1,16 @@
-const { APP_NAME } = process.env
 const { html, capitalize } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
-const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = (state, dispatch) => {
-  const { loading, measures, measuresByUrl, location } = state
+  const { cookies, geoip, legislatures, loading, measures, measuresByUrl, location, user } = state
   const { query, url } = location
 
   return html`
     <div class="section">
       <div class="container is-widescreen">
-        <div class="has-text-right has-text-left-mobile">${proposeButton()}</div>
-        ${filterTabs(state, dispatch)}
+        ${filterForm(geoip, legislatures, cookies, location, user, dispatch)}
+        ${query.policy_area ? subjectCheckbox(location.query.policy_area) : ''}
+        ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []} <br />
         ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
           (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId], query)))}
         <style>
@@ -71,17 +70,15 @@ module.exports = (state, dispatch) => {
   `
 }
 
-const autoSubmit = () => document.querySelector('.filter-submit').click()
-
-const toggleDirectVotes = (cookies, dispatch) => (event) => {
+const toggleFilter = (cookies, dispatch, filterName) => (event) => {
   const btn = document.querySelector('.filter-submit')
   if (btn.disabled) {
     event.preventDefault()
   } else {
     if (event.currentTarget && event.currentTarget.checked) {
-      dispatch({ type: 'cookieSet', key: 'hide_direct_votes', value: 'on' })
+      dispatch({ type: 'cookieSet', key: `${filterName}` })
     } else {
-      dispatch({ type: 'cookieUnset', key: 'hide_direct_votes' })
+      dispatch({ type: 'cookieUnset', key: `${filterName}` })
     }
     btn.click()
   }
@@ -100,48 +97,56 @@ const updateFilter = (event, location, dispatch) => {
 }
 
 const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
-  const hide_direct_votes = location.query.hide_direct_votes || cookies.hide_direct_votes
-  const legislatureQuery = decodeURIComponent(location.query.legislature).replace(/\+/g, ' ')
+  const userState = user && user.address ? user.address.state : geoip ? geoip.region : ''
+  const userCity = user && user.address ? user.address.city : geoip ? geoip.city : ''
+  const state = location.query.state || cookies.state
+  const city = location.query.city || cookies.city
+  const congress = location.query.city || cookies.congress
 
-  // Add legislature from URL to legislature selection
-  if (location.query.legislature && !legislatures.some(({ abbr }) => abbr === location.query.legislature.replace(/%20/g, ' '))) {
-    legislatures.push({
-      abbr: location.query.legislature,
-      name: stateNames[location.query.legislature] || location.query.legislature,
-    })
-  }
 
   return html`
-    <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
+    <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch, userState, state, userCity, city)}">
       <input name="policy_area" type="hidden" value="${location.query.policy_area}" />
-      <input name="order" type="hidden" value="${location.query.order || 'upcoming'}" />
-      <div class="field is-grouped is-grouped-right">
-        ${location.query.policy_area ? html`
-          <div class="control">
-            <label class="checkbox has-text-grey">
-              <input onclick=${removePolicyArea} type="checkbox" checked>
-              ${location.query.policy_area.replace(/%20/g, ' ')}
-            </label>
-          </div>
-        ` : ''}
-        <div class="${`control ${user ? '' : 'is-hidden'}`}">
-          <label class="checkbox has-text-grey">
-            <input onclick=${toggleDirectVotes(cookies, dispatch)} type="checkbox" name="hide_direct_votes" checked=${!!hide_direct_votes}>
-            Hide voted
-          </label>
-        </div>
-        <div class="control" style="margin-left: 10px; margin-right: 0;">
-          <div class="select">
-            <select autocomplete="off" name="legislature" onchange=${autoSubmit}>
-              ${legislatures.map(({ abbr, name }) => {
-                return html`<option value="${abbr}" selected=${abbr === legislatureQuery}>${name}</option>`
-              })}
-            </select>
+      <div class="field is-grouped is-grouped-center">
+        <div class="control">
+          <div id="image-filters">
+            <div class="columns has-text-centered">
+              <div class="column has-text-primary">
+                  <div class="media">
+                    <label ="checkbox">
+                      <input onclick=${toggleFilter(cookies, dispatch, 'congress', 'on')} type="hidden" name="congress" checked=${!!congress}/>
+                      <div class="image">
+                        <img src= /assets/us-green.png>
+                        US
+                      </div>
+                    </label>
+                  </div>
+              </div>
+              <div class="column has-text-primary">
+                <label>
+                  <div class="media">
+                    <div class="image">
+                      <img src= /assets/wi-green.jpg>
+                      ${state ? `${state}` : `${userState}`}
+                    </div>
+                  </div>
+                </label>
+              </div>
+              <div class="column has-text-primary">
+                <label>
+                  <div class="media">
+                    <div class="image">
+                      <img src= /assets/wi-green.jpg>
+                    </div>
+                    Local
+                  </div>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
         <button type="submit" class="filter-submit is-hidden">Update</button>
       </div>
-      ${(!user || !user.address) && geoip ? addAddressNotification(geoip, user) : ''}
     </form>
   `
 }
@@ -152,43 +157,6 @@ const addAddressNotification = (geoip = {}, user) => {
       We guessed your location is <strong>${geoip.city}, ${geoip.regionName}.</strong><br />
       But this is only an approximation. <strong><a href="${user ? '/get_started/basics' : '/join'}">${user ? 'Go here' : 'Join'} to set your address</a></strong>.
     </p>
-  `
-}
-
-const makeFilterQuery = (order, query) => {
-  const newQuery = Object.assign({}, query, { order, terms: (query.terms || '') })
-  return Object.keys(newQuery).filter((key) => key).map(key => {
-    return `${key}=${newQuery[key]}`
-  }).join('&')
-}
-
-const filterTabs = ({ geoip, legislatures, location, cookies, user }, dispatch) => {
-  const { query } = location
-  const orderDescriptions = {
-    upcoming: 'Bills upcoming for a vote in the legislature.',
-    new: 'Bills recently introduced.',
-    proposed: `Bills introduced on ${APP_NAME}`,
-  }
-
-  return html`
-    <div>
-      <div class="tabs">
-        <ul>
-          <li class="${!query.order || query.order === 'upcoming' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('upcoming', query)}`}">Upcoming for vote</a></li>
-          <li class="${query.order === 'new' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('new', query)}`}">Recently introduced</a></li>
-          <li class="${query.order === 'proposed' ? 'is-active' : ''}"><a href="${`/legislation?${makeFilterQuery('proposed', query)}`}">Introduced on ${APP_NAME}</a></li>
-        </ul>
-      </div>
-      <div class="columns">
-        <div class="column">
-          <p class="has-text-grey is-size-6">${orderDescriptions[query.order || 'upcoming']}</p>
-        </div>
-        <div class="column has-text-right has-text-left-mobile">
-          ${filterForm(geoip, legislatures, cookies, location, user, dispatch)}
-        </div>
-      </div>
-      <div></div>
-    </div>
   `
 }
 
@@ -284,13 +252,6 @@ const voteButton = (s) => {
   </a>`
 }
 
-const proposeButton = () => html`
-  <a class="button is-primary" href="/legislation/propose">
-    <span class="icon"><i class="fa fa-file"></i></span>
-    <span class="has-text-weight-semibold">Propose Legislation</span>
-  </a>
-`
-
 const summaryTooltipButton = (id, short_id, summary) => html`
   <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">
     <br />
@@ -319,6 +280,18 @@ const noBillsMsg = (order, query) => html`
     `}
   </div>
 `
+
+const subjectCheckbox = (policy_area) => {
+
+return html`
+  <div class="control has-text-centered is-size-5">
+    <label class="checkbox has-text-grey">
+      <input onclick=${removePolicyArea} type="checkbox" checked>
+      ${policy_area.replace(/%20/g, ' ')}
+    </label>
+  </div>
+  `
+}
 
 const makeQuery = (newFilters, oldQuery) => {
   const newQuery = Object.assign({}, oldQuery, newFilters, { terms: oldQuery.terms || '' })
