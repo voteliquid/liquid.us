@@ -15,9 +15,9 @@ module.exports = (event, state) => {
             location: {
               ...state.location,
               title: 'Legislation',
-              ogImage: query.legislature && query.legislature.length === 2 && `${ASSETS_URL}/legislature-images/${query.legislature}.png`
+              ogImage: query.state && !query.congress && !query.city && `${ASSETS_URL}/legislature-images/${query.state}.png`
             },
-          }, fetchMeasures({ hide_direct_votes: state.cookies.hide_direct_votes, ...state.location.query }, state.user)]
+          }, fetchMeasures({ hide_direct_votes: state.cookies.hide_direct_votes, ...state.location.query }, state.cookies, state.geoip, state.location.query, state.user, state.location)]
         case '/legislation/:shortId':
         case '/nominations/:shortId':
         case '/:username/legislation/:shortId':
@@ -227,32 +227,43 @@ module.exports = (event, state) => {
   }
 }
 
-const fetchMeasures = (params, user) => (dispatch) => {
-  const terms = params.terms && params.terms.replace(/[^\w\d ]/g, '').replace(/(hr|s) (\d+)/i, '$1$2').replace(/(\S)\s+(\S)/g, '$1 & $2')
-  const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
+const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispatch) => {
 
-  const orders = {
-    upcoming: '&status=not.eq.Introduced&introduced_at=not.is.null&failed_lower_at=is.null&failed_upper_at=is.null&or=(passed_lower_at.is.null,passed_upper_at.is.null,and(passed_lower_at.is.null,passed_upper_at.is.null))&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc',
-    new: '&introduced_at=not.is.null&order=introduced_at.desc,number.desc',
-    proposed: '&introduced_at=is.null&order=created_at.desc,title.asc',
-  }
+  const order = '&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,created_at.desc.nullslast,number.desc'
 
-  const order = orders[params.order || 'upcoming']
-
-  const hide_direct_votes = params.hide_direct_votes
-  const hide_direct_votes_params = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
   const policy_area_query = params.policy_area ? `&policy_area=eq.${params.policy_area}` : ''
 
-  const legislature = `&legislature_name=eq.${params.legislature || 'U.S. Congress'}`
+// determine which legislatures to show
+  const userCitySt = user && user.address
+    ? `"${user.address.city}, ${user.address.state}"`
+    : geoip
+    ? `"${geoip.city}, ${geoip.region}"`
+    : ''
+  const userState = user && user.address ? user.address.state : geoip ? geoip.region : ''
+  const congress = cookies.congress || location.query.congress
+  const state = location.query.state || cookies.state
+  const city = location.query.city || cookies.city
+  const leg_query = `${congress ? 'U.S. Congress,' : ''}${state ? `${state},` : ''}${city ? `"${city}",` : ''}${congress || state || city ? `` : `U.S. Congress,${userCitySt},${userState},`}`
+
+  const liquid_introduced = cookies.liquid_introduced === 'on' || location.query.liquid_introduced === 'on'
+  const imported = cookies.imported === 'on' || location.query.imported === 'on'
+
+  const introducedIn = liquid_introduced && imported
+    ? ''
+    : liquid_introduced
+    ? '&introduced_at=is.null'
+    : imported
+    ? '&introduced_at=not.is.null'
+    : ''
 
   const fields = [
     'title', 'number', 'type', 'short_id', 'id', 'status',
     'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
     'introduced_at', 'last_action_at', 'next_agenda_begins_at', 'next_agenda_action_at',
-    'summary', 'legislature_name', 'created_at', 'author_first_name', 'author_last_name', 'author_username', 'policy_area'
+    'summary', 'legislature_name', 'created_at', 'author_first_name', 'author_last_name', 'author_username', 'policy_area', 'chamber'
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}${policy_area_query}${fts}${legislature}&type=not.eq.nomination${order}&limit=40`
+  const url = `/measures_detailed?select=${fields.join(',')}${introducedIn}$${policy_area_query}&legislature_name=in.(${removeEndComma(leg_query)})${order}&limit=40`
 
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
@@ -261,7 +272,6 @@ const fetchMeasures = (params, user) => (dispatch) => {
       dispatch({ type: 'measure:receivedList', measures: [] })
     })
 }
-
 const fetchUserMeasures = (user) => (dispatch) => {
   return api(dispatch, `/measures_detailed?author_id=eq.${user.id}&order=created_at.desc`, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
@@ -360,4 +370,8 @@ const measureOgImage = (measure) => {
   const inlineImage = inlineImageMatch && inlineImageMatch[0]
   const measureImage = !isCity ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
   return dbImage || inlineImage || measureImage
+}
+
+const removeEndComma = (filter_function) => {
+  return `${filter_function.slice(0, filter_function.length - 1)}`
 }
