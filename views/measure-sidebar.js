@@ -8,6 +8,7 @@ const shareButtons = require('./measure-share-buttons')
 module.exports = (state, dispatch) => {
   const { measure, offices } = state
   const l = measure
+  if (l.short_id === 'stop-227m-jail') { l.legislature_name = 'Dane County' }
   const reps = state.reps.filter(({ chamber, legislature }) => {
     return chamber === l.chamber && (stateAbbr[legislature.name] || legislature.name) === l.legislature_name
   })
@@ -15,9 +16,6 @@ module.exports = (state, dispatch) => {
   const measureUrl = l.author_username
     ? `/${l.author_username}/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
     : `/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
-  const daneCheck = (l) => (
-    l.short_id === 'stop-227M-jail'
-  )
 
   return html`
     <nav class="panel">
@@ -28,12 +26,12 @@ module.exports = (state, dispatch) => {
           </a>
         </h3>
         <h4 class="subtitle is-size-7 has-text-grey is-uppercase has-text-weight-semibold">
-          ${daneCheck ? 'Dane County' : stateNames[l.legislature_name] || l.legislature_name}
+          ${stateNames[l.legislature_name] || l.legislature_name}
         </h4>
       </div>
-      ${reps && reps.length && !daneCheck ? measureRepsPanel({ measure, reps }) : ''}
+      ${reps && reps.length ? measureRepsPanel({ measure, reps }) : ''}
       ${panelTitleBlock('Votes')}
-      ${measureVoteCounts({ measure, offices, daneCheck })}
+      ${measureVoteCounts({ measure, offices })}
       ${panelTitleBlock('Info')}
       ${measureInfoPanel({ measure, showStatusTracker })}
       ${measureActionsPanel(state, dispatch)}
@@ -152,7 +150,7 @@ const measureInfoPanel = ({ measure, showStatusTracker }) => {
   `
 }
 
-const measureVoteCounts = ({ measure, offices, daneCheck }) => {
+const measureVoteCounts = ({ measure, offices }) => {
   const {
     type, constituent_yeas, constituent_nays, yeas, nays,
     legislature_name, chamber, delegate_name, vote_position, short_id
@@ -197,11 +195,11 @@ const measureVoteCounts = ({ measure, offices, daneCheck }) => {
               <td class="has-text-right">Nay</td>
             </tr>
             <tr>
-              <td class="has-text-left has-text-grey">${daneCheck ? 'All Votes' : legislature_name.replace(' Congress', '')}</td>
+              <td class="has-text-left has-text-grey">${legislature_name.replace(' Congress', '')}</td>
               <td class="has-text-right">${yeas || 0}</td>
               <td class="has-text-right">${nays || 0}</td>
             </tr>
-            ${offices.length && localLegislatureName && !daneCheck ? html`
+            ${offices.length && localLegislatureName ? html`
             <tr>
               <td class="has-text-left has-text-grey">${districtName(measure, offices, localLegislatureName)}</td>
               <td class="has-text-right">${constituent_yeas || 0}</td>
