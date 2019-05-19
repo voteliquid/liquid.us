@@ -236,8 +236,7 @@ const filterImages = ({ location, cookies, geoip, user }) => {
   const cityName = city ? `${city}` : userCity
   const liquid = location.query.liquid_introduced || cookies.liquid_introduced
   const imported = location.query.imported || cookies.imported
-
-  console.log(stateName, 'test')
+  const citySt = `${cityName}, ${stateName}`
 
   return html`
   <div class="columns">
@@ -273,7 +272,7 @@ const filterImages = ({ location, cookies, geoip, user }) => {
           <a href=${state ? `${location.url.replace('state=WI', '')}` : `/legislation?${makeQuery({ state: stateName }, location.query)}`}>
             <span class="has-text-primary has-text-centered">
               <span class="image is-48x48">
-                <img src=/assets/wi-green.jpg />
+                <img src=/assets/WI-green.jpg />
               </span>
               <br />${stateName}
             </span>
@@ -295,10 +294,10 @@ const filterImages = ({ location, cookies, geoip, user }) => {
       ${city || (!city && !state)
        ? html`
         <div class="column">
-          <a href=${city ? `${location.url.replace('city=Madison, WI', '')}` : `/legislation?${makeQuery({ city: cityName }, location.query)}`}>
+          <a href=${city ? `${location.url.replace('city=Madison, WI', '')}` : `/legislation?${makeQuery({ city: citySt }, location.query)}`}>
             <span class="has-text-primary">
               <span class="icon is-size-1 has-text-centered"><i class="fa fa-map-marker"></i></span>
-              <br /><br />${cityName}
+              <br /><br />${cityName.split(',')[0]}
             </span>
           </a>
         </div>
@@ -307,7 +306,7 @@ const filterImages = ({ location, cookies, geoip, user }) => {
           <a href=${city ? `${location.url.replace('city=Madison, WI', '')}` : `/legislation?${makeQuery({ city: cityName }, location.query)}`}>
             <span class="has-text-primary">
               <span class="icon is-size-1 has-text-centered"><i class="fa fa-map-marker"></i></span>
-              <br /><br />${cityName}
+              <br /><br />${cityName.split(',')[0]}
             </span>
           </a>
        </div>
@@ -340,7 +339,6 @@ const filterImages = ({ location, cookies, geoip, user }) => {
        </div>
        `
       }
-      <div class="column"><h1 class="title is-5">Introduced<br />by</h1></div>
       ${liquid || !imported
        ? html`
         <div class="column">
