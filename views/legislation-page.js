@@ -83,6 +83,11 @@ const addAddressNotification = (geoip = {}, user) => {
 const measureListRow = (s, query) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
   const measureUrl = s.author_username ? `/${s.author_username}/legislation/${s.short_id}` : `/legislation/${s.short_id}`
+  const legName = s.legislature_name === 'U.S. Congress'
+    ? 'Congress'
+    : s.legislature_name.includes(',')
+    ? s.legislature_name.split(',')[0]
+    : s.legislature_name
 
   return html`
     <div class="card highlight-hover">
@@ -97,7 +102,7 @@ const measureListRow = (s, query) => {
                   ${s.policy_area ? html`
                     <a href=${`/legislation?${makeQuery({ policy_area: s.policy_area }, query)}`}>${s.policy_area}</a> •
                   ` : ''}
-                  Introduced in ${s.legislature_name}
+                  Introduced in ${legName}
                   ${s.sponsor_first_name ? html`
                     by <a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>
                   ` : ''}
@@ -117,8 +122,8 @@ const measureListRow = (s, query) => {
             ` : html`
               <div class="is-size-7 has-text-grey">
                 ${s.author_username
-                  ? html`Liquid ${s.legislature_name} &bullet; Authored by <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>`
-                  : html`Liquid ${s.legislature_name} &bullet; Authored by Anonymous`
+                  ? html`Authored for Liquid ${legName} by <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>`
+                  : html`Authored for Liquid ${legName} by Anonymous`
                 }
                 on ${(new Date(s.created_at)).toLocaleDateString()}
               </div>
