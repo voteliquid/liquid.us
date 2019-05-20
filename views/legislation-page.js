@@ -11,7 +11,7 @@ module.exports = (state) => {
       <div class="container is-widescreen">
         ${filterImages({ cookies, location, geoip, user })}
         ${query.policy_area ? subjectCheckbox(location.query.policy_area) : ''}
-        ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []} <br />
+        ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []}
         ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
           (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId], query)))}
         <style>
@@ -239,28 +239,26 @@ const filterImages = ({ location, cookies, geoip, user }) => {
   const citySt = `${cityName}, ${stateName}`
 
   return html`
-  <div class="columns">
-    <div class="column"><h1 class="title is-5">Toggle to filter bills</h1></div>
+  <div class="columns is-mobile" style="border-top: 1px solid #ccc;">
+    <div class="column" style="padding-top: 2rem;"><h1 class="title is-5">Toggle to<br />filter bills</h1></div>
       ${congress || (!city && !state)
        ? html`
-        <div class="column">
+        <div class="column has-text-centered" style="padding-top: 2rem;">
           <a href=${congress ? `${location.url.replace('congress=on', '')}` : `/legislation?${makeQuery({ congress: 'on' }, location.query)}`}>
-            <span class="has-text-primary has-text-centered">
+            <span class="has-text-primary" style="margin-top: 5rem;">
               <span class="image is-48x48">
                 <img src=/assets/us-green.png />
-              </span>
-              <br />U.S.
+              </span><span style="padding-left: -4rem;"> U.S.</span>
             </span>
           </a>
         </div>
         ` : html`
-        <div class="column" style="filter: grayscale(100%); opacity: 0.5;">
+        <div class="column has-text-centered" style="filter: grayscale(100%); opacity: 0.5;">
          <a href=${congress ? `${location.url.replace('congress=on', '')}` : `/legislation?${makeQuery({ congress: 'on' }, location.query)}`}>
-           <span class="has-text-grey has-text-centered">
-             <span class="image is-48x48">
+           <span class="has-text-grey" style="margin-top: 5rem;">
+             <br /><span class="image is-48x48">
                <img src=/assets/us-green.png />
-             </span>
-             <br />U.S.
+             </span>U.S.
            </span>
          </a>
        </div>
@@ -270,7 +268,7 @@ const filterImages = ({ location, cookies, geoip, user }) => {
        ? html`
         <div class="column">
           <a href=${state ? `${location.url.replace('state=WI', '')}` : `/legislation?${makeQuery({ state: stateName }, location.query)}`}>
-            <span class="has-text-primary has-text-centered">
+            <span class="has-text-primary">
               <span class="image is-48x48">
                 <img src=/assets/WI-green.jpg />
               </span>
@@ -281,7 +279,7 @@ const filterImages = ({ location, cookies, geoip, user }) => {
         ` : html`
         <div class="column" style="filter: grayscale(100%); opacity: 0.5;">
           <a href=${state ? `${location.url.replace('state=WI', '')}` : `/legislation?${makeQuery({ state: stateName }, location.query)}`}>
-            <span class="has-text-primary has-text-centered">
+            <span class="has-text-primary">
               <span class="image is-48x48">
                 <img src=/assets/wi-green.jpg />
               </span>
@@ -293,7 +291,7 @@ const filterImages = ({ location, cookies, geoip, user }) => {
       }
       ${city || (!city && !state)
        ? html`
-        <div class="column">
+        <div class="column" style="padding-top: 1.5rem;">
           <a href=${city ? `${location.url.replace('city=Madison, WI', '')}` : `/legislation?${makeQuery({ city: citySt }, location.query)}`}>
             <span class="has-text-primary">
               <span class="icon is-size-1 has-text-centered"><i class="fa fa-map-marker"></i></span>
@@ -302,7 +300,7 @@ const filterImages = ({ location, cookies, geoip, user }) => {
           </a>
         </div>
         ` : html`
-        <div class="column" style="filter: grayscale(100%); opacity: 0.5;">
+        <div class="column" style="filter: grayscale(100%); opacity: 0.5; padding-top: 1.5rem;">
           <a href=${city ? `${location.url.replace('city=Madison, WI', '')}` : `/legislation?${makeQuery({ city: cityName }, location.query)}`}>
             <span class="has-text-primary">
               <span class="icon is-size-1 has-text-centered"><i class="fa fa-map-marker"></i></span>
@@ -313,7 +311,7 @@ const filterImages = ({ location, cookies, geoip, user }) => {
        `
       }
 
-      <div class="column"><h1 class="title is-5">Introduced<br />by</h1></div>
+      <div class="column" style="padding-top: 2rem"><h1 class="title is-5">Introduced<br />by</h1></div>
       ${imported || !liquid
        ? html`
         <div class="column">
@@ -364,5 +362,6 @@ const filterImages = ({ location, cookies, geoip, user }) => {
        </div>
        `
       }
-`
-}
+    </div>
+  `
+  }
