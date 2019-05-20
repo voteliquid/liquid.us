@@ -123,6 +123,9 @@ exports.signIn = ({ channel, email, device_desc, phone_number, redirect_to, even
 
     dispatch({ type: 'cookieSet', key: 'sign_in_email', value: email })
     dispatch({ type: 'cookieSet', key: 'device_id', value: device_id })
+    if (redirect_to) {
+      dispatch({ type: 'cookieSet', key: 'redirect_to', value: redirect_to })
+    }
     dispatch({ type: 'redirected', url: '/sign_in/verify', status: 303 })
   })
   .catch((error) => {
