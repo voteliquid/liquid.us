@@ -247,14 +247,13 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
 
   const liquid_introduced = cookies.liquid_introduced === 'on' || location.query.liquid_introduced === 'on'
   const imported = cookies.imported === 'on' || location.query.imported === 'on'
-
   const introducedIn = liquid_introduced && imported
-    ? ''
+    ? `&or=(status.not.eq.Introduced,introduced_at.is.null)`
     : liquid_introduced
     ? '&introduced_at=is.null'
     : imported
-    ? '&introduced_at=not.is.null'
-    : ''
+    ? '&introduced_at=not.is.null&status=not.eq.Introduced'
+    : `&or=(status.not.eq.Introduced,introduced_at.is.null)`
 
   const fields = [
     'title', 'number', 'type', 'short_id', 'id', 'status',
@@ -263,8 +262,8 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
     'summary', 'legislature_name', 'created_at', 'author_first_name', 'author_last_name', 'author_username', 'policy_area', 'chamber'
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const url = `/measures_detailed?select=${fields.join(',')}${introducedIn}$${policy_area_query}&legislature_name=in.(${removeEndComma(leg_query)})${order}&limit=40`
-
+  const url = `/measures_detailed?select=${fields.join(',')}$${policy_area_query}${introducedIn}&legislature_name=in.(${removeEndComma(leg_query)})${order}&limit=40`
+console.log(url)
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
     .catch((error) => {
