@@ -191,17 +191,14 @@ const summaryTooltipButton = (id, short_id, summary) => html`
 
 const noBillsMsg = (order, query) => html`
   <div>
-    ${order !== 'proposed' ? html`
-      <p class="is-size-5">Liquid doesn't have this location's bill list yet,
-        <a href="${`/legislation?${makeQuery({ order: 'proposed' }, query)}`}">
-        click here to view manually added items.
-        </a>
-      </p>
+    ${query.imported && query.liquid ? html`
+      <p>We have not imported bills for this area and no items have been added to Liquid.</p><br />
+      <p>Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request that we import bills from this location, <a href="/legislation/propose">propose a bill,</a> or toggle your filters.</p>
+    ` : query.imported ? html`
+      <p>Either no bills have the selected status or Liquid doesn't have this legislature's bill list yet.</p><br />
+      <p>Please email <a href="mailto:support@liquid.us" target="_blank">support@liquid.us</a> to request we import bills from this location, or change your selected criteria.</p>
     ` : html`
-      <a href="/legislation/propose" class="button is-primary has-text-weight-semibold">
-        <span class="icon"><i class="fa fa-file"></i></span>
-        <span>Add the first policy proposal</span>
-      </a>
+      <p>No bills have been introduced on Liquid in this area. <a href="/legislation/propose">Propose a bill</a> or change your selected criteria.</p>
     `}
   </div>
 `
