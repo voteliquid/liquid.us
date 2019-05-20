@@ -4,16 +4,14 @@ const timeAgo = require('timeago.js')
 const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = (state, dispatch) => {
-  const { key, measure, vote, show_bill, user } = state
-  const isOwnVote = user && user.id === vote.user_id
-  const endorsed_vote = !(isOwnVote && vote.comment) && vote.endorsed_vote
+  const { key, measure, vote, showBill, user } = state
   const {
     comment, author_username, endorsed, updated_at, fullname, id,
     number, proxy_vote_count, position, short_id, title, type,
     username, user_id, public: is_public, twitter_username,
     source_url, endorsement_public
-  } = (endorsed_vote || vote)
-  const avatarURL = getAvatarURL(endorsed_vote || vote)
+  } = vote
+  const avatarURL = getAvatarURL(vote)
   const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
   const comment_url = `${measure_url}/votes/${id}`
   const share_url = `${WWW_URL}${comment_url}`
@@ -29,7 +27,6 @@ module.exports = (state, dispatch) => {
 
   return html`
     <div class="comment" style="margin-bottom: 1.5em;">
-      ${endorsed_vote ? html`<p class="is-size-7 has-text-grey" style="margin-bottom: 1em;">Endorsed by <a href="${`/${vote.username}`}">${vote.fullname}</a>${(isOwnVote && endorsement_public) || vote.public ? '' : ' privately'}:</p>` : ''}
       <div class="media">
         <div class="media-left">
           <div class="image is-32x32">
@@ -52,8 +49,8 @@ module.exports = (state, dispatch) => {
             ${html`<span>voted <strong style="${`color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};`}">${position}</strong>${onBehalfOfCount > 1 && is_public ? html` on behalf of <span class="has-text-weight-semibold">${onBehalfOfCount}</span> people` : ''}${is_public ? '' : ' privately'}</span>`}
             ${source_url ? html`<span class="is-size-7"> via <a href="${source_url}" target="_blank">${source_url.split('/')[2] || source_url}</a></span>` : ''}
           </div>
-          ${show_bill ? html`<div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>` : ''}
-          ${comment ? commentContent(key, endorsed_vote || vote, dispatch) : ''}
+          ${showBill ? html`<div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>` : ''}
+          ${comment ? commentContent(key, vote, dispatch) : ''}
           <div class="${`${!is_public ? 'is-hidden' : ''} endorse-control is-size-7`}">
             <a href="#" onclick=${(event) => dispatch({ type: endorsed ? 'vote:unendorsed' : 'vote:endorsed', measure, vote, event })} class="${`endorse-btn has-text-weight-semibold has-text-grey button is-small ${endorsed ? 'is-light' : ''}`}">
               <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
@@ -75,7 +72,7 @@ module.exports = (state, dispatch) => {
                   <span>Edit</span>
                 </a>
               ` : ''}
-              ${user && comment ? reportLink(key, endorsed_vote || vote, share_url, dispatch) : ''}
+              ${user && comment ? reportLink(key, vote, share_url, dispatch) : ''}
               ${is_public || !fullname ? html`
                 <span class="has-text-grey-lighter">&bullet;</span>
                 <a title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-facebook"></i></span></a>

@@ -39,6 +39,6 @@ exports.fetchMeasureVotes = (shortId, order = 'most_recent', position = 'all', u
     nay: '&position=eq.nay',
   }
 
-  return api(dispatch, `/votes_detailed?short_id=eq.${shortId}&comment=not.is.null&comment=not.eq.&order=${orders[order]}${positions[position]}`, { user })
+  return api(dispatch, `/votes_detailed?short_id=eq.${shortId}&endorsed_vote=is.null&comment=not.is.null&comment=not.eq.&order=${orders[order]}${positions[position]}`, { user })
     .then((votes) => dispatch({ type: 'measure:votesReceived', shortId, votes }))
 }

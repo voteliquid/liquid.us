@@ -1,6 +1,6 @@
 const { APP_NAME, WWW_DOMAIN } = process.env
 const { avatarURL, handleForm, html, linkifyUrls } = require('../helpers')
-const voteView = require('../views/vote')
+const endorsedVoteView = require('../views/endorsed-vote')
 
 module.exports = (state, dispatch) => {
   const { location, measures, proxied_name, profiles, user, votes } = state
@@ -210,7 +210,7 @@ const publicVotes = (votes, measures, user, dispatch) => {
           padding-bottom: 1rem;
         }
       </style>
-      ${votes.map((vote) => voteView({ show_bill: true, key: 'profile', vote, measure: measures[vote.short_id], user }, dispatch))}
+      ${votes.map((vote) => endorsedVoteView({ key: 'profile', vote, measure: measures[vote.short_id], user }, dispatch))}
     </div>
   `
 }

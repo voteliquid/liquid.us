@@ -358,6 +358,7 @@ const signupAndEndorse = ({ vote, ...form }, offices, location) => (dispatch) =>
     email,
     device_desc: location.userAgent || 'Unknown',
     phone_number: null,
+    redirect_to: location.path,
   })(dispatch).then((user) => {
     if (user) {
       return updateNameAndAddress({
