@@ -28,4 +28,6 @@ module.exports = {
   '/nominations/:shortId/votes/:voteId': () => import('./views/endorsement-page'),
   '/:username/legislation/:shortId/votes/:voteId': () => import('./views/endorsement-page'),
   '/legislation/:shortId/votes/:voteId': () => import('./views/endorsement-page'),
+  '/liquid_candidates': () => import('./views/liquid-candidates'),
+
 }
