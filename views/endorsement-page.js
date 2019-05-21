@@ -114,7 +114,8 @@ const targetReps = ({ measure, reps, user, vote }, dispatch) => {
   `
 }
 const daneContact = () => {
-  const measureImage = `${ASSETS_URL}/legislature-images/WI.png`
+  const measureImage = `${ASSETS_URL}/legislature-images/Dane County.png`
+  const chairImage = `${ASSETS_URL}/Patrick Miles.png`
 
   return html`
     <br />
@@ -122,7 +123,7 @@ const daneContact = () => {
       <div class="column is-narrow" style="margin-bottom: -1rem">
         <span class="is-size-3 is-size-4-mobile has-text-weight-semibold">To:&nbsp;</span>
       </div>
-      <div class="column">
+      <div class="column is-narrow">
         <div class="media">
           <div class="media-left">
             <div class="image is-48x48 is-clipped">
@@ -135,15 +136,19 @@ const daneContact = () => {
           </div>
         </div>
       </div>
+
       <div class="column">
-        <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
-          Personnel & Finance <br />
-          Committee
+        <div class="media">
+          <div class="media-left">
+            <div class="image is-48x48 is-clipped">
+              <img src=${chairImage} style="background: hsla(0, 0%, 87%, 0.5); padding: 4px;"/>
+            </div>
+          </div>
+          <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
+            Patrick Miles, Chair<br />
+            Personnel & Finance Committee
+          </div>
         </div>
-      </div>
-      <div class="column">
-      </div>
-      <div class="column">
       </div>
     </div>
   `
