@@ -23,7 +23,7 @@ module.exports = (state, dispatch) => {
         <div class="columns">
           <div class="column">
             <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>
-            ${hideTargetReps(l) ? '' : daneCheck(l) ? daneContact() : targetReps({ measure, vote, ...state }, dispatch)}
+            ${hideTargetReps(l) ? '' : daneCheck(l) ? daneContact(vote, state.user) : targetReps({ measure, vote, ...state }, dispatch)}
             <div class="small-screens-only">
               ${endorsementCount(vote, 'small-screen')}
             </div>
@@ -100,7 +100,6 @@ const targetReps = ({ measure, reps, user, vote }, dispatch) => {
     r.legislature.short_name === measure.legislature_name
     || r.legislature.name === measure.legislature_name
   )
-
   return html`
     <br />
     <div class="columns">
@@ -113,10 +112,11 @@ const targetReps = ({ measure, reps, user, vote }, dispatch) => {
     ${!(user && user.address) ? notYourRepsMessage(vote, dispatch) : []}
   `
 }
-const daneContact = () => {
+const daneContact = (vote, user) => {
   const measureImage = `${ASSETS_URL}/legislature-images/Dane County.png`
   const chairImage = `${ASSETS_URL}/Patrick Miles.png`
-
+  const reply = (vote.replies || []).filter(({ user_id }) => (user && user.id === user_id))[0]
+  console.log(vote)
   return html`
     <br />
     <div class="columns">
@@ -151,6 +151,11 @@ const daneContact = () => {
         </div>
       </div>
     </div>
+    ${reply ? html`
+      <div class="is-size-5">
+        Your explanation will be sent to your legislators, but to demonstrate your commitment to this issue please email them directly at <a href="mailto:county_board_recipients@countyofdane.com">county_board_recipients@countyofdane.com</a>.
+      </div>
+    ` : ''}
   `
 }
 
