@@ -9,6 +9,13 @@ const endorsementCallReps = require('./endorsement-call-reps')
 module.exports = (state, dispatch) => {
   const { loading, measure, vote, user, reps } = state
   const reply = (vote.replies || []).filter(({ user_id }) => (user && user.id === user_id))[0]
+  const shouldShowRepPhones = (measure) => (
+    [
+      'expand-long-term-services-sb-512',
+      'hold-charter-schools-accountable',
+    ].includes(measure.short_id)
+  )
+
 
   return html`
     <div style="z-index: 30;" class=${`${vote.showMobileEndorsementForm ? 'modal is-active' : 'not-modal'} mobile-only`}>
@@ -21,7 +28,7 @@ module.exports = (state, dispatch) => {
         <nav class="box">
           ${endorsementCount(vote)}
 
-          ${measure.short_id === 'expand-long-term-services-sb-512' // Show 'Call reps' flow only for CARA item
+          ${shouldShowRepPhones(measure) // Show 'Call reps' flow only for CARA and EDS item
             ? html`
               ${!user || loading.endorsedFromSignupForm
                 ? endorsementSignupForm(state, dispatch) // case 1: not logged in
