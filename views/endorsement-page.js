@@ -13,16 +13,17 @@ module.exports = (state, dispatch) => {
   const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
   const hideTargetReps = (l) => (
     l.author_username === 'councilmemberbas'
-    || l.short_id === 'press-pause-on-227m-new-jail'
   )
-
+  const daneCheck = (l) => (
+    l.short_id === 'press-pause-on-227m-new-jail'
+  )
   return html`
     <section class="section">
       <div class="container is-widescreen">
         <div class="columns">
           <div class="column">
             <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>
-            ${hideTargetReps(l) ? '' : targetReps({ measure, vote, ...state }, dispatch)}
+            ${hideTargetReps(l) ? '' : daneCheck(l) ? daneContact() : targetReps({ measure, vote, ...state }, dispatch)}
             <div class="small-screens-only">
               ${endorsementCount(vote, 'small-screen')}
             </div>
@@ -110,6 +111,41 @@ const targetReps = ({ measure, reps, user, vote }, dispatch) => {
       ${legislature(measure)}
     </div>
     ${!(user && user.address) ? notYourRepsMessage(vote, dispatch) : []}
+  `
+}
+const daneContact = () => {
+  const measureImage = `${ASSETS_URL}/legislature-images/WI.png`
+
+  return html`
+    <br />
+    <div class="columns">
+      <div class="column is-narrow" style="margin-bottom: -1rem">
+        <span class="is-size-3 is-size-4-mobile has-text-weight-semibold">To:&nbsp;</span>
+      </div>
+      <div class="column">
+        <div class="media">
+          <div class="media-left">
+            <div class="image is-48x48 is-clipped">
+              <img src=${measureImage} style="background: hsla(0, 0%, 87%, 0.5); padding: 4px;"/>
+            </div>
+          </div>
+          <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
+            Dane County<br />
+            Supervisors
+          </div>
+        </div>
+      </div>
+      <div class="column">
+        <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
+          Personnel & Finance <br />
+          Committee
+        </div>
+      </div>
+      <div class="column">
+      </div>
+      <div class="column">
+      </div>
+    </div>
   `
 }
 
