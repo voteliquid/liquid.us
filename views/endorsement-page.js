@@ -153,7 +153,10 @@ const daneContact = (vote, user) => {
     </div>
     ${reply ? html`
       <div class="is-size-5">
-        Your explanation will be sent to your legislators, but to demonstrate your commitment to this issue please email them directly at <a href="mailto:county_board_recipients@countyofdane.com">county_board_recipients@countyofdane.com</a>.
+        <p>Your explanation will be sent to your legislators, but you should attend one of the meetings below (subject to change) or email them directly at <a href="mailto:county_board_recipients@countyofdane.com">county_board_recipients@countyofdane.com</a> to emphasize the importance of this issue.</p><br />
+        <p>We will provide an update as the meeting dates are confirmed</p>
+        <p><b>May 28, 2019</b> 5:30 PM in room 351, the Personnel & Finance Committee.<p/>
+        <p><b>June 6, 2019</b> 7:00 in room 201, the County Board</p>
       </div>
     ` : ''}
   `
