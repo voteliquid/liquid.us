@@ -354,7 +354,7 @@ const isMeasureDetailPage = (route) => {
 }
 
 const hideLegNameSocial = (l) => (
-  l.short_id === 'stop-227M-jail'
+  l.short_id === 'press-pause-on-227m-new-jail'
 )
 
 const measureOgImage = (measure) => {
