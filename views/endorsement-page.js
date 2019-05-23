@@ -4,6 +4,7 @@ const endorsementCount = require('./endorsement-count')
 const measureSummary = require('./measure-summary')
 const sidebar = require('./endorsement-page-sidebar')
 const stateNames = require('datasets-us-states-abbr-names')
+const danetargetReps = require('./dane-county-targetReps')
 
 module.exports = (state, dispatch) => {
   const { location, measures, votes } = state
@@ -13,7 +14,9 @@ module.exports = (state, dispatch) => {
   const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
   const hideTargetReps = (l) => (
     l.author_username === 'councilmemberbas'
-    || l.short_id === 'press-pause-on-227m-new-jail'
+  )
+  const isDane = (l) => (
+    l.short_id === 'press-pause-on-227m-new-jail'
   )
 
   return html`
@@ -22,7 +25,10 @@ module.exports = (state, dispatch) => {
         <div class="columns">
           <div class="column">
             <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>
-            ${hideTargetReps(l) ? '' : targetReps({ measure, vote, ...state }, dispatch)}
+            ${hideTargetReps(l) ? ''
+              : isDane(l) ? danetargetReps({ vote, ...state })
+              : targetReps({ measure, vote, ...state }, dispatch)
+            }
             <div class="small-screens-only">
               ${endorsementCount(vote, 'small-screen')}
             </div>
@@ -99,7 +105,6 @@ const targetReps = ({ measure, reps, user, vote }, dispatch) => {
     r.legislature.short_name === measure.legislature_name
     || r.legislature.name === measure.legislature_name
   )
-
   return html`
     <br />
     <div class="columns">
