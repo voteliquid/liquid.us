@@ -283,13 +283,6 @@ const voteButton = (s) => {
   </a>`
 }
 
-const proposeButton = () => html`
-  <a class="button is-primary" href="/legislation/propose">
-    <span class="icon"><i class="fa fa-file"></i></span>
-    <span class="has-text-weight-semibold">Propose Legislation</span>
-  </a>
-`
-
 const summaryTooltipButton = (id, short_id, summary) => html`
   <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">
     <br />

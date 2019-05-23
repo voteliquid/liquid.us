@@ -54,9 +54,6 @@ const style = `
     .navbar {
       padding: 0;
     }
-    .propose-button {
-      margin: 0 0 1 0
-    }
     a.navbar-item:hover {
       background-color: #f5f5f5 !important;
     }
@@ -79,7 +76,10 @@ const style = `
 const navbarAnon = ({ location }) => {
   const { path } = location
   return html`
-    <a class=${`navbar-item ${path.slice(0, 12) === '/legislation' ? 'is-active' : ''}`} href="/legislation">Legislation</a>
+    <a class=${`navbar-item ${path === `/legislation` ? 'is-active' : ''}`} href="/legislation">
+      <span class="icon"><i class="fa fa-list"></i></span>
+      <span>Browse</span>
+    </a>
     <a class=${`navbar-item has-text-link has-text-weight-bold ${path === '/join' ? 'is-active' : ''}`} href="/join">Join</a>
     <a class=${`navbar-item ${path.slice(0, 8) === '/sign_in' ? 'is-active' : ''}`} href="/sign_in">Sign in</a>
   `
@@ -90,15 +90,19 @@ const navbarAuthed = ({ location, user }) => {
   const { path } = location
 
   return html`
-    <div class="buttons is-centered">
-      <a class="button is-primary" style="margin-top: 1.5rem" href="/legislation/propose">
-        <span class="icon"><i class="fa fa-file"></i></span>
-        <span class="has-text-weight-semibold">Propose</span>
-      </a>
-    </div>
-    <a class=${`navbar-item ${path.slice(0, 12) === '/legislation' ? 'is-active' : ''}`} href="/legislation">Browse</a>
+    <a class=${`navbar-item has-text-link ${path === `/legislation/propose` ? 'is-active' : ''}`} href="/legislation/propose">
+      <span class="icon"><i class="fa fa-file"></i></span>
+      <span class="has-text-weight-semibold">Propose</span>
+    </a>
+    <a class=${`navbar-item ${path === `/legislation` ? 'is-active' : ''}`} href="/legislation">
+      <span class="icon"><i class="fa fa-list"></i></span>
+      <span>Browse</span>
+    </a>
     <div class="navbar-item has-dropdown is-hoverable">
-      <a class="navbar-link" href="${username_url}">${user.first_name || 'You'}</a>
+      <a class="navbar-link" href="${username_url}">
+        <span class="icon"><i class="fa fa-user-circle"></i></span>
+        <span>${user.first_name || 'You'}</span>
+      </a>
       <div class="navbar-dropdown is-right">
         ${
           !user.verified
