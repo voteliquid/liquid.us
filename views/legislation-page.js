@@ -10,7 +10,6 @@ module.exports = (state, dispatch) => {
   return html`
     <div class="section">
       <div class="container is-widescreen">
-        <div class="has-text-right has-text-left-mobile">${proposeButton()}</div>
         ${filterTabs(state, dispatch)}
         ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
           (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId], query)))}
@@ -283,13 +282,6 @@ const voteButton = (s) => {
     <span class="has-text-weight-semibold">${voteBtnTxt}</span>
   </a>`
 }
-
-const proposeButton = () => html`
-  <a class="button is-primary" href="/legislation/propose">
-    <span class="icon"><i class="fa fa-file"></i></span>
-    <span class="has-text-weight-semibold">Propose Legislation</span>
-  </a>
-`
 
 const summaryTooltipButton = (id, short_id, summary) => html`
   <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">

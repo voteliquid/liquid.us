@@ -54,10 +54,20 @@ module.exports = (state, dispatch) => {
               <div class="control">
                 <button onclick=${(event) => dispatch({ type: 'measure:voteFormActivated', measure, event })} class="${`button is-primary has-text-weight-semibold is-small ${showVoteForm ? 'is-hidden' : ''}`}">
                   <span class="icon"><i class="fa fa-edit"></i></span>
-                  <span>Add an argument</span>
+                  <span>Add your argument</span>
                 </button>
               </div>
             </div>
+            ${user && user.is_admin ? html`
+              <div class="field is-narrow">
+                <div class="control">
+                  <a href=${`${location.path}/import`} class="button is-link has-text-weight-semibold is-small">
+                    <span class="icon"><i class="fa fa-plus-circle"></i></span>
+                    <span>Import external argument</span>
+                  </a>
+                </div>
+              </div>
+            ` : ''}
           </div>
         </div>
       </form>
