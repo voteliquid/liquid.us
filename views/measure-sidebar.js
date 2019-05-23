@@ -164,6 +164,7 @@ const measureVoteCounts = ({ measure, offices }) => {
     'U.S. Congress': { Upper: 'Senate', Lower: 'House' },
     'CA': { Upper: 'Senate', Lower: 'Assembly' },
   }
+  const wiNotDane = measure.legislature_name === 'Dane County' ? 'WI' : ''
 
   return html`
     <div class="panel-block">
@@ -195,7 +196,7 @@ const measureVoteCounts = ({ measure, offices }) => {
               <td class="has-text-right">Nay</td>
             </tr>
             <tr>
-              <td class="has-text-left has-text-grey">${legislature_name === 'Dane County' ? 'WI Total' : legislature_name.replace(' Congress', '')}</td>
+              <td class="has-text-left has-text-grey">${wiNotDane || legislature_name.replace(' Congress', '')}</td>
               <td class="has-text-right">${yeas || 0}</td>
               <td class="has-text-right">${nays || 0}</td>
             </tr>
