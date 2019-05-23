@@ -12,7 +12,7 @@ module.exports = (event, state) => {
       switch (state.location.route) {
         case '/legislation/:shortId/votes/:voteId':
         case '/nominations/:shortId/votes/:voteId':
-        case '/:username/legislation/:shortId/votes/:voteId':
+        case '/:username/:shortId/votes/:voteId':
           return [{
             ...state,
             loading: { ...state.loading, page: true },

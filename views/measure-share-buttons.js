@@ -3,10 +3,14 @@ const { html } = require('../helpers')
 
 module.exports = (state) => {
   const ClipboardJS = typeof window === 'object' && require('clipboard')
-  const { author_username, copied2clipboard, id, short_id, type, vote_position } = state
-  const share_url = author_username
-    ? `${WWW_URL}/${author_username}/${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
-    : `${WWW_URL}/${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
+  const { author_username, copied2clipboard, short_id, type, vote_position } = state
+
+  let share_url = author_username
+  if (!author_username) {
+    share_url = type === 'nomination' ? 'nominations' : 'legislation'
+  }
+  share_url = `${WWW_URL}/${share_url}/${short_id}`
+
   const twitter_share_text =
     vote_position && vote_position !== 'abstain'
       ? `Join me in voting ${vote_position}. ${share_url}`

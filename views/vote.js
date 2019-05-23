@@ -12,7 +12,11 @@ module.exports = (state, dispatch) => {
     source_url, endorsement_public
   } = vote
   const avatarURL = getAvatarURL(vote)
-  const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
+  let measure_url = `/${author_username}/`
+  if (!author_username) {
+    measure_url = type === 'nomination' ? '/nominations/' : '/legislation/'
+  }
+  measure_url += short_id
   const comment_url = `${measure_url}/votes/${id}`
   const share_url = `${WWW_URL}${comment_url}`
   const measure_title = number ? `${short_id.replace(/^[^-]+-/, '').toUpperCase()} — ${title}` : title
