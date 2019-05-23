@@ -4,6 +4,7 @@ const endorsementCount = require('./endorsement-count')
 const measureSummary = require('./measure-summary')
 const sidebar = require('./endorsement-page-sidebar')
 const stateNames = require('datasets-us-states-abbr-names')
+const danetargetReps = require('./dane-county-targetReps')
 
 module.exports = (state, dispatch) => {
   const { location, measures, votes } = state
@@ -14,16 +15,20 @@ module.exports = (state, dispatch) => {
   const hideTargetReps = (l) => (
     l.author_username === 'councilmemberbas'
   )
-  const daneCheck = (l) => (
+  const isDane = (l) => (
     l.short_id === 'press-pause-on-227m-new-jail'
   )
+
   return html`
     <section class="section">
       <div class="container is-widescreen">
         <div class="columns">
           <div class="column">
             <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>
-            ${hideTargetReps(l) ? '' : daneCheck(l) ? daneContact(vote, state.user) : targetReps({ measure, vote, ...state }, dispatch)}
+            ${hideTargetReps(l) ? ''
+              : isDane(l) ? danetargetReps({ vote, ...state })
+              : targetReps({ measure, vote, ...state }, dispatch)
+            }
             <div class="small-screens-only">
               ${endorsementCount(vote, 'small-screen')}
             </div>
@@ -110,55 +115,6 @@ const targetReps = ({ measure, reps, user, vote }, dispatch) => {
       ${legislature(measure)}
     </div>
     ${!(user && user.address) ? notYourRepsMessage(vote, dispatch) : []}
-  `
-}
-const daneContact = (vote, user) => {
-  const measureImage = `${ASSETS_URL}/legislature-images/Dane County.png`
-  const chairImage = `${ASSETS_URL}/Patrick Miles.png`
-  const reply = (vote.replies || []).filter(({ user_id }) => (user && user.id === user_id))[0]
-  console.log(vote)
-  return html`
-    <br />
-    <div class="columns">
-      <div class="column is-narrow" style="margin-bottom: -1rem">
-        <span class="is-size-3 is-size-4-mobile has-text-weight-semibold">To:&nbsp;</span>
-      </div>
-      <div class="column is-narrow">
-        <div class="media">
-          <div class="media-left">
-            <div class="image is-48x48 is-clipped">
-              <img src=${measureImage} style="background: hsla(0, 0%, 87%, 0.5); padding: 4px;"/>
-            </div>
-          </div>
-          <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
-            Dane County<br />
-            Supervisors
-          </div>
-        </div>
-      </div>
-
-      <div class="column">
-        <div class="media">
-          <div class="media-left">
-            <div class="image is-48x48 is-clipped">
-              <img src=${chairImage} style="background: hsla(0, 0%, 87%, 0.5); padding: 4px;"/>
-            </div>
-          </div>
-          <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
-            Patrick Miles, Chair<br />
-            Personnel & Finance Committee
-          </div>
-        </div>
-      </div>
-    </div>
-    ${reply ? html`
-      <div class="is-size-5">
-        <p>Your explanation will be sent to your legislators, but you should attend one of the meetings below (subject to change) or email them directly at <a href="mailto:county_board_recipients@countyofdane.com">county_board_recipients@countyofdane.com</a> to emphasize the importance of this issue.</p><br />
-        <p>We will provide an update as the meeting dates are confirmed</p>
-        <p><b>May 28, 2019</b> 5:30 PM in room 351, the Personnel & Finance Committee.<p/>
-        <p><b>June 6, 2019</b> 7:00 in room 201, the County Board</p>
-      </div>
-    ` : ''}
   `
 }
 
