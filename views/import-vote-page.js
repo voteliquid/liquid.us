@@ -4,10 +4,14 @@ module.exports = ({ error, location, user }, dispatch) => {
   return html`
     <section class="section">
       <div class="container is-widescreen">
-        <h2 class="title is-size-5">Import Vote</h2>
+        <h2 class="title is-size-5">Import Argument to <a href=${location.path.slice(0, -7)}>${location.params.shortId}</a></h2>
+
         ${!user || !user.is_admin ? html`<div class="notification is-danger">You do not have permission to import votes.</div>` : ''}
+
         <form onsubmit=${handleForm(dispatch, { type: 'import:voteImportFormSubmitted', short_id: location.params.shortId })} class=${user && user.is_admin ? '' : 'is-hidden'}>
+
           ${error ? html`<div class="notification is-danger">${error.message}</div>` : ''}
+
           <div class="field">
             <label class="label">Position:</label>
             <div class="control">
@@ -28,25 +32,25 @@ module.exports = ({ error, location, user }, dispatch) => {
           <div class="field">
             <label class="label">Twitter Username:</label>
             <div class="control">
-              <input name="twitter_username" required class="input" />
+              <input name="twitter_username" required class="input" placeholder="@username" />
             </div>
           </div>
           <div class="field">
             <label class="label">Source URL:</label>
             <div class="control">
-              <input name="source_url" required class="input" />
+              <input name="source_url" required class="input" placeholder="https://" />
             </div>
           </div>
           <div class="field">
             <label class="label">Date:</label>
             <div class="control">
-              <input name="created_at" required class="input" />
+              <input name="created_at" required class="input" placeholder="May 20, 2019" />
             </div>
           </div>
           <div class="field">
             <label class="label">Comment:</label>
             <div class="control">
-              <textarea required name="comment" autocomplete="off" class="textarea"></textarea>
+              <textarea required name="comment" autocomplete="off" class="textarea" placeholder="Copy an excerpt from an externally published opinion to add to the bill page.\nOnce imported & approved, anyone will be able to Back it."></textarea>
             </div>
           </div>
           <div class="field">
