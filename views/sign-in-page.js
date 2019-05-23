@@ -40,7 +40,7 @@ module.exports = ({ cookies, error, loading, location, profiles = {} }, dispatch
         ${endorsed_vote_id ? html`
           <div class="columns is-centered is-gapless">
             <div class="column is-half">
-              <div class="notification has-text-centered is-info">Sign in to save your endorsement.</div>
+              <div class="notification has-text-centered is-info">Sign in to save your Backing.</div>
             </div>
           </div>
         ` : []}

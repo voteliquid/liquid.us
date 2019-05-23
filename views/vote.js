@@ -53,7 +53,7 @@ module.exports = (state, dispatch) => {
           ${comment ? commentContent(key, vote, dispatch) : ''}
           <div class="${`${!is_public ? 'is-hidden' : ''} endorse-control is-size-7`}">
             <a href="#" onclick=${(event) => dispatch({ type: endorsed ? 'vote:unendorsed' : 'vote:endorsed', measure, vote, event })} class="${`endorse-btn has-text-weight-semibold has-text-grey button is-small ${endorsed ? 'is-light' : ''}`}">
-              <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
+              <span>${endorsed ? 'Backed' : 'Back this argument'}</span>
             </a>
             <form class="${`select ${endorsed ? '' : 'is-hidden'}`}" onchange=${handleForm(dispatch, { type: 'vote:changedPrivacy', vote })}>
               <select name="public" class="has-text-grey is-light">

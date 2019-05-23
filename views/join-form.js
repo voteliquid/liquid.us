@@ -16,7 +16,7 @@ module.exports = ({ cookies, error, loading, location, profiles = {}, usersCount
         </div>
       ` : []}
       ${endorsed_vote_id ? html`
-        <div class="notification -inline-block has-text-centered is-info">Create your account to save your endorsement.</div>
+        <div class="notification has-text-centered is-info">Create your account to save your Backing.</div>
       ` : []}
       ${vote_position ? html`
         <div class="notification has-text-centered is-info">Enter your email to save your vote and hold your representatives accountable.</div>

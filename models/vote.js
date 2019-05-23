@@ -232,13 +232,13 @@ const endorse = (vote, user, measure) => (dispatch) => {
   if (position) {
     let confirmation_text = 'You\'ve already '
     if (measure.endorsed) {
-      confirmation_text += `endorsed ${possessive(measure.endorsement.fullname)} ${position} argument`
+      confirmation_text += `Backed ${possessive(measure.endorsement.fullname)} ${position} argument`
     } else if (measure.vote_position) {
       confirmation_text += `commented. This will remove your previous comment`
     } else {
       confirmation_text += `voted ${position}`
     }
-    confirmation_text += `. Endorse ${fullname ? possessive(fullname) : 'this'} vote instead?`
+    confirmation_text += `. Back ${fullname ? possessive(fullname) : 'this'} vote instead?`
     if (!window.confirm(confirmation_text)) {
       return
     }
@@ -258,7 +258,7 @@ const unendorse = (vote, user) => (dispatch) => {
   if (!user) {
     return dispatch({ type: 'redirected', url: '/join' })
   }
-  if (!window.confirm(`Are you sure you want to remove this endorsement?`)) {
+  if (!window.confirm(`Are you sure you want to stop Backing this?`)) {
     return
   }
   const endorsed_vote = !(user && user.id === vote.user_id && vote.comment) && vote.endorsed_vote
