@@ -10,10 +10,8 @@ module.exports = (state, dispatch) => {
       <div class="container is-widescreen">
         <h2 class="title is-5">${measure ? 'Edit Legislation' : 'Propose New Legislation'}</h2>
         ${user.username
-          ? location.params.shortId
-            ? measure
-              ? editLegislationForm(state, dispatch)
-              : activityIndicator()
+          ? location.params.shortId && !measure
+            ? activityIndicator()
             : editLegislationForm(state, dispatch)
           : publicProfileRequiredMsg(user.verified)}
       </div>

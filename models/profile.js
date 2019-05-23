@@ -72,7 +72,7 @@ module.exports = (event, state) => {
           return votes
         }, state.votes),
       }, combineEffects([
-        changePageTitle(event.location.title || state.location.title),
+        changePageTitle((event.location && event.location.title) || state.location.title),
         event.profile.username && fetchProposedMeasureCount(event.profile.user_id, event.profile.username.toLowerCase()),
       ])]
     case 'profile:proposedMeasureCountUpdated':
