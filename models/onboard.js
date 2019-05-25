@@ -28,7 +28,7 @@ module.exports = (event, state) => {
           return [state]
         case '/get_started/profile':
           if (!state.user) return [state, redirect('/sign_in')]
-          if (!state.user.verified) return [state, redirect('/get_started/verification')]
+          if (!state.user.phone_verified) return [state, redirect('/get_started/verification')]
           return [state, state.user.username && redirect(`/${state.user.username}`)]
         default:
           return [state]
@@ -91,7 +91,7 @@ const redirectToOnboardingStep = (cookies, query, user) => (dispatch) => {
 
   if (!user.address || !user.voter_status) {
     return dispatch({ type: 'redirected', url: `/get_started/basics` })
-  } else if (!user.verified) {
+  } else if (!user.phone_verified) {
     return dispatch({ type: 'redirected', url: `/get_started/verification` })
   } else if (!user.username) {
     return dispatch({ type: 'redirected', url: `/get_started/profile` })
@@ -248,7 +248,7 @@ const verifyOTP = ({ phone, otp }, user) => (dispatch) => {
     headers: { Prefer: 'return=minimal' },
     user,
   })
-  .then(() => dispatch({ type: 'user:updated', user: { verified: true } }))
+  .then(() => dispatch({ type: 'user:updated', user: { phone_verified: true } }))
   .then(() => dispatch({ type: 'redirected', url: '/get_started/profile', status: 303 }))
   .catch((error) => dispatch({ type: 'error', error }))
 }

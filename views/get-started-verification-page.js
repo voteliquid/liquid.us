@@ -6,11 +6,10 @@ module.exports = ({ error, loading, forms: { verification: formData = {} }, user
     <section class="section">
       <div class="container is-widescreen">
         ${!user ? signupMsg() : ''}
-        ${user && user.verified ? alreadyVerifiedMsg() : ''}
+        ${user && user.phone_verified ? alreadyVerifiedMsg() : ''}
         <div class="content">
-          <h2 class="subtitle">Verify your identity</h2>
-          <p>Verify your phone number to make sure your reps know you are their constituent.</p>
-          <p>This also lets you create your own profile page, so you can start representing other people and increase your voting power.</p>
+          <h2 class="subtitle">Verify your phone number</h2>
+          <p>This lets you create your own profile page, so you can start representing other people and increase your voting power.</p>
         </div>
 
         ${error ? html`
@@ -39,7 +38,7 @@ const signupMsg = () => {
 const alreadyVerifiedMsg = () => {
   return html`
     <div class="notification is-info">
-      You've already verified! Good job.
+      You've already verified your phone number! Good job.
     </div>
   `
 }

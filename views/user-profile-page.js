@@ -9,7 +9,7 @@ module.exports = (state, dispatch) => {
   return html`
     <section class="section">
       <div class="container is-widescreen">
-        ${user && !user.verified ?
+        ${user && !user.phone_verified ?
           unverifiedNotification() : []
         }
         ${proxied_name ? html`

@@ -7,7 +7,7 @@ module.exports = (state, dispatch) => {
   return html`
     <section class="section">
       <div class="container is-widescreen">
-        ${user.username ? proposedLegislationList(state, dispatch) : publicProfileRequiredMsg(user.verified)}
+        ${user.username ? proposedLegislationList(state, dispatch) : publicProfileRequiredMsg(user.phone_verified)}
       </div>
     </section>
   `
@@ -19,7 +19,7 @@ const publicProfileRequiredMsg = (verified) => {
       You must create a public profile to propose legislation.
       ${verified
         ? html`<a href="/get_started">Choose a username</a> and make a public profile.</a>`
-        : html`<a href="/get_started">Verify your identity</a> to choose a username and make a public profile.</a>`
+        : html`<a href="/get_started">Verify your phone_number</a> to choose a username and make a public profile.</a>`
       }
     </p>
   `

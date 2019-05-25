@@ -105,7 +105,7 @@ const navbarAuthed = ({ location, user }) => {
       </a>
       <div class="navbar-dropdown is-right">
         ${
-          !user.verified
+          !user.phone_verified
             ? html`<a class="${`navbar-item ${path.slice(0, 12) === '/get_started' ? 'is-active' : ''}`}" href="/get_started">Verify your identity</a>`
             : ''
         }

@@ -5,7 +5,7 @@ const { fetchOfficesFromAddress, fetchOfficesFromIP } = require('./office')
 
 exports.fetchUser = (id, jwt, refresh_token, ip) => (dispatch) => {
   if (id && jwt) {
-    return api(dispatch, `/users?select=id,about,intro_video_url,email,first_name,last_name,username,verified,inherit_votes,voter_status,update_emails_preference,is_admin,address:user_addresses(id,address,city,state)&id=eq.${id}`, { user: { id, jwt, refresh_token } })
+    return api(dispatch, `/users?select=id,about,intro_video_url,email,first_name,last_name,username,phone_verified,inherit_votes,voter_status,update_emails_preference,is_admin,address:user_addresses(id,address,city,state)&id=eq.${id}`, { user: { id, jwt, refresh_token } })
     .then(([result]) => {
       if (result) {
         const user = { ...result, address: result.address[0], jwt, refresh_token }

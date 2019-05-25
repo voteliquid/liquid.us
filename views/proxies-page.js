@@ -12,11 +12,11 @@ module.exports = (state, dispatch) => {
       <div class="container is-widescreen">
         ${user
           && user.voter_status !== 'Ineligible'
-          && !user.verified
+          && !user.phone_verified
           && proxies.length > 0 ? html`
           <div class="notification">
             <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
-            You haven't verified your identity yet. <strong><a href="/get_started">Finish verification</a></strong> so your proxies can represent you.
+            You haven't verified yet. <strong><a href="/get_started">Finish verification</a></strong> so your proxies can represent you.
           </div>
         ` : ''}
         <div class="columns is-variable is-5">
