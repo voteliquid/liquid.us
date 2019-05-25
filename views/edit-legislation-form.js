@@ -37,7 +37,7 @@ module.exports = (state, dispatch) => {
         <label for="short_id" class="label has-text-grey">URL</label>
         <div class="field has-addons">
           <div class="control">
-            <a class="button is-static">${WWW_URL.replace(/https?:\/\//, '')}/${user.username}/legislation/</a>
+            <a class="button is-static">${WWW_URL.replace(/https?:\/\//, '')}/${user.username}/</a>
           </div>
           <div class="control">
             <input name="short_id" class="input" type="text" placeholder="your-proposed-bill" onkeyup=${editedShortId(dispatch)} onchange=${editedShortId(dispatch)} value="${short_id}" />

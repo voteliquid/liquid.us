@@ -193,7 +193,7 @@ const filterTabs = ({ geoip, legislatures, location, cookies, user }, dispatch) 
 
 const measureListRow = (s, query) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
-  const measureUrl = s.author_username ? `/${s.author_username}/legislation/${s.short_id}` : `/legislation/${s.short_id}`
+  const measureUrl = s.author_username ? `/${s.author_username}/${s.short_id}` : `/legislation/${s.short_id}`
 
   return html`
     <div class="card highlight-hover">
@@ -236,8 +236,8 @@ const measureListRow = (s, query) => {
             `}
           </div>
           <div class="column is-one-quarter has-text-right-tablet has-text-left-mobile">
-            ${voteButton(s)}
-            ${s.summary ? summaryTooltipButton(s.id, s.short_id, s.summary) : ''}
+            ${voteButton(s, measureUrl)}
+            ${s.summary ? summaryTooltipButton(measureUrl, s.summary) : ''}
           </div>
         </div>
       </div>
@@ -255,7 +255,7 @@ const votePositionClass = (position) => {
   return ''
 }
 
-const voteButton = (s) => {
+const voteButton = (s, measureUrl) => {
   let voteBtnTxt = 'Vote'
   let voteBtnClass = 'button is-small is-outlined is-primary'
   let voteBtnIcon = 'fas fa-edit'
@@ -277,14 +277,14 @@ const voteButton = (s) => {
       voteBtnClass = `button is-small ${votePositionClass(s.vote_position)}`
     }
   }
-  return html`<a style="white-space: inherit; height: auto;" class="${voteBtnClass}" href="${`/legislation/${s.short_id}`}">
+  return html`<a style="white-space: inherit; height: auto;" class="${voteBtnClass}" href="${measureUrl}">
     <span class="icon" style="align-self: flex-start;"><i class="${voteBtnIcon}"></i></span>
     <span class="has-text-weight-semibold">${voteBtnTxt}</span>
   </a>`
 }
 
-const summaryTooltipButton = (id, short_id, summary) => html`
-  <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">
+const summaryTooltipButton = (measureUrl, summary) => html`
+  <a href="${measureUrl}" class="is-hidden-mobile">
     <br />
     <br />
     <span class="icon summary-tooltip">

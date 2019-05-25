@@ -7,7 +7,7 @@ module.exports = (event, state) => {
       switch (state.location.route) {
         case '/legislation/:shortId/import':
         case '/nominations/:shortId/import':
-        case '/:username/legislation/:shortId/import':
+        case '/:username/:shortId/import':
           if (!state.user || !state.user.is_admin) return [{ ...state, loading: { page: true } }, redirect('/')]
           return [state]
         default:
