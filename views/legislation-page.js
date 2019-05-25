@@ -114,7 +114,7 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
     <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
       <input name="policy_area" type="hidden" value="${location.query.policy_area}" />
       <input name="order" type="hidden" value="${location.query.order || 'upcoming'}" />
-      <div class="field is-grouped is-grouped-right">
+      <div class="field is-grouped is-grouped-multiline is-grouped-right">
         ${location.query.policy_area ? html`
           <div class="control">
             <label class="checkbox has-text-grey">
@@ -129,7 +129,7 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
             Hide voted
           </label>
         </div>
-        <div class="control" style="margin-left: 10px; margin-right: 0;">
+        <div class="control">
           <div class="select">
             <select autocomplete="off" name="legislature" onchange=${autoSubmit}>
               ${legislatures.map(({ abbr, name }) => {
