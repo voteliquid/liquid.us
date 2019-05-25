@@ -164,7 +164,7 @@ const makeFilterQuery = (order, query) => {
 const filterTabs = ({ geoip, legislatures, location, cookies, user }, dispatch) => {
   const { query } = location
   const orderDescriptions = {
-    upcoming: 'Bills upcoming for a vote in the legislature.',
+    upcoming: "Bills upcoming for a vote in the legislature.",
     new: 'Bills recently introduced.',
     proposed: `Bills introduced on ${APP_NAME}`,
   }
