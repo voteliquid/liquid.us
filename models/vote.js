@@ -5,6 +5,7 @@ const { fetchMeasure, fetchMeasureVotes } = require('../effects/measure')
 const { updateNameAndAddress } = require('../effects/user')
 const { signIn } = require('../effects/session')
 const { changePageTitle } = require('../effects/page')
+const { logEndorsed } = require('../effects/analytics')
 
 module.exports = (event, state) => {
   switch (event.type) {
@@ -64,6 +65,7 @@ module.exports = (event, state) => {
         typeof event.name !== 'undefined' && state.user && updateNameAndAddressFromEndorsement(event, state.user),
         fetchMeasure(event.vote.short_id, state.offices, state.user),
         fetchMeasureVotes(event.vote.short_id, state.location.query.order, state.location.query.position, state.user),
+        logEndorsed,
       ])]
     case 'vote:endorsedFromSignupForm':
       return [{
@@ -72,6 +74,7 @@ module.exports = (event, state) => {
       }, combineEffectsInSeries([
         preventDefault(event.event),
         signupAndEndorse(event, state.offices, state.location),
+        logEndorsed,
       ])]
     case 'vote:unendorsed':
       return [{
