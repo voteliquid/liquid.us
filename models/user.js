@@ -1,5 +1,6 @@
 const { api, combineEffects, makePoint, preventDefault } = require('../helpers')
 const { fetchUser, geocode, updateAddress } = require('../effects/user')
+const { logUser } = require('../effects/analytics')
 
 module.exports = (event, state) => {
   switch (event.type) {
@@ -38,7 +39,7 @@ module.exports = (event, state) => {
         ...state,
         loading: { ...state.loading, user: false, signIn: false, userProfile: false },
         user: { ...state.user, ...event.user },
-      }]
+      }, logUser({ ...state.user, ...event.user })]
     case 'pageLoaded':
       switch (state.location.route) {
         case '/settings':
