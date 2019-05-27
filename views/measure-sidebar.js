@@ -34,7 +34,7 @@ module.exports = (state, dispatch) => {
       </div>
       ${reps && reps.length ? measureRepsPanel({ measure, reps }) : ''}
       ${panelTitleBlock('Votes')}
-      ${measureVoteCounts({ measure, offices, measureUrl })}
+      ${measureVoteCounts({ measure, offices })}
       ${panelTitleBlock('Info')}
       ${measureInfoPanel({ measure, showStatusTracker })}
       ${measureActionsPanel(state, dispatch)}
@@ -153,10 +153,10 @@ const measureInfoPanel = ({ measure, showStatusTracker }) => {
   `
 }
 
-const measureVoteCounts = ({ measure, offices, measureUrl }) => {
+const measureVoteCounts = ({ measure, offices }) => {
   const {
     type, constituent_yeas, constituent_nays, yeas, nays,
-    legislature_name, chamber, delegate_name, vote_position, short_id
+    legislature_name, chamber, delegate_name, vote_position
   } = measure
 
   const localLegislatureName = offices
