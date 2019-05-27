@@ -10,7 +10,7 @@ module.exports = (event, state) => {
       const settings = {
         subscribedDrip: !!event.subscribedDrip,
         subscribedLifecycle: !!event.subscribedLifecycle,
-        inherit_votes: !!event.inherit_votes,
+        inherit_votes_public: !!event.inherit_votes_public,
         update_emails_preference: event.update_emails_preference,
         voter_status: event.voter_status,
       }
@@ -78,7 +78,7 @@ const fetchSettings = (user) => (dispatch) => {
 }
 
 const saveSettings = (user, location, form) => (dispatch) => {
-  const { address, subscribedDrip, subscribedLifecycle, inherit_votes, voter_status, update_emails_preference } = form
+  const { address, subscribedDrip, subscribedLifecycle, inherit_votes_public, voter_status, update_emails_preference } = form
 
   const addressData = {
     address,
@@ -92,7 +92,7 @@ const saveSettings = (user, location, form) => (dispatch) => {
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({
       update_emails_preference,
-      inherit_votes,
+      inherit_votes_public,
       voter_status,
     }),
     user,
