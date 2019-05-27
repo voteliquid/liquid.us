@@ -3,6 +3,7 @@ const server = typeof window !== 'object'
 const fetch = require('isomorphic-fetch')
 const pathToRegexp = require('path-to-regexp')
 const routes = require('./routes')
+const qs = require('qs')
 
 exports.handleForm = (dispatch, appEvent) => (domEvent) => {
   const data = require('parse-form').parse(domEvent.currentTarget).body
@@ -96,7 +97,23 @@ exports.linkifyUrls = (text = '') => {
       const videoMatch = (url || '').match(/(http:|https:|)\/\/(player.|www.|media.)?(cityofmadison\.com|vimeo\.com|youtu(be\.com|\.be|be\.googleapis\.com))\/(Mediasite\/Showcase\/madison-city-channel\/Presentation\/|video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(&\S+)?/)
       if (videoMatch) {
         if (videoMatch[3].slice(0, 5) === 'youtu') {
+          const urlQuery = url.split('?')[1]
           url = `https://www.youtube.com/embed/${videoMatch[6]}`
+          if (urlQuery) {
+            const params = qs.parse(urlQuery)
+            if (params.t) {
+              url += '?start='
+              if (params.t.includes('m')) {
+                const parts = params.t.split('m')
+                const minutes = parts[0]
+                const seconds = parts[1].split('s')[0] || '0'
+                const totalSeconds = (Number(minutes) * 60) + Number(seconds)
+                url += totalSeconds
+              } else {
+                url += params.t
+              }
+            }
+          }
         } else if (videoMatch[3].slice(0, 5) === 'vimeo') {
           url = `https://player.vimeo.com/video/${videoMatch[6]}`
         } else {
