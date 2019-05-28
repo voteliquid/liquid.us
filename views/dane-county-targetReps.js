@@ -44,7 +44,7 @@ module.exports = ({ vote, user }) => {
         <p>Your comment will be sent to your legislators, but you should email them directly at <a href="mailto:county_board_recipients@countyofdane.com" target="_blank">county_board_recipients@countyofdane.com</a> or attend one of the meetings below to emphasize the importance of this issue:</p>
         <br />
         <p><a href="https://goo.gl/maps/kQWbRGMjhS6sMpuXA" target="_blank">City County Building, 210 MLK Jr Blvd, Madison, WI, 53703</a></p>
-        <p><b>May 28, 2019</b> 5:30pm in room 351, Personnel & Finance Committee</p>
+        <p><b>May 28, 2019</b> 5:30pm in room 201, Personnel & Finance Committee</p>
         <p><b>June 6, 2019</b> 7:00pm in room 201, Dane County Board of Supervisors vote</p>
         <br />
         <p><em>We will provide an update as the meeting dates are confirmed.</em></p>
