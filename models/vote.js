@@ -44,6 +44,10 @@ module.exports = (event, state) => {
           [event.vote.id]: {
             ...state.votes[event.vote.id],
             expanded: !state.votes[event.vote.id].expanded,
+            endorsed_vote: state.votes[event.vote.id].endorsed_vote ? {
+              ...state.votes[event.vote.id].endorsed_vote,
+              expanded: !state.votes[event.vote.id].endorsed_vote.expanded,
+            } : null,
           },
         },
       }, preventDefault(event.event)]

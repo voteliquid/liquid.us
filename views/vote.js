@@ -4,7 +4,7 @@ const timeAgo = require('timeago.js')
 const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = (state, dispatch) => {
-  const { key, measure, vote, showBill, user } = state
+  const { key, measure, vote, parent, showBill, user } = state
   const {
     comment, author_username, endorsed, updated_at, fullname, id,
     number, proxy_vote_count, position, short_id, title, type,
@@ -54,7 +54,7 @@ module.exports = (state, dispatch) => {
             ${source_url ? html`<span class="is-size-7"> via <a href="${source_url}" target="_blank">${source_url.split('/')[2] || source_url}</a></span>` : ''}
           </div>
           ${showBill ? html`<div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>` : ''}
-          ${comment ? commentContent(key, vote, dispatch) : ''}
+          ${comment ? commentContent(key, vote, parent, dispatch) : ''}
           <div class="${`${!is_public ? 'is-hidden' : ''} endorse-control is-size-7`}">
             <a href="#" onclick=${(event) => dispatch({ type: endorsed ? 'vote:unendorsed' : 'vote:endorsed', measure, vote, event })} class="${`endorse-btn has-text-weight-semibold has-text-grey button is-small ${endorsed ? 'is-light' : ''}`}">
               <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
@@ -102,7 +102,7 @@ const truncateOnWord = (str, max = 300) => {
   return { isTruncated, truncated: isTruncated ? `${truncated}...` : truncated }
 }
 
-const commentContent = (key, vote, dispatch) => {
+const commentContent = (key, vote, parent, dispatch) => {
   const { expanded = false } = vote
   const comment = vote.comment || ''
   const { isTruncated: showExpander, truncated } = truncateOnWord(comment, 300)
@@ -110,7 +110,7 @@ const commentContent = (key, vote, dispatch) => {
     <div class="content" style="margin: .25rem 0 .75rem;">
       ${{ html: linkifyUrls(expanded || !showExpander ? comment : truncated) }}
       <span class="${showExpander ? '' : 'is-hidden'}">
-        <a href="#" onclick=${(event) => dispatch({ type: 'vote:toggledExpanded', event, vote })} class="is-size-7">
+        <a href="#" onclick=${(event) => dispatch({ type: 'vote:toggledExpanded', event, vote: parent })} class="is-size-7">
           <span>show ${expanded ? 'less' : 'more'}</span>
         </a>
       </span>
