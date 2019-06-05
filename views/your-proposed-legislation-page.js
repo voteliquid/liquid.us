@@ -7,7 +7,7 @@ module.exports = (state, dispatch) => {
   return html`
     <section class="section">
       <div class="container is-widescreen">
-        ${user.username ? proposedLegislationList(state, dispatch) : publicProfileRequiredMsg(user.verified)}
+        ${user.username ? proposedLegislationList(state, dispatch) : publicProfileRequiredMsg(user.phone_verified)}
       </div>
     </section>
   `
@@ -19,7 +19,7 @@ const publicProfileRequiredMsg = (verified) => {
       You must create a public profile to propose legislation.
       ${verified
         ? html`<a href="/get_started">Choose a username</a> and make a public profile.</a>`
-        : html`<a href="/get_started">Verify your identity</a> to choose a username and make a public profile.</a>`
+        : html`<a href="/get_started">Verify your phone number</a> to choose a username and make a public profile.</a>`
       }
     </p>
   `
@@ -55,7 +55,7 @@ const proposedLegislationItem = (state, measure, dispatch) => {
       <div class="card-content">
         <div class="columns">
           <div class="column">
-            <h3><a href="${`/${user.username}/legislation/${l.short_id}`}">${l.title}</a></h3>
+            <h3><a href="${`/${user.username}/${l.short_id}`}">${l.title}</a></h3>
             <p class="is-size-7 has-text-grey">
               Proposed for ${l.legislature_name} &bullet; ${l.author_username
             ? html`Authored by <a href="${`/${l.author_username}`}">${l.author_first_name} ${l.author_last_name}</a> on ${(new Date(l.created_at)).toLocaleDateString()}`

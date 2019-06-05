@@ -36,7 +36,7 @@ const rep = (r) => {
         </div>
         <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
           ${nameLine}<br />
-          <a class="button is-success is-small" src=${`tel:+1${phone}`}>${displayNum(phone)}</a>
+          <a class="button is-success is-small" href=${`tel:+1${phone}`}>${displayNum(phone)}</a>
         </div>
       </div>
     </div>

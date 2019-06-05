@@ -6750,3 +6750,6 @@ input[disabled],
 fieldset[disabled] input {
   -webkit-text-fill-color: #7a7a7a;
   opacity: 1; }
+
+.navbar-item {
+  padding: 0.3rem 0.75rem; }

@@ -10,12 +10,10 @@ module.exports = (state, dispatch) => {
       <div class="container is-widescreen">
         <h2 class="title is-5">${measure ? 'Edit Legislation' : 'Propose New Legislation'}</h2>
         ${user.username
-          ? location.params.shortId
-            ? measure
-              ? editLegislationForm(state, dispatch)
-              : activityIndicator()
+          ? location.params.shortId && !measure
+            ? activityIndicator()
             : editLegislationForm(state, dispatch)
-          : publicProfileRequiredMsg(user.verified)}
+          : publicProfileRequiredMsg(user.phone_verified)}
       </div>
     </section>
   `
@@ -27,7 +25,7 @@ const publicProfileRequiredMsg = (verified) => {
       You must create a public profile to propose legislation.
       ${verified
         ? html`<a href="/get_started">Choose a username</a> and make a public profile.</a>`
-        : html`<a href="/get_started">Verify your identity</a> to choose a username and make a public profile.</a>`
+        : html`<a href="/get_started">Verify your phone number</a> to choose a username and make a public profile.</a>`
       }
     </p>
   `

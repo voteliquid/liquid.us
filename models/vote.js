@@ -5,6 +5,7 @@ const { fetchMeasure, fetchMeasureVotes } = require('../effects/measure')
 const { updateNameAndAddress } = require('../effects/user')
 const { signIn } = require('../effects/session')
 const { changePageTitle } = require('../effects/page')
+const { logEndorsed } = require('../effects/analytics')
 
 module.exports = (event, state) => {
   switch (event.type) {
@@ -12,7 +13,7 @@ module.exports = (event, state) => {
       switch (state.location.route) {
         case '/legislation/:shortId/votes/:voteId':
         case '/nominations/:shortId/votes/:voteId':
-        case '/:username/legislation/:shortId/votes/:voteId':
+        case '/:username/:shortId/votes/:voteId':
           return [{
             ...state,
             loading: { ...state.loading, page: true },
@@ -43,6 +44,10 @@ module.exports = (event, state) => {
           [event.vote.id]: {
             ...state.votes[event.vote.id],
             expanded: !state.votes[event.vote.id].expanded,
+            endorsed_vote: state.votes[event.vote.id].endorsed_vote ? {
+              ...state.votes[event.vote.id].endorsed_vote,
+              expanded: !state.votes[event.vote.id].endorsed_vote.expanded,
+            } : null,
           },
         },
       }, preventDefault(event.event)]
@@ -60,10 +65,11 @@ module.exports = (event, state) => {
       // TODO cannot change state here otherwise iframes in comments will re-render and Chrome will dismiss the confirm dialog whenever an iframe loads.
       return [state, combineEffectsInSeries([
         preventDefault(event.event),
-        endorse(event.vote, state.user, event.measure),
+        endorse(event.vote, state.user, event.measure, event.is_public),
         typeof event.name !== 'undefined' && state.user && updateNameAndAddressFromEndorsement(event, state.user),
         fetchMeasure(event.vote.short_id, state.offices, state.user),
         fetchMeasureVotes(event.vote.short_id, state.location.query.order, state.location.query.position, state.user),
+        logEndorsed,
       ])]
     case 'vote:endorsedFromSignupForm':
       return [{
@@ -72,6 +78,7 @@ module.exports = (event, state) => {
       }, combineEffectsInSeries([
         preventDefault(event.event),
         signupAndEndorse(event, state.offices, state.location),
+        logEndorsed,
       ])]
     case 'vote:unendorsed':
       return [{
@@ -217,9 +224,9 @@ const reportVote = (vote, user) => (dispatch) => {
   }
 }
 
-const endorse = (vote, user, measure) => (dispatch) => {
+const endorse = (vote, user, measure, is_public = false) => (dispatch) => {
   const endorsed_vote = !(user && user.id === vote.user_id && vote.comment) && vote.endorsed_vote
-  const { fullname, measure_id, short_id, id: vote_id, public: is_public } = endorsed_vote || vote
+  const { fullname, measure_id, short_id, id: vote_id } = endorsed_vote || vote
   const position = measure && measure.vote_position
 
   if (!user) {
@@ -371,7 +378,7 @@ const signupAndEndorse = ({ vote, ...form }, offices, location) => (dispatch) =>
         nameData: { first_name, last_name, voter_status },
         user,
       })(dispatch)
-        .then(() => endorse(vote, user)(dispatch))
+        .then(() => endorse(vote, user, null, form.is_public)(dispatch))
         .then(() => fetchMeasure(vote.short_id, offices, user)(dispatch))
         .then(() => fetchMeasureVotes(vote.short_id, location.query.order, location.query.position, user)(dispatch))
     }

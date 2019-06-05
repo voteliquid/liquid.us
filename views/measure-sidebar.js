@@ -8,14 +8,17 @@ const shareButtons = require('./measure-share-buttons')
 module.exports = (state, dispatch) => {
   const { measure, offices } = state
   const l = measure
-  if (l.short_id === 'stop-227m-jail') { l.legislature_name = 'Dane County' }
+  if (l.short_id === 'press-pause-on-227m-new-jail') { l.legislature_name = 'Dane County' }
   const reps = state.reps.filter(({ chamber, legislature }) => {
     return chamber === l.chamber && (stateAbbr[legislature.name] || legislature.name) === l.legislature_name
   })
   const showStatusTracker = l.legislature_name === 'U.S. Congress' && l.introduced_at && l.type === 'bill'
-  const measureUrl = l.author_username
-    ? `/${l.author_username}/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
-    : `/${l.type === 'nomination' ? 'nominations' : 'legislation'}/${l.short_id}`
+
+  let measureUrl = `/${l.author_username}/`
+  if (!l.author_username) {
+    measureUrl = l.type === 'nomination' ? '/nominations/' : '/legislation/'
+  }
+  measureUrl += l.short_id
 
   return html`
     <nav class="panel">
@@ -153,7 +156,7 @@ const measureInfoPanel = ({ measure, showStatusTracker }) => {
 const measureVoteCounts = ({ measure, offices }) => {
   const {
     type, constituent_yeas, constituent_nays, yeas, nays,
-    legislature_name, chamber, delegate_name, vote_position, short_id
+    legislature_name, chamber, delegate_name, vote_position
   } = measure
 
   const localLegislatureName = offices
@@ -183,7 +186,7 @@ const measureVoteCounts = ({ measure, offices }) => {
             <tr>
               <td class="has-text-left has-text-grey">Your Vote</td>
               <td colspan="2" class="has-text-right">
-                <a class="${`${vote_position === 'yea' ? 'has-text-success' : 'has-text-danger'} has-text-weight-semibold`}" href="${`/${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}/vote`}">${capitalize(vote_position)}</a>
+                <span class="${`${vote_position === 'yea' ? 'has-text-success' : 'has-text-danger'} has-text-weight-semibold`}">${capitalize(vote_position)}</span>
               </td>
             </tr>
             ${delegate_name ? html`<tr><td colspan="3" class="has-text-grey">Inherited from ${delegate_name}</td></tr>` : ''}

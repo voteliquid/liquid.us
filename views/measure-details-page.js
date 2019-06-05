@@ -13,7 +13,7 @@ module.exports = (state, dispatch) => {
   return html`
     <section class="section">
       <div class="container is-widescreen">
-        ${(l.vote_position && !user.verified) ? html`
+        ${(l.vote_position && !user.phone_verified) ? html`
           <p class="notification is-info">
             <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
             <strong>Help hold your reps accountable!</strong><br />
