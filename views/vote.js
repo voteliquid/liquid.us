@@ -110,7 +110,7 @@ const commentContent = (key, vote, parent, dispatch) => {
     <div class="content" style="margin: .25rem 0 .75rem;">
       ${{ html: linkifyUrls(expanded || !showExpander ? comment : truncated) }}
       <span class="${showExpander ? '' : 'is-hidden'}">
-        <a href="#" onclick=${(event) => dispatch({ type: 'vote:toggledExpanded', event, vote: parent })} class="is-size-7">
+        <a href="#" onclick=${(event) => dispatch({ type: 'vote:toggledExpanded', event, vote: parent || vote })} class="is-size-7">
           <span>show ${expanded ? 'less' : 'more'}</span>
         </a>
       </span>
