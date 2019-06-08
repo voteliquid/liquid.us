@@ -398,18 +398,21 @@ const endorsementPageTitleAndMeta = (measures, vote, location) => {
   const inlineImageMatch = vote && vote.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
   const inlineImage = inlineImageMatch && inlineImageMatch[0]
   const measureInlineImageMatch = measure && measure.summary && measure.summary.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
-  const measureInlineImage = measureInlineImageMatch && measureInlineImageMatch[0]  const billAuthorsComment = measure.image_name && measure.author_username === vote.username
+  const measureInlineImage = measureInlineImageMatch && measureInlineImageMatch[0]
+  const billAuthorsComment = measure.image_name && measure.author_username === vote.username
     ? `${ASSETS_URL}/measure-images/${measure.image_name}`
     : measure.author_username === vote.username && measureInlineImageMatch
     ? measureInlineImageMatch[0]
     : ''
   const authorImage = vote.username || vote.twitter_username ? avatarURL(vote) : null
-  const dbMeasureImage = measure.image_name ? `${ASSETS_URL}/measure-images/${measure.image_name}` : ''
+  const dbImage = measure.image_name ? `${ASSETS_URL}/measure-images/${measure.image_name}` : ''
+  const dbImageAuthorComment = measure.image_name && measure.author_username === vote.username ? `${ASSETS_URL}/measure-images/${measure.image_name}` : ''
+
   const legislatureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
 
   return {
     ...location,
-    ogImage: inlineImage || billAuthorsComment || authorImage || dbMeasureImage || measureInlineImage || legislatureImage,
+    ogImage: dbImageAuthorComment || inlineImage || billAuthorsComment || authorImage || dbImage || measureInlineImage || legislatureImage,
     ogTitle: `${measure.title} | Liquid US`,
     description: title,
     title,
