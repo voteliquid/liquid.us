@@ -76,11 +76,6 @@ const quotes = [
     date: 'September 2016',
   },
   {
-    text: 'When did “your team is worse than mine” become the prevailing motive in our country for engaging in the democratic process?',
-    author: 'Glenn Beck',
-    date: 'September 2016',
-  },
-  {
     text: "If we want a better politics, it’s not enough to just change a Congressman or a Senator or even a President; we have to change the system.",
     author: 'President Barack Obama',
     date: 'January 2016',
@@ -323,4 +318,9 @@ It is rather for us to be here dedicated to the great task remaining before us�
     author: 'Founding Father John Dickinson',
     date: 'July 1768',
   },
+  {
+    text: 'Where law ends, Tyranny begins',
+    author: 'William Pitt',
+    date: 'January 1770'
+  }
 ]
