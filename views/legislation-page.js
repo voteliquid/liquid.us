@@ -243,127 +243,67 @@ const filterImages = ({ location, cookies, geoip, user }) => {
   return html`
   <div class="columns is-mobile" style="border-top: 1px solid #ccc;">
     <div class="column" style="padding-top: 2rem;"><h1 class="title is-5">Toggle to<br />filter bills</h1></div>
-      ${congress || (!city && !state)
-       ? html`
-        <div class="column has-text-centered" style="padding-top: 2rem;">
-          <a href=${congress ? `${location.url.replace('congress=on', '')}` : `/legislation?${makeQuery({ congress: 'on' }, location.query)}`}>
-            <span class="has-text-primary" style="margin-top: 5rem;">
-              <span class="image is-48x48">
-                <img src=/assets/us-green.png />
-              </span><span style="padding-left: -4rem;"> U.S.</span>
+    <div class="column has-text-centered vertical-center">
+      <div class="box" style=${congress ? 'width: 6em; height: 9em;' : 'filter: grayscale(100%); opacity: 0.5; width: 6em; border-color: transparent; height: 9em; '}>
+        <a href=${congress ? `${location.url.replace('congress=on', '')}` : `/legislation?${makeQuery({ congress: 'on' }, location.query)}`}>
+          <span class="has-text-black">
+            <br /><span class="image is-36x36">
+              <img src=/assets/filter-images/us.png />
             </span>
-          </a>
-        </div>
-        ` : html`
-        <div class="column has-text-centered" style="filter: grayscale(100%); opacity: 0.5;">
-         <a href=${congress ? `${location.url.replace('congress=on', '')}` : `/legislation?${makeQuery({ congress: 'on' }, location.query)}`}>
-           <span class="has-text-grey" style="margin-top: 5rem;">
-             <br /><span class="image is-48x48">
-               <img src=/assets/us-green.png />
-             </span>U.S.
+            <br /><span>U.S.</span>
+          </span>
+        </a>
+      </div>
+    </div>
+    <div class="column has-text-centered">
+      <div class="box" style=${state ? 'width: 6em; height: 9em;' : 'filter: grayscale(100%); opacity: 0.5; width: 6em; box-border: none; height: 9em;'}>
+       <a href=${state ? `${location.url.replace('state=WI', '')}` : `/legislation?${makeQuery({ state: stateName }, location.query)}`}>
+         <span class="has-text-black">
+           <span class="image is-36x36" style="padding-top: -5em;">
+             <img src=/assets/filter-images/WI.png />
            </span>
-         </a>
-       </div>
-       `
-      }
-      ${state || (!city && !congress)
-       ? html`
-        <div class="column">
-          <a href=${state ? `${location.url.replace('state=WI', '')}` : `/legislation?${makeQuery({ state: stateName }, location.query)}`}>
-            <span class="has-text-primary">
-              <span class="image is-48x48">
-                <img src=/assets/WI-green.jpg />
-              </span>
-              <br />${stateName}
+           <br />${stateName}
+         </span>
+       </a>
+      </div>
+    </div>
+    <div class="column has-text-centered">
+      <div class="box" style=${city ? 'width: 6em; height: 9em;' : 'filter: grayscale(100%); opacity: 0.5; width: 6em; box-border: none; height: 9em;'}>
+        <a href=${city ? `${location.url.replace('city=Madison, WI', '')}` : `/legislation?${makeQuery({ city: citySt }, location.query)}`}>
+          <span class="has-text-black">
+            <span class="image is-48x48">
+              <img src=/assets/filter-images/local.png />
             </span>
-          </a>
-        </div>
-        ` : html`
-        <div class="column" style="filter: grayscale(100%); opacity: 0.5;">
-          <a href=${state ? `${location.url.replace('state=WI', '')}` : `/legislation?${makeQuery({ state: stateName }, location.query)}`}>
-            <span class="has-text-primary">
-              <span class="image is-48x48">
-                <img src=/assets/wi-green.jpg />
-              </span>
-              <br />${stateName}
+            <br />Local
+          </span>
+        </a>
+      </div>
+    </div>
+    <div class="column" style="padding-top: 2rem"><h1 class="title is-5">Introduced<br />by</h1></div>
+    <div class="column has-text-centered">
+      <div class="box" style=${imported ? 'width: 7em; height: 9em;' : 'filter: grayscale(100%); opacity: 0.5; width: 7em; box-border: none; height: 9em;'}>
+        <a href=${imported ? `${location.url.replace('imported=on', '')}` : `/legislation?${makeQuery({ imported: 'on' }, location.query)}`}>
+          <span class="has-text-black">
+            <span class="image is-32x32">
+              <img src=/assets/filter-images/legislature.png />
             </span>
-          </a>
-       </div>
-       `
-      }
-      ${city || (!city && !state)
-       ? html`
-        <div class="column" style="padding-top: 1.5rem;">
-          <a href=${city ? `${location.url.replace('city=Madison, WI', '')}` : `/legislation?${makeQuery({ city: citySt }, location.query)}`}>
-            <span class="has-text-primary">
-              <span class="icon is-size-1 has-text-centered"><i class="fa fa-map-marker"></i></span>
-              <br /><br />${cityName.split(',')[0]}
-            </span>
-          </a>
-        </div>
-        ` : html`
-        <div class="column" style="filter: grayscale(100%); opacity: 0.5; padding-top: 1.5rem;">
-          <a href=${city ? `${location.url.replace('city=Madison, WI', '')}` : `/legislation?${makeQuery({ city: cityName }, location.query)}`}>
-            <span class="has-text-primary">
-              <span class="icon is-size-1 has-text-centered"><i class="fa fa-map-marker"></i></span>
-              <br /><br />${cityName.split(',')[0]}
-            </span>
-          </a>
-       </div>
-       `
-      }
-
-      <div class="column" style="padding-top: 2rem"><h1 class="title is-5">Introduced<br />by</h1></div>
-      ${imported || !liquid
-       ? html`
-        <div class="column">
-          <a href=${imported ? `${location.url.replace('imported=on', '')}` : `/legislation?${makeQuery({ imported: 'on' }, location.query)}`}>
-            <span class="has-text-primary">
-              <span class="image is-48x48">
-                <img src=/assets/legislature-green.png />
-              </span>
-              <br />Legislature
-            </span>
-          </a>
-        </div>
-        ` : html`
-        <div class="column" style="filter: grayscale(100%); opacity: 0.5;">
-          <a href=${imported ? `${location.url.replace('imported=on', '')}` : `/legislation?${makeQuery({ imported: 'on' }, location.query)}`}>
-            <span class="has-text-primary">
-              <span class="image is-48x48">
-                <img src=/assets/legislature-green.png />
-              </span>
-              <br />Legislature
-            </span>
-          </a>
-       </div>
-       `
-      }
-      ${liquid || !imported
-       ? html`
-        <div class="column">
-          <a href=${liquid ? `${location.url.replace('liquid_introduced=on', '')}` : `/legislation?${makeQuery({ liquid_introduced: 'on' }, location.query)}`}>
-            <span class="has-text-primary">
-              <span class="image is-48x48">
-                <img src=/assets/liquid-green.png />
+            <br />Legislature
+          </span>
+        </a>
+      </div>
+    </div>
+    <div class="column has-text-centered">
+      <div class="box" style=${liquid ? 'width: 6em; height: 9em;' : 'filter: grayscale(100%); opacity: 0.5; width: 6em; box-border: none; height: 9em;'}>
+        <a href=${liquid ? `${location.url.replace('liquid_introduced=on', '')}` : `/legislation?${makeQuery({ liquid_introduced: 'on' }, location.query)}`}>
+            <div class="has-text-black">
+              <span class="image is-34x34">
+                <img src=/assets/filter-images/liquid.png />
               </span>
               <br />Liquid
-            </span>
+            </div>
           </a>
         </div>
-        ` : html`
-        <div class="column" style="filter: grayscale(100%); opacity: 0.5;">
-          <a href=${liquid ? `${location.url.replace('liquid_introduced=on', '')}` : `/legislation?${makeQuery({ liquid_introduced: 'on' }, location.query)}`}>
-            <span class="has-text-primary">
-              <span class="image is-48x48">
-                <img src=/assets/liquid-green.png />
-              </span>
-              <br />Liquid
-            </span>
-          </a>
-       </div>
-       `
-      }
+      </div>
     </div>
   `
   }
