@@ -238,7 +238,7 @@ const filterForm = (location, cookies, user, geoip, dispatch) => {
   const imported = location.query.imported || cookies.imported
   const userState = user && user.address ? user.address.state : geoip ? geoip.region : ''
   const userCity = `${user && user.address ? user.address.city : geoip ? geoip.city : ''}, ${userState}`
-console.log(geoip)
+
   return html`
     <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, userState, state, userCity, city, dispatch)}">
       <input name="policy_area" type="hidden" value="${location.query.policy_area}" />
@@ -303,12 +303,6 @@ const filterImages = ({ location, cookies, geoip, user }) => {
   <div class="columns is-mobile" style="border-top: 1px solid #ccc;">
     <div class="column" style="padding-top: 1.25rem;"><h3 class="title is-6" style="width: 7.5rem;">Filter bill source</h3></div>
     <div class="column has-text-centered vertical-center">
-      <button onclick="${toggleImported}" class="button is-outlined" style=${imported ? 'width: 8em;' : 'filter: grayscale(100%); opacity: 0.5; width: 8em;'}>
-        <span class="image"><img src=/assets/filter-images/legislature.png /></span>
-        <span class="has-text-weight-semibold">&nbspLegislature</span>
-      </button>
-    </div>
-    <div class="column has-text-centered vertical-center">
       <button onclick="${toggleLiquid}" class="button is-outlined" style=${liquid ? 'width: 6em;' : 'filter: grayscale(100%); opacity: 0.5; width: 6em;'}>
         <span class="image">
           <img src=/assets/filter-images/liquid.png />
@@ -316,7 +310,14 @@ const filterImages = ({ location, cookies, geoip, user }) => {
         <span class="has-text-weight-semibold">&nbspLiquid</span>
       </button>
     </div>
-    <div class="column" style="padding-top: 1.25rem;"><h3 class="title is-6">Juridstiction</h3></div>
+    <div class="column has-text-centered vertical-center">
+      <button onclick="${toggleImported}" class="button is-outlined" style=${imported ? 'width: 8em;' : 'filter: grayscale(100%); opacity: 0.5; width: 8em;'}>
+        <span class="image"><img src=/assets/filter-images/legislature.png /></span>
+        <span class="has-text-weight-semibold">&nbspLegislature</span>
+      </button>
+    </div>
+
+    <div class="column" style="padding-top: 1.25rem;"><h3 class="title is-6">Location</h3></div>
     <div class="column has-text-centered vertical-center">
       <button onclick="${toggleCongress}" class="button is-outlined" style=${congress ? 'width: 5em;' : 'filter: grayscale(100%); opacity: 0.5; width: 5em;'}>
         <span class="image"><img src=/assets/filter-images/US.png /></span>
