@@ -219,9 +219,6 @@ const noBillsMsg = (order, query) => html`
 const updateFilter = (event, location, userState, state, userCity, city, dispatch) => {
   event.preventDefault()
   const formData = require('parse-form').parse(event.target).body
-  if (formData.legislature !== 'U.S. Congress') {
-    formData.policy_area = '' // Only U.S. Congress has policy areas
-  }
   const formUrl = `${location.path}?${Object.keys(formData).map((key) => {
     if (key === 'city') { return `city=${formData[key] === 'on' ? `${userCity}` : city}` }
     if (key === 'state') { return `state=${formData[key] === 'on' ? `${userState}` : state}` }
@@ -247,17 +244,15 @@ const filterForm = (location, cookies, user, geoip, dispatch) => {
       <input type="checkbox" onclick=${toggleFilter(cookies, dispatch, 'city', 'on')} name="city" checked=${!!city} class="is-hidden" />
       <input type="checkbox" onclick=${toggleFilter(cookies, dispatch, 'liquid_introduced', 'on')} name="liquid_introduced" checked=${!!liquid_introduced} class="is-hidden" />
       <input type="checkbox" onclick=${toggleFilter(cookies, dispatch, 'imported', 'on')} name="imported" checked=${!!imported} class="is-hidden" />
-      <div class="field is-grouped is-grouped-multiline is-grouped-right">
-          ${location.query.policy_area ? html`
-            <div class="control">
-              <label class="checkbox has-text-grey">
-                <input onclick=${removePolicyArea} type="checkbox" checked />
-                ${location.query.policy_area.replace(/%20/g, ' ')}
-              </label>
-            </div>
-          ` : ''}
-          <button type="submit" class="filter-submit is-hidden">Update</button>
+      ${location.query.policy_area ? html`
+        <div class="control" style="margin-bottom: 10px;">
+          <label class="checkbox has-text-grey">
+            <input onclick=${removePolicyArea} type="checkbox" checked />
+            <span class="has-text-weight-semibold">Policy area:&nbsp;</span> ${location.query.policy_area.replace(/%20/g, ' ')}
+          </label>
         </div>
+      ` : ''}
+      <button type="submit" class="filter-submit is-hidden">Update</button>
     </form>
   `
 }
@@ -305,26 +300,26 @@ const filterImages = ({ location, cookies, geoip, user }) => {
     <div class="column filter-image">
       <button onclick="${toggleLiquid}" class=${`button is-outlined ${liquid ? 'filter-on' : 'filter-off'}`}>
         <span class="image is-16x16"><img src="/assets/filter-images/liquid.png" /></span>
-        <span class="has-text-weight-semibold">&nbspLiquid</span>
+        <span class="has-text-weight-semibold">&nbsp;Liquid</span>
       </button>
       <button onclick="${toggleImported}"  class=${`button is-outlined ${imported ? 'filter-on' : 'filter-off'}`}>
         <span class="image"><img style="width: auto; height: 23px;" src="/assets/filter-images/legislature.png" /></span>
-        <span class="has-text-weight-semibold">&nbspLegislature</span>
+        <span class="has-text-weight-semibold">&nbsp;Legislature</span>
       </button>
     </div>
     <div class="column is-narrow filter-heading"><h3 class="title is-6">Location</h3></div>
     <div class="column filter-image">
       <button onclick="${toggleCongress}"  class=${`button is-outlined ${congress ? 'filter-on' : 'filter-off'}`}>
         <span class="image" style="width: 21px;"><img src="/assets/filter-images/US.png" /></span>
-        <span class="has-text-weight-semibold">&nbspU.S.</span>
+        <span class="has-text-weight-semibold">&nbsp;U.S.</span>
       </button>
       <button onclick="${toggleState}"  class=${`button is-outlined ${state ? 'filter-on' : 'filter-off'}`}>
         <span class="image is-16x16"><img src="/assets/filter-images/WI.png" /></span>
-        <span class="has-text-weight-semibold">&nbsp${stateName}</span>
+        <span class="has-text-weight-semibold">&nbsp;${stateName}</span>
       </button>
       <button onclick="${toggleCity}"  class=${`button is-outlined ${city ? 'filter-on' : 'filter-off'}`}>
         <span class="image is-16x16"><img src="/assets/filter-images/local.png" /></span>
-        <span class="has-text-weight-semibold">&nbsp${userCity}</span>
+        <span class="has-text-weight-semibold">&nbsp;${userCity}</span>
       </button>
     </div>
   </div>
