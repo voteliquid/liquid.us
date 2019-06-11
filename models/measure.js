@@ -263,7 +263,6 @@ const fetchMeasures = (params, cookies, geoip, query, user, location) => (dispat
   ]
   if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
   const url = `/measures_detailed?select=${fields.join(',')}$${policy_area_query}${introducedIn}&legislature_name=in.(${removeEndComma(leg_query)})${order}&limit=40`
-console.log(url)
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
     .catch((error) => {

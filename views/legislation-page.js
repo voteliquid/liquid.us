@@ -1,7 +1,7 @@
 const { html, capitalize } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
 
-module.exports = (state) => {
+module.exports = (state, dispatch) => {
   const { cookies, geoip, loading, measures, measuresByUrl, location, user } = state
   const { query, url } = location
 
@@ -10,7 +10,7 @@ module.exports = (state) => {
     <div class="section">
       <div class="container is-widescreen">
         ${filterImages({ cookies, location, geoip, user })}
-        ${query.policy_area ? subjectCheckbox(location.query.policy_area) : ''}
+        ${filterForm(location, cookies, user, geoip, dispatch)}
         ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []}
         ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
           (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId], query)))}
@@ -139,6 +139,19 @@ const measureListRow = (s, query) => {
   `
 }
 
+const toggleFilter = (cookies, dispatch, filterName) => (event) => {
+  const btn = document.querySelector('.filter-submit')
+  if (btn.disabled) {
+    event.preventDefault()
+  } else {
+    if (event.currentTarget && event.currentTarget.checked) {
+      dispatch({ type: 'cookieSet', key: `${filterName}` })
+    } else {
+      dispatch({ type: 'cookieUnset', key: `${filterName}` })
+    }
+    btn.click()
+  }
+}
 const simplifyTitle = (title) => {
   return capitalize(title.replace(/^Relating to: /, ''))
 }
@@ -203,18 +216,51 @@ const noBillsMsg = (order, query) => html`
   </div>
 `
 
-const subjectCheckbox = (policy_area) => {
-
-return html`
-  <div class="control has-text-centered is-size-5">
-    <label class="checkbox has-text-grey">
-      <input onclick=${removePolicyArea} type="checkbox" checked>
-      ${policy_area.replace(/%20/g, ' ')}
-    </label>
-  </div>
-  `
+const updateFilter = (event, location, userState, state, userCity, city, dispatch) => {
+  event.preventDefault()
+  const formData = require('parse-form').parse(event.target).body
+  if (formData.legislature !== 'U.S. Congress') {
+    formData.policy_area = '' // Only U.S. Congress has policy areas
+  }
+  const formUrl = `${location.path}?${Object.keys(formData).map((key) => {
+    if (key === 'city') { return `city=${formData[key] === 'on' ? `${userCity}` : city}` }
+    if (key === 'state') { return `state=${formData[key] === 'on' ? `${userState}` : state}` }
+    return `${key}=${formData[key]}`
+  }).join('&')}`
+  dispatch({ type: 'redirected', url: formUrl })
 }
 
+const filterForm = (location, cookies, user, geoip, dispatch) => {
+  const congress = location.query.congress || cookies.congress
+  const state = location.query.state || cookies.state
+  const city = location.query.city || cookies.city
+  const liquid_introduced = location.query.liquid_introduced || cookies.liquid_introduced
+  const imported = location.query.imported || cookies.imported
+  const userState = user && user.address ? user.address.state : geoip ? geoip.region : ''
+  const userCity = `${user && user.address ? user.address.city : geoip ? geoip.city : ''}, ${userState}`
+console.log(geoip)
+  return html`
+    <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, userState, state, userCity, city, dispatch)}">
+      <input name="policy_area" type="hidden" value="${location.query.policy_area}" />
+      <input type="checkbox" onclick=${toggleFilter(cookies, dispatch, 'congress', 'on')} name="congress" checked=${!!congress} class="is-hidden" />
+      <input type="checkbox" onclick=${toggleFilter(cookies, dispatch, 'state', 'on')} name="state" checked=${!!state} class="is-hidden" />
+      <input type="checkbox" onclick=${toggleFilter(cookies, dispatch, 'city', 'on')} name="city" checked=${!!city} class="is-hidden" />
+      <input type="checkbox" onclick=${toggleFilter(cookies, dispatch, 'liquid_introduced', 'on')} name="liquid_introduced" checked=${!!liquid_introduced} class="is-hidden" />
+      <input type="checkbox" onclick=${toggleFilter(cookies, dispatch, 'imported', 'on')} name="imported" checked=${!!imported} class="is-hidden" />
+      <div class="field is-grouped is-grouped-multiline is-grouped-right">
+          ${location.query.policy_area ? html`
+            <div class="control">
+              <label class="checkbox has-text-grey">
+                <input onclick=${removePolicyArea} type="checkbox" checked />
+                ${location.query.policy_area.replace(/%20/g, ' ')}
+              </label>
+            </div>
+          ` : ''}
+          <button type="submit" class="filter-submit is-hidden">Update</button>
+        </div>
+    </form>
+  `
+}
 const makeQuery = (newFilters, oldQuery) => {
   const newQuery = Object.assign({}, oldQuery, newFilters, { terms: oldQuery.terms || '' })
   return Object.keys(newQuery).map(key => {
@@ -228,82 +274,68 @@ const removePolicyArea = (event) => {
 }
 
 
+const toggleCongress = () => {
+  document.querySelector('[name="congress"]').click()
+}
+const toggleState = () => {
+  document.querySelector('[name="state"]').click()
+}
+const toggleCity = () => {
+  document.querySelector('[name="city"]').click()
+}
+const toggleImported = () => {
+  document.querySelector('[name="imported"]').click()
+}
+const toggleLiquid = () => {
+  document.querySelector('[name="liquid_introduced"]').click()
+}
 const filterImages = ({ location, cookies, geoip, user }) => {
   const userState = user && user.address ? user.address.state : geoip ? geoip.region : ''
-  const userCity = user && user.address ? user.address.city : geoip ? geoip.city : ''
+  const congress = location.query.congress || cookies.congress
   const state = location.query.state || cookies.state
   const city = location.query.city || cookies.city
-  const congress = location.query.congress || cookies.congress
   const stateName = state ? `${state}` : userState
-  const cityName = city ? `${city}` : userCity
   const liquid = location.query.liquid_introduced || cookies.liquid_introduced
   const imported = location.query.imported || cookies.imported
-  const citySt = `${cityName}, ${stateName}`
+  const userCity = `${user && user.address ? user.address.city : geoip ? geoip.city : ''}`
 
   return html`
   <div class="columns is-mobile" style="border-top: 1px solid #ccc;">
-    <div class="column" style="padding-top: 2rem;"><h1 class="title is-5">Toggle to<br />filter bills</h1></div>
+    <div class="column" style="padding-top: 1.25rem;"><h3 class="title is-6" style="width: 7.5rem;">Filter bill source</h3></div>
     <div class="column has-text-centered vertical-center">
-      <div class="box" style=${congress ? 'width: 6em; height: 9em;' : 'filter: grayscale(100%); opacity: 0.5; width: 6em; border-color: transparent; height: 9em; '}>
-        <a href=${congress ? `${location.url.replace('congress=on', '')}` : `/legislation?${makeQuery({ congress: 'on' }, location.query)}`}>
-          <span class="has-text-black">
-            <br /><span class="image is-36x36">
-              <img src=/assets/filter-images/us.png />
-            </span>
-            <br /><span>U.S.</span>
-          </span>
-        </a>
-      </div>
+      <button onclick="${toggleImported}" class="button is-outlined" style=${imported ? 'width: 8em;' : 'filter: grayscale(100%); opacity: 0.5; width: 8em;'}>
+        <span class="image"><img src=/assets/filter-images/legislature.png /></span>
+        <span class="has-text-weight-semibold">&nbspLegislature</span>
+      </button>
     </div>
-    <div class="column has-text-centered">
-      <div class="box" style=${state ? 'width: 6em; height: 9em;' : 'filter: grayscale(100%); opacity: 0.5; width: 6em; box-border: none; height: 9em;'}>
-       <a href=${state ? `${location.url.replace('state=WI', '')}` : `/legislation?${makeQuery({ state: stateName }, location.query)}`}>
-         <span class="has-text-black">
-           <span class="image is-36x36" style="padding-top: -5em;">
-             <img src=/assets/filter-images/WI.png />
-           </span>
-           <br />${stateName}
-         </span>
-       </a>
-      </div>
+    <div class="column has-text-centered vertical-center">
+      <button onclick="${toggleLiquid}" class="button is-outlined" style=${liquid ? 'width: 6em;' : 'filter: grayscale(100%); opacity: 0.5; width: 6em;'}>
+        <span class="image">
+          <img src=/assets/filter-images/liquid.png />
+        </span>
+        <span class="has-text-weight-semibold">&nbspLiquid</span>
+      </button>
     </div>
-    <div class="column has-text-centered">
-      <div class="box" style=${city ? 'width: 6em; height: 9em;' : 'filter: grayscale(100%); opacity: 0.5; width: 6em; box-border: none; height: 9em;'}>
-        <a href=${city ? `${location.url.replace('city=Madison, WI', '')}` : `/legislation?${makeQuery({ city: citySt }, location.query)}`}>
-          <span class="has-text-black">
-            <span class="image is-48x48">
-              <img src=/assets/filter-images/local.png />
-            </span>
-            <br />Local
-          </span>
-        </a>
-      </div>
+    <div class="column" style="padding-top: 1.25rem;"><h3 class="title is-6">Juridstiction</h3></div>
+    <div class="column has-text-centered vertical-center">
+      <button onclick="${toggleCongress}" class="button is-outlined" style=${congress ? 'width: 5em;' : 'filter: grayscale(100%); opacity: 0.5; width: 5em;'}>
+        <span class="image"><img src=/assets/filter-images/US.png /></span>
+        <span class="has-text-weight-semibold">&nbspU.S.</span>
+      </button>
     </div>
-    <div class="column" style="padding-top: 2rem"><h1 class="title is-5">Introduced<br />by</h1></div>
-    <div class="column has-text-centered">
-      <div class="box" style=${imported ? 'width: 7em; height: 9em;' : 'filter: grayscale(100%); opacity: 0.5; width: 7em; box-border: none; height: 9em;'}>
-        <a href=${imported ? `${location.url.replace('imported=on', '')}` : `/legislation?${makeQuery({ imported: 'on' }, location.query)}`}>
-          <span class="has-text-black">
-            <span class="image is-32x32">
-              <img src=/assets/filter-images/legislature.png />
-            </span>
-            <br />Legislature
-          </span>
-        </a>
-      </div>
+    <div class="column has-text-centered vertical-center">
+      <button onclick="${toggleState}" class="button is-outlined" style=${state ? 'width: 5em;' : 'filter: grayscale(100%); opacity: 0.5; width: 5em;'}>
+        <span class="image"><img src=/assets/filter-images/WI.png /></span>
+        <span class="has-text-weight-semibold">&nbsp${stateName}</span>
+      </button>
     </div>
-    <div class="column has-text-centered">
-      <div class="box" style=${liquid ? 'width: 6em; height: 9em;' : 'filter: grayscale(100%); opacity: 0.5; width: 6em; box-border: none; height: 9em;'}>
-        <a href=${liquid ? `${location.url.replace('liquid_introduced=on', '')}` : `/legislation?${makeQuery({ liquid_introduced: 'on' }, location.query)}`}>
-            <div class="has-text-black">
-              <span class="image is-34x34">
-                <img src=/assets/filter-images/liquid.png />
-              </span>
-              <br />Liquid
-            </div>
-          </a>
-        </div>
-      </div>
+    <div class="column has-text-centered vertical-center">
+      <button onclick="${toggleCity}" class="button is-outlined" style=${city ? 'width: 7em;' : 'filter: grayscale(100%); opacity: 0.5; width: 7em;'}>
+        <span class="image"><img src=/assets/filter-images/local.png /></span>
+        <span class="has-text-weight-semibold">&nbsp${userCity}</span>
+      </button>
     </div>
+
+  </div>
   `
   }
