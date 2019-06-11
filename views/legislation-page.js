@@ -300,43 +300,65 @@ const filterImages = ({ location, cookies, geoip, user }) => {
   const userCity = `${user && user.address ? user.address.city : geoip ? geoip.city : ''}`
 
   return html`
-  <div class="columns is-mobile" style="border-top: 1px solid #ccc;">
-    <div class="column" style="padding-top: 1.25rem;"><h3 class="title is-6" style="width: 7.5rem;">Filter bill source</h3></div>
-    <div class="column has-text-centered vertical-center">
-      <button onclick="${toggleLiquid}" class="button is-outlined" style=${liquid ? 'width: 6em;' : 'filter: grayscale(100%); opacity: 0.5; width: 6em;'}>
-        <span class="image">
-          <img src=/assets/filter-images/liquid.png />
-        </span>
+  <div class="columns filters" style="border-top: 1px solid #ccc; margin-bottom: 0;">
+    <div class="column is-narrow filter-heading"><h3 class="title is-6">Filter bill source</h3></div>
+    <div class="column filter-image">
+      <button onclick="${toggleLiquid}" class=${`button is-outlined ${liquid ? 'filter-on' : 'filter-off'}`}>
+        <span class="image is-16x16"><img src="/assets/filter-images/liquid.png" /></span>
         <span class="has-text-weight-semibold">&nbspLiquid</span>
       </button>
-    </div>
-    <div class="column has-text-centered vertical-center">
-      <button onclick="${toggleImported}" class="button is-outlined" style=${imported ? 'width: 8em;' : 'filter: grayscale(100%); opacity: 0.5; width: 8em;'}>
-        <span class="image"><img src=/assets/filter-images/legislature.png /></span>
+      <button onclick="${toggleImported}"  class=${`button is-outlined ${imported ? 'filter-on' : 'filter-off'}`}>
+        <span class="image"><img style="width: auto; height: 23px;" src="/assets/filter-images/legislature.png" /></span>
         <span class="has-text-weight-semibold">&nbspLegislature</span>
       </button>
     </div>
-
-    <div class="column" style="padding-top: 1.25rem;"><h3 class="title is-6">Location</h3></div>
-    <div class="column has-text-centered vertical-center">
-      <button onclick="${toggleCongress}" class="button is-outlined" style=${congress ? 'width: 5em;' : 'filter: grayscale(100%); opacity: 0.5; width: 5em;'}>
-        <span class="image"><img src=/assets/filter-images/US.png /></span>
+    <div class="column is-narrow filter-heading"><h3 class="title is-6">Location</h3></div>
+    <div class="column filter-image">
+      <button onclick="${toggleCongress}"  class=${`button is-outlined ${congress ? 'filter-on' : 'filter-off'}`}>
+        <span class="image" style="width: 21px;"><img src="/assets/filter-images/US.png" /></span>
         <span class="has-text-weight-semibold">&nbspU.S.</span>
       </button>
-    </div>
-    <div class="column has-text-centered vertical-center">
-      <button onclick="${toggleState}" class="button is-outlined" style=${state ? 'width: 5em;' : 'filter: grayscale(100%); opacity: 0.5; width: 5em;'}>
-        <span class="image"><img src=/assets/filter-images/WI.png /></span>
+      <button onclick="${toggleState}"  class=${`button is-outlined ${state ? 'filter-on' : 'filter-off'}`}>
+        <span class="image is-16x16"><img src="/assets/filter-images/WI.png" /></span>
         <span class="has-text-weight-semibold">&nbsp${stateName}</span>
       </button>
-    </div>
-    <div class="column has-text-centered vertical-center">
-      <button onclick="${toggleCity}" class="button is-outlined" style=${city ? 'width: 7em;' : 'filter: grayscale(100%); opacity: 0.5; width: 7em;'}>
-        <span class="image"><img src=/assets/filter-images/local.png /></span>
+      <button onclick="${toggleCity}"  class=${`button is-outlined ${city ? 'filter-on' : 'filter-off'}`}>
+        <span class="image is-16x16"><img src="/assets/filter-images/local.png" /></span>
         <span class="has-text-weight-semibold">&nbsp${userCity}</span>
       </button>
     </div>
-
   </div>
+  <style>
+    .filters {
+      padding-top: 10px;
+    }
+    .filter-heading {
+      padding-top: 1.25rem;
+    }
+    .filter-on {
+      border-color: #565656;
+    }
+    .filter-on:hover {
+      border-color: #565656;
+      background-color: #f7f7f7;
+    }
+    .filter-off {
+      filter: grayscale(100%);
+      opacity: 0.5;
+    }
+    @media (max-width: 1050px) {
+      .filters {
+        padding-top: 0px;
+      }
+      .filter-heading {
+        padding-bottom: .3rem;
+        padding-top: .7rem;
+      }
+      .filter-image {
+        padding-bottom: 0rem;
+        padding-top: 0rem;
+      }
+    }
+  </style>
   `
   }
