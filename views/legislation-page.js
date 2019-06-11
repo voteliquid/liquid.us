@@ -314,7 +314,7 @@ const filterImages = ({ location, cookies, geoip, user }) => {
         <span class="has-text-weight-semibold">&nbsp;U.S.</span>
       </button>
       <button onclick="${toggleState}"  class=${`button is-outlined ${state ? 'filter-on' : 'filter-off'}`}>
-        <span class="image is-16x16"><img src="/assets/filter-images/WI.png" /></span>
+        <span class="image is-16x16"><img src=${`/assets/filter-images/${stateName}.png`} /></span>
         <span class="has-text-weight-semibold">&nbsp;${stateName}</span>
       </button>
       <button onclick="${toggleCity}"  class=${`button is-outlined ${city ? 'filter-on' : 'filter-off'}`}>
