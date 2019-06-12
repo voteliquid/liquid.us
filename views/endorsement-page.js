@@ -122,12 +122,10 @@ const rep = (r) => {
   const rep = r.office_holder
   const position = r.name.split(' ').slice(2).join(' ')
   const isState = r.legislature.name !== 'U.S. Congress'
-  const firstLine = isState
-    ? `${rep.first_name} ${rep.last_name}, ${r.legislature.short_name}`
-    : `${r.chamber === 'Upper' ? 'Sen' : 'Rep'}. ${rep.first_name} ${rep.last_name}`
+  const firstLine = `${rep.first_name} ${rep.last_name}`
   const secondLine = isState
     ? position
-    : r.chamber === 'Upper' ? stateNames[r.short_name] : r.short_name
+    : r.chamber === 'Upper' ? `Senator, ${r.short_name}` : `Rep., ${r.short_name}`
 
   return html.for(r)`
     <div class="column is-narrow">
