@@ -145,14 +145,14 @@ const rep = (r) => {
 }
 
 const legislature = (measure) => {
-  const isState = measure.legislature_name.length === 2
-  const measureImage = isState ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
-  const name = isState ? stateNames[measure.legislature_name] : measure.legislature_name
+  const notLocal = measure.legislature_name.length === 2 || measure.legislature_name === 'U.S. Congress'
+  const measureImage = notLocal ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+  const name = measure.legislature_name.length === 2 ? stateNames[measure.legislature_name] : measure.legislature_name
 
   return html`
     <div class="column">
       <div class="media">
-        ${isState ? html`
+        ${notLocal ? html`
           <div class="media-left">
             <div class="image is-48x48 is-clipped">
               <img src=${measureImage} style="background: hsla(0, 0%, 87%, 0.5); padding: 4px;"/>
