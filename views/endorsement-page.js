@@ -4,7 +4,7 @@ const endorsementCount = require('./endorsement-count')
 const measureSummary = require('./measure-summary')
 const sidebar = require('./endorsement-page-sidebar')
 const stateNames = require('datasets-us-states-abbr-names')
-const danetargetReps = require('./dane-county-targetReps')
+const daneTargetReps = require('./dane-county-targetReps')
 
 module.exports = (state, dispatch) => {
   const { location, measures, votes } = state
@@ -26,6 +26,7 @@ module.exports = (state, dispatch) => {
           <div class="column">
             <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>
             ${hideTargetReps(l) ? ''
+            : isDane(l) ? daneTargetReps({ vote, ...state })
               : targetReps({ measure, vote, ...state }, dispatch)
             }
             <div class="small-screens-only">
