@@ -26,7 +26,6 @@ module.exports = (state, dispatch) => {
           <div class="column">
             <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>
             ${hideTargetReps(l) ? ''
-              : isDane(l) ? danetargetReps({ vote, ...state })
               : targetReps({ measure, vote, ...state }, dispatch)
             }
             <div class="small-screens-only">
@@ -146,19 +145,17 @@ const rep = (r) => {
 
 const legislature = (measure) => {
   const notLocal = measure.legislature_name.length === 2 || measure.legislature_name === 'U.S. Congress'
-  const measureImage = notLocal ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+  const measureImage = notLocal ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : `${ASSETS_URL}/legislature-images/local.png`
   const name = measure.legislature_name.length === 2 ? stateNames[measure.legislature_name] : measure.legislature_name
 
   return html`
     <div class="column">
       <div class="media">
-        ${notLocal ? html`
-          <div class="media-left">
-            <div class="image is-48x48 is-clipped">
-              <img src=${measureImage} style="background: hsla(0, 0%, 87%, 0.5); padding: 4px;"/>
-            </div>
+        <div class="media-left">
+          <div class="image is-48x48">
+            <img src=${measureImage} style="background: hsla(0, 0%, 87%, 0.5);"/>
           </div>
-        ` : ''}
+        </div>
         <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
           ${name}<br />
           ${measure.legislature_name === 'U.S. Congress' ? '' : 'Legislature'}
