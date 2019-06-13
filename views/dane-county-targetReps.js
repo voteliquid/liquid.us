@@ -49,16 +49,14 @@ const supSemiSupports = ['35', '27'].includes(district)
         ${noSup ? html`
           <p>Your supervisor was recently elected and has not yet been sworn in. We will send your comment when that happens. In the meantime, <a href="mailto:county_board_recipients@countyofdane.com" target="_blank">email the Board of Supervisors</a> to emphasize the importance of this issue.</p>
         ` : supSupportsProDane ? html`
-          <p>Your supervisor voted against the jail and already supports Resolution 67. Send Supervisor ${supervisor.last_name} a quick <a href="${`mailto:${email}`}" target="_blank">thank you email</a>.</p>
+          <p>Your supervisor voted against the jail and is already a sponsor of Resolution 67. Send Supervisor ${supervisor.last_name} a quick <a href="${`mailto:${email}`}" target="_blank">thank you email</a>.</p>
         ` : supSemiSupports ? html`
-          <p>Your supervisor supports OA-3, a measure that would strengthen the Criminal Justice Court, but has so far declined to support Resolution 67. Send a  <a href="mailto:${email}" target="_blank">quick email</a> thanking Supervisor ${supervisor.last_name} for supporting 0A-3, but explain that it's not enough.</p>
+          <p>Your supervisor supports 2019 OA 3, a measure to expand the Criminal Justice Council to include community members impacted by incarceration and behavioral health expert, but has not yet signed on to Resolution 67. Send a  <a href="mailto:${email}" target="_blank">quick email</a> thanking Supervisor ${supervisor.last_name} for sponsoring 0A 3, and ask your supervisor to also sign on to Res. 67.</p>
         ` : html`
-          <p>Your supervisor voted for the jail and has declined to endorse Resolution 67. Please <a href="mailto:${email}" target="_blank">reach out</a> to Supervisor ${supervisor.last_name} to explain why you believe it is important to prioritize decarceration.
+          <p>Your supervisor voted for the jail and has not yet signed on to Resolution 67. Please <a href="mailto:${email}" target="_blank">reach out</a> to Supervisor ${supervisor.last_name} to explain why you believe it is important to prioritize decarceration and ask your supervisor to sign on.
         `}
         <br />
-        <p>It's important that we keep up the pressure after our big turnout last week. Please share this page to help us find even more supporters.</p>
-        <br />
-        <p><em>The first commmittee hearing should be heald in late June or early July. We will provide an update when the dates are confirmed.</em></p>
+        <p><em>Resolution 67 and OA 3 will be scheduled for public hearings in various committees this summer; we will update you as more information becomes available.</em></p>
       </div>
     ` : ''}
   `
