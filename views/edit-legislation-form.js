@@ -24,7 +24,7 @@ module.exports = (state, dispatch) => {
               <option value="${l1.id}" selected=${l1.abbr === legislature_name}>${l1.name}</option>
               <option value="${l2.id}" selected=${l2.abbr === legislature_name}>${l2.name}</option>
               <option value="${l3.id}" selected=${l3.abbr === legislature_name}>${l3.name}</option>
-              <option value="${l4.id}" selected=${l4.abbr === legislature_name}>${l4.name}</option>
+              ${legislatures[3] ? `<option value="${l4.id}" selected=${l4.abbr === legislature_name}>${l4.name}</option>` : ''}
             </select>
           </div>
         </div>
