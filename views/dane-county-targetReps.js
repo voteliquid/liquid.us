@@ -47,7 +47,7 @@ const supSemiSupports = ['35', '27'].includes(district)
       <div class="is-size-5 box">
         <p>Thank you for supporting Resolution 67, the Community Alternative Plan for Housing, Health care, and Decarceration.</p><br />
         ${noSup ? html`
-          <p>We will send your comment when your supervisor has beens worn in. In the meantime, <a href="mailto:county_board_recipients@countyofdane.com" target="_blank">email the Board of Supervisors</a> to emphasize the importance of this issue.</p>
+          <p>We will send your comment when your supervisor has been sworn in. In the meantime, <a href="mailto:county_board_recipients@countyofdane.com" target="_blank">email the Board of Supervisors</a> to emphasize the importance of this issue.</p>
         ` : supSupportsProDane ? html`
           <p>Your supervisor voted against the jail and is already a sponsor of Resolution 67. Send Supervisor ${supervisor.last_name} a quick <a href="${`mailto:${email}`}" target="_blank">thank you email</a>.</p>
         ` : supSemiSupports ? html`
