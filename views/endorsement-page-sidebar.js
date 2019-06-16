@@ -23,7 +23,7 @@ module.exports = (state, dispatch) => {
       <div class="${vote.showMobileEndorsementForm ? 'modal-content' : ''}">
         ${user && measure.vote_position && measure.vote_position !== vote.position
           // logged in, voted differently
-          ? endorsedOpposingPosition(measure)
+          ? endorsedOpposingPosition(measure, vote)
           : user && measure.vote_position && !vote.endorsed
           ? endorsedPositionNotVote(measure)
           : ''
@@ -81,10 +81,10 @@ const endorsedPositionNotVote = (measure) => {
 
 const userCommented = measure.comment ? 'and added your own argument' : 'and may have already backed an argument'
 const voteHistoryText = measure.delegate_name ? html`
-  Your proxy, ${measure.delegate_name}, has already <strong>${previousVote}</strong> on the underlying measure and may have included an argument.<br /><br />
+  Your proxy, ${measure.delegate_name}, has already <strong>${previousVote}</strong> on this item and may have included an argument.<br /><br />
   Endorse to back this argument instead.`
   : html`
-  You previously <strong>${previousVote}</strong> on the underlying measure ${userCommented}.<br /><br />
+  You previously <strong>${previousVote}</strong> on this item ${userCommented}.<br /><br />
   Endorse to back this argument instead.
 `
   return html`
@@ -93,7 +93,7 @@ const voteHistoryText = measure.delegate_name ? html`
     </div>
   `
 }
-const endorsedOpposingPosition = (measure) => {
+const endorsedOpposingPosition = (measure, vote) => {
   let previousVote = 'endorsed'
   if (measure.vote_position === 'nay') { previousVote = 'opposed' }
   if (measure.vote_position === 'abstain') { previousVote = html`abstained <span class="has-text-weight-normal">on</span>` }
@@ -102,7 +102,7 @@ const endorsedOpposingPosition = (measure) => {
   return html`
     <div class="notification is-warning is-marginless is-size-7">
       You${proxyVote} previously <strong>${previousVote}</strong> this item.<br /><br />
-      This will switch your vote.
+      This will switch your vote from ${measure.vote_position} to ${vote.position}.
     </div>
   `
 }
