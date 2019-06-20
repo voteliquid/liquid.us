@@ -7,20 +7,20 @@ module.exports = ({ vote, user, reps }) => {
   const last = (arr) => arr[arr.length - 1]
   const supervisor = reps[4].office_holder
   let district; let email
+  const emailExceptions = {
+    '7': 'veldran@countyofdane.com', // Veldran
+    '8': 'bayrd@countyofdane.com', // Bayrd
+    '12': 'rusk@countyofdane.com', // Rusk
+    '19': 'clausius@countyofdane.com', // Clausius
+    '23': 'stubbs@countyofdane.com', // Stubbs
+    '30': 'downing@countyofdane.com', // Downing
+    '34': 'miles@countyofdane.com', // Miles
+    '37': 'salov@countyofdane.com', // Salov
+    '25': 'kiefer.timothy@countyofdane.com', // Kiefer
+  }
   if (supervisor.elected_office_name.includes('Dane')) {
     district = last(supervisor.elected_office_name.split(' '))
-    email = emailExceptions[supervisor.short_name] || `${supervisor.last_name.toLowerCase()}.${supervisor.first_name.toLowerCase()}@countyofdane.gov`
-  }
-  const emailExceptions = {
-    'Dane7': 'veldran@countyofdane.com', // Veldran
-    'Dane8': 'bayrd@countyofdane.com', // Bayrd
-    'Dane12': 'rusk@countyofdane.com', // Rusk
-    'Dane19': 'clausius@countyofdane.com', // Clausius
-    'Dane23': 'stubbs@countyofdane.com', // Stubbs
-    'Dane30': 'downing@countyofdane.com', // Downing
-    'Dane34': 'miles@countyofdane.com', // Miles
-    'Dane37': 'salov@countyofdane.com', // Salov
-    'Dane25': 'kiefer.timothy@countyofdane.com', // Kiefer
+    email = emailExceptions[district] || `${supervisor.last_name.toLowerCase()}.${supervisor.first_name.toLowerCase()}@countyofdane.gov`
   }
   const outsideDane = !district
   const noSup = ['1', '17', '33'].includes(district)
