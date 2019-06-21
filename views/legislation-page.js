@@ -310,11 +310,11 @@ const filterImages = ({ location, cookies, geoip, user }) => {
     <div class="column is-narrow filter-heading"><h3 class="title is-6">Location</h3></div>
     <div class="column filter-image">
       <button onclick="${toggleCongress}"  class=${`button is-outlined ${congress ? 'filter-on' : 'filter-off'}`}>
-        <span class="image" style="width: 21px;"><img src="/assets/filter-images/US.png" /></span>
+        <span class="image" style="width: 21px;"><img src="/assets/legislature-images/U.S. Congress.png" /></span>
         <span class="has-text-weight-semibold">&nbsp;U.S.</span>
       </button>
       <button onclick="${toggleState}"  class=${`button is-outlined ${state ? 'filter-on' : 'filter-off'}`}>
-        <span class="image is-16x16"><img src=${`/assets/filter-images/${stateName}.png`} /></span>
+        <span class="image is-16x16"><img src=${`/assets/legislature-images/${stateName}.png`} /></span>
         <span class="has-text-weight-semibold">&nbsp;${stateName}</span>
       </button>
       <button onclick="${toggleCity}"  class=${`button is-outlined ${city ? 'filter-on' : 'filter-off'}`}>
