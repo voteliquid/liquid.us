@@ -190,6 +190,13 @@ exports.combineEffectsInSeries = (effects) => (dispatch) => {
   effects.reduce((promise, effect) => promise.then(() => Promise.resolve(effect && effect(dispatch))), Promise.resolve())
 }
 
+// Wait for all promises before dispatching optional event
+exports.waitEffects = (effects, finalEvent) => (dispatch) => {
+  Promise.all(effects.filter((effect) => effect).map((effect) => Promise.resolve(effect(dispatch)))).then(() => {
+    if (finalEvent) dispatch(finalEvent)
+  })
+}
+
 exports.api = (dispatch, url, params = {}) => {
   params.headers = params.headers || {}
   if (params.user && params.user.jwt) {
