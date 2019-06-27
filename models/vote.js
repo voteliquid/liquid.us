@@ -394,14 +394,18 @@ const endorsementPageTitleAndMeta = (measures, vote, location) => {
     .split('\n').filter(line => line)[0] // strip leading whitespace
   const title = `${vote.fullname || anonymousName}: ${firstRealSentence}`
 
+  // Determine social media image: start with database image, then any image in the comment, any image in measure summary, author avatar, legislature image
+  const dbImage = measure.image_name ? `${ASSETS_URL}/measure-images/${measure.image_name}` : ''
   const inlineImageMatch = vote && vote.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
   const inlineImage = inlineImageMatch && inlineImageMatch[0]
+  const measureInlineImageMatch = measure && measure.summary && measure.summary.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
+  const measureInlineImage = measureInlineImageMatch && measureInlineImageMatch[0]
   const authorImage = vote.username || vote.twitter_username ? avatarURL(vote) : null
-  const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+  const legislatureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
 
   return {
     ...location,
-    ogImage: inlineImage || authorImage || measureImage,
+    ogImage: dbImage || inlineImage || measureInlineImage || authorImage || legislatureImage,
     ogTitle: `${measure.title} | Liquid US`,
     description: title,
     title,
