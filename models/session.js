@@ -21,9 +21,11 @@ module.exports = (event, state) => {
     case 'pageLoaded':
       switch (state.location.route) {
         case '/join':
-          if (state.user) return [state, redirect('/')]
-          if (state.location.query.ph) {
-            return [state, updatePhoneNumber(atob(state.location.query.ph), state.user)]
+          if (state.user) {
+            if (state.location.query.ph) {
+              return [state, updatePhoneNumber(atob(state.location.query.ph), state.user)]
+            }
+            return [state, redirect('/')]
           }
           return [{ ...state, location: { ...state.location, title: 'Join' } }, combineEffects([
             fetchMetrics,
