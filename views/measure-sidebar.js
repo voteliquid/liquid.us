@@ -8,7 +8,6 @@ const shareButtons = require('./measure-share-buttons')
 module.exports = (state, dispatch) => {
   const { measure, offices } = state
   const l = measure
-  if (l.short_id === 'press-pause-on-227m-new-jail') { l.legislature_name = 'Dane County' }
   const reps = state.reps.filter(({ chamber, legislature }) => {
     return chamber === l.chamber && (stateAbbr[legislature.name] || legislature.name) === l.legislature_name
   })
