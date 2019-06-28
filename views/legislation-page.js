@@ -1,5 +1,6 @@
 const { html, capitalize } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
+const addLegislationForm = require('./add-legislation-form')
 
 module.exports = (state, dispatch) => {
   const { cookies, geoip, loading, measures, measuresByUrl, location, user } = state
@@ -12,6 +13,7 @@ module.exports = (state, dispatch) => {
         ${filterImages({ cookies, location, geoip, user })}
         ${filterForm(location, cookies, user, geoip, dispatch)}
         ${(!user || !user.address) && geoip ? [addAddressNotification(geoip, user)] : []}
+        ${addLegislationForm(state, dispatch)}
         ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
           (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId], query)))}
         <style>
