@@ -13,13 +13,14 @@ module.exports = (state, dispatch) => {
   const short_id = !forms.editMeasureShortId && !measure.short_id ? auto_short_id : (form.short_id || measure.short_id)
 
   return html`
-    <form method="POST" onsubmit=${handleForm(dispatch, { type: 'measure:editFormSaved' })}>
+    <form method="POST" onsubmit=${handleForm(dispatch, { type: 'measure:editFormSaved' })}
+    onkeyup=${handleForm(dispatch, { type: 'measure:editFormChanged' })}>
       ${error ? html`<div class="notification is-danger">${error.message}</div>` : ''}
       <div class="card">
         <div class="card-content">
           <div class="field">
             <div class="control">
-              <input name="title" class="input" type="text" autocomplete="off" placeholder="Create a specific policy change that you want to see happen" required value="${title || ''}" />
+              <input name="title" class="input" type="text" autocomplete="off" placeholder="Create a specific policy change that you want to see happen" />
             </div>
           </div>
           <div class="columns is-mobile has-text-right">
@@ -55,7 +56,7 @@ module.exports = (state, dispatch) => {
             <div class="column is-narrow">
               <div class="field is-grouped">
                 <div class="control">
-                  <button class=${`button is-primary`} type="submit">
+                  <button class="button is-primary" type="submit">
                     <span class="icon"><i class="fa fa-edit"></i></span>
                     <span>Save</span>
                   </button>
