@@ -34,7 +34,7 @@ module.exports = (state, dispatch) => {
               ? activityIndicator()
               : yea
                 ? voteView({ measure, vote: yea, key: 'top-comment-yea', user }, dispatch)
-                : noArgumentsMsg(measure, 'yea', dispatch)}
+                : noResponsesMsg(measure, 'yea', dispatch)}
           </div>
         </div>
         <div class="column is-half" style="border-left: 1px solid white; background-color: hsla(348, 100%, 98%, 1); color: #222;">
@@ -44,7 +44,7 @@ module.exports = (state, dispatch) => {
               ? activityIndicator()
               : nay
                 ? voteView({ measure, vote: nay, user, key: 'top-comment-nay' }, dispatch)
-                : noArgumentsMsg(measure, 'nay', dispatch)}
+                : noResponsesMsg(measure, 'nay', dispatch)}
           </div>
         </div>
       </div>
@@ -53,18 +53,17 @@ module.exports = (state, dispatch) => {
   `
 }
 
-const noArgumentsMsg = (measure, position, dispatch) => {
+const noResponsesMsg = (measure, position, dispatch) => {
   return html`
     <p class="has-text-grey-light has-text-centered">
-      No arguments ${position === 'yea' ? 'in favor' : 'against'} yet.
       ${!measure.vote_position || measure.vote_position !== position
-        ? addArgumentLink(measure, position, dispatch)
+        ? addResponseLink(measure, position, dispatch)
         : ''}
     </p>
   `
 }
 
-const addArgumentLink = (measure, position, dispatch) => {
+const addResponseLink = (measure, position, dispatch) => {
   return html`
     <span><a onclick=${(event) => dispatch({ type: 'measure:voteFormActivated', event, measure })} href="#" class="has-text-grey">Add one</a>.</span>
   `

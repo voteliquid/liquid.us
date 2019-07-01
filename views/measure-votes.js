@@ -12,7 +12,7 @@ module.exports = (state, dispatch) => {
       <form name="vote-filters" style="margin-bottom: 2rem;" class="vote-filters" method="GET" action="${path}">
         <div class="field">
           <h4 class="title is-size-6 has-text-grey has-text-weight-semibold is-inline">
-            All Arguments
+            All Responses
           </h4>
         </div>
         <div class="field is-horizontal">
@@ -36,7 +36,7 @@ module.exports = (state, dispatch) => {
             <div class="field is-narrow has-addons">
               <div class="control">
                 <label for="vote_sort" class="button is-static is-small">
-                  Position
+                  Type
                 </label>
               </div>
               <div class="control">
@@ -54,7 +54,7 @@ module.exports = (state, dispatch) => {
               <div class="control">
                 <button onclick=${(event) => dispatch({ type: 'measure:voteFormActivated', measure, event })} class="${`button is-primary has-text-weight-semibold is-small ${showVoteForm ? 'is-hidden' : ''}`}">
                   <span class="icon"><i class="fa fa-edit"></i></span>
-                  <span>Add your argument</span>
+                  <span>Add your response</span>
                 </button>
               </div>
             </div>

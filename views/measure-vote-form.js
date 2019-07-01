@@ -5,10 +5,11 @@ module.exports = (state, dispatch) => {
   const v = l.votes.filter((id) => (user && votes[id] && votes[id].user_id === user.id)).map((id) => votes[id])[0] || {}
   const public_checked = v.hasOwnProperty('public') ? v.public : (!user || user.last_vote_public)
   const vote_position = v.vote_position || l.vote_position
+
   return html`
     <form method="POST" style="margin-bottom: 2rem;" onsubmit=${handleForm(dispatch, { type: 'vote:voted', measure: l })} onconnected=${scrollToForm(location)}>
       <div class="field">
-        <h4 class="title is-size-6">${!v.comment ? 'Add your argument' : 'Edit your argument'}:</h4>
+        <h4 class="title is-size-6">${!v.comment ? 'Your response' : 'Edit your response'}:</h4>
       </div>
       ${v.id && !v.comment && l.votePower !== undefined && public_checked ? html`
         <p class="notification">
