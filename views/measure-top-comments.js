@@ -56,6 +56,7 @@ module.exports = (state, dispatch) => {
 const noResponsesMsg = (measure, position, dispatch) => {
   return html`
     <p class="has-text-grey-light has-text-centered">
+      No ${position === 'yea' ? 'arguments in favor' : position === 'yea' ? 'arguments against' : position === 'question' ? 'questions' : 'neutral comments'} yet.
       ${!measure.vote_position || measure.vote_position !== position
         ? addResponseLink(measure, position, dispatch)
         : ''}

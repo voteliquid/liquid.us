@@ -45,6 +45,7 @@ module.exports = (state, dispatch) => {
                     <option value="all" selected=${!position || position === 'all'}>All</option>
                     <option value="yea" selected=${position === 'yea'}>Yea</option>
                     <option value="nay" selected=${position === 'nay'}>Nay</option>
+                    <option value="question" selected=${position === 'question'}>Question</option>
                   </select>
                 </div>
                 <button type="submit" class="vote-filters-submit is-hidden"></button>

@@ -36,6 +36,10 @@ module.exports = (state, dispatch) => {
                 <input type="radio" name="vote_position" value="abstain" checked=${vote_position === 'abstain' ? 'checked' : ''} />
                 Undecided
               </label>
+              <label class="radio">
+                <input type="radio" name="vote_position" value="question" checked=${vote_position === 'question' ? 'checked' : ''} />
+                Question
+              </label>
             </div>
           </div>
           <div class="column">
@@ -53,7 +57,7 @@ module.exports = (state, dispatch) => {
       </div>
       <div class="field">
         <div class="control">
-          <textarea name="comment" autocomplete="off" class="textarea" placeholder="Add an argument. Why are you voting this way?" value=${v.comment || ''}></textarea>
+          <textarea name="comment" autocomplete="off" class="textarea" placeholder="Explain your vote or ask a question" value=${v.comment || ''}></textarea>
         </div>
       </div>
       <div class="field is-horizontal">
