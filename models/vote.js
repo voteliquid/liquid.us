@@ -240,12 +240,16 @@ const endorse = (vote, user, measure, is_public = false) => (dispatch) => {
     let confirmation_text = 'You\'ve already '
     if (measure.endorsed) {
       confirmation_text += `endorsed ${possessive(measure.endorsement.fullname)} ${position} argument`
+    } else if (measure.vote_position === 'question') {
+      confirmation_text += `endorsed another question. Endorsing this one will remove the first you endorsed. Continue?`
     } else if (measure.vote_position) {
       confirmation_text += `commented. This will remove your previous comment`
     } else {
       confirmation_text += `voted ${position}`
     }
+    if (measure.vote_position !== 'question') {
     confirmation_text += `. Endorse ${fullname ? possessive(fullname) : 'this'} vote instead?`
+  }
     if (!window.confirm(confirmation_text)) {
       return
     }
