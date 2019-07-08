@@ -216,7 +216,13 @@ const saveUsername = ({ username }, user) => (dispatch) => {
 
 const requestOTP = ({ phone }, user) => (dispatch) => {
   if (!phone) {
-    return dispatch({ type: 'error', error: new Error('You must enter a phone number') })
+    return dispatch({ type: 'error', error: new Error('You must enter a phone number.') })
+  }
+
+  phone = phone.replace(/\D/g, '')
+
+  if (phone.length !== 10) {
+    return dispatch({ type: 'error', error: new Error('Please enter a 10-digit US phone number.') })
   }
 
   return fetch(`${WWW_URL}/rpc/verify_phone_number`, {
