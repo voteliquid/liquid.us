@@ -18,6 +18,8 @@ module.exports = (state, dispatch) => {
   const isDane = (l) => (
     l.short_id === 'press-pause-on-227m-new-jail'
   )
+  const tab = location.query.tab || 'arguments'
+  const path = location.path
 
   return html`
     <section class="section">
@@ -40,7 +42,16 @@ module.exports = (state, dispatch) => {
             <div class="small-screens-only">
               ${vote.showMobileEndorsementForm ? '' : mobileHoverBar({ vote }, dispatch)}
             </div>
-            ${(vote.replies || []).map(endorsementCommentReply)}
+            <div>
+              <div class="tabs">
+                <ul>
+                  <li class=${tab === 'replies' ? 'is-active' : ''}><a href=${`${path}?tab=replies`}>Comments</a></li>
+                  <li class=${tab === 'questions' ? 'is-active' : ''}><a href=${`${path}?tab=questions`}>Questions</a></li>
+                </ul>
+              </div>
+              ${tab === 'replies' ? (vote.replies || []).map(endorsementCommentReply) : []}
+              ${tab === 'questions' ? '' : ''}
+            </div>
           </div>
           <div class="column is-one-quarter sticky-panel">
             <div class="panel-wrapper">
