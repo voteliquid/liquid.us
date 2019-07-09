@@ -5,6 +5,8 @@ const measureSummary = require('./measure-summary')
 const sidebar = require('./endorsement-page-sidebar')
 const stateNames = require('datasets-us-states-abbr-names')
 const danetargetReps = require('./dane-county-targetReps')
+const petitionQuestions = require('./endorsement-questions')
+
 
 module.exports = (state, dispatch) => {
   const { location, measures, votes } = state
@@ -50,7 +52,7 @@ module.exports = (state, dispatch) => {
                 </ul>
               </div>
               ${tab === 'replies' ? (vote.replies || []).map(endorsementCommentReply) : []}
-              ${tab === 'questions' ? '' : ''}
+              ${tab === 'questions' ? petitionQuestions(state, dispatch) : ''}
             </div>
           </div>
           <div class="column is-one-quarter sticky-panel">
