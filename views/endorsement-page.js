@@ -51,8 +51,7 @@ module.exports = (state, dispatch) => {
                   <li class=${tab === 'questions' ? 'is-active' : ''}><a href=${`${path}?tab=questions`}>Questions</a></li>
                 </ul>
               </div>
-              ${tab === 'replies' || !tab ? (vote.replies || []).map(endorsementCommentReply) : []}
-              ${tab === 'questions' ? petitionQuestions(state, dispatch) : ''}
+              ${tab === 'questions' ? petitionQuestions(state, dispatch) : (vote.replies || []).map(endorsementCommentReply)}
             </div>
           </div>
           <div class="column is-one-quarter sticky-panel">
