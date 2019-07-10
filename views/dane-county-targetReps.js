@@ -5,7 +5,6 @@ module.exports = ({ vote, user, reps }) => {
   const measureImage = `${ASSETS_URL}/legislature-images/Dane County.png`
   const reply = (vote.replies || []).filter(({ user_id }) => (user && user.id === user_id))[0]
 
-
   return html`
     <br />
     <div class="columns">
@@ -26,7 +25,7 @@ module.exports = ({ vote, user, reps }) => {
         </div>
       </div>
     </div>
-    ${reply && reps[4] ? callToAction(reps) : ''}
+    ${reply && reps[4] && reps[4].name.includes('Dane') ? callToAction(reps) : ''}
   `
 }
 
