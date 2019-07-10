@@ -2,14 +2,40 @@ const { handleForm, html } = require('../helpers')
 
 module.exports = (state, dispatch) => {
   const { error, loading, location, measure: l, user } = state
+  const { order } = location.query
 
-  return html`
-    <div class="field is-narrow">
-      <div class="control">
-        <button class="button is-primary has-text-weight-semibold is-small">
-          <span class="icon"><i class="fa fa-edit"></i></span>
-          <span>Add a question</span>
-        </button>
+  const autosubmit = () => {
+    document.querySelector('.question-filters-submit').click()
+  }
+    return html`
+    <div class="columns is-mobile">
+      <div class="column is-narrow">
+        <div class="field is-narrow has-addons">
+          <div class="control">
+            <label for="vote_sort" class="button is-static is-small">
+              Sort by
+            </label>
+          </div>
+          <div class="control">
+            <div class="select is-small">
+              <select autocomplete="off" name="order" onchange=${autosubmit}>
+                <option value="most_recent" selected=${!order || order === 'most_recent'}>Most recent</option>
+                <option value="most_support" selected=${order === 'most_support'}>Most support</option>
+              </select>
+            </div>
+            <button type="submit" class="question-filters-submit is-hidden"></button>
+          </div>
+        </div>
+      </div>
+      <div class="column"
+        <div class="field is-narrow">
+          <div class="control">
+            <button class="button is-primary has-text-weight-semibold is-small">
+              <span class="icon"><i class="fa fa-edit"></i></span>
+              <span>Add a question</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <form method="POST" style="margin-bottom: 2rem;" onsubmit=${handleForm(dispatch, { type: 'vote:voted', measure: l })} onconnected=${scrollToForm(location)}>
