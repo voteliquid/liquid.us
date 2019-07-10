@@ -38,7 +38,7 @@ module.exports = (state, dispatch) => {
         </div>
       </div>
     </div>
-    <div>${questionForm(dispatch, state)}
+    <div>${questionForm(dispatch, state)}</div>
   `
 }
 
@@ -89,7 +89,7 @@ const questionForm = (dispatch, state) => {
       <div class="field">
         <div class="control">
           <label class="checkbox">
-            <input name="is_public" type="checkbox" checked=${user.last_vote_public} />
+            <input name="is_public" type="checkbox" checked=${user ? user.last_vote_public : true} />
             Share my name publicly
           </label>
         </div>
