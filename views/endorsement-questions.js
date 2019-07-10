@@ -1,4 +1,4 @@
-const { handleForm, html } = require('../helpers')
+const { html } = require('../helpers')
 
 module.exports = (state, dispatch) => {
   const { location } = state
@@ -32,7 +32,7 @@ module.exports = (state, dispatch) => {
           <div class="control">
             <button class="button is-primary has-text-weight-semibold is-small">
               <span class="icon"><i class="fa fa-edit"></i></span>
-              <span>Add a question</span>
+              <span>Add question</span>
             </button>
           </div>
         </div>
@@ -43,10 +43,10 @@ module.exports = (state, dispatch) => {
 }
 
 const questionForm = (dispatch, state) => {
-  const { error, loading, location, measure: l, user } = state
+  const { error, location, user } = state
 
     return html`
-    <form method="POST" style="margin-bottom: 2rem;" onsubmit=${handleForm(dispatch, { type: 'vote:voted', measure: l })} onconnected=${scrollToForm(location)}>
+    <form method="POST" style="margin-bottom: 2rem;" onconnected=${scrollToForm(location)}>
       <div class="field">
         <h4 class="title is-size-6">Add question</h4>
       </div>
@@ -64,7 +64,7 @@ const questionForm = (dispatch, state) => {
         <div class="column">
           <div class="field">
             <label class="label has-text-grey">Your Email *</label>
-            <div class="field has-addons join-input-field">
+            <div class="field join-input-field">
               <div class="control has-icons-right">
                 <input name="email" class="input" type="text" placeholder="you@example.com" />
                 <span class="icon is-small is-right"><i class="fa fa-lock"></i></span>
@@ -97,7 +97,7 @@ const questionForm = (dispatch, state) => {
       <div class="field is-horizontal">
         <div class="field is-grouped">
           <div class="control">
-            <button class=${`button ${loading.vote ? 'is-loading' : ''}`} disabled=${loading.vote} type="submit">
+            <button class="button" type="submit">
               <span class="icon"><i class="fa fa-edit"></i></span>
               <span>Submit</span>
             </button>
