@@ -1,7 +1,7 @@
 const { handleForm, html } = require('../helpers')
 
 module.exports = (state, dispatch) => {
-  const { error, loading, location, measure: l, user } = state
+  const { location } = state
   const { order } = location.query
 
   const autosubmit = () => {
@@ -12,7 +12,7 @@ module.exports = (state, dispatch) => {
       <div class="column is-narrow">
         <div class="field is-narrow has-addons">
           <div class="control">
-            <label for="vote_sort" class="button is-static is-small">
+            <label for="question_sort" class="button is-static is-small">
               Sort by
             </label>
           </div>
@@ -38,6 +38,14 @@ module.exports = (state, dispatch) => {
         </div>
       </div>
     </div>
+    <div>${questionForm(dispatch, state)}
+  `
+}
+
+const questionForm = (dispatch, state) => {
+  const { error, loading, location, measure: l, user } = state
+
+    return html`
     <form method="POST" style="margin-bottom: 2rem;" onsubmit=${handleForm(dispatch, { type: 'vote:voted', measure: l })} onconnected=${scrollToForm(location)}>
       <div class="field">
         <h4 class="title is-size-6">Add question</h4>
@@ -100,7 +108,6 @@ module.exports = (state, dispatch) => {
     </form>
   `
 }
-
 const scrollToForm = (location) => {
   if (location.query.action === 'add-argument') {
     window.scrollTo(0, document.getElementById('measure-vote-form').getBoundingClientRect().top)
