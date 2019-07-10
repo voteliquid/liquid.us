@@ -4,6 +4,14 @@ module.exports = (state, dispatch) => {
   const { error, loading, location, measure: l, user } = state
 
   return html`
+    <div class="field is-narrow">
+      <div class="control">
+        <button class="button is-primary has-text-weight-semibold is-small">
+          <span class="icon"><i class="fa fa-edit"></i></span>
+          <span>Add a question</span>
+        </button>
+      </div>
+    </div>
     <form method="POST" style="margin-bottom: 2rem;" onsubmit=${handleForm(dispatch, { type: 'vote:voted', measure: l })} onconnected=${scrollToForm(location)}>
       <div class="field">
         <h4 class="title is-size-6">Add question</h4>
