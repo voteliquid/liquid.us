@@ -26,7 +26,7 @@ module.exports = ({ vote, user, reps }) => {
         </div>
       </div>
     </div>
-    ${reply ? callToAction(reps) : ''}
+    ${reply && reps[4] ? callToAction(reps) : ''}
   `
 }
 
@@ -49,15 +49,13 @@ const callToAction = (reps) => {
     district = last(supervisor.elected_office_name.split(' '))
     email = emailExceptions[district] || `${supervisor.last_name.toLowerCase()}.${supervisor.first_name.toLowerCase()}@countyofdane.gov`
   }
-  const outsideDane = !district
   const noSup = ['1', '17', '33'].includes(district)
   const supSupportsProDane = ['2', '4', '6', '32'].includes(district)
   const supSemiSupports = ['35', '27'].includes(district)
   return html`
     <div class="is-size-5 box">
       <p>Thank you for supporting Resolution 67, the Community Alternative Plan for Housing, Health care, and Decarceration.</p><br />
-      ${outsideDane ? html`
-      ` : noSup ? html`
+      ${noSup ? html`
         <p>We will send your comment when your supervisor has been sworn in. In the meantime, <a href="mailto:county_board_recipients@countyofdane.com" target="_blank">email the Board of Supervisors</a> to emphasize the importance of this issue.</p>
       ` : supSupportsProDane ? html`
         <p>Your supervisor voted against the jail and is already a sponsor of Resolution 67. Send Supervisor ${supervisor.last_name} a quick <a href="${`mailto:${email}`}" target="_blank">thank you email</a>.</p>
