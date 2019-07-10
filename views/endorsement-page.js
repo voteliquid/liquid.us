@@ -51,7 +51,7 @@ module.exports = (state, dispatch) => {
                   <li class=${tab === 'questions' ? 'is-active' : ''}><a href=${`${path}?tab=questions`}>Questions</a></li>
                 </ul>
               </div>
-              ${tab === 'replies' ? (vote.replies || []).map(endorsementCommentReply) : []}
+              ${tab === 'replies' || !tab ? (vote.replies || []).map(endorsementCommentReply) : []}
               ${tab === 'questions' ? petitionQuestions(state, dispatch) : ''}
             </div>
           </div>
