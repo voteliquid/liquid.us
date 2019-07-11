@@ -13,36 +13,36 @@ module.exports = (state, dispatch) => {
       <div class="field">
         <label class="label has-text-grey">Your Name *</label>
         <div class="control has-icons-left">
-          <input name="name" autocomplete="off" class=${`input ${error && error.name && 'is-danger'}`} placeholder="John Doe" required />
-          ${error && error.name
+          <input name="name" autocomplete="off" class=${`input ${error && error.field === 'name' && 'is-danger'}`} placeholder="John Doe" required />
+          ${error && error.field === 'name'
             ? html`<span class="icon is-small is-left"><i class="fas fa-exclamation-triangle"></i></span>`
             : html`<span class="icon is-small is-left"><i class="fa fa-user"></i></span>`
           }
-          ${error && error.name ? html`<p class="help is-danger">${error.message}</p>` : ''}
+          ${error && error.field === 'name' ? html`<p class="help is-danger">${error.message}</p>` : ''}
         </div>
       </div>
       <div class="field">
         <label class="label has-text-grey">Your Email *</label>
         <div class="field has-addons join-input-field">
-          <div class="${`control is-expanded has-icons-left ${error && error.email ? 'has-icons-right' : ''}`}">
-            <input name="email" class="${`input ${error && error.email ? 'is-danger' : ''}`}" type="text" placeholder="you@example.com" required />
-            ${error && error.email
+          <div class="${`control is-expanded has-icons-left ${error && error.field === 'email' ? 'has-icons-right' : ''}`}">
+            <input name="email" class="${`input ${error && error.field === 'email' ? 'is-danger' : ''}`}" type="text" placeholder="you@example.com" required />
+            ${error && error.field === 'email'
               ? html`<span class="icon is-small is-left"><i class="fas fa-exclamation-triangle"></i></span>`
               : html`<span class="icon is-small is-left"><i class="fa fa-user"></i></span>`
             }
-            ${error && error.email ? html`<p class="help is-danger">This email is invalid.</p>` : ''}
+            ${error && error.field === 'email' ? html`<p class="help is-danger">This email is invalid.</p>` : ''}
           </div>
         </div>
       </div>
       <div class="field">
         <label class="label has-text-grey">Your Address</label>
         <div class="control has-icons-left">
-          <input onconnected=${initGoogleMaps} class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete_sidebar" placeholder="185 Berry Street, San Francisco, CA 94121" />
-          ${error && error.address
+          <input onconnected=${initGoogleMaps} class=${`input ${error && error.field === 'address' && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete_sidebar" placeholder="185 Berry Street, San Francisco, CA 94121" />
+          ${error && error.field === 'address'
             ? html`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`
             : html`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`
           }
-          ${error && error.address ? html`<p class="help is-danger">${error.message}</p>` : ''}
+          ${error && error.field === 'address' ? html`<p class="help is-danger">${error.message}</p>` : ''}
         </div>
         <p class="is-size-7" style="margin-top: .3rem;">So your reps know you're their constituent.</p>
       </div>

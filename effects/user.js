@@ -5,7 +5,7 @@ const { fetchOfficesFromAddress, fetchOfficesFromIP } = require('./office')
 
 exports.fetchUser = (id, jwt, refresh_token, ip) => (dispatch) => {
   if (id && jwt) {
-    return api(dispatch, `/users?select=id,about,intro_video_url,email,first_name,last_name,username,phone_verified,inherit_votes_public,voter_status,update_emails_preference,is_admin,address:user_addresses(id,address,city,state)&id=eq.${id}`, { user: { id, jwt, refresh_token } })
+    return api(dispatch, `/users?select=id,about,intro_video_url,email,first_name,last_name,username,phone_verified,inherit_votes_public,voter_status,update_emails_preference,is_admin,address:user_addresses(id,formatted_address,address,city,state)&id=eq.${id}`, { user: { id, jwt, refresh_token } })
     .then(([result]) => {
       if (result) {
         const user = { ...result, address: result.address[0], jwt, refresh_token }
@@ -34,17 +34,15 @@ exports.updateNameAndAddress = ({ addressData, nameData, user }) => (dispatch) =
   // Update users address
   .then(() => {
     if (!addressData.lon) {
-      return geocode(addressData.address, addressData.state).then((newAddressData) => updateAddress(newAddressData, user, dispatch))
+      return geocode(addressData.address).then((newAddressData) => updateAddress(newAddressData, user, dispatch))
     }
     return updateAddress(addressData, user, dispatch)
-  })
-  .catch((error) => {
-    console.log(error)
   })
   .then(() => {
     const user = { ...nameData, address: addressData }
     dispatch({ type: 'user:updated', user })
   })
+  .catch((error) => dispatch({ type: 'error', error }))
 }
 
 const updateAddress = exports.updateAddress = (addressData, user, dispatch) => {
@@ -56,17 +54,18 @@ const updateAddress = exports.updateAddress = (addressData, user, dispatch) => {
   })
 }
 
-const geocode = exports.geocode = (address, state) => {
+const geocode = exports.geocode = (address) => {
   return fetch(`${WWW_URL}/rpc/geocode`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ address, state }),
+    body: JSON.stringify({ address }),
   })
   .then((res) => res.json())
   .then(([place]) => {
     if (!place) return Promise.reject(new Error(`Could not find address. Try including a city and state, or contact support if the address includes city and state.`))
     const newAddressData = { address }
     const geocoords = place.geometry.location
+    newAddressData.formatted_address = place.formatted_address
     newAddressData.geocoords = makePoint(geocoords.lng, geocoords.lat)
     newAddressData.city = place.address_components.filter((item) => {
       return item.types.some((type) => type === 'locality')
@@ -75,9 +74,5 @@ const geocode = exports.geocode = (address, state) => {
       return item.types.some((type) => type === 'administrative_area_level_1')
     }).map((item) => item.short_name).shift() || ''
     return newAddressData
-  })
-  .catch((error) => {
-    console.log(error)
-    return { address }
   })
 }
