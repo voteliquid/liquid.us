@@ -126,18 +126,32 @@ const finishOrSkip = (cookies, user, dispatch) => {
   return dispatch({ type: 'redirected', url: '/legislation' })
 }
 
+const validateNameAndAddressForm = (address, name) => {
+  const name_pieces = name.split(' ')
+
+  if (name_pieces.length < 2) {
+    return Object.assign(new Error('Please enter a first and last name'), { field: 'name' })
+  } else if (name_pieces.length > 5) {
+    return Object.assign(new Error('Please enter only a first and last name'), { field: 'name' })
+  }
+
+  if (!address.match(/ \d{5}/) && (!window.lastSelectedGooglePlacesAddress || !window.lastSelectedGooglePlacesAddress.lon)) {
+    return Object.assign(
+      new Error(`Please use your complete address including city, state, and zip code.`),
+      { field: 'address' }
+    )
+  }
+}
+
 const saveBasicInfo = (formData, cookies, user) => (dispatch) => {
   const { address, voter_status } = formData
+  const error = validateNameAndAddressForm(address, formData.name)
+
+  if (error) return dispatch({ type: 'error', error })
 
   const name_pieces = formData.name.split(' ')
   const first_name = name_pieces[0]
   const last_name = name_pieces.slice(1).join(' ')
-
-  if (formData.name.split(' ').length < 2) {
-    return dispatch({ type: 'error', error: Object.assign(new Error('Please enter a first and last name'), { name: true }) })
-  } else if (formData.name.split(' ').length > 5) {
-    return dispatch({ type: 'error', error: Object.assign(new Error('Please enter only a first and last name'), { name: true }) })
-  }
 
   return updateNameAndAddress({
     addressData: {

@@ -29,6 +29,7 @@ module.exports = `
 
       if (place.geometry && place.geometry.location) {
         var geocoords = Object.assign({}, place.geometry.location);
+        lastAddress.formatted_address = place.formatted_address;
         lastAddress.lat = geocoords.lat();
         lastAddress.lon = geocoords.lng();
         lastAddress.city = place.address_components.filter(function(item) {
