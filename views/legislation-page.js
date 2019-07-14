@@ -209,8 +209,8 @@ const measureListRow = (s, query) => {
                     <a href=${`/legislation?${makeQuery({ policy_area: s.policy_area }, query)}`}>${s.policy_area}</a> •
                   ` : ''}
                   Introduced
-                  ${s.sponsor_first_name ? html`
-                    by <a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>
+                  ${s.sponsor ? html`
+                    by <a href=${`/${s.sponsor.username}`}>${s.sponsor.first_name} ${s.sponsor.last_name}</a>
                   ` : ''}
                   on ${(new Date(s.introduced_at)).toLocaleDateString()}
                 </p>
@@ -227,8 +227,8 @@ const measureListRow = (s, query) => {
               </div>
             ` : html`
               <div class="is-size-7 has-text-grey">
-                ${s.author_username
-                  ? html`Authored by <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>`
+                ${s.author
+                  ? html`Authored by <a href="${`/${s.author.username}`}">${s.author.first_name} ${s.author.last_name}</a>`
                   : html`Authored by Anonymous`
                 }
                 on ${(new Date(s.created_at)).toLocaleDateString()}

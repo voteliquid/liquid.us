@@ -240,19 +240,12 @@ const fetchMeasures = (params, user) => (dispatch) => {
   const order = orders[params.order || 'upcoming']
 
   const hide_direct_votes = params.hide_direct_votes
-  const hide_direct_votes_params = hide_direct_votes === 'on' ? '&or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
+  const hide_direct_votes_params = hide_direct_votes === 'on' ? 'or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
   const policy_area_query = params.policy_area ? `&policy_area=eq.${params.policy_area}` : ''
 
   const legislature = `&legislature_name=eq.${params.legislature || 'U.S. Congress'}`
 
-  const fields = [
-    'title', 'number', 'type', 'short_id', 'id', 'status',
-    'sponsor_username', 'sponsor_first_name', 'sponsor_last_name',
-    'introduced_at', 'last_action_at', 'next_agenda_begins_at', 'next_agenda_action_at',
-    'summary', 'legislature_name', 'created_at', 'author_first_name', 'author_last_name', 'author_username', 'policy_area'
-  ]
-  if (user) fields.push('vote_position', 'delegate_rank', 'delegate_name')
-  const url = `/measures_detailed?select=${fields.join(',')}${hide_direct_votes_params}${policy_area_query}${fts}${legislature}&type=not.eq.nomination${order}&limit=40`
+  const url = `/measures_detailed?${hide_direct_votes_params}${policy_area_query}${fts}${legislature}&type=not.eq.nomination${order}&limit=40`
 
   return api(dispatch, url, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
