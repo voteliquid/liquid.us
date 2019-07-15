@@ -5,6 +5,7 @@ const measureSummary = require('./measure-summary')
 const sidebar = require('./endorsement-page-sidebar')
 const stateNames = require('datasets-us-states-abbr-names')
 const daneTargetReps = require('./dane-county-targetReps')
+const backersTable = require('./endorsement-backers')
 
 module.exports = (state, dispatch) => {
   const { location, measures, votes } = state
@@ -18,6 +19,9 @@ module.exports = (state, dispatch) => {
   const isDane = (l) => (
     l.short_id === 'press-pause-on-227m-new-jail'
   )
+
+  const tab = location.query.tab || 'comments'
+  const path = location.path
 
   return html`
     <section class="section">
@@ -40,7 +44,13 @@ module.exports = (state, dispatch) => {
             <div class="small-screens-only">
               ${vote.showMobileEndorsementForm ? '' : mobileHoverBar({ vote }, dispatch)}
             </div>
-            ${(vote.replies || []).map(endorsementCommentReply)}
+            <div class="tabs">
+              <ul>
+                <li class=${tab === 'comments' ? 'is-active' : ''}><a href=${`${path}?tab=comments`}>Comments (${vote.replies.length})</a></li>
+                <li class=${tab === 'backers' ? 'is-active' : ''}><a href=${`${path}?tab=backers`}>Backers (${(vote.backers || []).length})</a></li>
+              </ul>
+            </div>
+            ${tab === 'backers' ? backersTable(state, dispatch) : (vote.replies || []).map(endorsementCommentReply)}
           </div>
           <div class="column is-one-quarter sticky-panel">
             <div class="panel-wrapper">

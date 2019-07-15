@@ -6,6 +6,8 @@ const { updateNameAndAddress } = require('../effects/user')
 const { signIn } = require('../effects/session')
 const { changePageTitle } = require('../effects/page')
 const { logEndorsed } = require('../effects/analytics')
+const fetch = require('isomorphic-fetch')
+const csvParse = require('csv-parse/lib/sync')
 
 module.exports = (event, state) => {
   switch (event.type) {
@@ -16,10 +18,11 @@ module.exports = (event, state) => {
         case '/:username/:shortId/votes/:voteId':
           return [{
             ...state,
-            loading: { ...state.loading, page: true },
+            loading: { ...state.loading, page: true, backers: true },
           }, combineEffectsInSeries([
             fetchMeasure(state.location.params.shortId, state.offices, state.user),
             fetchVoteReplies(state.location.params.voteId, state.user),
+            fetchVoteBackers(state.location.params.voteId),
             fetchVote(state.location.params.voteId, state.user),
           ])]
         default:
@@ -151,6 +154,18 @@ module.exports = (event, state) => {
           [event.voteId]: {
             ...state.votes[event.voteId],
             replies: event.replies,
+          },
+        },
+      }]
+    case 'vote:backersReceived':
+      return [{
+        ...state,
+        loading: { ...state.loading, backers: false },
+        votes: {
+          ...state.votes,
+          [event.voteId]: {
+            ...state.votes[event.voteId],
+            backers: event.backers,
           },
         },
       }]
@@ -303,6 +318,14 @@ const fetchVote = (id, user) => (dispatch) => {
 const fetchVoteReplies = (voteId, user) => (dispatch) => {
   return api(dispatch, `/replies_detailed?vote_id=eq.${voteId}&order=created_at.desc`, { user })
     .then((replies) => dispatch({ type: 'vote:repliesReceived', voteId, replies }))
+    .catch((error) => dispatch({ type: 'error', error }))
+}
+
+const fetchVoteBackers = (voteId) => (dispatch) => {
+  return fetch('https://raw.githubusercontent.com/voteliquid/proof-of-vote/master/votes/EducatorsForDemocraticSchools/hold-charter-schools-accountable.csv')
+    .then(res => res.text())
+    .then(data => csvParse(data, { columns: true }))
+    .then((backers) => dispatch({ type: 'vote:backersReceived', voteId, backers }))
     .catch((error) => dispatch({ type: 'error', error }))
 }
 
