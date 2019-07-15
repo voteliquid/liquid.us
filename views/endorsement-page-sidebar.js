@@ -77,7 +77,7 @@ module.exports = (state, dispatch) => {
 const endorsedPositionNotVote = (measure) => {
   let previousVote = 'voted yes'
   if (measure.vote_position === 'nay') { previousVote = 'voted no' }
-  if (measure.vote_position === 'abstained') { previousVote = html`abstained <span class="has-text-weight-normal">on</span>` }
+  if (measure.vote_position === 'abstained') { previousVote = 'abstained' }
 
 const userCommented = measure.comment ? 'and added your own argument' : 'and may have already backed an argument'
 const voteHistoryText = measure.delegate_name ? html`
