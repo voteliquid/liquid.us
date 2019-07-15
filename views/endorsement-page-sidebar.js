@@ -21,9 +21,12 @@ module.exports = (state, dispatch) => {
     <div style="z-index: 30;" class=${`${vote.showMobileEndorsementForm ? 'modal is-active' : 'not-modal'} mobile-only`}>
       <div class="${vote.showMobileEndorsementForm ? 'modal-background' : ''}" onclick=${(event) => dispatch({ type: 'vote:toggledMobileEndorsementForm', vote, event })}></div>
       <div class="${vote.showMobileEndorsementForm ? 'modal-content' : ''}">
-        ${user && measure.vote_position && !vote.endorsed
+        ${user && measure.vote_position && measure.vote_position !== vote.position
           // logged in, voted differently
-          ? votedDifferentlyMessage(measure) : ''
+          ? endorsedOpposingPosition(measure, vote)
+          : user && measure.vote_position && !vote.endorsed
+          ? endorsedPositionNotVote(measure)
+          : ''
         }
         <nav class="box">
           ${endorsementCount(vote)}
@@ -71,15 +74,35 @@ module.exports = (state, dispatch) => {
   `
 }
 
-const votedDifferentlyMessage = (measure) => {
+const endorsedPositionNotVote = (measure) => {
+  let previousVote = 'voted yes'
+  if (measure.vote_position === 'nay') { previousVote = 'voted no' }
+  if (measure.vote_position === 'abstained') { previousVote = 'abstained' }
+
+const userCommented = measure.comment ? 'and added your own argument' : 'and may have already backed an argument'
+const voteHistoryText = measure.delegate_name ? html`
+  Your proxy, ${measure.delegate_name}, has already <strong>${previousVote}</strong> on this item and may have included an argument.<br /><br />
+  Endorse to back this argument instead.`
+  : html`
+  You previously <strong>${previousVote}</strong> on this item ${userCommented}.<br /><br />
+  Endorse to back this argument instead.
+`
+  return html`
+    <div class="notification is-warning is-marginless is-size-7">
+      ${voteHistoryText}
+    </div>
+  `
+}
+const endorsedOpposingPosition = (measure, vote) => {
   let previousVote = 'endorsed'
   if (measure.vote_position === 'nay') { previousVote = 'opposed' }
   if (measure.vote_position === 'abstain') { previousVote = html`abstained <span class="has-text-weight-normal">on</span>` }
+  const proxyVote = measure.delegate_rank !== -1 ? `r proxy, ${measure.delegate_name},` : ''
 
   return html`
     <div class="notification is-warning is-marginless is-size-7">
-      You previously <strong>${previousVote}</strong> this item.<br />
-      This will switch your vote.
+      You${proxyVote} previously <strong>${previousVote}</strong> this item.<br /><br />
+      This will switch your vote from ${measure.vote_position} to ${vote.position}.
     </div>
   `
 }
