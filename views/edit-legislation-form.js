@@ -24,7 +24,7 @@ module.exports = (state, dispatch) => {
               <option value="${l1.id}" selected=${l1.abbr === legislature_name}>${l1.name}</option>
               <option value="${l2.id}" selected=${l2.abbr === legislature_name}>${l2.name}</option>
               <option value="${l3.id}" selected=${l3.abbr === legislature_name}>${l3.name}</option>
-              ${l4 ? `<option value="${l4.id}" selected=${l4.abbr === legislature_name}>${l4.name}</option>` : ''}
+              ${l4 ? fourthLegislature(l4, legislature_name) : ''}
             </select>
           </div>
         </div>
@@ -67,4 +67,10 @@ module.exports = (state, dispatch) => {
 
 const editedShortId = (dispatch) => (event) => {
   dispatch({ type: 'measure:editFormShortIdChanged', shortId: event.currentTarget.value, event })
+}
+
+const fourthLegislature = (l4, legislature_name) => {
+  return html`
+    <option value="${l4.id}" selected=${l4.abbr === legislature_name}>${l4.name}</option>
+  `
 }
