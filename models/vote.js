@@ -19,7 +19,7 @@ module.exports = (event, state) => {
           return [{
             ...state,
             loading: { ...state.loading, page: true, backers: true, comments: true },
-            backersFilterQuery: state.location.query.filter || '',
+            backersFilterQuery: decodeURI(state.location.query.filter || ''),
           }, combineEffectsInSeries([
             fetchMeasure(state.location.params.shortId, state.offices, state.user),
             fetchVote(state.location.params.voteId, state.user),
