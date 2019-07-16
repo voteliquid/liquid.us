@@ -13,7 +13,7 @@ module.exports = (state) => {
         <thead>
           <tr>
             <th></th>
-            <th>Time(pt)</th>
+            <th>Time (pt)</th>
             <th>Name</th>
             <th>Location</th>
             <th>Senator</th>
