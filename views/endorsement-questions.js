@@ -49,7 +49,7 @@ const questionForm = (dispatch, state) => {
     return html`
     <form method="POST" style="margin-bottom: 2rem;" onconnected=${scrollToForm(location)}>
       <div class="field">
-        <h4 class="title is-size-6">Add question</h4>
+        <h4 class="title is-size-5">Add question</h4>
       </div>
       ${error ? html`<div class="notification is-danger">${error}</div>` : ''}
       <div class="${user ? 'columns is-hidden' : 'columns'}">
@@ -83,8 +83,9 @@ const questionForm = (dispatch, state) => {
         <p class="is-size-7" style="margin-top: .3rem;">So we can connect you to your reps and fellow constituents.</p>
       </div>
       <div class="field">
+        <label class="${user ? 'field is-hidden' : 'label has-text-grey'}">Your Question</label>
         <div class="control">
-          <textarea name="comment" autocomplete="off" class="textarea" placeholder="Add your question. What do you want to know?"></textarea>
+          <textarea name="comment" autocomplete="off" class="textarea" placeholder="What do you want to know?"></textarea>
         </div>
       </div>
       <div class="field">
