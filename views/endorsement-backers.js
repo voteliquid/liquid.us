@@ -9,7 +9,7 @@ module.exports = (state) => {
     ${loading.backers ? html`
       <h3>Loading backers...</h3>
     ` : html`
-      <table class="table is-responsive is-narrow is-fullwidth is-bordered is-striped">
+      <table class="table is-narrow is-bordered is-striped" style="display: block; overflow-x: auto; max-width: 858px; border-right: 1px solid #e6e6e6">
         <thead>
           <tr>
             <th></th>
