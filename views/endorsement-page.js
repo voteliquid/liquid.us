@@ -21,7 +21,6 @@ module.exports = (state, dispatch) => {
   )
 
   const tab = location.query.tab || 'comments'
-  const path = location.path
 
   return html`
     <section class="section">
@@ -46,8 +45,8 @@ module.exports = (state, dispatch) => {
             </div>
             <div class="tabs">
               <ul>
-                <li class=${tab === 'comments' ? 'is-active' : ''}><a href=${`${path}?tab=comments`}>Comments (${vote.replies.length})</a></li>
-                <li class=${tab === 'backers' ? 'is-active' : ''}><a href=${`${path}?tab=backers`}>Backers (${(vote.backers || []).length})</a></li>
+                <li class=${tab === 'comments' ? 'is-active' : ''}><a href=${`?tab=comments`}>Comments (${vote.replies.length})</a></li>
+                <li class=${tab === 'backers' ? 'is-active' : ''}><a href=${`?tab=backers`}>Backers (${(vote.backers || []).length})</a></li>
               </ul>
             </div>
             ${tab === 'backers' ? backersTable(state, dispatch) : (vote.replies || []).map(endorsementCommentReply)}
