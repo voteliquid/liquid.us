@@ -182,6 +182,13 @@ module.exports = (event, state) => {
         fetchMeasure(event.measure.short_id, state.offices, state.user),
         fetchMeasureVotes(event.measure.short_id, state.location.query.order, state.location.query.position, state.user),
       ])]
+    case 'vote:backersFilterUpdated':
+      const query = (event.event.target ? event.event.target.value : '').trim()
+
+      return [{
+        ...state,
+        backersFilter: query,
+      }]
     default:
       return [state]
   }
