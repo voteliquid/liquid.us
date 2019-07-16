@@ -1,11 +1,11 @@
 const { html } = require('../helpers')
 
 module.exports = (state, dispatch) => {
-  const { backersFilter, location, votes, loading } = state
+  const { backersFilterQuery, location, votes, loading } = state
   const vote = votes[location.params.voteId]
   const backers = vote.backers
   const filteredBackers = backers.reduce((memo, backer, index) => (
-    passesFilter({ ...backer, index: index + 1 }, backersFilter)
+    passesFilter({ ...backer, index: index + 1 }, backersFilterQuery)
       ? memo.concat({ ...backer, index: index + 1 })
       : memo
   ), [])
@@ -14,7 +14,7 @@ module.exports = (state, dispatch) => {
     ${loading.backers ? html`
       <h3>Loading backers...</h3>
     ` : html`
-      ${searchBar(dispatch, { backers, filteredBackers })}
+      ${searchBar(dispatch, { backers, backersFilterQuery, filteredBackers })}
       <table class="table is-narrow is-bordered is-striped" style="display: block; overflow-x: auto; max-width: 858px; border-right: 1px solid #e6e6e6">
         <thead>
           <tr>
@@ -49,14 +49,14 @@ const backersTableRow = (backer) => {
   `
 }
 
-const searchBar = (dispatch, { backers, filteredBackers }) => {
+const searchBar = (dispatch, { backers, backersFilterQuery, filteredBackers }) => {
   return html`
     <div class="search" style="position: relative; width: 100%;">
       <div class="field">
         <div class="${`control has-icons-left is-expanded`}">
           <input
             onkeyup=${(event) => dispatch({ type: 'vote:backersFilterUpdated', event })}
-            class="input" placeholder="Filter table by any column: Name, Location, Comment, etc" />
+            class="input" placeholder="Filter table by any column: Name, Location, Comment, etc" value=${backersFilterQuery || ''} />
           <span class="icon is-left">
             <i class="fa fa-search"></i>
           </span>
@@ -70,6 +70,6 @@ const searchBar = (dispatch, { backers, filteredBackers }) => {
   `
 }
 
-function passesFilter(backer, backersFilter) {
-  return !backersFilter || Object.keys(backer).some((key) => String(backer[key]).toLowerCase().includes(String(backersFilter).toLowerCase()))
+function passesFilter(backer, backersFilterQuery) {
+  return !backersFilterQuery || Object.keys(backer).some((key) => String(backer[key]).toLowerCase().includes(String(backersFilterQuery).toLowerCase()))
 }

@@ -19,6 +19,7 @@ module.exports = (event, state) => {
           return [{
             ...state,
             loading: { ...state.loading, page: true, backers: true },
+            backersFilterQuery: state.location.query.filter || '',
           }, combineEffectsInSeries([
             fetchMeasure(state.location.params.shortId, state.offices, state.user),
             fetchVoteReplies(state.location.params.voteId, state.user),
@@ -183,11 +184,16 @@ module.exports = (event, state) => {
         fetchMeasureVotes(event.measure.short_id, state.location.query.order, state.location.query.position, state.user),
       ])]
     case 'vote:backersFilterUpdated':
-      const query = (event.event.target ? event.event.target.value : '').trim()
+      const query = event.event.target ? event.event.target.value : ''
+
+      // Set query in URL bar &filter=${query} after delay
+      debounce(() => {
+        window.history.replaceState({}, '', `${state.location.path}?tab=backers&filter=${query}`)
+      }, 100)
 
       return [{
         ...state,
-        backersFilter: query,
+        backersFilterQuery: query,
       }]
     default:
       return [state]
@@ -452,3 +458,11 @@ const endorsementPageTitleAndMeta = (measures, vote, location) => {
     title,
   }
 }
+
+const debounce = (function debouncer() {
+  let timeout = null
+  return (fn, ms) => {
+    if (timeout) clearTimeout(timeout)
+    timeout = setTimeout(fn, ms)
+  }
+}())
