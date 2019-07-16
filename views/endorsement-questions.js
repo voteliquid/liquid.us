@@ -56,9 +56,9 @@ const questionForm = (dispatch, state) => {
         <div class="column">
           <div class="field">
             <label class="label has-text-grey">Your Name *</label>
-            <div class="control has-icons-right">
+            <div class="control has-icons-left">
               <input name="name" class="input" type="text" placeholder="John Doe" />
-              <span class="icon is-small is-right"><i class="fa fa-lock"></i></span>
+              <span class="icon is-small is-left"><i class="fa fa-user"></i></span>
             </div>
           </div>
         </div>
@@ -66,9 +66,9 @@ const questionForm = (dispatch, state) => {
           <div class="field">
             <label class="label has-text-grey">Your Email *</label>
             <div class="field join-input-field">
-              <div class="control has-icons-right">
+              <div class="control has-icons-left">
                 <input name="email" class="input" type="text" placeholder="you@example.com" />
-                <span class="icon is-small is-right"><i class="fa fa-lock"></i></span>
+                <span class="icon is-small is-left"><i class="fa fa-user"></i></span>
               </div>
             </div>
           </div>
@@ -76,9 +76,9 @@ const questionForm = (dispatch, state) => {
       </div>
       <div class="${user ? 'field is-hidden' : 'field'}">
         <label class="label has-text-grey">Your Address</label>
-        <div class="control has-icons-right">
+        <div class="control has-icons-left">
           <input onconnected=${initGoogleMaps} id="address_autocomplete_sidebar" class="input" autocomplete="off" name="address" placeholder="185 Berry Street, San Francisco, CA 94121" />
-          <span class="icon is-small is-right"><i class="fa fa-lock"></i></span>
+          <span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>
         </div>
         <p class="is-size-7" style="margin-top: .3rem;">So we can connect you to your reps and fellow constituents.</p>
       </div>
