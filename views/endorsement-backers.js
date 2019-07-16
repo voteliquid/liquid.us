@@ -4,14 +4,14 @@ module.exports = (state, dispatch) => {
   const { backersFilterQuery, location, votes, loading } = state
   const vote = votes[location.params.voteId]
   const backers = vote.backers
-  const filteredBackers = backers.reduce((memo, backer, index) => (
+  const filteredBackers = backers && backers.reduce((memo, backer, index) => (
     passesFilter({ ...backer, index: index + 1 }, backersFilterQuery)
       ? memo.concat({ ...backer, index: index + 1 })
       : memo
   ), [])
 
   return html`
-    ${loading.backers ? html`
+    ${loading.backers || !filteredBackers ? html`
       <h3>Loading backers...</h3>
     ` : html`
       ${searchBar(dispatch, { backers, backersFilterQuery, filteredBackers })}

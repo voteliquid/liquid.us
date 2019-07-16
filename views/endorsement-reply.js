@@ -16,7 +16,7 @@ module.exports = (state, dispatch) => {
         </div>
       </div>
       <div class="control">
-        <button class="${`button is-link has-text-weight-bold ${loading.reply ? 'is-loading' : ''}`}" disabled=${loading.reply} type="submit">Save</button>
+        <button class="${`button is-link has-text-weight-bold ${loading.comments ? 'is-loading' : ''}`}" disabled=${loading.comments} type="submit">Save</button>
       </div>
     </form>
   `

@@ -18,12 +18,10 @@ module.exports = (event, state) => {
         case '/:username/:shortId/votes/:voteId':
           return [{
             ...state,
-            loading: { ...state.loading, page: true, backers: true },
+            loading: { ...state.loading, page: true, backers: true, comments: true },
             backersFilterQuery: state.location.query.filter || '',
           }, combineEffectsInSeries([
             fetchMeasure(state.location.params.shortId, state.offices, state.user),
-            fetchVoteReplies(state.location.params.voteId, state.user),
-            fetchVoteBackers(state.location.params.voteId),
             fetchVote(state.location.params.voteId, state.user),
           ])]
         default:
@@ -144,12 +142,12 @@ module.exports = (event, state) => {
     case 'vote:replied':
       return [{
         ...state,
-        loading: { ...state.loading, reply: true },
+        loading: { ...state.loading, comments: true },
       }, combineEffects([preventDefault(event.event), reply(event, state.user)])]
     case 'vote:repliesReceived':
       return [{
         ...state,
-        loading: { ...state.loading, reply: false },
+        loading: { ...state.loading, comments: false },
         votes: {
           ...state.votes,
           [event.voteId]: {
@@ -195,6 +193,13 @@ module.exports = (event, state) => {
         ...state,
         backersFilterQuery: query,
       }]
+    case 'vote:fetchRepliesAndBackers':
+      return [{
+        ...state,
+      }, combineEffects([
+        fetchVoteReplies(state.location.params.voteId, state.user),
+        fetchVoteBackers(state.location.params.voteId),
+      ])]
     default:
       return [state]
   }
