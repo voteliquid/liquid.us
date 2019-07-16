@@ -35,12 +35,12 @@ module.exports = (state) => {
 const latestVotesTableRow = ({ backer, index }) => {
   return html`
     <tr>
-      <td>${index + 1}</td>
-      <td>${backer['Time (pt)']}</td>
-      <td>${backer.Name}</td>
-      <td>${backer.City}</td>
-      <td>${backer.Senator}</td>
-      <td>${backer.Assembly}</td>
+      <td><span style="width: 30px; display: inline-block; text-align: right;">${index + 1}</span></td>
+      <td><span style="width: 175px; display: inline-block;">${backer['Time (pt)']}</span></td>
+      <td><span style="width: 165px; display: inline-block;">${backer.Name}</span></td>
+      <td><span style="width: 145px; display: inline-block;">${backer.City}</span></td>
+      <td><span style="width: 165px; display: inline-block;">${backer.Senator}</span></td>
+      <td><span style="width: 165px; display: inline-block;">${backer.Assembly}</span></td>
       <td>${backer.Comment}</td>
     </tr>
   `
