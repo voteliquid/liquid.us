@@ -8,6 +8,8 @@ const { changePageTitle } = require('../effects/page')
 const { logEndorsed } = require('../effects/analytics')
 
 module.exports = (event, state) => {
+  console.log(state.votes)
+
   switch (event.type) {
     case 'pageLoaded':
       switch (state.location.route) {
@@ -17,6 +19,14 @@ module.exports = (event, state) => {
           return [{
             ...state,
             loading: { ...state.loading, page: true },
+            votes: {
+              ...state.votes,
+              [event.voteId]: {
+                ...state.votes[event.voteId],
+                showQuestionForm: state.location.hash === 'endorsement-question',
+                expanded: state.location.query.show_more === 'true',
+              },
+            },
           }, combineEffectsInSeries([
             fetchMeasure(state.location.params.shortId, state.offices, state.user),
             fetchVoteReplies(state.location.params.voteId, state.user),
@@ -154,6 +164,17 @@ module.exports = (event, state) => {
           },
         },
       }]
+    case 'vote:questionFormActivated':
+      return [{
+        ...state,
+        votes: {
+          ...state.votes,
+          [event.vote.id]: {
+            ...state.votes[event.vote.id],
+            showQuestionForm: true,
+          },
+        },
+      }, combineEffects([preventDefault(event.event), scrollQuestionFormIntoView])]
     case 'vote:voted':
       return [{
         ...state,
@@ -411,3 +432,13 @@ const endorsementPageTitleAndMeta = (measures, vote, location) => {
     title,
   }
 }
+
+const scrollQuestionFormIntoView = () => {
+  const elem = document.getElementById('measure-vote-form')
+    if (elem) {
+      const scrollY = elem.getBoundingClientRect().top + window.scrollY
+      if (scrollY) {
+        window.scrollTo(0, scrollY, { behavior: 'smooth' })
+      }
+    }
+  }

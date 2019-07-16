@@ -1,12 +1,13 @@
 const { html } = require('../helpers')
 
 module.exports = (state, dispatch) => {
-  const { location } = state
+  const { location, votes } = state
   const { order } = location.query
-
   const autosubmit = () => {
     document.querySelector('.question-filters-submit').click()
   }
+  const vote = votes[location.params.voteId]
+
     return html`
     <div class="columns is-mobile">
       <div class="column is-narrow">
@@ -27,10 +28,10 @@ module.exports = (state, dispatch) => {
           </div>
         </div>
       </div>
-      <div class="column"
+      <div class=${vote.showQuestionForm === true ? 'column is-hidden' : 'column'}
         <div class="field is-narrow">
           <div class="control">
-            <button class="button is-primary has-text-weight-semibold is-small">
+            <button onclick=${(event) => dispatch({ type: 'vote:questionFormActivated', vote, event })} class="button is-primary has-text-weight-semibold is-small">
               <span class="icon"><i class="fa fa-edit"></i></span>
               <span>Add question</span>
             </button>
@@ -38,7 +39,7 @@ module.exports = (state, dispatch) => {
         </div>
       </div>
     </div>
-    <div>${questionForm(dispatch, state)}</div>
+    <div>${vote.showQuestionForm ? questionForm(dispatch, state) : ''}</div>
   `
 }
 
