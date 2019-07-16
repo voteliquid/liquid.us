@@ -3,7 +3,11 @@ const { html } = require('../helpers')
 
 module.exports = (measure, vote) => {
   const { author_username, short_id, title, type } = measure
-  const measure_url = `${author_username ? `/${author_username}/` : '/'}${type === 'nomination' ? 'nominations' : 'legislation'}/${short_id}`
+  let measure_url = `${author_username}/`
+  if (!author_username) {
+    measure_url = type === 'nomination' ? 'nominations/' : 'legislation/'
+  }
+  measure_url += short_id
   const comment_url = `${measure_url}/votes/${vote.id}`
   const share_url = `${WWW_URL}${comment_url}`
 

@@ -9,13 +9,14 @@ server
   .all('/delegates', (req, res) => res.redirect(301, '/proxies'))
   .all('/constituents', (req, res) => res.redirect(301, '/proxies/requests'))
   .all('/l/:short_id', (req, res) => res.redirect(301, `/legislation/${req.params.short_id}`))
-  .all('/l/:short_id/vote', (req, res) => res.redirect(301, `/legislation/${req.params.short_id}/vote`))
   .all('/u/:username', (req, res) => res.redirect(301, `/${req.params.username}`))
   .all('/reps/:username', (req, res) => res.redirect(301, `/${req.params.username}`))
   .all('/new-homepage', (req, res) => res.redirect(301, '/'))
   .all('/elon', (req, res) => res.redirect(301, '/twitter/elonmusk'))
   .all('/wisconsin', (req, res) => res.redirect(301, '/legislation?order=proposed&legislature=WI&terms='))
   .all('/madison', (req, res) => res.redirect(301, '/legislation?order=proposed&legislature=Madison,%20WI&terms='))
+  .all('/:username/legislation/:shortId', (req, res) => res.redirect(301, `/${req.params.username}/${req.params.shortId}`))
+  .all('/:username/legislation/:shortId/votes/:voteId', (req, res) => res.redirect(301, `/${req.params.username}/${req.params.shortId}/votes/${req.params.voteId}`))
 
   // Redirect from old to new get_started flow
   .all('/verification', (req, res) => res.redirect(301, '/get_started'))

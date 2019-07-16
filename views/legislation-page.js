@@ -10,7 +10,6 @@ module.exports = (state, dispatch) => {
   return html`
     <div class="section">
       <div class="container is-widescreen">
-        <div class="has-text-right has-text-left-mobile">${proposeButton()}</div>
         ${filterTabs(state, dispatch)}
         ${loading.measures || !measuresByUrl[url] ? activityIndicator() :
           (!measuresByUrl[url].length ? noBillsMsg(query.order, query) : measuresByUrl[url].map((shortId) => measureListRow(measures[shortId], query)))}
@@ -115,7 +114,7 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
     <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
       <input name="policy_area" type="hidden" value="${location.query.policy_area}" />
       <input name="order" type="hidden" value="${location.query.order || 'upcoming'}" />
-      <div class="field is-grouped is-grouped-right">
+      <div class="field is-grouped is-grouped-multiline is-grouped-right">
         ${location.query.policy_area ? html`
           <div class="control">
             <label class="checkbox has-text-grey">
@@ -130,7 +129,7 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
             Hide voted
           </label>
         </div>
-        <div class="control" style="margin-left: 10px; margin-right: 0;">
+        <div class="control">
           <div class="select">
             <select autocomplete="off" name="legislature" onchange=${autoSubmit}>
               ${legislatures.map(({ abbr, name }) => {
@@ -165,7 +164,7 @@ const makeFilterQuery = (order, query) => {
 const filterTabs = ({ geoip, legislatures, location, cookies, user }, dispatch) => {
   const { query } = location
   const orderDescriptions = {
-    upcoming: 'Bills upcoming for a vote in the legislature.',
+    upcoming: "Bills upcoming for a vote in the legislature.",
     new: 'Bills recently introduced.',
     proposed: `Bills introduced on ${APP_NAME}`,
   }
@@ -194,7 +193,7 @@ const filterTabs = ({ geoip, legislatures, location, cookies, user }, dispatch) 
 
 const measureListRow = (s, query) => {
   const next_action_at = s.next_agenda_action_at || s.next_agenda_begins_at
-  const measureUrl = s.author_username ? `/${s.author_username}/legislation/${s.short_id}` : `/legislation/${s.short_id}`
+  const measureUrl = s.author_username ? `/${s.author_username}/${s.short_id}` : `/legislation/${s.short_id}`
 
   return html`
     <div class="card highlight-hover">
@@ -237,8 +236,8 @@ const measureListRow = (s, query) => {
             `}
           </div>
           <div class="column is-one-quarter has-text-right-tablet has-text-left-mobile">
-            ${voteButton(s)}
-            ${s.summary ? summaryTooltipButton(s.id, s.short_id, s.summary) : ''}
+            ${voteButton(s, measureUrl)}
+            ${s.summary ? summaryTooltipButton(measureUrl, s.summary) : ''}
           </div>
         </div>
       </div>
@@ -256,7 +255,7 @@ const votePositionClass = (position) => {
   return ''
 }
 
-const voteButton = (s) => {
+const voteButton = (s, measureUrl) => {
   let voteBtnTxt = 'Vote'
   let voteBtnClass = 'button is-small is-outlined is-primary'
   let voteBtnIcon = 'fas fa-edit'
@@ -278,21 +277,14 @@ const voteButton = (s) => {
       voteBtnClass = `button is-small ${votePositionClass(s.vote_position)}`
     }
   }
-  return html`<a style="white-space: inherit; height: auto;" class="${voteBtnClass}" href="${`/legislation/${s.short_id}`}">
+  return html`<a style="white-space: inherit; height: auto;" class="${voteBtnClass}" href="${measureUrl}">
     <span class="icon" style="align-self: flex-start;"><i class="${voteBtnIcon}"></i></span>
     <span class="has-text-weight-semibold">${voteBtnTxt}</span>
   </a>`
 }
 
-const proposeButton = () => html`
-  <a class="button is-primary" href="/legislation/propose">
-    <span class="icon"><i class="fa fa-file"></i></span>
-    <span class="has-text-weight-semibold">Propose Legislation</span>
-  </a>
-`
-
-const summaryTooltipButton = (id, short_id, summary) => html`
-  <a href="${`/legislation/${short_id}`}" class="is-hidden-mobile">
+const summaryTooltipButton = (measureUrl, summary) => html`
+  <a href="${measureUrl}" class="is-hidden-mobile">
     <br />
     <br />
     <span class="icon summary-tooltip">

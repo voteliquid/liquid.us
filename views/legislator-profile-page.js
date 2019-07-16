@@ -16,11 +16,6 @@ module.exports = (state, dispatch) => {
             This looks like one of your reps. <a href="/join"><strong>Join ${APP_NAME}</strong></a> to begin holding them accountable.
           </div>
         ` : []}
-        ${isMyRep && user && !user.verified ? html`
-          <div class="notification is-dark has-text-centered">
-            This is one of your reps. <a href="/get_started"><strong>Verify your identity</strong></a> to begin holding them accountable.
-          </div>
-        ` : []}
         ${proxied_name ? html`
           <div class="notification is-info has-text-centered">
             Your proxy to ${proxied_name} has been saved.

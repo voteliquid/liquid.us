@@ -107,7 +107,12 @@ const measureSearchResult = ({ id, author_username, number, type, title, legisla
   const truncatedTitle = truncateResultTitle(title)
   const measureNum = number ? short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase() : ''
   const titleFmt = measureNum ? `${measureNum} ${truncatedTitle}` : truncatedTitle
-  const href = type === 'nomination' ? `/nominations/${short_id}` : `/${author_username ? `${author_username}/` : ''}legislation/${short_id}`
+  let href = `/${author_username}/`
+  if (!author_username) {
+    href = type === 'nomination' ? '/nominations/' : '/legislation/'
+  }
+  href += short_id
+
   return html.for(measureSearchResult, id)`
     <a onblur="${dispatch}" onclick="${dispatch}" onfocus="${dispatch}" href="${href}" class="search-result" style="display: block; padding: .3rem 1rem;">
       <div class="media is-marginless">

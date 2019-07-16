@@ -2,7 +2,7 @@ const { WWW_URL } = process.env
 const { handleForm, html } = require('../helpers')
 
 module.exports = (state, dispatch) => {
-  const { error, forms, legislatures = [], loading, location, measures = {} } = state
+  const { error, forms, legislatures = [], loading, location, measures = {}, user } = state
   const measure = measures[location.params.shortId] || {}
   const form = forms.editMeasure || {}
   const { legislature_name, summary, title } = measure
@@ -10,6 +10,7 @@ module.exports = (state, dispatch) => {
   const l1 = legislatures[0] || {}
   const l2 = legislatures[1] || {}
   const l3 = legislatures[2] || {}
+  const l4 = legislatures[3]
   const short_id = !forms.editMeasureShortId && !measure.short_id ? auto_short_id : (form.short_id || measure.short_id)
 
   return html`
@@ -23,6 +24,7 @@ module.exports = (state, dispatch) => {
               <option value="${l1.id}" selected=${l1.abbr === legislature_name}>${l1.name}</option>
               <option value="${l2.id}" selected=${l2.abbr === legislature_name}>${l2.name}</option>
               <option value="${l3.id}" selected=${l3.abbr === legislature_name}>${l3.name}</option>
+              ${l4 ? `<option value="${l4.id}" selected=${l4.abbr === legislature_name}>${l4.name}</option>` : ''}
             </select>
           </div>
         </div>
@@ -37,7 +39,7 @@ module.exports = (state, dispatch) => {
         <label for="short_id" class="label has-text-grey">URL</label>
         <div class="field has-addons">
           <div class="control">
-            <a class="button is-static">${WWW_URL.replace(/https?:\/\//, '')}/legislation/</a>
+            <a class="button is-static">${WWW_URL.replace(/https?:\/\//, '')}/${user.username}/</a>
           </div>
           <div class="control">
             <input name="short_id" class="input" type="text" placeholder="your-proposed-bill" onkeyup=${editedShortId(dispatch)} onchange=${editedShortId(dispatch)} value="${short_id}" />

@@ -28,7 +28,7 @@ module.exports = (event, state) => {
           return [state]
         case '/get_started/profile':
           if (!state.user) return [state, redirect('/sign_in')]
-          if (!state.user.verified) return [state, redirect('/get_started/verification')]
+          if (!state.user.phone_verified) return [state, redirect('/get_started/verification')]
           return [state, state.user.username && redirect(`/${state.user.username}`)]
         default:
           return [state]
@@ -91,7 +91,7 @@ const redirectToOnboardingStep = (cookies, query, user) => (dispatch) => {
 
   if (!user.address || !user.voter_status) {
     return dispatch({ type: 'redirected', url: `/get_started/basics` })
-  } else if (!user.verified) {
+  } else if (!user.phone_verified) {
     return dispatch({ type: 'redirected', url: `/get_started/verification` })
   } else if (!user.username) {
     return dispatch({ type: 'redirected', url: `/get_started/profile` })
@@ -126,18 +126,32 @@ const finishOrSkip = (cookies, user, dispatch) => {
   return dispatch({ type: 'redirected', url: '/legislation' })
 }
 
+const validateNameAndAddressForm = (address, name) => {
+  const name_pieces = name.split(' ')
+
+  if (name_pieces.length < 2) {
+    return Object.assign(new Error('Please enter a first and last name'), { field: 'name' })
+  } else if (name_pieces.length > 5) {
+    return Object.assign(new Error('Please enter only a first and last name'), { field: 'name' })
+  }
+
+  if (!address.match(/ \d{5}/) && (!window.lastSelectedGooglePlacesAddress || !window.lastSelectedGooglePlacesAddress.lon)) {
+    return Object.assign(
+      new Error(`Please use your complete address including city, state, and zip code.`),
+      { field: 'address' }
+    )
+  }
+}
+
 const saveBasicInfo = (formData, cookies, user) => (dispatch) => {
   const { address, voter_status } = formData
+  const error = validateNameAndAddressForm(address, formData.name)
+
+  if (error) return dispatch({ type: 'error', error })
 
   const name_pieces = formData.name.split(' ')
   const first_name = name_pieces[0]
   const last_name = name_pieces.slice(1).join(' ')
-
-  if (formData.name.split(' ').length < 2) {
-    return dispatch({ type: 'error', error: Object.assign(new Error('Please enter a first and last name'), { name: true }) })
-  } else if (formData.name.split(' ').length > 5) {
-    return dispatch({ type: 'error', error: Object.assign(new Error('Please enter only a first and last name'), { name: true }) })
-  }
 
   return updateNameAndAddress({
     addressData: {
@@ -216,7 +230,13 @@ const saveUsername = ({ username }, user) => (dispatch) => {
 
 const requestOTP = ({ phone }, user) => (dispatch) => {
   if (!phone) {
-    return dispatch({ type: 'error', error: new Error('You must enter a phone number') })
+    return dispatch({ type: 'error', error: new Error('You must enter a phone number.') })
+  }
+
+  phone = phone.replace(/\D/g, '')
+
+  if (phone.length !== 10) {
+    return dispatch({ type: 'error', error: new Error('Please enter a 10-digit US phone number.') })
   }
 
   return fetch(`${WWW_URL}/rpc/verify_phone_number`, {
@@ -248,7 +268,7 @@ const verifyOTP = ({ phone, otp }, user) => (dispatch) => {
     headers: { Prefer: 'return=minimal' },
     user,
   })
-  .then(() => dispatch({ type: 'user:updated', user: { verified: true } }))
+  .then(() => dispatch({ type: 'user:updated', user: { phone_verified: true } }))
   .then(() => dispatch({ type: 'redirected', url: '/get_started/profile', status: 303 }))
   .catch((error) => dispatch({ type: 'error', error }))
 }

@@ -16,7 +16,7 @@ const createSession = exports.createSession = (dispatch, params, extras) => {
     dispatch({ type: 'cookieUnset', key: 'device_id' })
     dispatch({ type: 'cookieUnset', key: 'sign_in_email' })
 
-    return api(dispatch, `/users?select=id,email,first_name,last_name,username,verified,voter_status,update_emails_preference,address:user_addresses(id,address)&id=eq.${user_id}`, {
+    return api(dispatch, `/users?select=id,email,first_name,last_name,username,phone_verified,voter_status,update_emails_preference,address:user_addresses(id,formatted_address,address)&id=eq.${user_id}`, {
       user: { jwt, refresh_token },
     })
     .then(([user]) => {

@@ -5,6 +5,7 @@ const { fetchMeasure, fetchMeasureVotes } = require('../effects/measure')
 const { updateNameAndAddress } = require('../effects/user')
 const { signIn } = require('../effects/session')
 const { changePageTitle } = require('../effects/page')
+const { logEndorsed } = require('../effects/analytics')
 
 module.exports = (event, state) => {
   switch (event.type) {
@@ -12,7 +13,7 @@ module.exports = (event, state) => {
       switch (state.location.route) {
         case '/legislation/:shortId/votes/:voteId':
         case '/nominations/:shortId/votes/:voteId':
-        case '/:username/legislation/:shortId/votes/:voteId':
+        case '/:username/:shortId/votes/:voteId':
           return [{
             ...state,
             loading: { ...state.loading, page: true },
@@ -43,6 +44,10 @@ module.exports = (event, state) => {
           [event.vote.id]: {
             ...state.votes[event.vote.id],
             expanded: !state.votes[event.vote.id].expanded,
+            endorsed_vote: state.votes[event.vote.id].endorsed_vote ? {
+              ...state.votes[event.vote.id].endorsed_vote,
+              expanded: !state.votes[event.vote.id].endorsed_vote.expanded,
+            } : null,
           },
         },
       }, preventDefault(event.event)]
@@ -60,10 +65,11 @@ module.exports = (event, state) => {
       // TODO cannot change state here otherwise iframes in comments will re-render and Chrome will dismiss the confirm dialog whenever an iframe loads.
       return [state, combineEffectsInSeries([
         preventDefault(event.event),
-        endorse(event.vote, state.user, event.measure),
+        endorse(event.vote, state.user, event.measure, event.is_public),
         typeof event.name !== 'undefined' && state.user && updateNameAndAddressFromEndorsement(event, state.user),
         fetchMeasure(event.vote.short_id, state.offices, state.user),
         fetchMeasureVotes(event.vote.short_id, state.location.query.order, state.location.query.position, state.user),
+        logEndorsed,
       ])]
     case 'vote:endorsedFromSignupForm':
       return [{
@@ -72,6 +78,7 @@ module.exports = (event, state) => {
       }, combineEffectsInSeries([
         preventDefault(event.event),
         signupAndEndorse(event, state.offices, state.location),
+        logEndorsed,
       ])]
     case 'vote:unendorsed':
       return [{
@@ -217,9 +224,9 @@ const reportVote = (vote, user) => (dispatch) => {
   }
 }
 
-const endorse = (vote, user, measure) => (dispatch) => {
+const endorse = (vote, user, measure, is_public = false) => (dispatch) => {
   const endorsed_vote = !(user && user.id === vote.user_id && vote.comment) && vote.endorsed_vote
-  const { fullname, measure_id, short_id, id: vote_id, public: is_public } = endorsed_vote || vote
+  const { fullname, measure_id, short_id, id: vote_id } = endorsed_vote || vote
   const position = measure && measure.vote_position
 
   if (!user) {
@@ -315,18 +322,32 @@ const reply = ({ vote, content }, user) => (dispatch) => {
   .then((replies) => dispatch({ type: 'vote:repliesReceived', voteId: vote.id, replies }))
 }
 
+const validateNameAndAddressForm = (address, name) => {
+  const name_pieces = name.split(' ')
+
+  if (name_pieces.length < 2) {
+    return Object.assign(new Error('Please enter a first and last name'), { field: 'name' })
+  } else if (name_pieces.length > 5) {
+    return Object.assign(new Error('Please enter only a first and last name'), { field: 'name' })
+  }
+
+  if (!address.match(/ \d{5}/) && (!window.lastSelectedGooglePlacesAddress || !window.lastSelectedGooglePlacesAddress.lon)) {
+    return Object.assign(
+      new Error(`Please use your complete address including city, state, and zip code.`),
+      { field: 'address' }
+    )
+  }
+}
+
 const updateNameAndAddressFromEndorsement = (form, user) => (dispatch) => {
   const { address, voter_status } = form
+  const error = validateNameAndAddressForm(address, form.name)
+
+  if (error) return dispatch({ type: 'error', error })
 
   const name_pieces = form.name.split(' ')
   const first_name = name_pieces[0]
   const last_name = name_pieces.slice(1).join(' ')
-
-  if (name_pieces.length < 2) {
-    return dispatch({ type: 'error', error: Object.assign(new Error('Please enter a first and last name'), { name: true }) })
-  } else if (name_pieces.length > 5) {
-    return dispatch({ type: 'error', error: Object.assign(new Error('Please enter only a first and last name'), { name: true }) })
-  }
 
   return updateNameAndAddress({
     addressData: {
@@ -342,16 +363,13 @@ const updateNameAndAddressFromEndorsement = (form, user) => (dispatch) => {
 
 const signupAndEndorse = ({ vote, ...form }, offices, location) => (dispatch) => {
   const { address, email, voter_status } = form
+  const error = validateNameAndAddressForm(address, form.name)
+
+  if (error) return dispatch({ type: 'error', error })
 
   const name_pieces = form.name.split(' ')
   const first_name = name_pieces[0]
   const last_name = name_pieces.slice(1).join(' ')
-
-  if (name_pieces.length < 2) {
-    return dispatch({ type: 'error', error: Object.assign(new Error('Please enter a first and last name'), { name: true }) })
-  } else if (name_pieces.length > 5) {
-    return dispatch({ type: 'error', error: Object.assign(new Error('Please enter only a first and last name'), { name: true }) })
-  }
 
   return signIn({
     channel: 'endorsement',
@@ -371,7 +389,7 @@ const signupAndEndorse = ({ vote, ...form }, offices, location) => (dispatch) =>
         nameData: { first_name, last_name, voter_status },
         user,
       })(dispatch)
-        .then(() => endorse(vote, user)(dispatch))
+        .then(() => endorse(vote, user, null, form.is_public)(dispatch))
         .then(() => fetchMeasure(vote.short_id, offices, user)(dispatch))
         .then(() => fetchMeasureVotes(vote.short_id, location.query.order, location.query.position, user)(dispatch))
     }
@@ -387,14 +405,18 @@ const endorsementPageTitleAndMeta = (measures, vote, location) => {
     .split('\n').filter(line => line)[0] // strip leading whitespace
   const title = `${vote.fullname || anonymousName}: ${firstRealSentence}`
 
+  // Determine social media image: start with database image, then any image in the comment, any image in measure summary, author avatar, legislature image
+  const dbImage = measure.image_name ? `${ASSETS_URL}/measure-images/${measure.image_name}` : ''
   const inlineImageMatch = vote && vote.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
   const inlineImage = inlineImageMatch && inlineImageMatch[0]
+  const measureInlineImageMatch = measure && measure.summary && measure.summary.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
+  const measureInlineImage = measureInlineImageMatch && measureInlineImageMatch[0]
   const authorImage = vote.username || vote.twitter_username ? avatarURL(vote) : null
-  const measureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+  const legislatureImage = (!isCity) ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
 
   return {
     ...location,
-    ogImage: inlineImage || authorImage || measureImage,
+    ogImage: dbImage || inlineImage || measureInlineImage || authorImage || legislatureImage,
     ogTitle: `${measure.title} | Liquid US`,
     description: title,
     title,

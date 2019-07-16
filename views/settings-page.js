@@ -5,7 +5,7 @@ module.exports = ({ error, forms: { settings }, user }, dispatch) => {
        settings.subscribedDrip !== user.subscribedDrip
     || settings.subscribedLifecycle !== user.subscribedLifecycle
     || settings.update_emails_preference !== user.update_emails_preference
-    || settings.inherit_votes !== user.inherit_votes
+    || settings.inherit_votes_public !== user.inherit_votes_public
     || (settings.address && (!user.address || settings.address !== user.address.address))
     || settings.voter_status !== user.voter_status)
   return html`
@@ -61,12 +61,12 @@ module.exports = ({ error, forms: { settings }, user }, dispatch) => {
             <h3 class="title is-6 is-marginless">Privacy</h3>
           </div>
           <div class="field">
-            <label for="inherit_votes">Votes inherited by proxies should default to:</label>
+            <label for="inherit_votes_public">Votes inherited by proxies should default to:</label>
             <div class="control">
               <div class="select is-small">
-                <select name="inherit_votes">
-                  <option value="true" selected=${user.inherit_votes}>Public (Vote Power: ${user.max_vote_power || 1})</option>
-                  <option value="false" selected=${!user.inherit_votes}>Private (Vote Power: 1)</option>
+                <select name="inherit_votes_public">
+                  <option value="true" selected=${user.inherit_votes_public}>Public (Vote Power: ${user.max_vote_power || 1})</option>
+                  <option value="false" selected=${!user.inherit_votes_public}>Private (Vote Power: 1)</option>
                 </select>
               </div>
             </div>
@@ -74,12 +74,12 @@ module.exports = ({ error, forms: { settings }, user }, dispatch) => {
           <div class="field">
             <label class="is-6 label has-text-weight-semibold">Your Address</label>
             <div class="control has-icons-left">
-              <input onconnected=${initAutocomplete} class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete" required placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" />
-              ${error && error.address
+              <input onconnected=${initAutocomplete} class=${`input ${error && error.field === 'address' && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete" required placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.formatted_address : ''}" />
+              ${error && error.field === 'address'
                 ? html`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`
                 : html`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`
               }
-              ${error && error.address ? html`<p class="help is-danger">${error.message}</p>` : ''}
+              ${error && error.field === 'address' ? html`<p class="help is-danger">${error.message}</p>` : ''}
             </div>
           </div>
           <div class="field">

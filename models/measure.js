@@ -20,7 +20,7 @@ module.exports = (event, state) => {
           }, fetchMeasures({ hide_direct_votes: state.cookies.hide_direct_votes, ...state.location.query }, state.user)]
         case '/legislation/:shortId':
         case '/nominations/:shortId':
-        case '/:username/legislation/:shortId':
+        case '/:username/:shortId':
           return [{
             ...state,
             loading: { ...state.loading, page: true },
@@ -42,7 +42,7 @@ module.exports = (event, state) => {
             state.location.hash === 'measure-vote-form' && scrollVoteFormIntoView,
           ])]
         case '/legislation/propose':
-        case '/:username/legislation/:shortId/edit':
+        case '/:username/:shortId/edit':
           if (!state.user) return [state, redirect('/sign_in')]
           return [{
             ...state,
@@ -316,7 +316,7 @@ const updateMeasure = (measure, form, user) => (dispatch) => {
   .then(() => api(dispatch, `/measures_detailed?id=eq.${measure.id}`, { user }))
   .then(([measure]) => {
     dispatch({ type: 'measure:updated', measure })
-    dispatch({ type: 'redirected', status: 303, url: `/${user.username}/legislation/${measure.short_id}` })
+    dispatch({ type: 'redirected', status: 303, url: `/${user.username}/${measure.short_id}` })
   })
   .catch(handleError(dispatch))
 }
@@ -350,11 +350,11 @@ const scrollVoteFormIntoView = () => {
 }
 
 const isMeasureDetailPage = (route) => {
-  return route === '/legislation/:shortId' || route === '/nominations/:shortId' || route === '/:username/legislation/:shortId' || route === '/:username/legislation/:shortId/edit'
+  return route === '/legislation/:shortId' || route === '/nominations/:shortId' || route === '/:username/:shortId' || route === '/:username/:shortId/edit'
 }
 
 const hideLegNameSocial = (l) => (
-  l.short_id === 'stop-227M-jail'
+  l.short_id === 'press-pause-on-227m-new-jail'
 )
 
 const measureOgImage = (measure) => {
