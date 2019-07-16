@@ -74,12 +74,12 @@ module.exports = ({ error, forms: { settings }, user }, dispatch) => {
           <div class="field">
             <label class="is-6 label has-text-weight-semibold">Your Address</label>
             <div class="control has-icons-left">
-              <input onconnected=${initAutocomplete} class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete" required placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" />
-              ${error && error.address
+              <input onconnected=${initAutocomplete} class=${`input ${error && error.field === 'address' && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete" required placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.formatted_address : ''}" />
+              ${error && error.field === 'address'
                 ? html`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`
                 : html`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`
               }
-              ${error && error.address ? html`<p class="help is-danger">${error.message}</p>` : ''}
+              ${error && error.field === 'address' ? html`<p class="help is-danger">${error.message}</p>` : ''}
             </div>
           </div>
           <div class="field">

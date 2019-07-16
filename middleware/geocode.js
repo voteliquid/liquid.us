@@ -12,7 +12,6 @@ module.exports = (req, res, next) => {
     address: req.body.address,
     components: {
       country: 'US',
-      administrative_area: req.body.state,
     },
   }).asPromise()
     .then((gres) => res.json(gres.json.results))

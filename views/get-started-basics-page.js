@@ -20,23 +20,23 @@ module.exports = ({ error, loading, location, user }, dispatch) => {
             <div class="field">
               <label class="label">Your Name:</label>
               <div class="control has-icons-left">
-                <input name="name" autocomplete="off" class=${`input ${error && error.name && 'is-danger'}`} placeholder="John Doe" required value="${[user.first_name, user.last_name].filter(a => a).join(' ')}" />
-                ${error && error.name
+                <input name="name" autocomplete="off" class=${`input ${error && error.field === 'name' && 'is-danger'}`} placeholder="John Doe" required value="${[user.first_name, user.last_name].filter(a => a).join(' ')}" />
+                ${error && error.field === 'name'
                   ? html`<span class="icon is-small is-left"><i class="fas fa-exclamation-triangle"></i></span>`
                   : html`<span class="icon is-small is-left"><i class="fa fa-user"></i></span>`
                 }
-                ${error && error.name ? html`<p class="help is-danger">${error.message}</p>` : ''}
+                ${error && error.field === 'name' ? html`<p class="help is-danger">${error.message}</p>` : ''}
               </div>
             </div>
             <div class="field">
               <label class="label">Your Address:</label>
               <div class="control has-icons-left">
-                <input onconnected=${initAutocomplete} class=${`input ${error && error.address && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete" required placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" />
-                ${error && error.address
+                <input onconnected=${initAutocomplete} class=${`input ${error && error.field === 'address' && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete" required placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" />
+                ${error && error.field === 'address'
                   ? html`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`
                   : html`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`
                 }
-                ${error && error.address ? html`<p class="help is-danger">${error.message}</p>` : ''}
+                ${error && error.field === 'address' ? html`<p class="help is-danger">${error.message}</p>` : ''}
               </div>
             </div>
             <div class="field">

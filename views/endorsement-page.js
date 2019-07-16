@@ -4,7 +4,7 @@ const endorsementCount = require('./endorsement-count')
 const measureSummary = require('./measure-summary')
 const sidebar = require('./endorsement-page-sidebar')
 const stateNames = require('datasets-us-states-abbr-names')
-const danetargetReps = require('./dane-county-targetReps')
+const daneTargetReps = require('./dane-county-targetReps')
 const petitionQuestions = require('./endorsement-questions')
 
 
@@ -30,7 +30,7 @@ module.exports = (state, dispatch) => {
           <div class="column">
             <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>
             ${hideTargetReps(l) ? ''
-              : isDane(l) ? danetargetReps({ vote, ...state })
+            : isDane(l) ? daneTargetReps({ vote, ...state })
               : targetReps({ measure, vote, ...state }, dispatch)
             }
             <div class="small-screens-only">
@@ -134,12 +134,10 @@ const rep = (r) => {
   const rep = r.office_holder
   const position = r.name.split(' ').slice(2).join(' ')
   const isState = r.legislature.name !== 'U.S. Congress'
-  const firstLine = isState
-    ? `${rep.first_name} ${rep.last_name}, ${r.legislature.short_name}`
-    : `${r.chamber === 'Upper' ? 'Sen' : 'Rep'}. ${rep.first_name} ${rep.last_name}`
+  const firstLine = `${rep.first_name} ${rep.last_name}`
   const secondLine = isState
     ? position
-    : r.chamber === 'Upper' ? stateNames[r.short_name] : r.short_name
+    : r.chamber === 'Upper' ? `Senator, ${r.short_name}` : `Rep., ${r.short_name}`
 
   return html.for(r)`
     <div class="column is-narrow">
@@ -159,20 +157,18 @@ const rep = (r) => {
 }
 
 const legislature = (measure) => {
-  const isState = measure.legislature_name.length === 2
-  const measureImage = isState ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
-  const name = isState ? stateNames[measure.legislature_name] : measure.legislature_name
+  const notLocal = measure.legislature_name.length === 2 || measure.legislature_name === 'U.S. Congress'
+  const measureImage = notLocal ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : `${ASSETS_URL}/legislature-images/local.png`
+  const name = measure.legislature_name.length === 2 ? stateNames[measure.legislature_name] : measure.legislature_name
 
   return html`
     <div class="column">
       <div class="media">
-        ${isState ? html`
-          <div class="media-left">
-            <div class="image is-48x48 is-clipped">
-              <img src=${measureImage} style="background: hsla(0, 0%, 87%, 0.5); padding: 4px;"/>
-            </div>
+        <div class="media-left">
+          <div class="image is-48x48">
+            <img src=${measureImage} style="background: hsla(0, 0%, 87%, 0.5);"/>
           </div>
-        ` : ''}
+        </div>
         <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
           ${name}<br />
           ${measure.legislature_name === 'U.S. Congress' ? '' : 'Legislature'}

@@ -1,7 +1,7 @@
 const { WWW_DOMAIN } = process.env
 const atob = require('atob')
 const debug = require('debug')('liquid:models:session')
-const { api, combineEffects, redirect } = require('../helpers')
+const { api, combineEffects, waitEffects, redirect } = require('../helpers')
 const { refreshPageWhenAuthed } = require('../effects/page')
 const { fetchMetrics } = require('../effects/metrics')
 const { createSession, signIn } = require('../effects/session')
@@ -23,14 +23,21 @@ module.exports = (event, state) => {
         case '/join':
           if (state.user) {
             if (state.location.query.ph) {
-              return [state, updatePhoneNumber(atob(state.location.query.ph), state.user)]
+              return [state, combineEffects([
+                updatePhoneNumber(atob(state.location.query.ph), state.user),
+                redirect('/get_started')
+              ])]
             }
             return [state, redirect('/')]
           }
-          return [{ ...state, location: { ...state.location, title: 'Join' } }, combineEffects([
+          return [{
+            ...state,
+            loading: { ...state.loading, page: true },
+            location: { ...state.location, title: 'Join' },
+          }, waitEffects([
             fetchMetrics,
             state.cookies.proxying_user_id && fetchProxyingProfile({ id: state.cookies.proxying_user_id }),
-          ])]
+          ], { type: 'loaded', name: 'page' })]
         case '/sign_in':
           if (state.user) return [state, redirect('/')]
           return [{

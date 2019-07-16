@@ -103,7 +103,7 @@ const saveSettings = (user, location, form) => (dispatch) => {
     (subscribedLifecycle ? deleteUnsubscribe(dispatch, user, 'lifecycle') : postUnsubscribe(dispatch, user, 'lifecycle')))
   .then(() => {
     if (!addressData.lon) {
-      return geocode(addressData.address, addressData.state).then((newAddressData) => updateAddress(newAddressData, user, dispatch))
+      return geocode(addressData.address).then((newAddressData) => updateAddress(newAddressData, user, dispatch))
     }
     return updateAddress(addressData, user, dispatch)
   })

@@ -65,6 +65,8 @@ module.exports = {
           loading: { page: state.loading.page },
           error: event.error,
         }, logError(event.error)]
+      case 'loaded':
+        return [{ ...state, loading: { ...state.loading, [event.name]: false } }]
       case 'import':
         return require('./models/import')(event, state)
       case 'measure':
