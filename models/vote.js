@@ -16,9 +16,13 @@ module.exports = (event, state) => {
         case '/legislation/:shortId/votes/:voteId':
         case '/nominations/:shortId/votes/:voteId':
         case '/:username/:shortId/votes/:voteId':
+          const vote = state.votes && state.votes[state.location.params.voteId]
+          const measure = state.measures[state.location.params.shortId]
+          const commentsLoaded = vote && vote.replies
+          const backersLoaded = vote && vote.backers
           return [{
             ...state,
-            loading: { ...state.loading, page: true, backers: true, comments: true },
+            loading: { ...state.loading, page: !vote || !measure, backers: !backersLoaded, comments: !commentsLoaded },
             backersFilterQuery: decodeURI(state.location.query.filter || ''),
           }, combineEffectsInSeries([
             fetchMeasure(state.location.params.shortId, state.offices, state.user),

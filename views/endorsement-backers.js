@@ -11,27 +11,31 @@ module.exports = (state, dispatch) => {
   ), [])
 
   return html`
-    ${loading.backers || !filteredBackers ? html`
-      <h3>Loading backers...</h3>
-    ` : html`
-      ${searchBar(dispatch, { backers, backersFilterQuery, filteredBackers })}
-      <table class="table is-narrow is-bordered is-striped" style="display: block; overflow-x: auto; max-width: 858px; border-right: 1px solid #e6e6e6">
-        <thead>
-          <tr>
-            <th></th>
-            <th>Time (pt)</th>
-            <th>Name</th>
-            <th>Location</th>
-            <th>Senator</th>
-            <th>Assembly</th>
-            <th>Comment</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${filteredBackers.map((b) => backersTableRow(b))}
-        </tbody>
-      </table>
-    `}
+    <div>
+      ${loading.backers || !filteredBackers ? html`
+        <h3>Loading backers...</h3>
+      ` : html`
+        <div>
+          ${searchBar(dispatch, { backers, backersFilterQuery, filteredBackers })}
+          <table class="table is-narrow is-bordered is-striped" style="display: block; overflow-x: auto; max-width: 858px; border-right: 1px solid #e6e6e6">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Time (pt)</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Senator</th>
+                <th>Assembly</th>
+                <th>Comment</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredBackers.map((b) => backersTableRow(b))}
+            </tbody>
+          </table>
+        </div>
+      `}
+    </div>
   `
 }
 

@@ -47,8 +47,8 @@ module.exports = (state, dispatch) => {
             </div>
             <div class="tabs">
               <ul>
-                <li class=${tab === 'comments' ? 'is-active' : ''}><a href=${`?tab=comments`}>Comments (${numComments})</a></li>
-                <li class=${tab === 'backers' ? 'is-active' : ''}><a href=${`?tab=backers`}>Backers (${numBackers})</a></li>
+                <li class=${tab === 'comments' ? 'is-active' : ''}><a href=${`${location.path}?tab=comments`}>Comments (${numComments})</a></li>
+                <li class=${tab === 'backers' ? 'is-active' : ''}><a href=${`${location.path}?tab=backers`}>Backers (${numBackers})</a></li>
               </ul>
             </div>
             ${tab === 'backers' ? backersTable(state, dispatch) : (vote.replies || []).map(endorsementCommentReply)}
