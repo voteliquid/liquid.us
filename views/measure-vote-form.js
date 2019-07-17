@@ -3,7 +3,7 @@ const { handleForm, html } = require('../helpers')
 module.exports = (state, dispatch) => {
   const { error, loading, location, measure: l, votes, user } = state
   const v = l.votes.filter((id) => (user && votes[id] && votes[id].user_id === user.id)).map((id) => votes[id])[0] || {}
-  const public_checked = v.hasOwnProperty('public') ? v.public : (!user || user.last_vote_public)
+  const public_checked = v.hasOwnProperty('public') ? v.public : (user && user.last_vote_public)
   const vote_position = v.vote_position || l.vote_position
   return html`
     <form method="POST" style="margin-bottom: 2rem;" onsubmit=${handleForm(dispatch, { type: 'vote:voted', measure: l })} onconnected=${scrollToForm(location)}>
