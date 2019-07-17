@@ -49,7 +49,7 @@ module.exports = (state, dispatch) => {
       <div class="field">
         <div class="control">
           <label class="checkbox">
-            <input name="is_public" type="checkbox" checked />
+            <input name="is_public" type="checkbox" />
             Share my name publicly
           </label>
         </div>
