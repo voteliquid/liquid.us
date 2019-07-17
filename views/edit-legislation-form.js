@@ -53,12 +53,26 @@ module.exports = (state, dispatch) => {
           <p class="help">You can continue to edit your proposed bill later.</p>
         </div>
       </div>
-      <div class="field is-grouped">
-        <div class="control">
-          <button class=${`button is-primary ${loading.editMeasure === 'saving' ? 'is-loading' : ''}`} disabled="${loading.editMeasure}" type="submit">
-            <span class="icon"><i class="fa fa-edit"></i></span>
-            <span>Save</span>
-          </button>
+      <div class="columns">
+        <div class="column is-narrow">
+          <div class="field is-grouped">
+            <div class="control">
+              <button class=${`button is-primary ${loading.editMeasure === 'saving' ? 'is-loading' : ''}`} disabled="${loading.editMeasure}" type="submit">
+                <span class="icon"><i class="fa fa-edit"></i></span>
+                <span>Save</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="column">
+          <div class="field is-grouped">
+            <div class="control">
+              <button class=${`button is-danger ${loading.editMeasure === 'saving' ? 'is-loading' : ''}`} disabled="${loading.editMeasure}" type="submit">
+                <span class="icon"><i class="fa fa-trash"></i></span>
+                <span>Delete</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </form>
