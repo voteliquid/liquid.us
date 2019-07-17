@@ -64,10 +64,12 @@ module.exports = (state, dispatch) => {
             </div>
           </div>
         </div>
+      </form>
+      <form method="POST" onsubmit="${handleForm(dispatch, { type: 'measure:measureDeleted' })}">
         <div class="column">
           <div class="field is-grouped">
             <div class="control">
-              <button class=${`button is-danger ${loading.editMeasure === 'saving' ? 'is-loading' : ''}`} disabled="${loading.editMeasure}" type="submit">
+              <button  class="button is-danger" type="submit" title="delete">
                 <span class="icon"><i class="fa fa-trash"></i></span>
                 <span>Delete</span>
               </button>

@@ -141,6 +141,9 @@ module.exports = (event, state) => {
           return votes
         }, state.votes),
       }, changePageTitle(isMeasureDetailPage(state.location.route) ? `${event.measure.legislature_name}: ${event.measure.title}` : state.location.title)]
+    case 'measure:measureDeleted':
+    console.log('is this happening')
+      return [state, combineEffects([preventDefault(event.event), deleteMeasure(state)])]
     case 'measure:votesReceived':
       return [{
         ...state,
@@ -364,4 +367,19 @@ const measureOgImage = (measure) => {
   const inlineImage = inlineImageMatch && inlineImageMatch[0]
   const measureImage = !isCity ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
   return dbImage || inlineImage || measureImage
+}
+const deleteMeasure = (state) => (dispatch) => {
+  const { user } = state
+
+  const measure = state.measures[state.location.params.shortId]
+  if (!window.confirm(`Are you sure you want to remove ${measure.title}?`)) return
+
+  return api(dispatch, `/measures?id=eq.${measure.id}`, {
+    method: 'DELETE',
+    user,
+  })
+  .then(() => {
+    return [state, redirect(`/${user.username}`)]
+  })
+  .catch(handleError(dispatch))
 }
