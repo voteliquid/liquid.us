@@ -1,6 +1,9 @@
 const { ASSETS_URL } = process.env
 const stateNames = require('datasets-us-states-abbr-names')
-const { api, avatarURL, combineEffects, combineEffectsInSeries, escapeHtml, makePoint, possessive, preventDefault } = require('../helpers')
+const {
+  api, avatarURL, combineEffects, combineEffectsInSeries, escapeHtml,
+  makePoint, possessive, preventDefault, redirect,
+} = require('../helpers')
 const { fetchMeasure, fetchMeasureVotes } = require('../effects/measure')
 const { updateNameAndAddress } = require('../effects/user')
 const { signIn } = require('../effects/session')
@@ -8,8 +11,6 @@ const { changePageTitle } = require('../effects/page')
 const { logEndorsed } = require('../effects/analytics')
 
 module.exports = (event, state) => {
-  console.log(state.votes)
-
   switch (event.type) {
     case 'pageLoaded':
       switch (state.location.route) {
@@ -18,7 +19,7 @@ module.exports = (event, state) => {
         case '/:username/:shortId/votes/:voteId':
           return [{
             ...state,
-            loading: { ...state.loading, page: true },
+            loading: { ...state.loading, page: !state.votes[event.voteId] },
             votes: {
               ...state.votes,
               [event.voteId]: {
@@ -35,6 +36,89 @@ module.exports = (event, state) => {
         default:
           return [state]
       }
+    case 'vote:questionFormSubmitted':
+      return [{
+        ...state,
+        error: null,
+        errors: {},
+        loading: { ...state.loading, questions: true },
+      }, combineEffectsInSeries([
+        postQuestion(event, state.user),
+        fetchVoteQuestions(event.vote, state.user),
+      ])]
+    case 'vote:questionPosted':
+      return [{
+        ...state,
+        votes: {
+          ...state.votes,
+          [event.vote.id]: {
+            ...state.votes[event.vote.id],
+            showQuestionForm: false,
+          },
+        },
+      }, preventDefault(event.event)]
+    case 'vote:questionsRequested':
+      return [{
+        ...state,
+        loading: { ...state.loading, questions: true },
+      }, fetchVoteQuestions(event.vote, state.user)]
+    case 'vote:questionsReceived':
+      return [{
+        ...state,
+        loading: { ...state.loading, questions: false },
+        votes: {
+          ...state.votes,
+          [event.vote.id]: {
+            ...state.votes[event.vote.id],
+            questions: event.questions,
+          }
+        },
+      }]
+    case 'vote:questionReceived':
+      return [{
+        ...state,
+        loading: { ...state.loading, questions: false, questionsVotes: false },
+        votes: {
+          ...state.votes,
+          [event.vote.id]: {
+            ...state.votes[event.vote.id],
+            questions: (state.votes[event.vote.id].questions || []).map((question) => {
+              if (question.id === event.question.id) {
+                return event.question
+              }
+              return question
+            }),
+          }
+        },
+      }]
+    case 'vote:questionVoted':
+      if (!state.user) {
+        return [state, redirect('/join', 302)]
+      }
+
+      return [{
+        ...state,
+        error: null,
+        errors: {},
+        loading: { ...state.loading, questionsVotes: true },
+        votes: {
+          ...state.votes,
+          [event.vote.id]: {
+            ...state.votes[event.vote.id],
+            questions: state.votes[event.vote.id].questions.map((question) => {
+              question = { ...question }
+              if (question.id === event.question.id) {
+                question.current_user_voted = !question.current_user_voted
+              }
+              return question
+            }),
+          }
+        },
+      }, combineEffectsInSeries([
+        preventDefault(event.event),
+        postQuestionVote(event.question, state.user),
+        fetchVoteQuestion(event.question, event.vote, state.user),
+      ])]
     case 'vote:toggledMobileEndorsementForm':
       return [{
         ...state,
@@ -72,7 +156,7 @@ module.exports = (event, state) => {
         },
       }, combineEffects([preventDefault(event.event), reportVote(event.vote, state.user)])]
     case 'vote:endorsed':
-      // TODO cannot change state here otherwise iframes in comments will re-render and Chrome will dismiss the confirm dialog whenever an iframe loads.
+      // TODO cannot change state here otherwise iframes in questions will re-render and Chrome will dismiss the confirm dialog whenever an iframe loads.
       return [state, combineEffectsInSeries([
         preventDefault(event.event),
         endorse(event.vote, state.user, event.measure, event.is_public),
@@ -191,6 +275,59 @@ module.exports = (event, state) => {
     default:
       return [state]
   }
+}
+
+const postQuestion = ({ event, type, vote, ...formData }, user) => (dispatch) => {
+  event.preventDefault()
+
+  return api(dispatch, `/questions`, {
+    method: 'POST',
+    body: JSON.stringify(formData),
+    user,
+  })
+  .then(() => dispatch({ type: 'vote:questionPosted', vote }))
+  .catch((error) => {
+    if (error.message.match(/questions_question_check/)) {
+      error.message = `Questions must be between 12 and 512 characters.`
+    }
+    dispatch({ type: 'error', error })
+  })
+}
+
+const postQuestionVote = (question, user) => (dispatch) => {
+  if (question.current_user_voted) {
+    return deleteQuestionVote(question, user)(dispatch)
+  }
+
+  return api(dispatch, `/questions_votes`, {
+    method: 'POST',
+    body: JSON.stringify({
+      question_id: question.id,
+      user_id: user.id,
+    }),
+    user,
+  })
+  .catch((error) => dispatch({ type: 'error', error }))
+}
+
+const deleteQuestionVote = (question, user) => (dispatch) => {
+  return api(dispatch, `/questions_votes?question_id=eq.${question.id}&user_id=eq.${user.id}`, {
+    method: 'DELETE',
+    user,
+  })
+  .catch((error) => dispatch({ type: 'error', error }))
+}
+
+const fetchVoteQuestion = (question, vote, user) => (dispatch) => {
+  return api(dispatch, `/questions_detailed?id=eq.${question.id}`, { user })
+    .then(([question]) => dispatch({ type: 'vote:questionReceived', vote, question }))
+    .catch((error) => dispatch({ type: 'error', error }))
+}
+
+const fetchVoteQuestions = (vote, user) => (dispatch) => {
+  return api(dispatch, `/questions_detailed?vote_id=eq.${vote.id}&order=votes.desc,created_at.desc`, { user })
+    .then((questions) => dispatch({ type: 'vote:questionsReceived', vote, questions }))
+    .catch((error) => dispatch({ type: 'error', error }))
 }
 
 const vote = ({ event, measure, ...form }, user) => (dispatch) => {

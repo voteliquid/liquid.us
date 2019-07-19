@@ -7,7 +7,6 @@ const stateNames = require('datasets-us-states-abbr-names')
 const daneTargetReps = require('./dane-county-targetReps')
 const petitionQuestions = require('./endorsement-questions')
 
-
 module.exports = (state, dispatch) => {
   const { location, measures, votes } = state
   const measure = measures[location.params.shortId]
@@ -51,7 +50,7 @@ module.exports = (state, dispatch) => {
                   <li class=${tab === 'questions' ? 'is-active' : ''}><a href=${`${path}?tab=questions`}>Questions</a></li>
                 </ul>
               </div>
-              ${tab === 'questions' ? petitionQuestions(state, dispatch) : (vote.replies || []).map(endorsementCommentReply)}
+              ${tab === 'questions' ? petitionQuestions(state, dispatch) : commentsView(vote, state, dispatch)}
             </div>
           </div>
           <div class="column is-one-quarter sticky-panel">
@@ -92,6 +91,16 @@ module.exports = (state, dispatch) => {
         </div>
       </div>
     </section>
+  `
+}
+
+const commentsView = (vote) => {
+  const replies = vote.replies || []
+  return html`
+    <div>
+      ${!replies.length ? html`<p class="has-text-grey has-text-centered">No comments have been posted yet.</p>` : ''}
+      ${replies.map(endorsementCommentReply)}
+    </div>
   `
 }
 
