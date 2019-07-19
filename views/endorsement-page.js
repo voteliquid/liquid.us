@@ -5,6 +5,7 @@ const measureSummary = require('./measure-summary')
 const sidebar = require('./endorsement-page-sidebar')
 const stateNames = require('datasets-us-states-abbr-names')
 const daneTargetReps = require('./dane-county-targetReps')
+const petitionQuestions = require('./endorsement-questions')
 
 module.exports = (state, dispatch) => {
   const { location, measures, votes } = state
@@ -18,6 +19,8 @@ module.exports = (state, dispatch) => {
   const isDane = (l) => (
     l.short_id === 'press-pause-on-227m-new-jail'
   )
+  const tab = location.query.tab || 'arguments'
+  const path = location.path
 
   return html`
     <section class="section">
@@ -40,7 +43,15 @@ module.exports = (state, dispatch) => {
             <div class="small-screens-only">
               ${vote.showMobileEndorsementForm ? '' : mobileHoverBar({ vote }, dispatch)}
             </div>
-            ${(vote.replies || []).map(endorsementCommentReply)}
+            <div>
+              <div class="tabs">
+                <ul>
+                  <li class=${tab === 'replies' ? 'is-active' : ''}><a href=${`${path}?tab=replies`}>Comments</a></li>
+                  <li class=${tab === 'questions' ? 'is-active' : ''}><a href=${`${path}?tab=questions`}>Questions</a></li>
+                </ul>
+              </div>
+              ${tab === 'questions' ? petitionQuestions(state, dispatch) : commentsView(vote, state, dispatch)}
+            </div>
           </div>
           <div class="column is-one-quarter sticky-panel">
             <div class="panel-wrapper">
@@ -80,6 +91,16 @@ module.exports = (state, dispatch) => {
         </div>
       </div>
     </section>
+  `
+}
+
+const commentsView = (vote) => {
+  const replies = vote.replies || []
+  return html`
+    <div>
+      ${!replies.length ? html`<p class="has-text-grey has-text-centered">No comments have been posted yet.</p>` : ''}
+      ${replies.map(endorsementCommentReply)}
+    </div>
   `
 }
 
