@@ -115,6 +115,7 @@ const questionView = (question, vote, state, dispatch) => {
             <strong>${name || 'Anonymous'}</strong>
             ${name ? html`<a href=${`/${question.user.username}`}><small>@${question.user.username}</small></a>` : ''}
             <small class="has-text-grey">${moment.utc(question.created_at).fromNow()}</small>
+            ${state.user && question.user_id === state.user.id && !question.public ? html`<span class="tag is-light">Posted Anonymously</span>` : ''}
             <br>
             ${question.question}
           </p>
