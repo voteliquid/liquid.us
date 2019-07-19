@@ -16,6 +16,8 @@ module.exports = {
   init: [{
     cookies: {}, // initialized in browser/server.js
     contactForm: { open: false, submitted: false },
+    error: null,
+    errors: {},
     firstPageLoad: true,
     forms: {
       contact: { submitted: false },
@@ -60,11 +62,18 @@ module.exports = {
       case 'contactForm':
         return require('./models/contact')(event, state)
       case 'error':
-        return [{
-          ...state,
-          loading: { page: state.loading.page },
-          error: event.error,
-        }, logError(event.error)]
+        switch (event.type) {
+          case 'error:dismissedErrors':
+            return [{ ...state, errors: {} }]
+          case 'error:network':
+            return [{ ...state, errors: { ...state.errors, network: event.error } }, dismissErrors]
+          default:
+            return [{
+              ...state,
+              loading: { page: state.loading.page },
+              error: event.error,
+            }, logError(event.error)]
+        }
       case 'loaded':
         return [{ ...state, loading: { ...state.loading, [event.name]: false } }]
       case 'import':
@@ -186,8 +195,10 @@ module.exports = {
     }
   },
   view: (state, dispatch) => {
+    const networkError = state.errors.network
     return html`
       <div id="wrapper">
+        ${bannerAlert(networkError, `No connection. Check your Internet connectivity.`)}
         ${navbar(state, dispatch)}
         <div class="router">
           ${!state.loading.page && state.view
@@ -199,6 +210,34 @@ module.exports = {
       ${contactForm(state, dispatch)}
     `
   },
+}
+
+const dismissErrors = (dispatch) => {
+  setTimeout(() => {
+    dispatch({ type: 'error:dismissedErrors' })
+  }, 5000)
+}
+
+const bannerAlert = (error, msg) => {
+  const style = {
+    boxShadow: '0 0 1em rgba(0, 0, 0, 0.05)',
+    borderBottom: '1px solid #f2e9e9',
+    position: 'fixed',
+    top: '-1px',
+    backgroundColor: '#fff5f7',
+    width: '100%',
+    color: '#cd0930',
+    zIndex: 99,
+    overflow: 'hidden',
+    textAlign: 'center',
+    transition: 'height .2s ease-in-out',
+    height: error ? '3.5em' : '0',
+  }
+  const pStyle = {
+    lineHeight: '3.5em',
+    height: '3.5em',
+  }
+  return html`<div style=${style} aria-hidden=${!error}><p style=${pStyle}>${msg}<p></div>`
 }
 
 const routeOrErrorView = (state, dispatch) => {
