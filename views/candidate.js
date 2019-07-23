@@ -18,7 +18,7 @@ module.exports = (state, dispatch) => {
           <br />
           <div class="columns">
             <div class="column">
-              ${!state.user ? joinSection(state, dispatch) : html``}
+              ${joinSection(state, dispatch)}
             </div>
             <div class="column is-1"></div>
             <div class="column is is-paddingless">
@@ -93,7 +93,7 @@ module.exports = (state, dispatch) => {
           <div class="columns has-text-centered">
             <div class="column">
               <h2 class="title is-4 has-text-centered">Educate your community</h2>
-              <img src="/assets/creativitycolor1.png" width="40%">
+              <img src="/assets/educate.png" width="40%">
               <br /><br />
             </div>
             <div class="column">
@@ -158,7 +158,7 @@ module.exports = (state, dispatch) => {
               <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Hands-on tech help</strong> to make everything work with your existing systems.</h4>
             </div>
             <div class="column has-text-centered">
-              <img src="/assets/techcolor1.png" width="60%">
+              <img src="/assets/techcolor2.png" width="60%">
             </div>
             <div class="column is-1"></div>
             <div class="column has-text-left-tablet is-hidden-mobile">
@@ -251,7 +251,7 @@ module.exports = (state, dispatch) => {
           </div>
           <div class="column is-1"></div>
           <div class="column  has-text-centered">
-            <img src="/assets/voting.png" width="60%">
+            <img src="/assets/votecount.png" width="60%">
           </div>
           <div class="column is-2"></div>
         </div>
@@ -264,7 +264,7 @@ module.exports = (state, dispatch) => {
             <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Hold elected leaders accountable.</strong> Liquid automatically compares what the people want with how elected leaders vote.</h4>
           </div>          
           <div class="column has-text-centered">
-            <img src="/assets/accountability.png" width="60%">
+            <img src="/assets/accountability2.png" width="60%">
           </div>
           <div class="column is-1"></div>
           <div class="column has-text-left-tablet is-hidden-mobile">
@@ -304,14 +304,24 @@ module.exports = (state, dispatch) => {
   </section>
 
   <div class="columns">>
-  <div class="column"></div>
-    <div class="column is-5">
-      <br /><br />
-      ${!state.user ? joinSection(state, dispatch) : html``}
-    </div>
+    <div class="column"></div>
+      <div class="column is-5">
+        <br /><br />
+        ${joinSection(state, dispatch)}
+      </div>
     <div class="column"></div>
   </div>
-    <section class="hero is-medium">
+
+  <div class="columns">>
+    <div class="column"></div>
+      <div class="column is-10">
+        <br /><br />
+        <div class="is-size-7 has-text-grey">Images by priyanka, KonKapp, Maxim Basinski, Delwar Hossain, Maxim Kulikov, flatart, jugalbandi, Turkkub, zidney, Max Hancock, adrien coquet, Adiba Taj from the Noun Project.</div>
+      </div>
+    <div class="column"></div>
+  </div>
+
+      <section class="hero is-medium">
       <div class="hero-body">
         <div class="container">
           <section class="section">
@@ -341,7 +351,6 @@ module.exports = (state, dispatch) => {
                   margin-bottom: 7px;
                 }
               </style>
-              <p>Images by priyanka, KonKapp, Maxim Basinski, Delwar Hossain, Maxim Kulikov, flatart, jugalbandi, Turkkub, zidney, Max Hancock, adrien coquet from the Noun Project.</p>
             </div>
             <div class="column">
               ${video({ url: 'https://www.youtube.com/embed/GFh0aZ_u9FQ' })}
