@@ -128,6 +128,7 @@ module.exports = {
             case '/sign_in':
             case '/sign_in/verify':
             case '/join':
+            case '/candidate':
             case '/sign_out':
               return require('./models/session')(event, state)
             case '/get_started':
