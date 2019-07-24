@@ -14,7 +14,7 @@ module.exports = (state, dispatch) => {
   const l = measure
   const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
   const hideTargetReps = (l) => (
-    l.author_username === 'councilmemberbas'
+    l.author_username === 'councilmemberbas' || l.legislature_name === 'Madison, WI'
   )
   const isDane = (l) => (
     l.short_id === 'press-pause-on-227m-new-jail'
