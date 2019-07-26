@@ -75,8 +75,8 @@ module.exports = {
         return [{ ...state, usersCount: event.usersCount }]
       case 'navHamburgerToggled':
         return [{ ...state, navbar: { hamburgerVisible: !state.navbar.hamburgerVisible } }, preventDefault(event.event)]
-      case 'office':
-        return require('./models/office')(event, state)
+      case 'legislature':
+        return require('./models/legislature')(event, state)
       case 'pageChanged':
         // page has been changed
         return [{

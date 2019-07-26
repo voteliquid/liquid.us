@@ -1,7 +1,6 @@
 const { APP_NAME } = process.env
 const { html, capitalize } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
-const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = (state, dispatch) => {
   const { loading, measures, measuresByUrl, location } = state
@@ -102,14 +101,6 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
   const hide_direct_votes = location.query.hide_direct_votes || cookies.hide_direct_votes
   const legislatureQuery = decodeURIComponent(location.query.legislature).replace(/\+/g, ' ')
 
-  // Add legislature from URL to legislature selection
-  if (location.query.legislature && !legislatures.some(({ abbr }) => abbr === location.query.legislature.replace(/%20/g, ' '))) {
-    legislatures.push({
-      abbr: location.query.legislature,
-      name: stateNames[location.query.legislature] || location.query.legislature,
-    })
-  }
-
   return html`
     <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
       <input name="policy_area" type="hidden" value="${location.query.policy_area}" />
@@ -131,9 +122,9 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
         </div>
         <div class="control">
           <div class="select">
-            <select autocomplete="off" name="legislature" onchange=${autoSubmit}>
-              ${legislatures.map(({ abbr, name }) => {
-                return html`<option value="${abbr}" selected=${abbr === legislatureQuery}>${name}</option>`
+            <select autocomplete="off" name="legislature_id" onchange=${autoSubmit}>
+              ${legislatures.map(({ id, name }) => {
+                return html`<option value="${id}" selected=${id === legislatureQuery}>${name}</option>`
               })}
             </select>
           </div>

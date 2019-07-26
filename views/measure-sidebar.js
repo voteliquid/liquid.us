@@ -34,8 +34,8 @@ module.exports = (state, dispatch) => {
       ${reps && reps.length ? measureRepsPanel({ measure, reps }) : ''}
       ${measureVoteCounts(measure)}
       ${showStatusTracker ? measureStatusPanel(measure) : ''}
-      ${measureSponsorPanel(measure)}
-      ${measureLinksPanel(measure)}
+      ${measure.sponsor || measure.author ? measureSponsorPanel(measure) : ''}
+      ${l.author_username ? measureLinksPanel(measure) : ''}
       ${measureActionsPanel(state, dispatch)}
     </nav>
   `
@@ -122,12 +122,12 @@ const measureVoteCounts = (measure) => {
           ${delegate_name ? html`<tr><td colspan="3" class="has-text-grey">Inherited from ${delegate_name}</td></tr>` : ''}
           <tr><td colspan="3">&nbsp;</td><tr/>
           ` : ''}
+          <tr class="has-text-grey">
+            <td class="has-text-left">${APP_NAME}</td>
+            <td class="has-text-right">Yea</td>
+            <td class="has-text-right">Nay</td>
+          </tr>
           ${vote_counts.map(({ yeas, nays, office_name, legislature_name }) => html`
-            <tr class="has-text-grey">
-              <td class="has-text-left">${APP_NAME}</td>
-              <td class="has-text-right">Yea</td>
-              <td class="has-text-right">Nay</td>
-            </tr>
             <tr>
               <td class="has-text-left has-text-grey">${office_name || legislature_name}</td>
               <td class="has-text-right">${yeas || 0}</td>

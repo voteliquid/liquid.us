@@ -243,7 +243,7 @@ const fetchMeasures = (params, user) => (dispatch) => {
   const hide_direct_votes_params = hide_direct_votes === 'on' ? 'or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
   const policy_area_query = params.policy_area ? `&policy_area=eq.${params.policy_area}` : ''
 
-  const legislature = `&legislature_name=eq.${params.legislature || 'U.S. Congress'}`
+  const legislature = params.legislature_id ? `&legislature_id=eq.${params.legislature_id}` : `&legislature_name=eq.U.S. Congress`
 
   const url = `/measures_detailed?${hide_direct_votes_params}${policy_area_query}${fts}${legislature}&type=not.eq.nomination${order}&limit=40`
 

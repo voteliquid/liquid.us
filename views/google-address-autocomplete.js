@@ -32,20 +32,41 @@ module.exports = `
         lastAddress.formatted_address = place.formatted_address;
         lastAddress.lat = geocoords.lat();
         lastAddress.lon = geocoords.lng();
-        lastAddress.city = place.address_components.filter(function(item) {
+        lastAddress.locality = place.address_components.filter(function(item) {
           return item.types.some(function(type) {
             return type === 'locality';
           });
         }).map(function(item) {
           return item.long_name
-        }).shift() || '';
-        lastAddress.state = place.address_components.filter(function(item) {
+        })[0];
+        lastAddress.administrative_area_level_1 = place.address_components.filter(function(item) {
           return item.types.some(function(type) {
             return type === 'administrative_area_level_1';
           });
         }).map(function(item) {
-          return item.short_name
-        }).shift() || '';
+          return item.long_name
+        })[0];
+        lastAddress.administrative_area_level_2 = place.address_components.filter(function(item) {
+          return item.types.some(function(type) {
+            return type === 'administrative_area_level_2';
+          });
+        }).map(function(item) {
+          return item.long_name
+        })[0];
+        lastAddress.postal_code = place.address_components.filter(function(item) {
+          return item.types.some(function(type) {
+            return type === 'postal_code';
+          });
+        }).map(function(item) {
+          return item.long_name
+        })[0];
+        lastAddress.country = place.address_components.filter(function(item) {
+          return item.types.some(function(type) {
+            return type === 'country';
+          });
+        }).map(function(item) {
+          return item.long_name
+        })[0];
       }
     }
   </script>
