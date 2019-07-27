@@ -3,13 +3,9 @@ const { api } = require('../helpers')
 exports.fetchMeasure = (shortId, offices, user) => (dispatch) => {
   return api(dispatch, `/measures_detailed?short_id=eq.${shortId}`, { user }).then(([measure]) => {
     if (measure) {
-      const officesInChamber = offices.filter(({ chamber, legislature }) => {
-        return chamber === measure.chamber && measure.legislature_name === legislature.name
-      })
-      const officeId = officesInChamber.map((office) => office.id).shift()
-      const officeParam = officeId ? `&office_id=eq.${officeId}` : '&office_id=is.null'
       return Promise.all([
-        api(dispatch, `/measure_votes?measure_id=eq.${measure.id}${officeParam}`, { user }),
+        api(dispatch, `/measure_vote_counts?measure_id=eq.${measure.id}`, { user }),
+        fetchMeasureVoteCountsByOffice(dispatch, measure, offices, user),
         api(dispatch, `/votes_detailed?measure_id=eq.${measure.id}&public=eq.true&comment=not.is.null&comment=not.eq.&position=eq.yea&order=proxy_vote_count.desc.nullslast,created_at.desc`, { user }),
         api(dispatch, `/votes_detailed?measure_id=eq.${measure.id}&public=eq.true&comment=not.is.null&comment=not.eq.&position=eq.nay&order=proxy_vote_count.desc.nullslast,created_at.desc`, { user }),
         user && api(dispatch, `/rpc/vote_power_for_measure`, {
@@ -17,14 +13,31 @@ exports.fetchMeasure = (shortId, offices, user) => (dispatch) => {
           body: JSON.stringify({ user_id: user.id, measure_id: measure.id }),
           user
         }),
-      ]).then(([[voteCounts], [topYea], [topNay], votePower]) => {
-        const measureWithVotes = { ...measure, ...voteCounts }
+      ]).then(([voteCounts, officeVoteCounts, [topYea], [topNay], votePower]) => {
+        const measureWithVotes = { ...measure, vote_counts: voteCounts.concat(officeVoteCounts) }
         dispatch({ type: 'measure:received', measure: measureWithVotes, topYea, topNay, votePower })
         return measureWithVotes
       })
     }
     dispatch({ type: 'measure:received', measure: null })
   })
+}
+
+const fetchMeasureVoteCountsByOffice = (dispatch, measure, offices, user) => {
+  const officesInChamber = offices.filter(({ chamber, legislature }) => {
+    return chamber === measure.chamber && measure.legislature_name === legislature.name
+  })
+  const office = officesInChamber[0]
+  if (office) {
+    return api(dispatch, `/measure_vote_counts_by_office?measure_id=eq.${measure.id}&office_id=eq.${office.id}`, { user })
+      .then((voteCounts) => {
+        if (voteCounts.length === 0) {
+          return [{ measure_id: measure.id, office_name: office.short_name, office_id: office.id || null, yeas: 0, nays: 0, abstains: 0 }]
+        }
+        return voteCounts
+      })
+  }
+  return Promise.resolve([])
 }
 
 exports.fetchMeasureVotes = (shortId, order = 'most_recent', position = 'all', user) => (dispatch) => {

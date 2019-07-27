@@ -3,8 +3,8 @@ const { api } = require('../helpers')
 const fetch = require('isomorphic-fetch')
 
 exports.fetchOfficesFromAddress = (user) => (dispatch) => {
-  return api(dispatch, '/user_offices', { user })
-  .then((offices) => dispatch({ type: 'office:receivedList', offices: offices || [] }))
+  return api(dispatch, '/user_legislatures_detailed', { user })
+  .then((legislatures) => dispatch({ type: 'legislature:legislaturesAndOfficesReceived', legislatures }))
   .catch((error) => dispatch({ type: 'error', error }))
 }
 
@@ -23,18 +23,18 @@ exports.fetchOfficesFromIP = (ip) => (dispatch) => {
     if (!geoip) {
       return dispatch({ type: 'office:receivedList', offices: [] })
     }
-    return api(dispatch, '/rpc/point_to_offices', {
+    return api(dispatch, '/rpc/point_to_legislatures_detailed', {
       method: 'POST',
       body: JSON.stringify({
         lon: Number(geoip.lon),
         lat: Number(geoip.lat),
-        city: `${geoip.city}, ${geoip.region}`,
-        state: geoip.region,
+        locality: geoip.city,
+        administrative_area_level_1: geoip.regionName,
+        administrative_area_level_2: null, // TODO find provider that gives county
+        country: geoip.countryCode,
       }),
     }, dispatch)
-    .then((offices) => {
-      dispatch({ type: 'office:receivedList', offices, geoip })
-    })
+    .then((legislatures) => dispatch({ type: 'legislature:legislaturesAndOfficesReceived', legislatures }))
   })
   .catch((error) => dispatch({ type: 'error', error }))
 }

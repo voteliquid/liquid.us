@@ -510,8 +510,11 @@ const updateNameAndAddressFromEndorsement = (form, user) => (dispatch) => {
   return updateNameAndAddress({
     addressData: {
       address,
-      city: window.lastSelectedGooglePlacesAddress.city,
-      state: window.lastSelectedGooglePlacesAddress.state,
+      locality: window.lastSelectedGooglePlacesAddress.locality,
+      administrative_area_level_1: window.lastSelectedGooglePlacesAddress.administrative_area_level_1,
+      administrative_area_level_2: window.lastSelectedGooglePlacesAddress.administrative_area_level_2,
+      postal_code: window.lastSelectedGooglePlacesAddress.postal_code,
+      country: window.lastSelectedGooglePlacesAddress.country,
       geocoords: makePoint(window.lastSelectedGooglePlacesAddress.lon, window.lastSelectedGooglePlacesAddress.lat),
     },
     nameData: { first_name, last_name, voter_status },
@@ -540,8 +543,11 @@ const signupAndEndorse = ({ vote, ...form }, offices, location) => (dispatch) =>
       return updateNameAndAddress({
         addressData: {
           address,
-          city: window.lastSelectedGooglePlacesAddress.city,
-          state: window.lastSelectedGooglePlacesAddress.state,
+          locality: window.lastSelectedGooglePlacesAddress.locality,
+          administrative_area_level_1: window.lastSelectedGooglePlacesAddress.administrative_area_level_1,
+          administrative_area_level_2: window.lastSelectedGooglePlacesAddress.administrative_area_level_2,
+          postal_code: window.lastSelectedGooglePlacesAddress.postal_code,
+          country: window.lastSelectedGooglePlacesAddress.country,
           geocoords: makePoint(window.lastSelectedGooglePlacesAddress.lon, window.lastSelectedGooglePlacesAddress.lat),
         },
         nameData: { first_name, last_name, voter_status },
