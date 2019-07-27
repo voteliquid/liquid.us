@@ -116,7 +116,7 @@ exports.signIn = ({ channel, email, device_desc, phone_number, redirect_to, even
           return user
         })
         .catch((error) => {
-          dispatch({ type: 'error', error })
+          dispatch({ type: 'session:error', error })
           dispatch({ type: 'redirected', url: redirect_to || '/sign_in', status: 303 })
         })
     }
@@ -134,6 +134,7 @@ exports.signIn = ({ channel, email, device_desc, phone_number, redirect_to, even
     } else if (error.message !== 'Please wait 10 seconds and try again') {
       error.message = `There was a problem on our end. Please try again and let us know if you're still encountering a problem.`
     }
+    error.field = 'email'
     dispatch({ type: 'session:error', error })
   })
 }

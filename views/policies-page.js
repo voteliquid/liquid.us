@@ -15,7 +15,7 @@ module.exports = () => {
           <p>We operate on a few basic principles:</p>
           <ul>
             <li>Privacy is a basic right.</li>
-            <li>All activity defaults private unless the author chooses differently.</li>
+            <li>Authors can choose to keep their activity private.</li>
             <li>We only collect the minimum amount of user information to enable and express trustworthy voting and policy intention.</li>
             <li>Passwords are inherently difficult to secure. We never require you to create or remember a new password. Rather, we base authentication on the security of your email inbox, like most <em>Forgot Password</em> processes.</li>
             <li>We employ as much encryption as possible, including TLS encryption for all data in transit and database encryption at rest.</li>

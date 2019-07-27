@@ -6,6 +6,7 @@ module.exports = ({ cookies, error, loading, location, profiles = {} }, dispatch
   const vote_position = cookies.vote_position
   const endorsed_vote_id = cookies.endorsed_vote_id
   const reqProxyProfile = profiles[proxying_username]
+  const hasError = error && error.field === 'email'
 
   return html`
     <section class="section">
@@ -59,7 +60,7 @@ module.exports = ({ cookies, error, loading, location, profiles = {} }, dispatch
                 <label for="email">Enter your email to sign in</label>
               </div>
               <div class="field has-addons">
-                <div class="${`control is-expanded has-icons-left ${error ? 'has-icons-right' : ''}`}">
+                <div class="${`control is-expanded has-icons-left ${hasError ? 'has-icons-right' : ''}`}">
                   <input name="channel" type="hidden" value="sign-in-page" />
                   <input name="device_desc" type="hidden" value="${location.userAgent || 'Unknown'}" />
                   <input name="phone_number" type="hidden" value="${location.query.ph ? atob(location.query.ph) : ''}" />
@@ -71,14 +72,14 @@ module.exports = ({ cookies, error, loading, location, profiles = {} }, dispatch
                   <input name="vote_bill_id" type="hidden" value="${cookies.vote_bill_id}" />
                   <input name="vote_comment" type="hidden" value="${cookies.vote_comment}" />
                   <input name="vote_public" type="hidden" value="${cookies.vote_public}" />
-                  <input name="email" class="${`input ${error ? 'is-danger' : ''}`}" type="text" placeholder="you@example.com" />
+                  <input name="email" class="${`input ${hasError ? 'is-danger' : ''}`}" type="text" placeholder="you@example.com" />
                   <span class="icon is-small is-left">
                     <i class="fa fa-user"></i>
                   </span>
-                  ${error ? html`<span class="icon is-small is-right">
+                  ${hasError ? html`<span class="icon is-small is-right">
                     <i class="fa fa-warning"></i>
                   </span>` : ''}
-                  ${error ? html`<p class="help is-danger">${error.message}</p>` : ''}
+                  ${hasError ? html`<p class="help is-danger">${error.message}</p>` : ''}
                 </div>
                 <div class="control">
                   <button class="${`button is-primary ${loading.signIn ? 'is-loading' : ''}`}" disabled=${loading.signIn} type="submit"><strong>Sign in</strong></button>

@@ -82,8 +82,11 @@ const saveSettings = (user, location, form) => (dispatch) => {
 
   const addressData = {
     address,
-    city: window.lastSelectedGooglePlacesAddress.city,
-    state: window.lastSelectedGooglePlacesAddress.state,
+    locality: window.lastSelectedGooglePlacesAddress.locality,
+    administrative_area_level_1: window.lastSelectedGooglePlacesAddress.administrative_area_level_1,
+    administrative_area_level_2: window.lastSelectedGooglePlacesAddress.administrative_area_level_2,
+    postal_code: window.lastSelectedGooglePlacesAddress.postal_code,
+    country: window.lastSelectedGooglePlacesAddress.country,
     geocoords: makePoint(window.lastSelectedGooglePlacesAddress.lon, window.lastSelectedGooglePlacesAddress.lat),
   }
 
