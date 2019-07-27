@@ -99,7 +99,7 @@ const updateFilter = (event, location, dispatch) => {
 
 const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
   const hide_direct_votes = location.query.hide_direct_votes || cookies.hide_direct_votes
-  const legislatureQuery = decodeURIComponent(location.query.legislature).replace(/\+/g, ' ')
+  const legislatureQuery = decodeURIComponent(location.query.legislature_id).replace(/\+/g, ' ')
 
   return html`
     <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
