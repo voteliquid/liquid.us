@@ -1,7 +1,6 @@
 const { APP_NAME, WWW_URL } = process.env
 const { avatarURL, capitalize, html } = require('../helpers')
 const stateNames = require('datasets-us-states-abbr-names')
-const stateAbbr = require('datasets-us-states-names-abbr')
 const editButtons = require('./measure-edit-buttons')
 const shareButtons = require('./measure-share-buttons')
 
@@ -9,7 +8,7 @@ module.exports = (state, dispatch) => {
   const { measure } = state
   const l = measure
   const reps = state.reps.filter(({ chamber, legislature }) => {
-    return chamber === l.chamber && (stateAbbr[legislature.name] || legislature.name) === l.legislature_name
+    return chamber === l.chamber && legislature.name === l.legislature_name
   })
   const showStatusTracker = l.introduced_at && l.type === 'bill'
 
