@@ -57,6 +57,9 @@ module.exports = {
     ]
   },
   optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
     minimizer: [
       // we specify a custom UglifyJsPlugin here to get source maps in production
       new UglifyJsPlugin({
@@ -77,7 +80,8 @@ module.exports = {
   },
   output: {
     path: '/',
-    filename: '[hash].js',
+    filename: '[name].[hash].js',
+    chunkFilename: '[id].[contenthash].js',
     publicPath: '/hyperloop/'
   },
   resolve: {
