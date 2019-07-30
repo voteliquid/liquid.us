@@ -87,7 +87,7 @@ const voteButtons = ({ loading, measure }, dispatch) => {
   const { my_vote = { vote_position } } = measure
   return html`
     <div class="columns is-gapless is-multiline is-marginless">
-      ${vote_position === 'abstain' ? abstainButton({ loading, measure }, dispatch) : ''}
+      ${vote_position === 'abstain' ? abstainButton({ loading, measure }, dispatch) : html``}
       <div class="column is-half">
         <form method="POST" onsubmit=${handleForm(dispatch, { type: 'vote:voted', measure })} style="height: 100%;">
           <input type="hidden" name="vote_position" value="yea" />
