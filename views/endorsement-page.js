@@ -168,7 +168,7 @@ const rep = (r) => {
 const legislature = (measure) => {
   const notLocal = measure.legislature_name.length === 2 || measure.legislature_name === 'U.S. Congress'
   const measureImage = notLocal ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : `${ASSETS_URL}/legislature-images/local.png`
-  const name = measure.legislature_name.length === 2 ? stateNames[measure.legislature_name] : measure.legislature_name
+  const generalAssemblyStates = "'Alaska', 'Colorado', 'Connecticut', 'Delaware', 'Illinois', 'Iowa', 'Maryland', 'Mississippi', 'Ohio', 'Pennsylvania', ' Rhode Island', 'Tennessee', 'Virginia'"
 
   return html`
     <div class="column">
@@ -179,8 +179,14 @@ const legislature = (measure) => {
           </div>
         </div>
         <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
-          ${name}<br />
-          ${measure.legislature_name === 'U.S. Congress' ? '' : 'Legislature'}
+          ${measure.legislature_name}<br />
+          ${measure.legislature_name === 'U.S. Congress' ? ''
+          : measure.legislature_name.includes('County') || measure.legislature_name.includes('San Francisco') ? 'Supervisors'
+          : measure.legislature_name.includes('Miami') ? 'Commission'
+          : measure.legislature_name.includes(',') ? 'Council' // other than SF & Miami all top 50 cities use some variation of Council
+          : generalAssemblyStates.includes(measure.legislature_name) ? 'General Assembly'
+          : measure.legislature_name === 'Massachusetts' || measure.legislature_name === 'New Hampshire' ? 'General Court'
+          : 'State Legislature'}
         </div>
       </div>
     </div>
