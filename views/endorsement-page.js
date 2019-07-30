@@ -178,7 +178,7 @@ const legislature = (measure) => {
           </div>
         </div>
         <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
-          ${name}<br />
+          ${measure.legislature_name}<br />
           ${measure.legislature_name === 'U.S. Congress' ? '' : 'Legislature'}
         </div>
       </div>
