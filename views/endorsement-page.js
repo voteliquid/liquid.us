@@ -3,7 +3,7 @@ const { avatarURL, html, linkifyUrls } = require('../helpers')
 const endorsementCount = require('./endorsement-count')
 const measureSummary = require('./measure-summary')
 const sidebar = require('./endorsement-page-sidebar')
-const stateNames = require('datasets-us-states-abbr-names')
+const stateAbbreviations = require('datasets-us-states-names-abbr')
 const daneTargetReps = require('./dane-county-targetReps')
 const petitionQuestions = require('./endorsement-questions')
 
@@ -166,9 +166,8 @@ const rep = (r) => {
 }
 
 const legislature = (measure) => {
-  const notLocal = measure.legislature_name.length === 2 || measure.legislature_name === 'U.S. Congress'
-  const measureImage = notLocal ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : `${ASSETS_URL}/legislature-images/local.png`
-  const name = measure.legislature_name.length === 2 ? stateNames[measure.legislature_name] : measure.legislature_name
+  const local = measure.legislature_name.includes(',') || measure.legislature_name.includes('County')
+  const measureImage = local ? `${ASSETS_URL}/legislature-images/local.png` : `${ASSETS_URL}/legislature-images/${stateAbbreviations[measure.legislature_name]}.png`
 
   return html`
     <div class="column">
@@ -179,7 +178,7 @@ const legislature = (measure) => {
           </div>
         </div>
         <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
-          ${name}<br />
+          ${measure.legislature_name}<br />
           ${measure.legislature_name === 'U.S. Congress' ? '' : 'Legislature'}
         </div>
       </div>
@@ -190,7 +189,7 @@ const legislature = (measure) => {
 const endorsementComment = (measure, vote) => {
   const { endorsed_vote, fullname, username, twitter_username } = vote
   const anonymousName = measure
-    ? `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
+    ? `${measure.legislature_name === 'U.S. Congress' ? 'American' : measure.legislature_name} Resident`
     : 'Anonymous'
   return html`
     <div class="comment">
