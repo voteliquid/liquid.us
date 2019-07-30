@@ -11,6 +11,10 @@ module.exports = ({ error, loading, user, forms: { profile: profileForm = {} } }
       <div class="container is-widescreen">
         <h2 class="title is-5">Edit Profile</h2>
         <form method="POST" onsubmit=${handleForm(dispatch, { type: 'profile:userProfileSaved', user })} onkeyup=${handleForm(dispatch, { type: 'profile:userProfileFormChanged' })}>
+          <div class="is-size-6">
+            <label class="label">Image</label>
+            Update your image on <a href="http://gravatar.com">Gravatar</a> to change your profile picture.
+          </div><br />
           <div class="field">
             <label class="label">Intro Video</label>
             <div class="control">
