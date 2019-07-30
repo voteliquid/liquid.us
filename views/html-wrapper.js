@@ -3,7 +3,7 @@ const fs = require('fs')
 const googleAddressAutocompleteScript = require('./google-address-autocomplete')
 const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
 
-module.exports = (state, html, bundleUrl) => {
+module.exports = (state, html, jsBundleUrl) => {
   const { location } = state
   const pageDescription = location.description || 'The Most Powerful Way to Advocate for Your Community.'
   const pageTitle = location.title ? `${location.title} | Liquid US` : `Liquid US | Digital Democracy Voting Platform`
@@ -26,7 +26,7 @@ module.exports = (state, html, bundleUrl) => {
         <link rel="icon" type="image/png" href=${`${ASSETS_URL}/favicon.png`} />
         <link rel="apple-touch-icon" sizes="180x180" href=${`${ASSETS_URL}/apple-touch-icon.png`}>
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
-        <link rel="stylesheet" href=${`${ASSETS_URL}/styles.css`}>
+        <link rel="stylesheet" href="${`${ASSETS_URL}/${NODE_ENV === 'production' ? 'styles.min.css' : 'styles.css'}`}" type="text/css" />
         <style>
           ${nprogressStyle}
 
@@ -152,7 +152,7 @@ module.exports = (state, html, bundleUrl) => {
           ` : ''}
         </div>
         ${googleAddressAutocompleteScript}
-        <script src="${bundleUrl}"></script>
+        <script src="${jsBundleUrl}"></script>
       </body>
     </html>
   `

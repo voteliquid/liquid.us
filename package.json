@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "www.liquid.us",
   "scripts": {
-    "css-build": "node-sass --omit-source-map-url styles.sass assets/styles.css",
+    "css-build": "node-sass --omit-source-map-url styles.sass assets/styles.css && node-sass --omit-source-map-url --output-style=compressed styles.sass assets/styles.min.css",
     "start": "node server.js",
     "test": "eslint ."
   },

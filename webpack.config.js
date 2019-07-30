@@ -1,5 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 const plugins = [
@@ -19,6 +20,10 @@ const plugins = [
 ]
 
 const entries = []
+
+if (process.env.ANALYZE) {
+  plugins.push(new BundleAnalyzerPlugin())
+}
 
 if (process.env.NODE_ENV !== 'production') {
   entries.push('webpack-hot-middleware/client?noInfo=true&reload=true')
@@ -53,13 +58,10 @@ module.exports = {
             ]
           }
         }
-      }
+      },
     ]
   },
   optimization: {
-    splitChunks: {
-      chunks: 'all',
-    },
     minimizer: [
       // we specify a custom UglifyJsPlugin here to get source maps in production
       new UglifyJsPlugin({
@@ -80,9 +82,9 @@ module.exports = {
   },
   output: {
     path: '/',
-    filename: '[name].[hash].js',
+    filename: '[hash].js',
     chunkFilename: '[id].[contenthash].js',
-    publicPath: '/hyperloop/'
+    publicPath: '/assets/'
   },
   resolve: {
     alias: {
