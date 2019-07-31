@@ -167,7 +167,7 @@ const rep = (r) => {
 
 const legislature = (measure) => {
   const local = measure.legislature_name.includes(',') || measure.legislature_name.includes('County')
-  const measureImage = local ? `${ASSETS_URL}/legislature-images/local.png` : `${ASSETS_URL}/legislature-images/${stateAbbreviations[measure.legislature_name]}.png`
+  const measureImage = local ? `${ASSETS_URL}/legislature-images/local.png` : `${ASSETS_URL}/legislature-images/${stateAbbreviations[measure.legislature_name] || 'U.S. Congress'}.png`
 
   return html`
     <div class="column">
