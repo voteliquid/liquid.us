@@ -187,7 +187,7 @@ exports.combineEffects = (effects) => (dispatch) => {
 }
 
 exports.combineEffectsInSeries = (effects) => (dispatch) => {
-  effects.reduce((promise, effect) => promise.then(() => Promise.resolve(effect && effect(dispatch))), Promise.resolve())
+  return effects.reduce((promise, effect) => promise.then(() => Promise.resolve(effect && effect(dispatch))), Promise.resolve())
 }
 
 // Wait for all promises before dispatching optional event

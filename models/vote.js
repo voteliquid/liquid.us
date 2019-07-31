@@ -2,7 +2,7 @@ const { ASSETS_URL } = process.env
 const stateNames = require('datasets-us-states-abbr-names')
 const {
   api, avatarURL, combineEffects, combineEffectsInSeries, escapeHtml,
-  makePoint, possessive, preventDefault, redirect,
+  makePoint, possessive, preventDefault, redirect, waitEffects
 } = require('../helpers')
 const { fetchMeasure, fetchMeasureVotes } = require('../effects/measure')
 const { updateNameAndAddress } = require('../effects/user')
@@ -28,10 +28,12 @@ module.exports = (event, state) => {
                 expanded: state.location.query.show_more === 'true',
               },
             },
-          }, combineEffectsInSeries([
-            fetchMeasure(state.location.params.shortId, state.offices, state.user),
+          }, waitEffects([
+            combineEffectsInSeries([
+              fetchMeasure(state.location.params.shortId, state.offices, state.user),
+              fetchVote(state.location.params.voteId, state.user),
+            ]),
             fetchVoteReplies(state.location.params.voteId, state.user),
-            fetchVote(state.location.params.voteId, state.user),
           ])]
         default:
           return [state]
