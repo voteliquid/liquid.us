@@ -1,7 +1,6 @@
 const { APP_NAME, WWW_DOMAIN } = process.env
 const { html } = require('../helpers')
 const joinFormCandidate = require('./join-form-candidate')
-const yourLegislators = require('./your-legislators')
 const video = require('./video')
 
 module.exports = (state, dispatch) => {
@@ -18,7 +17,7 @@ module.exports = (state, dispatch) => {
           <br />
           <div class="columns">
             <div class="column">
-              ${joinSection(state, dispatch)}
+              ${policyIdeaCTA(state, dispatch)}
             </div>
             <div class="column is-1"></div>
             <div class="column is is-paddingless">
@@ -62,24 +61,6 @@ module.exports = (state, dispatch) => {
           71% { opacity: 0; transform: scale(0.9) translate(0, 20px); }
           100% { opacity: 1; transform: scale(1) translate(0, 0); }
         }
-        .down-arrow {
-          animation: down-arrow-animation 2s infinite;
-          animation-delay: 3s;
-          opacity: 0;
-        }
-        @keyframes down-arrow-animation {
-          0% { transform: translate(0, 0); opacity: 0; }
-          50% { opacity: 1; }
-          100% { transform: translate(0px, 20px); opacity: 0; }
-        }
-        .learn-more {
-          animation: fadein 4s;
-        }
-        @keyframes fadein {
-          0% { opacity: 0; }
-          75% { opacity: 0; }
-          100% { opacity: 1; }
-        }
       </style>
     </section>
 
@@ -105,22 +86,21 @@ module.exports = (state, dispatch) => {
               <h2 class="title is-4 has-text-centered">Raise funds</h2>
               <div class="is-vcentered"><img src="/assets/fundraisecolor1.png" width="40%"></div>
               <br /><br />
-            </div>            
+            </div>
           </div>
-          
           <br />
           <br />
           <br />
           <br />
           <p class="subtitle is-4 is-size-4-desktop reveal">Most campaigns have it backward. Raising money is their first priority.
           <br /><br />
-          We know from experience that it doesn't need to be this way. 
+          We know from experience that it doesn't need to be this way.
           <br /><br />
           You can focus on the critical issues. You can spend your time listening, educating and increasing participation. And have faith that it will accelerate the growth of your campaign and how you fund it.</p>
           <br />
           <br />
           <br />
-          </div>
+        </div>
       </div>
     </section>
 
@@ -137,8 +117,7 @@ module.exports = (state, dispatch) => {
           <br />
           <br />
           <div class="columns is-vcentered">
-            <div class="column is-2">
-            </div>
+            <div class="column is-2"></div>
             <div class="column">
               <h3 class="subtitle is-4 is-size-4-desktop reveal"><strong>Creative support</strong> with brainstorming, writing and design to make your vision easy to spread.</h3>
             </div>
@@ -146,8 +125,7 @@ module.exports = (state, dispatch) => {
             <div class="column has-text-centered">
               <img src="/assets/creativitycolor1.png" width="60%">
             </div>
-            <div class="column is-2">
-            </div>
+            <div class="column is-2"></div>
           </div>
           <br />
           <br />
@@ -164,15 +142,13 @@ module.exports = (state, dispatch) => {
             <div class="column has-text-left-tablet is-hidden-mobile">
               <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Hands-on tech help</strong> to make everything work with your existing systems.</h4>
             </div>
-            <div class="column is-2">
-            </div>
+            <div class="column is-2"></div>
           </div>
           <br />
           <br />
           <br />
           <div class="columns is-vcentered">
-            <div class="column is-2">
-            </div>
+            <div class="column is-2"></div>
             <div class="column has-text-left-tablet">
               <h3 class="subtitle is-4 is-size-4-desktop reveal"><strong>Marketing strategy</strong> and hands-on support to figure out social media, the press and hitting your fundraising goals.</h3>
             </div>
@@ -180,8 +156,7 @@ module.exports = (state, dispatch) => {
             <div class="column has-text-centered">
               <img src="/assets/viralcolor1.png" width="60%">
             </div>
-            <div class="column is-2">
-            </div>
+            <div class="column is-2"></div>
           </div>
         </div>
       </div>
@@ -204,124 +179,107 @@ module.exports = (state, dispatch) => {
     </section>
 
     <section class="hero is-light is-bold is-fullheight">
-    <div class="hero-body">
-      <div class="container">
-        <br />
-        <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal"><strong>Liquid Democracy enables choice & accountability</strong></h2>
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <div class="columns is-vcentered">
-          <div class="column is-2"></div>
-          <div class="column">
-            <h3 class="subtitle is-4 is-size-4-desktop reveal"><strong>Participate anywhere</strong> any time from any device. It's silly to wait years to exercise our right to vote. Let's unlock the true power of the devices in our pockets for the public good.</h3>
+      <div class="hero-body">
+        <div class="container">
+          <br />
+          <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal"><strong>Liquid Democracy enables choice & accountability</strong></h2>
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
+          <div class="columns is-vcentered">
+            <div class="column is-2"></div>
+            <div class="column">
+              <h3 class="subtitle is-4 is-size-4-desktop reveal"><strong>Participate anywhere</strong> any time from any device. It's silly to wait years to exercise our right to vote. Let's unlock the true power of the devices in our pockets for the public good.</h3>
+            </div>
+            <div class="column is-1"></div>
+            <div class="column has-text-centered">
+              <img src="/assets/anywherecolor1.png" width="60%">
+            </div>
+            <div class="column is-2"></div>
           </div>
-          <div class="column is-1"></div>
-          <div class="column has-text-centered">
-            <img src="/assets/anywherecolor1.png" width="60%">
+          <br />
+          <br />
+          <br />
+          <div class="columns is-vcentered">
+            <div class="column is-1"></div>
+            <div class="column has-text-left-tablet is-hidden-desktop">
+              <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Delegate your vote</strong> to people you trust. They can then delegate to whomever they choose. This trust network enables us to make optimal decisions that represent everyone.</h4>
+            </div>
+            <div class="column has-text-centered">
+              <img src="/assets/delegatecolor1.png" width="60%">
+            </div>
+            <div class="column is-1"></div>
+            <div class="column has-text-left-tablet is-hidden-mobile">
+              <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Delegate your vote</strong> to people you trust. They can then delegate to whomever they choose. This trust network enables us to make optimal decisions that represent everyone.</h4>
+            </div>
+            <div class="column is-1"></div>
           </div>
-          <div class="column is-2"></div>
-        </div>
-        <br />
-        <br />
-        <br />
-        <div class="columns is-vcentered">
-          <div class="column is-1"></div>
-          <div class="column has-text-left-tablet is-hidden-desktop">
-            <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Delegate your vote</strong> to people you trust. They can then delegate to whomever they choose. This trust network enables us to make optimal decisions that represent everyone.</h4>
+          <br />
+          <br />
+          <br />
+          <div class="columns is-vcentered">
+            <div class="column is-2"></div>
+            <div class="column has-text-left-tablet">
+              <h3 class="subtitle is-4 is-size-4-desktop reveal"><strong>Make your vote count</strong> on issues where you have expertise. Unlike today's winner-takes-all-system, Liquid ensures you always have a direct say on legislation.</h3>
+            </div>
+            <div class="column is-1"></div>
+            <div class="column  has-text-centered">
+              <img src="/assets/votecount.png" width="60%">
+            </div>
+            <div class="column is-2"></div>
           </div>
-          <div class="column has-text-centered">
-            <img src="/assets/delegatecolor1.png" width="60%">
-          </div>
-          <div class="column is-1"></div>
-          <div class="column has-text-left-tablet is-hidden-mobile">
-            <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Delegate your vote</strong> to people you trust. They can then delegate to whomever they choose. This trust network enables us to make optimal decisions that represent everyone.</h4>
-          </div>
-          <div class="column is-1"></div>
-        </div>
-        <br />
-        <br />
-        <br />
-        <div class="columns is-vcentered">
-          <div class="column is-2"></div>
-          <div class="column has-text-left-tablet">
-            <h3 class="subtitle is-4 is-size-4-desktop reveal"><strong>Make your vote count</strong> on issues where you have expertise. Unlike today's winner-takes-all-system, Liquid ensures you always have a direct say on legislation.</h3>
-          </div>
-          <div class="column is-1"></div>
-          <div class="column  has-text-centered">
-            <img src="/assets/votecount.png" width="60%">
-          </div>
-          <div class="column is-2"></div>
-        </div>
-        <br />
-        <br />
-        <br />
-        <div class="columns is-vcentered">
-          <div class="column is-2"></div>
-          <div class="column has-text-left-tablet is-hidden-desktop">
-            <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Hold elected leaders accountable.</strong> Liquid automatically compares what the people want with how elected leaders vote.</h4>
-          </div>          
-          <div class="column has-text-centered">
-            <img src="/assets/accountability2.png" width="60%">
-          </div>
-          <div class="column is-1"></div>
-          <div class="column has-text-left-tablet is-hidden-mobile">
-            <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Hold elected leaders accountable.</strong> Liquid automatically compares what the people want with how elected leaders vote.</h4>
-          </div>
-          <div class="column is-2">
+          <br />
+          <br />
+          <br />
+          <div class="columns is-vcentered">
+            <div class="column is-2"></div>
+            <div class="column has-text-left-tablet is-hidden-desktop">
+              <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Hold elected leaders accountable.</strong> Liquid automatically compares what the people want with how elected leaders vote.</h4>
+            </div>
+            <div class="column has-text-centered">
+              <img src="/assets/accountability2.png" width="60%">
+            </div>
+            <div class="column is-1"></div>
+            <div class="column has-text-left-tablet is-hidden-mobile">
+              <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Hold elected leaders accountable.</strong> Liquid automatically compares what the people want with how elected leaders vote.</h4>
+            </div>
+            <div class="column is-2">
+            </div>
           </div>
         </div>
       </div>
+    </section>
+
+    <section class="hero is-link is-bold is-fullheight">
+      <div class="hero-body">
+        <div class="container">
+          <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal">Why we're doing this</h2>
+          <br /><br />
+          <h4 class="subtitle is-4 is-size-3-desktop reveal">We believe in the transformative promise of a concept called Liquid Democracy.
+          <br /><br />
+          The idea is so powerful that we're fully funded and have attracted some of the world's foremost political organizing and technology talent.
+          <br /><br />
+          We are non-partisan and charge nothing. We just want a healthier Democracy.</h4>
+          <br />
+          <br />
+          <br />
+          <br />
+        </div>
+      </div>
+    </section>
+
+    <div class="columns">>
+      <div class="column"></div>
+        <div class="column is-5">
+          <br /><br />
+          ${policyIdeaCTA(state, dispatch)}
+        </div>
+      <div class="column"></div>
     </div>
-  </section>
 
-  <section class="hero is-link is-bold is-fullheight">
-    <style>
-      .hero.is-bold a:hover > * {
-        text-decoration: underline;
-      }
-      .hero.is-bold a:hover .icon {
-        text-decoration: none;
-      }
-    </style>
-    <div class="hero-body">
-      <div class="container">
-        <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal">Why we're doing this</h2>
-        <br /><br />
-        <h4 class="subtitle is-4 is-size-3-desktop reveal">We believe in the transformative promise of a concept called Liquid Democracy.
-        <br /><br />
-        The idea is so powerful that we're fully funded and have attracted some of the world's foremost political organizing and technology talent.
-        <br /><br />
-        We are non-partisan and charge nothing. We just want a healthier Democracy.</h4>
-        <br />
-        <br />
-        <br />
-        <br />
-      </div>
-    </div>
-  </section>
-
-  <div class="columns">>
-    <div class="column"></div>
-      <div class="column is-5">
-        <br /><br />
-        ${joinSection(state, dispatch)}
-      </div>
-    <div class="column"></div>
-  </div>
-
-  <div class="columns">>
-    <div class="column"></div>
-      <div class="column is-10">
-        <br /><br />
-        <div class="is-size-7 has-text-grey">Images by priyanka, KonKapp, Maxim Basinski, Delwar Hossain, Maxim Kulikov, flatart, jugalbandi, Turkkub, zidney, Max Hancock, adrien coquet, Adiba Taj from the Noun Project.</div>
-      </div>
-    <div class="column"></div>
-  </div>
-
-      <section class="hero is-medium">
+    <section class="hero is-medium">
       <div class="hero-body">
         <div class="container">
           <section class="section">
@@ -359,6 +317,10 @@ module.exports = (state, dispatch) => {
         </div>
       </div>
     </section>
+
+    <div class="section has-text-centered">
+      <p class="is-size-7 has-text-grey">Icon images by priyanka, KonKapp, Maxim Basinski, Delwar Hossain, Maxim Kulikov, flatart, jugalbandi, Turkkub, zidney, Max Hancock, adrien coquet, Adiba Taj from The Noun Project.</p>
+    </div>
   `
 }
 
@@ -368,16 +330,15 @@ const activateScrollReveal = () => {
   sr.reveal('.reveal')
 }
 
-const joinSection = (state, dispatch) => {
+const policyIdeaCTA = (state, dispatch) => {
   return html`
     <section class="hero">
         ${joinFormCandidate(state, dispatch)}
     </section>
-    <section class="hero is-medium no-vertical-padding>
-      <div class="hero-body">
-        <p class="subtitle is-5 has-text-centered">Or ask a question: <strong>
-        <a onclick=${(event) => dispatch({ type: 'contactForm:toggled', event })}>click here</a></strong> to send us a message.</p>
-      </div>
+    <br />
+    <section class="hero is-medium no-vertical-padding">
+      <p class="subtitle is-5 has-text-centered">Or ask a question: <strong>
+      <a onclick=${(event) => dispatch({ type: 'contactForm:toggled', event })}>click here</a></strong> to send us a message.</p>
     </section>
     <style>
       .hero.is-medium.no-vertical-padding .hero-body {

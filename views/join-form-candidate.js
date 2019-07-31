@@ -1,12 +1,7 @@
-const { APP_NAME } = process.env
 const { handleForm, html } = require('../helpers')
 const atob = require('atob')
 
-module.exports = ({ cookies, error, loading, location, profiles = {}, usersCount }, dispatch) => {
-  const proxy_to = cookies.proxying_username || location.query.proxy_to
-  const vote_position = cookies.vote_position
-  const endorsed_vote_id = cookies.endorsed_vote_id
-  const proxyProfile = profiles[proxy_to]
+module.exports = ({ cookies, error, loading, location }, dispatch) => {
 
   return html`
     <div>
@@ -25,8 +20,6 @@ module.exports = ({ cookies, error, loading, location, profiles = {}, usersCount
             <input name="vote_comment" type="hidden" value="${cookies.vote_comment}" />
             <input name="vote_public" type="hidden" value="${cookies.vote_public}" />
 
-            
-
             <div class="field has-text-left">
               <strong><label for="idea">What policy idea deserves to go viral?</label><strong>
             </div>
@@ -39,7 +32,7 @@ module.exports = ({ cookies, error, loading, location, profiles = {}, usersCount
               <div class="${`control is-expanded has-icons-left ${error ? 'has-icons-right' : ''}`}">
                 <textarea class="textarea" required placeholder="Create a healthier democracy by ..." />
               </div>
-              
+
             </div>
             <div class="field has-text-left">
               <strong><label for="email">Your contact info</label><strong>
