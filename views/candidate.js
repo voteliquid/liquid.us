@@ -208,7 +208,7 @@ module.exports = (state, dispatch) => {
               <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Delegate your vote</strong> to people you trust. They can then delegate to whomever they choose. This trust network enables us to make optimal decisions that represent everyone.</h4>
             </div>
             <div class="column has-text-centered">
-              <img src="/assets/delegatecolor1.png" width="60%">
+              <img src="/assets/delegatecolor2.png" width="60%">
             </div>
             <div class="column is-1"></div>
             <div class="column has-text-left-tablet is-hidden-mobile">
@@ -226,7 +226,7 @@ module.exports = (state, dispatch) => {
             </div>
             <div class="column is-1"></div>
             <div class="column  has-text-centered">
-              <img src="/assets/votecount.png" width="60%">
+              <img src="/assets/votecount2.png" width="60%">
             </div>
             <div class="column is-2"></div>
           </div>
@@ -239,7 +239,7 @@ module.exports = (state, dispatch) => {
               <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Hold elected leaders accountable.</strong> Liquid automatically compares what the people want with how elected leaders vote.</h4>
             </div>
             <div class="column has-text-centered">
-              <img src="/assets/accountability2.png" width="60%">
+              <img src="/assets/accountability3.png" width="60%">
             </div>
             <div class="column is-1"></div>
             <div class="column has-text-left-tablet is-hidden-mobile">
