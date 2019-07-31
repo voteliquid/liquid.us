@@ -50,7 +50,7 @@ module.exports = {
                 browsers: ["> 0.25%, not dead"]
               },
               useBuiltIns: 'entry',
-              corejs: 2,
+              corejs: 3,
             }]],
             plugins: [
               'babel-plugin-syntax-dynamic-import',
