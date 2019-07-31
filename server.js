@@ -241,8 +241,8 @@ function runApp(req, res, done) {
           return res.redirect(state.location.url)
         }
         const appHtml = App.view(state, dispatch)
-        const jsBundleUrl = `${webpackConfig.output.publicPath}${webpackStats.compilation.hash}.js`
-        const pageHtml = htmlWrapper(state, appHtml, jsBundleUrl)
+        const entries = webpackStats.compilation.entrypoints.get('main').getFiles().filter((file) => file.slice(-4) !== '.map')
+        const pageHtml = htmlWrapper(state, appHtml, entries.reverse())
         done(null, pageHtml, state.location.status)
       }
     },

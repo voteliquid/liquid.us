@@ -3,7 +3,7 @@ const fs = require('fs')
 const googleAddressAutocompleteScript = require('./google-address-autocomplete')
 const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
 
-module.exports = (state, html, jsBundleUrl) => {
+module.exports = (state, html, jsBundleUrls) => {
   const { location } = state
   const pageDescription = location.description || 'The Most Powerful Way to Advocate for Your Community.'
   const pageTitle = location.title ? `${location.title} | Liquid US` : `Liquid US | Digital Democracy Voting Platform`
@@ -152,7 +152,7 @@ module.exports = (state, html, jsBundleUrl) => {
           ` : ''}
         </div>
         ${googleAddressAutocompleteScript}
-        <script src="${jsBundleUrl}"></script>
+        ${jsBundleUrls.map((jsBundleUrl) => `<script src="${ASSETS_URL}${jsBundleUrl}"></script>`).join('')}
       </body>
     </html>
   `
