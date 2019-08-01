@@ -152,7 +152,7 @@ module.exports = (state, html, jsBundleUrls) => {
           ` : ''}
         </div>
         ${googleAddressAutocompleteScript}
-        ${jsBundleUrls.map((jsBundleUrl) => `<script src="${ASSETS_URL}${jsBundleUrl}"></script>`).join('')}
+        ${jsBundleUrls.map((jsBundleUrl) => `<script src="${ASSETS_URL}/${jsBundleUrl}"></script>`).join('')}
       </body>
     </html>
   `
