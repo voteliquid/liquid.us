@@ -193,6 +193,17 @@ module.exports = (event, state) => {
         fetchMeasure(event.vote.short_id, state.offices, state.user),
         fetchMeasureVotes(event.vote.short_id, state.location.query.order, state.location.query.position, state.user),
       ])]
+    case 'vote:endorsementToggledPrivacyCheckbox':
+      return [{
+        ...state,
+        votes: {
+          ...state.votes,
+          [event.vote.id]: {
+            ...state.votes[event.vote.id],
+            endorsement_public: event.event.currentTarget.checked,
+          },
+        },
+      }]
     case 'vote:toggledRepsMessage':
       return [{
         ...state,

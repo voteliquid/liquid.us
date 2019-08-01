@@ -3,6 +3,10 @@ const { handleForm, html } = require('../helpers')
 module.exports = (state, dispatch) => {
   const { error, vote } = state
   const loading = state.loading.endorsedFromSignupForm
+  const isPublic =
+    vote && typeof vote.endorsement_public === 'boolean'
+      ? vote.endorsement_public
+      : true
 
   let action = 'Endorse'; let color = 'is-success'
   if (vote.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
@@ -49,9 +53,20 @@ module.exports = (state, dispatch) => {
       <div class="field">
         <div class="control">
           <label class="checkbox">
-            <input name="is_public" type="checkbox" checked />
-            Share my name publicly
+            <input
+              name="is_public"
+              type="checkbox"
+              checked="${isPublic}"
+              onchange="${(event) => dispatch({ type: 'vote:endorsementToggledPrivacyCheckbox', vote, event })}"
+            />
+            <span>Share my name publicly</span>
           </label>
+          ${!isPublic ? html`
+            <p class="is-size-7 has-text-grey">
+              We will still share your name with your rep so they know you're
+              their real constituent.
+            </p>
+          ` : html``}
         </div>
       </div>
       <div class="field">

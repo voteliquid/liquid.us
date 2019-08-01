@@ -26,7 +26,7 @@ module.exports = (state, dispatch) => {
           ? endorsedOpposingPosition(measure, vote)
           : user && measure.vote_position && !vote.endorsed
           ? endorsedPositionNotVote(measure)
-          : ''
+          : html``
         }
         <nav class="box">
           ${endorsementCount(vote)}
@@ -54,7 +54,7 @@ module.exports = (state, dispatch) => {
                }
               ${user && !loading.endorsedFromSignupForm && vote.endorsed && !reply
                 ? endorsementComment(state, dispatch)
-              : ''}
+              : html``}
             `
           }
         </nav>
