@@ -166,6 +166,8 @@ function startAppServer() {
       mfs.readFile(`/${req.params.filename}`, 'utf8', (error, content) => {
         if (error) return res.status(404).end()
         res.setHeader('Content-Type', contentType(req.params.filename))
+        // Cache build JS/CSS for 3 months, since they use unique hashes for filenames.
+        res.setHeader('Cache-Control', `max-age=${90 * 24 * 60 * 60}`)
         res.write(content)
         res.end()
       })
