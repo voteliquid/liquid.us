@@ -3,6 +3,7 @@ const { handleForm, html } = require('../helpers')
 module.exports = ({ error, forms: { settings }, user }, dispatch) => {
   const formChanged = settings && (
        settings.subscribedDrip !== user.subscribedDrip
+    || settings.subscribedActivity !== user.subscribedActivity
     || settings.subscribedLifecycle !== user.subscribedLifecycle
     || settings.update_emails_preference !== user.update_emails_preference
     || settings.inherit_votes_public !== user.inherit_votes_public
@@ -19,6 +20,12 @@ module.exports = ({ error, forms: { settings }, user }, dispatch) => {
           <div class="field">
             <div class="control">
               <label class="checkbox">
+                <input name="subscribedActivity" type="checkbox" checked=${user.subscribedActivity} />
+                Notify me of new updates or comments on measures and petitions
+              </label>
+            </div>
+            <div class="control">
+              <label class="checkbox">
                 <input name="subscribedDrip" type="checkbox" checked=${user.subscribedDrip} />
                 Send me educational emails about Liquid Democracy
               </label>
@@ -26,7 +33,7 @@ module.exports = ({ error, forms: { settings }, user }, dispatch) => {
             <div class="control">
               <label class="checkbox">
                 <input name="subscribedLifecycle" type="checkbox" checked=${user.subscribedLifecycle} />
-                Send me reminder emails about things I've missed
+                Remind me of things I've missed
               </label>
             </div>
             <div class="control">
@@ -35,7 +42,7 @@ module.exports = ({ error, forms: { settings }, user }, dispatch) => {
               </label>
             </div>
           </div>
-          <div style="margin-left: 2rem;">
+          <div style="margin-top: 1rem; margin-left: 2rem;">
             <div class="field">
               <div class="control">
                 <label class="radio">
