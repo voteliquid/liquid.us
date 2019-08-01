@@ -3,35 +3,29 @@ const { avatarURL, html, linkifyUrls } = require('../helpers')
 const endorsementCount = require('./endorsement-count')
 const measureSummary = require('./measure-summary')
 const sidebar = require('./endorsement-page-sidebar')
-const stateAbbreviations = require('datasets-us-states-names-abbr')
-const daneTargetReps = require('./dane-county-targetReps')
-const petitionQuestions = require('./endorsement-questions')
+const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = (state, dispatch) => {
-  const { location, measures, votes } = state
+  const { location, measures, user, votes } = state
   const measure = measures[location.params.shortId]
   const vote = votes[location.params.voteId]
   const l = measure
   const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
-  const hideTargetReps = (l) => (
-    l.author_username === 'councilmemberbas'
-  )
-  const isDane = (l) => (
-    l.short_id === 'press-pause-on-227m-new-jail'
-  )
-  const tab = location.query.tab || 'arguments'
-  const path = location.path
 
   return html`
     <section class="section">
       <div class="container is-widescreen">
         <div class="columns">
           <div class="column">
-            <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>
-            ${hideTargetReps(l) ? ''
-            : isDane(l) ? daneTargetReps({ vote, ...state })
-              : targetReps({ measure, vote, ...state }, dispatch)
-            }
+            <div class="columns">
+              <div class="column">
+                <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-dark">${title}</h2>
+              </div>
+              <div class="column is-narrow">
+                ${user && user.id === measure.author_id ? editButton(measure, user, dispatch) : ''}
+              </div>
+            </div>
+            ${l.author_username === 'councilmemberbas' ? '' : targetReps({ measure, vote, ...state }, dispatch)}
             <div class="small-screens-only">
               ${endorsementCount(vote, 'small-screen')}
             </div>
@@ -43,15 +37,7 @@ module.exports = (state, dispatch) => {
             <div class="small-screens-only">
               ${vote.showMobileEndorsementForm ? '' : mobileHoverBar({ vote }, dispatch)}
             </div>
-            <div>
-              <div class="tabs">
-                <ul>
-                  <li class=${tab === 'replies' ? 'is-active' : ''}><a href=${`${path}?tab=replies`}>Comments</a></li>
-                  <li class=${tab === 'questions' ? 'is-active' : ''}><a href=${`${path}?tab=questions`}>Questions</a></li>
-                </ul>
-              </div>
-              ${tab === 'questions' ? petitionQuestions(state, dispatch) : commentsView(vote, state, dispatch)}
-            </div>
+            ${(vote.replies || []).map(endorsementCommentReply)}
           </div>
           <div class="column is-one-quarter sticky-panel">
             <div class="panel-wrapper">
@@ -94,16 +80,6 @@ module.exports = (state, dispatch) => {
   `
 }
 
-const commentsView = (vote) => {
-  const replies = vote.replies || []
-  return html`
-    <div>
-      ${!replies.length ? html`<p class="has-text-grey has-text-centered">No comments have been posted yet.</p>` : ''}
-      ${replies.map(endorsementCommentReply)}
-    </div>
-  `
-}
-
 const notYourRepsMessage = (vote, dispatch) => {
   const { notYourRepsMessageVisible } = vote
 
@@ -121,11 +97,22 @@ const notYourRepsMessage = (vote, dispatch) => {
   `
 }
 
+const editButton = (measure, user) => {
+  return html`
+    <div class="buttons has-addons is-right">
+      <a href="${`/${user.username}/${measure.short_id}/edit`}" class="button is-link has-text-weight-bold" style="margin-top:0.5rem;">
+        <span class="icon"><i class="fa fa-pencil-alt"></i></span><span>Edit</span>
+      </a>
+    </div>
+  `
+}
+
 const targetReps = ({ measure, reps, user, vote }, dispatch) => {
   const targetReps = reps.filter(r =>
     r.legislature.short_name === measure.legislature_name
     || r.legislature.name === measure.legislature_name
   )
+
   return html`
     <br />
     <div class="columns">
@@ -143,10 +130,12 @@ const rep = (r) => {
   const rep = r.office_holder
   const position = r.name.split(' ').slice(2).join(' ')
   const isState = r.legislature.name !== 'U.S. Congress'
-  const firstLine = `${rep.first_name} ${rep.last_name}`
+  const firstLine = isState
+    ? `${rep.first_name} ${rep.last_name}, ${r.legislature.short_name}`
+    : `${r.chamber === 'Upper' ? 'Sen' : 'Rep'}. ${rep.first_name} ${rep.last_name}`
   const secondLine = isState
     ? position
-    : r.chamber === 'Upper' ? `Senator, ${r.short_name}` : `Rep., ${r.short_name}`
+    : r.chamber === 'Upper' ? stateNames[r.short_name] : r.short_name
 
   return html.for(r)`
     <div class="column is-narrow">
@@ -166,19 +155,22 @@ const rep = (r) => {
 }
 
 const legislature = (measure) => {
-  const local = measure.legislature_name.includes(',') || measure.legislature_name.includes('County')
-  const measureImage = local ? `${ASSETS_URL}/legislature-images/local.png` : `${ASSETS_URL}/legislature-images/${stateAbbreviations[measure.legislature_name]}.png`
+  const isState = measure.legislature_name.length === 2
+  const measureImage = isState ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
+  const name = isState ? stateNames[measure.legislature_name] : measure.legislature_name
 
   return html`
     <div class="column">
       <div class="media">
-        <div class="media-left">
-          <div class="image is-48x48">
-            <img src=${measureImage} style="background: hsla(0, 0%, 87%, 0.5);"/>
+        ${isState ? html`
+          <div class="media-left">
+            <div class="image is-48x48 is-clipped">
+              <img src=${measureImage} style="background: hsla(0, 0%, 87%, 0.5); padding: 4px;"/>
+            </div>
           </div>
-        </div>
+        ` : ''}
         <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
-          ${measure.legislature_name}<br />
+          ${name}<br />
           ${measure.legislature_name === 'U.S. Congress' ? '' : 'Legislature'}
         </div>
       </div>
@@ -189,7 +181,7 @@ const legislature = (measure) => {
 const endorsementComment = (measure, vote) => {
   const { endorsed_vote, fullname, username, twitter_username } = vote
   const anonymousName = measure
-    ? `${measure.legislature_name === 'U.S. Congress' ? 'American' : measure.legislature_name} Resident`
+    ? `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
     : 'Anonymous'
   return html`
     <div class="comment">
