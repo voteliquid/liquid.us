@@ -360,12 +360,15 @@ const vote = ({ event, measure, ...form }, user) => (dispatch) => {
     return dispatch({ type: 'redirected', url: '/join' })
   }
 
-  return api(dispatch, '/rpc/vote', {
-    method: 'POST',
+  return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${measure.id}`, {
+    method: form.vote_id ? 'PATCH' : 'POST',
     body: JSON.stringify({
       user_id: user.id,
       measure_id: measure.id,
       vote_position: form.vote_position,
+      root_delegate_id: user.id,
+      delegate_id: null,
+      delegate_name: null,
       comment: form.comment || null,
       public: form.public,
     }),
