@@ -584,7 +584,7 @@ const endorsementPageTitleAndMeta = (measures, vote, location) => {
 
   // Determine social media image: start with database image, then any image in the comment, any image in measure summary, author avatar, legislature image
   const dbImage = measure.image_name ? `${ASSETS_URL}/measure-images/${measure.image_name}` : ''
-  const inlineImageMatch = vote && vote.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
+  const inlineImageMatch = vote && vote.comment && vote.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
   const inlineImage = inlineImageMatch && inlineImageMatch[0]
   const measureInlineImageMatch = measure && measure.summary && measure.summary.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
   const measureInlineImage = measureInlineImageMatch && measureInlineImageMatch[0]
