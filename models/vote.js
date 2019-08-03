@@ -426,7 +426,7 @@ const endorse = (vote, user, measure, is_public = false) => (dispatch) => {
   }
 
   return api(dispatch, `/endorsements?user_id=eq.${user.id}&measure_id=eq.${measure_id}`, {
-    method: measure.endorsed ? 'PATCH' : 'POST',
+    method: position && measure.endorsed ? 'PATCH' : 'POST',
     body: JSON.stringify({
       user_id: user.id,
       vote_id,
