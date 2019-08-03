@@ -309,3 +309,7 @@ serverHtml.for = () => serverHtml
 exports.html = server
   ? serverHtml
   : require('lighterhtml-plus').html
+
+exports.svg = server
+  ? serverHtml
+  : require('lighterhtml-plus').svg
