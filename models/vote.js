@@ -360,12 +360,15 @@ const vote = ({ event, measure, ...form }, user) => (dispatch) => {
     return dispatch({ type: 'redirected', url: '/join' })
   }
 
-  return api(dispatch, '/rpc/vote', {
-    method: 'POST',
+  return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${measure.id}`, {
+    method: form.vote_id ? 'PATCH' : 'POST',
     body: JSON.stringify({
       user_id: user.id,
       measure_id: measure.id,
       vote_position: form.vote_position,
+      root_delegate_id: user.id,
+      delegate_id: null,
+      delegate_name: null,
       comment: form.comment || null,
       public: form.public,
     }),
@@ -422,14 +425,36 @@ const endorse = (vote, user, measure, is_public = false) => (dispatch) => {
     }
   }
 
-  return api(dispatch, '/rpc/endorse', {
-    method: 'POST',
-    body: JSON.stringify({ user_id: user.id, vote_id, measure_id, public: is_public }),
+  return api(dispatch, `/endorsements?user_id=eq.${user.id}&measure_id=eq.${measure_id}`, {
+    method: position && measure.endorsed ? 'PATCH' : 'POST',
+    body: JSON.stringify({
+      user_id: user.id,
+      vote_id,
+      measure_id,
+      public: is_public,
+    }),
     user,
   })
   .then(() => api(dispatch, `/votes_detailed?id=eq.${vote.id}`, { user }))
   .then(([vote]) => dispatch({ type: 'vote:updated', vote }))
-  .catch((error) => dispatch({ type: 'error', error }))
+  .catch((error) => {
+    if (error.code === 23505) {
+      return api(dispatch, `/endorsements?user_id=eq.${user.id}&measure_id=eq.${measure_id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          user_id: user.id,
+          vote_id,
+          measure_id,
+          public: is_public,
+        }),
+        user,
+      })
+      .then(() => api(dispatch, `/votes_detailed?id=eq.${vote.id}`, { user }))
+      .then(([vote]) => dispatch({ type: 'vote:updated', vote }))
+      .catch((error) => dispatch({ type: 'error', error }))
+    }
+    dispatch({ type: 'error', error })
+  })
 }
 
 const unendorse = (vote, user) => (dispatch) => {
@@ -439,11 +464,14 @@ const unendorse = (vote, user) => (dispatch) => {
   if (!window.confirm(`Are you sure you want to remove this endorsement?`)) {
     return
   }
-  const endorsed_vote = !(user && user.id === vote.user_id && vote.comment) && vote.endorsed_vote
-  const { id: vote_id } = endorsed_vote || vote
-  return api(dispatch, '/rpc/unendorse', {
-    method: 'POST',
-    body: JSON.stringify({ vote_id }),
+  return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${vote.measure_id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      vote_position: 'abstain',
+      delegate_rank: -1,
+      root_delegate_id: user.id,
+      delegate_id: null,
+    }),
     user,
   })
   .then(() => api(dispatch, `/votes_detailed?id=eq.${vote.id}`, { user }))
@@ -455,8 +483,8 @@ const changeVotePrivacy = (vote, is_public, user) => (dispatch) => {
   const endorsed_vote = !(user && user.id === vote.user_id && vote.comment) && vote.endorsed_vote
   const { measure_id, id: vote_id } = endorsed_vote || vote
 
-  return api(dispatch, '/rpc/endorse', {
-    method: 'POST',
+  return api(dispatch, `/endorsements?user_id=eq.${user.id}&measure_id=eq.${measure_id}`, {
+    method: 'PATCH',
     body: JSON.stringify({ user_id: user.id, vote_id, measure_id, public: is_public }),
     user,
   })

@@ -90,6 +90,7 @@ const voteButtons = ({ loading, measure }, dispatch) => {
       ${vote_position === 'abstain' ? abstainButton({ loading, measure }, dispatch) : html``}
       <div class="column is-half">
         <form method="POST" onsubmit=${handleForm(dispatch, { type: 'vote:voted', measure })} style="height: 100%;">
+          <input type="hidden" name="vote_id" value="${my_vote.vote_position || ''}" />
           <input type="hidden" name="vote_position" value="yea" />
           <input type="hidden" name="public" value="${typeof my_vote.public === 'boolean' ? my_vote.public : 'true'}" />
           <input type="hidden" name="comment" value="${my_vote.comment || ''}" />
@@ -101,8 +102,9 @@ const voteButtons = ({ loading, measure }, dispatch) => {
       </div>
       <div class="column is-half" style="border-left: 1px solid white;">
         <form method="POST" onsubmit=${handleForm(dispatch, { type: 'vote:voted', measure })} style="height: 100%;">
+          <input type="hidden" name="vote_id" value="${my_vote.vote_position || ''}" />
           <input type="hidden" name="vote_position" value="nay" />
-          <input type="hidden" name="public" value="${my_vote.public || 'false'}" />
+          <input type="hidden" name="public" value="${typeof my_vote.public === 'boolean' ? my_vote.public : 'true'}" />
           <input type="hidden" name="comment" value="${my_vote.comment || ''}" />
           <button type="submit" style="${`${vote_position && vote_position !== 'nay' ? 'opacity: .3;' : ''} display: block; line-height: 100%; height: 100%; white-space: normal;`}" class="${`${loading.vote ? 'is-loading' : ''} button vote-button-nay is-danger has-text-weight-semibold is-fullwidth`}">
             <span class="icon is-small"><i class="fa fa-times"></i></span>

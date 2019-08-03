@@ -7,6 +7,7 @@ module.exports = (state, dispatch) => {
   const vote_position = v.vote_position || l.vote_position
   return html`
     <form method="POST" style="margin-bottom: 2rem;" onsubmit=${handleForm(dispatch, { type: 'vote:voted', measure: l })} onconnected=${scrollToForm(location)}>
+      <input type="hidden" name="vote_id" value="${v.vote_position || ''}" />
       <div class="field">
         <h4 class="title is-size-6">${!v.comment ? 'Add your argument' : 'Edit your argument'}:</h4>
       </div>
