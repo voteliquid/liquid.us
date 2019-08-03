@@ -18,6 +18,7 @@ module.exports = (state, html, jsBundleUrls) => {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>${pageTitle.replace(/</g, '&lt;').replace(/"/g, '&quot;')}</title>
+        ${location.noindex ? `<meta name="robots" content="noindex" />` : ''}
         <meta property="description" content="${pageDescription.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:title" content="${ogTitle.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />
         <meta property="og:description" content="${ogDescription.replace(/</g, '&lt;').replace(/"/g, '&quot;')}" />

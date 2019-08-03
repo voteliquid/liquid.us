@@ -24,6 +24,7 @@ module.exports = {
   '/legislation/:shortId/votes/:voteId': () => import('./views/endorsement-page'),
   '/twitter/:username': () => import('./views/profile-page'),
   '/policies': () => import('./views/policies-page'),
+  '/metrics': () => import('./views/metrics-page'),
   '/:username': () => import('./views/profile-page'),
   '/:username/:shortId': () => import('./views/measure-details-page'),
   '/:username/:shortId/import': () => import('./views/import-vote-page'),

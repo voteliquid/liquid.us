@@ -11,6 +11,7 @@ const { fetchMetrics } = require('./effects/metrics')
 const { fetchUser } = require('./effects/user')
 const { fetchOfficesFromIP } = require('./effects/office')
 const { changePageTitle, randomQuote, startNProgress, stopNProgress, scrollToTop } = require('./effects/page')
+const trackPageView = require('./effects/pageview')
 
 module.exports = {
   init: [{
@@ -86,6 +87,8 @@ module.exports = {
         return [{ ...state, navbar: { hamburgerVisible: !state.navbar.hamburgerVisible } }, preventDefault(event.event)]
       case 'legislature':
         return require('./models/legislature')(event, state)
+      case 'metric':
+        return require('./models/metric')(event, state)
       case 'pageChanged':
         // page has been changed
         return [{
@@ -113,7 +116,7 @@ module.exports = {
             firstPageLoad: false,
             loading: { page: false },
             view: event.view,
-          }]
+          }, trackPageView(state)]
         }
         // route JS code has been loaded (route JS is asynchronously loaded in chunks using webpack)
         const [pageState, pageEffect] = ((state) => {
@@ -160,6 +163,8 @@ module.exports = {
             case '/settings':
             case '/settings/unsubscribe':
               return require('./models/user')(event, state)
+            case '/metrics':
+              return require('./models/metric')(event, state)
             default:
               return [state]
           }
@@ -169,7 +174,7 @@ module.exports = {
           loading: { page: false },
           view: event.view,
         })
-        return [pageState, combineEffects([changePageTitle(pageState.location.title), pageEffect])]
+        return [pageState, combineEffects([changePageTitle(pageState.location.title), pageEffect, trackPageView(pageState)])]
       case 'onboard':
         return require('./models/onboard')(event, state)
       case 'profile':
