@@ -3,6 +3,10 @@ const { api } = require('../helpers')
 module.exports = (state) => (dispatch) => {
   const { cookies, location, user } = state
 
+  if (typeof window !== 'object') {
+    return false
+  }
+
   api(dispatch, `/pageviews?select=id,fingerprint`, {
     method: 'POST',
     headers: {

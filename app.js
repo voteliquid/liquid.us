@@ -108,7 +108,6 @@ module.exports = {
             loadRoute(event.loader),
             stopNProgress,
           ]),
-          !(state.browser && state.firstPageLoad) && trackPageView(state),
         ])]
       case 'pageLoaded':
         if (state.browser && state.firstPageLoad) {
@@ -117,7 +116,7 @@ module.exports = {
             firstPageLoad: false,
             loading: { page: false },
             view: event.view,
-          }]
+          }, trackPageView(state)]
         }
         // route JS code has been loaded (route JS is asynchronously loaded in chunks using webpack)
         const [pageState, pageEffect] = ((state) => {
@@ -175,7 +174,7 @@ module.exports = {
           loading: { page: false },
           view: event.view,
         })
-        return [pageState, combineEffects([changePageTitle(pageState.location.title), pageEffect])]
+        return [pageState, combineEffects([changePageTitle(pageState.location.title), pageEffect, trackPageView(pageState)])]
       case 'onboard':
         return require('./models/onboard')(event, state)
       case 'profile':
