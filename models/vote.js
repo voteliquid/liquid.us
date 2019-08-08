@@ -360,8 +360,10 @@ const vote = ({ event, measure, ...form }, user) => (dispatch) => {
     return dispatch({ type: 'redirected', url: '/join' })
   }
 
+  console.log(form.vote_id)
   return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${measure.id}`, {
     method: form.vote_id ? 'PATCH' : 'POST',
+    headers: { Prefer: 'return=minimal' },
     body: JSON.stringify({
       user_id: user.id,
       measure_id: measure.id,
