@@ -42,6 +42,12 @@ module.exports = (state, dispatch) => {
         </div>
       </div>
       <div class="field">
+        <label for="summary" class="label has-text-grey">Introduction</label>
+        <div class="control">
+          <textarea name="comment" autocomplete="off" class="textarea" rows="10" placeholder="Briefly explain your policy proposal and why you support it." required value="${measure.comment || ''}"></textarea>
+        </div>
+      </div>
+      <div class="field">
         <label for="summary" class="label has-text-grey">Summary</label>
         <div class="control">
           <textarea name="summary" autocomplete="off" class="textarea" rows="10" placeholder="A summary of your proposed bill." required value="${summary || ''}"></textarea>
