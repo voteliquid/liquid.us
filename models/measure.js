@@ -293,6 +293,17 @@ const insertMeasure = (measure, form, user) => (dispatch) => {
     }),
     user,
   })
+  .then((measure) => api(dispatch, `/votes`, {
+    method: 'POST',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({
+      author_id: user.id,
+      measure_id: measure.id,
+      vote_position: 'yea',
+      comment: form.comment || null,
+      public: true,
+    }),
+    user }))
   .then(() => api(dispatch, `/measures_detailed?short_id=eq.${form.short_id}`, { user }))
   .then(([measure]) => dispatch({ type: 'measure:updated', measure }))
   .then(() => dispatch({ type: 'redirected', status: 303, url: `/legislation/yours` }))
