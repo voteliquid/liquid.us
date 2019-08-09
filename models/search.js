@@ -87,7 +87,7 @@ const fetchSearchResult = (query = '') => (dispatch) => {
     dispatch({ type: 'resultsRequested', query })
 
     const fts = encodeURIComponent(query.trim().replace(/ /g, ':* & ').replace(/(.)$/, '$1:*'))
-    api(dispatch, `/search_results_detailed?terms=fts(simple).${fts}&resource_id=not.eq.f2f3190b-eb4a-49fe-b160-3daca3ec3273&limit=5`)
+    api(dispatch, `/search_results_detailed?terms=fts(simple).${fts}&resource_id=not.eq.f2f3190b-eb4a-49fe-b160-3daca3ec3273&resource=not.is.null&limit=5`)
       .then((results) => dispatch({ type: 'resultsReceived', results }))
       .catch((error) => dispatch({ type: 'resultsError', error }))
   }, 300)
