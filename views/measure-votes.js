@@ -58,7 +58,7 @@ module.exports = (state, dispatch) => {
                 </button>
               </div>
             </div>
-            ${user && user.is_admin ? html`
+            ${user && user ? html`
               <div class="field is-narrow">
                 <div class="control">
                   <a href=${`${location.path}/import`} class="button is-link has-text-weight-semibold is-small">
