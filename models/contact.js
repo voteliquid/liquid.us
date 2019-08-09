@@ -17,6 +17,11 @@ module.exports = (event, state) => {
         ...state,
         contactForm: { ...state.contactForm, submitted: true },
       }, sendMessage({ ...event, user: state.user })]
+    case 'contactForm:submitCandidatePage':
+      return [{
+        ...state,
+        contactForm: { ...state.contactForm, submitted: true },
+      }, sendMessage({ ...event, user: state.user })]
     default:
       return [state]
   }
