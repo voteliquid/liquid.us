@@ -1,6 +1,7 @@
 const { avatarURL, html } = require('../helpers')
 
-module.exports = ({ loading, query, results, showResults }, dispatch) => {
+module.exports = (state, dispatch) => {
+  const { loading, showResults } = state
   return html`
     <div class="search" style="position: relative; width: 100%;">
       <form method="GET">
@@ -18,20 +19,21 @@ module.exports = ({ loading, query, results, showResults }, dispatch) => {
           <button type="submit" class="is-hidden">Search</button>
         </div>
       </form>
-      ${showResults ? searchResults({ query, results }, dispatch) : ''}
+      ${showResults ? searchResults(state, dispatch) : ''}
     </div>
   `
 }
 
 const noSearchResultsMsg = ({ query }) => {
-  return html.for(noSearchResultsMsg, query)`
+  return html`
     <div class="search-result">
       <p class="notification">No results for "<span class="has-text-weight-semibold">${query}</span>".</p>
     </div>
   `
 }
 
-const searchResults = ({ query, results = [] }, dispatch) => {
+const searchResults = (state, dispatch) => {
+  const { query, results = [] } = state
   const style = {
     backgroundColor: 'white',
     borderLeft: '1px solid #eee',
@@ -45,7 +47,7 @@ const searchResults = ({ query, results = [] }, dispatch) => {
     zIndex: 999,
   }
 
-  return html.for(searchResults, query)`
+  return html.for(state, `search-results-${state.query}`)`
     <div class="search-results" style="${style}" onkeydown=${(event) => dispatch({ type: 'resultsKeyPressed', event })}>
       <style>
         .search-results.has-results {
@@ -66,9 +68,9 @@ const searchResults = ({ query, results = [] }, dispatch) => {
 }
 
 const userSearchResult = (result, dispatch) => {
-  const { id, first_name, last_name, direct_proxy_count, username, twitter_username } = result
+  const { first_name, last_name, direct_proxy_count, username, twitter_username } = result
   const href = username ? `/${username}` : `/twitter/${twitter_username}`
-  return html.for(userSearchResult, id)`
+  return html`
     <a
       onblur="${(event) => dispatch({ type: 'blurred', event })}"
       onclick="${(event) => dispatch({ type: 'blurred', event })}"
@@ -103,7 +105,7 @@ const truncateResultTitle = (str) => {
   return `${str}...`
 }
 
-const measureSearchResult = ({ id, author_username, number, type, title, legislature_name, short_id }, dispatch) => {
+const measureSearchResult = ({ author_username, number, type, title, legislature_name, short_id }, dispatch) => {
   const truncatedTitle = truncateResultTitle(title)
   const measureNum = number ? short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase() : ''
   const titleFmt = measureNum ? `${measureNum} ${truncatedTitle}` : truncatedTitle
@@ -113,7 +115,7 @@ const measureSearchResult = ({ id, author_username, number, type, title, legisla
   }
   href += short_id
 
-  return html.for(measureSearchResult, id)`
+  return html`
     <a onblur="${dispatch}" onclick="${dispatch}" onfocus="${dispatch}" href="${href}" class="search-result" style="display: block; padding: .3rem 1rem;">
       <div class="media is-marginless">
         <div class="media-left">
