@@ -6,9 +6,9 @@ module.exports = ({ error, location, user }, dispatch) => {
       <div class="container is-widescreen">
         <h2 class="title is-size-5">Import Argument to <a href=${location.path.slice(0, -7)}>${location.params.shortId}</a></h2>
 
-        ${!user || !user.is_admin ? html`<div class="notification is-danger">You do not have permission to import votes.</div>` : ''}
+        ${!user ? html`<div class="notification is-danger">You do not have permission to import votes.</div>` : ''}
 
-        <form onsubmit=${handleForm(dispatch, { type: 'import:voteImportFormSubmitted', short_id: location.params.shortId })} class=${user && user.is_admin ? '' : 'is-hidden'}>
+        <form onsubmit=${handleForm(dispatch, { type: 'import:voteImportFormSubmitted', short_id: location.params.shortId })} class=${user ? '' : 'is-hidden'}>
 
           ${error ? html`<div class="notification is-danger">${error.message}</div>` : ''}
 
