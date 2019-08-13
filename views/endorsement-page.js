@@ -37,7 +37,9 @@ module.exports = (state, dispatch) => {
             </div>
             <br />
             ${endorsementComment(measure, vote)}
-            <div style="border-left: 2px solid hsl(0, 0%, 60%); padding-left: 2rem; margin-top: 2rem;">
+            <br />
+            <h3 class="title is-5" style="font-weight: 500;">Policy Details</h3>
+            <div style="border: 1px solid hsl(0, 0%, 85%); padding: 1.2rem; height: 400px; overflow-y: scroll; box-shadow: inset hsl(0, 0%, 92%) 3px 3px 3px 0px; margin-bottom: 2rem;">
               ${measureSummary({ ...measure, alwaysExpanded: true, size: 5 }, dispatch)}
             </div>
             <div class="small-screens-only">
