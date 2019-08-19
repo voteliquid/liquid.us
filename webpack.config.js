@@ -1,5 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 const plugins = [
@@ -19,6 +20,10 @@ const plugins = [
 ]
 
 const entries = []
+
+if (process.env.ANALYZE) {
+  plugins.push(new BundleAnalyzerPlugin())
+}
 
 if (process.env.NODE_ENV !== 'production') {
   entries.push('webpack-hot-middleware/client?noInfo=true&reload=true')
@@ -45,7 +50,7 @@ module.exports = {
                 browsers: ["> 0.25%, not dead"]
               },
               useBuiltIns: 'entry',
-              corejs: 2,
+              corejs: 3,
             }]],
             plugins: [
               'babel-plugin-syntax-dynamic-import',
@@ -53,10 +58,13 @@ module.exports = {
             ]
           }
         }
-      }
+      },
     ]
   },
   optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
     minimizer: [
       // we specify a custom UglifyJsPlugin here to get source maps in production
       new UglifyJsPlugin({
@@ -78,7 +86,8 @@ module.exports = {
   output: {
     path: '/',
     filename: '[hash].js',
-    publicPath: '/hyperloop/'
+    chunkFilename: '[id].[contenthash].js',
+    publicPath: '/assets/'
   },
   resolve: {
     alias: {

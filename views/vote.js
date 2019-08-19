@@ -35,7 +35,7 @@ module.exports = (state, dispatch) => {
         <div class="media-left">
           <div class="image is-32x32">
             ${username || twitter_username
-              ? html`<a href="${`/${twitter_username ? `twitter/${twitter_username}` : username}`}">
+              ? html`<a href="${`/${username || `twitter/${twitter_username}`}`}">
                   <img src="${avatarURL}" alt="avatar" class="round-avatar-img" />
                 </a>`
               : html`<img src="${avatarURL}" alt="avatar" class="round-avatar-img" />`}
@@ -47,11 +47,11 @@ module.exports = (state, dispatch) => {
               ${!is_public && user && user_id === user.id
                 ? 'You'
                 : username || twitter_username
-                  ? html`<a href="${`/${twitter_username ? `twitter/${twitter_username}` : username}`}">${fullname}</a>`
+                  ? html`<a href="${`/${username || `twitter/${twitter_username}`}`}">${fullname}</a>`
                   : anonymousName}
             </span>
             ${html`<span>voted <strong style="${`color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};`}">${position}</strong>${onBehalfOfCount > 1 && is_public ? html` on behalf of <span class="has-text-weight-semibold">${onBehalfOfCount}</span> people` : ''}${is_public ? '' : ' privately'}</span>`}
-            ${source_url ? html`<span class="is-size-7"> via <a href="${source_url}" target="_blank">${source_url.split('/')[2] || source_url}</a></span>` : ''}
+            ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}
           </div>
           ${showBill ? html`<div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>` : ''}
           ${comment ? commentContent(key, vote, parent, dispatch) : ''}

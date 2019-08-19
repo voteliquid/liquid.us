@@ -1,17 +1,16 @@
-const { APP_NAME } = process.env
+const { APP_NAME, WWW_URL } = process.env
 const { avatarURL, capitalize, html } = require('../helpers')
 const stateNames = require('datasets-us-states-abbr-names')
-const stateAbbr = require('datasets-us-states-names-abbr')
 const editButtons = require('./measure-edit-buttons')
 const shareButtons = require('./measure-share-buttons')
 
 module.exports = (state, dispatch) => {
-  const { measure, offices } = state
+  const { measure } = state
   const l = measure
   const reps = state.reps.filter(({ chamber, legislature }) => {
-    return chamber === l.chamber && (stateAbbr[legislature.name] || legislature.name) === l.legislature_name
+    return chamber === l.chamber && legislature.name === l.legislature_name
   })
-  const showStatusTracker = l.legislature_name === 'U.S. Congress' && l.introduced_at && l.type === 'bill'
+  const showStatusTracker = l.introduced_at && l.type === 'bill'
 
   let measureUrl = `/${l.author_username}/`
   if (!l.author_username) {
@@ -32,10 +31,10 @@ module.exports = (state, dispatch) => {
         </h4>
       </div>
       ${reps && reps.length ? measureRepsPanel({ measure, reps }) : ''}
-      ${panelTitleBlock('Votes')}
-      ${measureVoteCounts({ measure, offices })}
-      ${panelTitleBlock('Info')}
-      ${measureInfoPanel({ measure, showStatusTracker })}
+      ${measureVoteCounts(measure)}
+      ${showStatusTracker ? measureStatusPanel(measure) : ''}
+      ${measure.sponsor || measure.author ? measureSponsorPanel(measure) : ''}
+      ${!l.author_username ? measureLinksPanel(measure) : ''}
       ${measureActionsPanel(state, dispatch)}
     </nav>
   `
@@ -57,193 +56,115 @@ const measureActionsPanel = (state, dispatch) => {
   `
 }
 
-const measureStatus = ({ measure: l }) => {
-  const steps = [{ step: 'Introduced', fulfilled: !!l.introduced_at }]
+const measureStatusPanel = (measure) => {
+  const l = measure
+  const steps = [{ step: 'Introduced', fulfilled: l.introduced_at }]
 
   if (l.chamber === 'Upper') {
-    steps.push({ step: 'Passed Senate', fulfilled: !!l.passed_upper_at })
-    steps.push({ step: 'Passed House', fulfilled: !!l.passed_lower_at })
+    steps.push({ step: 'Passed Senate', fulfilled: l.passed_upper_at })
+    steps.push({ step: 'Passed House', fulfilled: l.passed_lower_at })
   } else {
-    steps.push({ step: 'Passed House', fulfilled: !!l.passed_lower_at })
-    steps.push({ step: 'Passed Senate', fulfilled: !!l.passed_upper_at })
+    steps.push({ step: 'Passed House', fulfilled: l.passed_lower_at })
+    steps.push({ step: 'Passed Senate', fulfilled: l.passed_upper_at })
   }
 
-  steps.push({ step: 'Enacted', fulfilled: !!l.enacted_at })
+  steps.push({ step: 'Enacted', fulfilled: l.enacted_at })
 
   return html`
-    <div style="padding-top: 1rem;">
-      <ul>
+    ${panelTitleBlock('Status')}
+    <div class="panel-block">
+      <ul style="width: 100%;">
         ${steps.map(({ fulfilled, step }) => {
-          return html`<li class="${`step ${fulfilled ? 'fulfilled' : 'has-text-grey'}`}">
-            <span class="icon is-small"><i class="${`far ${fulfilled ? 'fa-check-circle' : 'fa-circle'}`}"></i></span>
-            <span>${step}</span>
-          </li>`
+          return html`
+            <li class="${`step ${fulfilled ? 'fulfilled' : 'has-text-grey'}`}">
+              <div class="columns is-gapless is-multiline is-mobile">
+                <div class="column is-two-thirds">
+                  <span class="icon is-small"><i class="${`far ${fulfilled ? 'fa-check-circle' : 'fa-circle'}`}"></i></span>
+                  <span>${step}</span>
+                </div>
+                <div class="column is-one-third has-text-right">
+                  <span>${fulfilled ? new Date(fulfilled).toLocaleDateString() : ''}</span>
+                </div>
+              </div>
+            </li>
+          `
         })}
       </ul>
     </div>
   `
 }
 
-const measureInfoPanel = ({ measure, showStatusTracker }) => {
-  const {
-    introduced_at, created_at, author_username, sponsor_username,
-    sponsor_first_name, sponsor_last_name, author_first_name,
-    author_last_name, type, number, congress, chamber, legislature_name, policy_area
-  } = measure
-
-  let bill_details_name = false
-  let bill_details_url = false
-
-  if (introduced_at) {
-    if (legislature_name === 'U.S. Congress') {
-      bill_details_name = 'congress.gov'
-      if (type === 'bill') {
-        bill_details_url = `https://www.congress.gov/bill/${congress}th-congress/${chamber === 'Lower' ? 'house' : 'senate'}-bill/${number}`
-      } else if (type === 'nomination') {
-        bill_details_url = `https://www.congress.gov/nomination/${congress}th-congress/${number}`
-      }
-    }
-  }
+const measureVoteCounts = (measure) => {
+  const { delegate_name, vote_counts = [], vote_position } = measure
 
   return html`
+    ${panelTitleBlock('Votes')}
     <div class="panel-block">
-      <div style="width: 100%;">
-        <div class="columns is-gapless is-multiline is-mobile">
-          <div class="column is-one-third">
-            <div class="has-text-grey">${introduced_at ? 'Introduced' : 'Proposed'}</div>
-          </div>
-          <div class="column is-two-thirds">
-            <div class="has-text-right">${new Date(introduced_at || created_at).toLocaleDateString()}</div>
-          </div>
-          <div class="column is-one-third">
-            <div class="has-text-grey">${author_username ? 'Author' : (sponsor_username ? 'Sponsor' : '')}</div>
-          </div>
-          <div class="column is-two-thirds">
-            <div class="has-text-right">
-              ${sponsor_username
-                ? html`<a href="${`/${sponsor_username}`}">${sponsor_first_name} ${sponsor_last_name}</a>`
-                : author_username
-                  ? html`<a href="${`/${author_username}`}">${author_first_name} ${author_last_name}</a>`
-                  : ''}
-            </div>
-          </div>
-          ${policy_area ? html`
-            <div class="column is-one-third">
-              <div class="has-text-grey">Subject</div>
-            </div>
-            <div class="column is-two-thirds">
-              <div class="has-text-right">
-                <a href="${`/legislation?policy_area=${policy_area}`}">${policy_area}</a>
-              </div>
-            </div>
+      <style>
+        .vote-table.is-narrow tr td {
+          border-bottom: none;
+          padding: 0 0 0 .5rem;
+        }
+        .vote-table.is-narrow tr td:first-child {
+          padding: 0;
+        }
+      </style>
+      <table class="table vote-table is-narrow is-fullwidth">
+        <tbody>
+          ${vote_position ? html`
+          <tr>
+            <td class="has-text-left has-text-grey">Your Vote</td>
+            <td colspan="2" class="has-text-right">
+              <span class="${`${vote_position === 'yea' ? 'has-text-success' : 'has-text-danger'} has-text-weight-semibold`}">${capitalize(vote_position)}</span>
+            </td>
+          </tr>
+          ${delegate_name ? html`<tr><td colspan="3" class="has-text-grey">Inherited from ${delegate_name}</td></tr>` : ''}
+          <tr><td colspan="3">&nbsp;</td><tr/>
           ` : ''}
-          ${bill_details_url ? html`
-            <div class="column is-one-third"><div class="has-text-grey">Full text</div></div>
-            <div class="column is-two-thirds">
-              <div class="has-text-right">
-                <a href="${bill_details_url}">${bill_details_name}</a>
-              </div>
-            </div>
-          ` : ''}
-          ${showStatusTracker ? measureStatus({ measure }) : ''}
-        </div>
-      </div>
+          <tr class="has-text-grey">
+            <td class="has-text-left">${APP_NAME}</td>
+            <td class="has-text-right">Yea</td>
+            <td class="has-text-right">Nay</td>
+          </tr>
+          ${vote_counts.map(({ yeas, nays, office_name, legislature_name }) => html`
+            <tr>
+              <td class="has-text-left has-text-grey">${office_name || legislature_name}</td>
+              <td class="has-text-right">${yeas || 0}</td>
+              <td class="has-text-right">${nays || 0}</td>
+            </tr>
+          `)}
+        </tbody>
+      </table>
     </div>
   `
 }
 
-const measureVoteCounts = ({ measure, offices }) => {
-  const {
-    type, constituent_yeas, constituent_nays, yeas, nays,
-    legislature_name, chamber, delegate_name, vote_position
-  } = measure
-
-  const localLegislatureName = offices
-    .filter((office) => office.id && office.legislature.name === measure.legislature_name && (!office.chamber || office.chamber === measure.chamber))
-    .map((office) => office.short_name).pop()
-
-  const chamberNames = {
-    'U.S. Congress': { Upper: 'Senate', Lower: 'House' },
-    'CA': { Upper: 'Senate', Lower: 'Assembly' },
-  }
-
+const measureSponsorPanel = (measure) => {
+  const { author, sponsor } = measure
   return html`
+    ${panelTitleBlock(author ? 'Author' : 'Sponsor')}
     <div class="panel-block">
-      <div style="width: 100%;">
-        <style>
-          .vote-table.is-narrow tr td {
-            border-bottom: none;
-            padding: 0 0 0 .5rem;
-          }
-          .vote-table.is-narrow tr td:first-child {
-            padding: 0;
-          }
-        </style>
-        <table class="table vote-table is-narrow is-fullwidth">
-          <tbody>
-            ${vote_position ? html`
-            <tr>
-              <td class="has-text-left has-text-grey">Your Vote</td>
-              <td colspan="2" class="has-text-right">
-                <span class="${`${vote_position === 'yea' ? 'has-text-success' : 'has-text-danger'} has-text-weight-semibold`}">${capitalize(vote_position)}</span>
-              </td>
-            </tr>
-            ${delegate_name ? html`<tr><td colspan="3" class="has-text-grey">Inherited from ${delegate_name}</td></tr>` : ''}
-            <tr><td colspan="3">&nbsp;</td><tr/>
-            ` : ''}
-            <tr class="has-text-grey">
-              <td class="has-text-left">${APP_NAME}</td>
-              <td class="has-text-right">Yea</td>
-              <td class="has-text-right">Nay</td>
-            </tr>
-            <tr>
-              <td class="has-text-left has-text-grey">${legislature_name.replace(' Congress', '')}</td>
-              <td class="has-text-right">${yeas || 0}</td>
-              <td class="has-text-right">${nays || 0}</td>
-            </tr>
-            ${offices.length && localLegislatureName ? html`
-            <tr>
-              <td class="has-text-left has-text-grey">${districtName(measure, offices, localLegislatureName)}</td>
-              <td class="has-text-right">${constituent_yeas || 0}</td>
-              <td class="has-text-right">${constituent_nays || 0}</td>
-            </tr>
-            ` : ''}
-            ${legislature_name === 'U.S. Congress' ? html`
-            <tr><td colspan="3">&nbsp;</td><tr/>
-            <tr>
-              <td colspan="3" class="has-text-left has-text-grey">${legislature_name}</td>
-            </tr>
-            <tr>
-              <td class="has-text-left has-text-grey">
-                ${chamberNames[legislature_name].Lower}
-              </td>
-              ${measure.lower_yeas || measure.lower_nays ? html`
-              <td class="has-text-right">${measure[`${chamber === 'Upper' ? 'upper' : 'lower'}_yeas` || '']}</td>
-              <td class="has-text-right">${measure[`${chamber === 'Upper' ? 'upper' : 'lower'}_nays` || '']}</td>
-              ` : html`
-              <td class="has-text-right" colspan="2">
-                ${measure.lower_yeas ? '' : measure.passed_lower_at ? 'Passed' : 'No vote yet'}
-              </td>
-              `}
-            </tr>
-            ${type !== 'nomination' ? html`
-            <tr>
-              <td class="has-text-left has-text-grey">
-                ${chamberNames[legislature_name].Upper}
-              </td>
-              ${measure.upper_yeas || measure.upper_nays ? html`
-              <td class="has-text-right">${measure[`${chamber === 'Upper' ? 'lower' : 'upper'}_yeas` || '']}</td>
-              <td class="has-text-right">${measure[`${chamber === 'Upper' ? 'lower' : 'upper'}_nays` || '']}</td>
-              ` : html`
-              <td class="has-text-right" colspan="2">
-                ${measure.upper_yeas ? '' : measure.passed_upper_at ? 'Passed' : ' No vote yet'}
-              </td>
-              `}
-            </tr>
-            ` : ''}
-            ` : ''}
-          </tbody>
-        </table>
+      ${repSnippet(author || sponsor)}
+    </div>
+  `
+}
+
+const measureLinksPanel = (measure) => {
+  const url = measure.source_url || `${WWW_URL}/legislation/${measure.short_id}`
+  const domain = url.replace(/https?:\/\/(www\.)?/i, '').split('/')[0]
+  return html`
+    ${panelTitleBlock('Links')}
+    <div class="panel-block">
+      <div class="columns is-gapless is-multiline is-mobile" style="width: 100%;">
+        <div class="column is-one-third"><div class="has-text-grey">Full text</div></div>
+        <div class="column is-two-thirds">
+          <div class="has-text-right">
+            <a href="${url}">
+              ${domain}
+              <span class="icon is-small"><i class="fas fa-external-link-alt"></i></span>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   `
@@ -258,40 +179,13 @@ const measureRepsPanel = ({ measure, reps }) => {
           ? `We told your rep${reps.length > 1 ? 's' : ''} to vote ${measure.vote_position}`
           : `Vote to tell your rep${reps.length > 1 ? 's' : ''}`}
         </h4>
-        ${reps.map((rep) => repSnippet({ rep: rep.office_holder, office: rep }))}
+        ${reps.map((rep) => repSnippet(rep.office_holder))}
       </div>
     </div>
   `
 }
-const districtName = (measure, offices, apiDistrictName) => {
-  // National bills are already labelled well
-  if (measure.legislature_name.includes('Congress')) {
-    return apiDistrictName
-  }
 
-  // City bills: just show final district number
-  if (measure.legislature_name.includes(',')) {
-    return `District ${apiDistrictName.match(/[0-9]+$/)[0]}`
-  }
-
-  // All states call their upper chamber 'Senate'
-  if (measure.chamber === 'Upper') {
-    return apiDistrictName.replace('U', ' S.D. ')
-  }
-
-  // Nebraska has a unicameral state legislture
-  if (measure.legislature_name === 'NE') {
-    return apiDistrictName.replace('L', ' L.D. ')
-  }
-
-  // background: https://en.wikipedia.org/wiki/List_of_United_States_state_legislatures
-  if (offices.some(o => o.name && o.name.includes('Assembly'))) {
-    return apiDistrictName.replace('L', ' A.D. ')
-  }
-
-  return apiDistrictName.replace('L', ' H.D. ')
-}
-const repSnippet = ({ rep, office }) => html`
+const repSnippet = (rep) => html`
   <div>
     <div class="media" style="margin-bottom: .5rem;">
       <figure class="media-left" style="overflow: hidden; border-radius: 5px;">
@@ -305,7 +199,7 @@ const repSnippet = ({ rep, office }) => html`
         <a href=${`/${rep.username}`}>
           <strong>${rep.first_name} ${rep.last_name}</strong>
         </a>
-        <p class="is-size-7">${office.name}</p>
+        ${rep.elected_office_name ? html`<p class="is-size-7">${rep.elected_office_name}</p>` : ''}
       </div>
     </div>
   </div>

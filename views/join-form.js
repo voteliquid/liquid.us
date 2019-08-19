@@ -7,6 +7,7 @@ module.exports = ({ cookies, error, loading, location, profiles = {}, usersCount
   const vote_position = cookies.vote_position
   const endorsed_vote_id = cookies.endorsed_vote_id
   const proxyProfile = profiles[proxy_to]
+  const hasError = error && error.field === 'email'
 
   return html`
     <div>
@@ -57,15 +58,15 @@ module.exports = ({ cookies, error, loading, location, profiles = {}, usersCount
             </style>
 
             <div class="field has-addons join-input-field">
-              <div class="${`control is-expanded has-icons-left ${error ? 'has-icons-right' : ''}`}">
-                <input name="email" class="${`input ${error ? 'is-danger' : ''}`}" type="text" required placeholder="you@example.com" />
+              <div class="${`control is-expanded has-icons-left ${hasError ? 'has-icons-right' : ''}`}">
+                <input name="email" class="${`input ${hasError ? 'is-danger' : ''}`}" type="text" required placeholder="you@example.com" />
                 <span class="icon is-small is-left">
                   <i class="fa fa-user"></i>
                 </span>
-                ${error ? html`<span class="icon is-small is-right">
+                ${hasError ? html`<span class="icon is-small is-right">
                   <i class="fa fa-warning"></i>
                 </span>` : ''}
-                ${error ? html`<p class="help is-danger">${error.message}</p>` : ''}
+                ${hasError ? html`<p class="help is-danger">${error.message}</p>` : ''}
               </div>
               ${/* use shorter submit button text for small screens */''}
               <div class="control">

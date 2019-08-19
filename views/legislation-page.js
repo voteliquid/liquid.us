@@ -1,7 +1,6 @@
 const { APP_NAME } = process.env
 const { html, capitalize } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
-const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = (state, dispatch) => {
   const { loading, measures, measuresByUrl, location } = state
@@ -100,15 +99,7 @@ const updateFilter = (event, location, dispatch) => {
 
 const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
   const hide_direct_votes = location.query.hide_direct_votes || cookies.hide_direct_votes
-  const legislatureQuery = decodeURIComponent(location.query.legislature).replace(/\+/g, ' ')
-
-  // Add legislature from URL to legislature selection
-  if (location.query.legislature && !legislatures.some(({ abbr }) => abbr === location.query.legislature.replace(/%20/g, ' '))) {
-    legislatures.push({
-      abbr: location.query.legislature,
-      name: stateNames[location.query.legislature] || location.query.legislature,
-    })
-  }
+  const legislatureQuery = decodeURIComponent(location.query.legislature_id).replace(/\+/g, ' ')
 
   return html`
     <form name="legislation_filters" class="is-inline-block" method="GET" action="/legislation" onsubmit="${(e) => updateFilter(e, location, dispatch)}">
@@ -131,9 +122,9 @@ const filterForm = (geoip, legislatures, cookies, location, user, dispatch) => {
         </div>
         <div class="control">
           <div class="select">
-            <select autocomplete="off" name="legislature" onchange=${autoSubmit}>
-              ${legislatures.map(({ abbr, name }) => {
-                return html`<option value="${abbr}" selected=${abbr === legislatureQuery}>${name}</option>`
+            <select autocomplete="off" name="legislature_id" onchange=${autoSubmit}>
+              ${legislatures.map(({ id, name }) => {
+                return html`<option value="${id}" selected=${id === legislatureQuery}>${name}</option>`
               })}
             </select>
           </div>
@@ -209,8 +200,8 @@ const measureListRow = (s, query) => {
                     <a href=${`/legislation?${makeQuery({ policy_area: s.policy_area }, query)}`}>${s.policy_area}</a> •
                   ` : ''}
                   Introduced
-                  ${s.sponsor_first_name ? html`
-                    by <a href=${`/${s.sponsor_username}`}>${s.sponsor_first_name} ${s.sponsor_last_name}</a>
+                  ${s.sponsor ? html`
+                    by <a href=${`/${s.sponsor.username}`}>${s.sponsor.first_name} ${s.sponsor.last_name}</a>
                   ` : ''}
                   on ${(new Date(s.introduced_at)).toLocaleDateString()}
                 </p>
@@ -227,8 +218,8 @@ const measureListRow = (s, query) => {
               </div>
             ` : html`
               <div class="is-size-7 has-text-grey">
-                ${s.author_username
-                  ? html`Authored by <a href="${`/${s.author_username}`}">${s.author_first_name} ${s.author_last_name}</a>`
+                ${s.author
+                  ? html`Authored by <a href="${`/${s.author.username}`}">${s.author.first_name} ${s.author.last_name}</a>`
                   : html`Authored by Anonymous`
                 }
                 on ${(new Date(s.created_at)).toLocaleDateString()}

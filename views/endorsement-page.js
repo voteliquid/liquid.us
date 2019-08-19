@@ -3,9 +3,10 @@ const { avatarURL, html, linkifyUrls } = require('../helpers')
 const endorsementCount = require('./endorsement-count')
 const measureSummary = require('./measure-summary')
 const sidebar = require('./endorsement-page-sidebar')
-const stateNames = require('datasets-us-states-abbr-names')
+const stateAbbreviations = require('datasets-us-states-names-abbr')
 const daneTargetReps = require('./dane-county-targetReps')
 const backersTable = require('./endorsement-backers')
+const petitionQuestions = require('./endorsement-questions')
 
 module.exports = (state, dispatch) => {
   const { loading, location, measures, votes } = state
@@ -19,9 +20,11 @@ module.exports = (state, dispatch) => {
   const isDane = (l) => (
     l.short_id === 'press-pause-on-227m-new-jail'
   )
-
   const tab = location.query.tab || 'comments'
+  const path = location.path
+
   const numComments = (vote && vote.replies && !loading.comments && vote.replies.length) || '...'
+  const numQuestions = (vote && vote.questions && !loading.questions && vote.questions.length) || '...'
   const numBackers = (vote && vote.backers && !loading.backers && vote.backers.length) || '...'
 
   return html`
@@ -39,7 +42,9 @@ module.exports = (state, dispatch) => {
             </div>
             <br />
             ${endorsementComment(measure, vote)}
-            <div style="border-left: 2px solid hsl(0, 0%, 60%); padding-left: 2rem; margin-top: 2rem;">
+            <br />
+            <h3 class="title is-5" style="font-weight: 500;">Policy Details</h3>
+            <div style="border: 1px solid hsl(0, 0%, 85%); padding: 1.2rem; height: 400px; overflow-y: scroll; box-shadow: inset hsl(0, 0%, 92%) 3px 3px 3px 0px; margin-bottom: 2rem;">
               ${measureSummary({ ...measure, alwaysExpanded: true, size: 5 }, dispatch)}
             </div>
             <div class="small-screens-only">
@@ -48,10 +53,13 @@ module.exports = (state, dispatch) => {
             <div class="tabs">
               <ul>
                 <li class=${tab === 'comments' ? 'is-active' : ''}><a href=${`${location.path}?tab=comments`}>Comments (${numComments})</a></li>
+                <li class=${tab === 'questions' ? 'is-active' : ''}><a href=${`${path}?tab=questions`}>Questions (${numQuestions})</a></li>
                 <li class=${tab === 'backers' ? 'is-active' : ''}><a href=${`${location.path}?tab=backers`}>Backers (${numBackers})</a></li>
               </ul>
             </div>
-            ${tab === 'backers' ? backersTable(state, dispatch) : (vote.replies || []).map(endorsementCommentReply)}
+            ${tab === 'questions' ? petitionQuestions(state, dispatch)
+              : tab === 'backers' ? backersTable(state, dispatch)
+              : commentsView(vote, state, dispatch)}
           </div>
           <div class="column is-one-quarter sticky-panel">
             <div class="panel-wrapper">
@@ -91,6 +99,16 @@ module.exports = (state, dispatch) => {
         </div>
       </div>
     </section>
+  `
+}
+
+const commentsView = (vote) => {
+  const replies = vote.replies || []
+  return html`
+    <div>
+      ${!replies.length ? html`<p class="has-text-grey has-text-centered">No comments have been posted yet.</p>` : ''}
+      ${replies.map(endorsementCommentReply)}
+    </div>
   `
 }
 
@@ -156,9 +174,8 @@ const rep = (r) => {
 }
 
 const legislature = (measure) => {
-  const notLocal = measure.legislature_name.length === 2 || measure.legislature_name === 'U.S. Congress'
-  const measureImage = notLocal ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : `${ASSETS_URL}/legislature-images/local.png`
-  const name = measure.legislature_name.length === 2 ? stateNames[measure.legislature_name] : measure.legislature_name
+  const local = measure.legislature_name.includes(',') || measure.legislature_name.includes('County')
+  const measureImage = local ? `${ASSETS_URL}/legislature-images/local.png` : `${ASSETS_URL}/legislature-images/${stateAbbreviations[measure.legislature_name] || 'U.S. Congress'}.png`
 
   return html`
     <div class="column">
@@ -169,7 +186,7 @@ const legislature = (measure) => {
           </div>
         </div>
         <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
-          ${name}<br />
+          ${measure.legislature_name}<br />
           ${measure.legislature_name === 'U.S. Congress' ? '' : 'Legislature'}
         </div>
       </div>
@@ -180,7 +197,7 @@ const legislature = (measure) => {
 const endorsementComment = (measure, vote) => {
   const { endorsed_vote, fullname, username, twitter_username } = vote
   const anonymousName = measure
-    ? `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
+    ? `${measure.legislature_name === 'U.S. Congress' ? 'American' : measure.legislature_name} Resident`
     : 'Anonymous'
   return html`
     <div class="comment">

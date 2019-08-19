@@ -1,6 +1,9 @@
 const { ASSETS_URL } = process.env
 const stateNames = require('datasets-us-states-abbr-names')
-const { api, avatarURL, combineEffects, combineEffectsInSeries, escapeHtml, makePoint, possessive, preventDefault } = require('../helpers')
+const {
+  api, avatarURL, combineEffects, combineEffectsInSeries, escapeHtml,
+  makePoint, possessive, preventDefault, redirect, waitEffects
+} = require('../helpers')
 const { fetchMeasure, fetchMeasureVotes } = require('../effects/measure')
 const { updateNameAndAddress } = require('../effects/user')
 const { signIn } = require('../effects/session')
@@ -17,20 +20,113 @@ module.exports = (event, state) => {
         case '/nominations/:shortId/votes/:voteId':
         case '/:username/:shortId/votes/:voteId':
           const vote = state.votes && state.votes[state.location.params.voteId]
-          const measure = state.measures[state.location.params.shortId]
           const commentsLoaded = vote && vote.replies
           const backersLoaded = vote && vote.backers
           return [{
             ...state,
-            loading: { ...state.loading, page: !vote || !measure, backers: !backersLoaded, comments: !commentsLoaded },
+            loading: { ...state.loading, page: !state.votes[event.voteId], backers: !backersLoaded, comments: !commentsLoaded },
             backersFilterQuery: decodeURI(state.location.query.filter || ''),
-          }, combineEffectsInSeries([
-            fetchMeasure(state.location.params.shortId, state.offices, state.user),
-            fetchVote(state.location.params.voteId, state.user),
+            votes: {
+              ...state.votes,
+              [event.voteId]: {
+                ...state.votes[event.voteId],
+                showQuestionForm: state.location.hash === 'endorsement-question',
+                expanded: state.location.query.show_more === 'true',
+              },
+            },
+          }, waitEffects([
+            combineEffectsInSeries([
+              fetchMeasure(state.location.params.shortId, state.offices, state.user),
+              fetchVote(state.location.params.voteId, state.user),
+            ]),
+            fetchVoteReplies(state.location.params.voteId, state.user),
           ])]
         default:
           return [state]
       }
+    case 'vote:questionFormSubmitted':
+      return [{
+        ...state,
+        error: null,
+        errors: {},
+        loading: { ...state.loading, questions: true },
+      }, combineEffectsInSeries([
+        postQuestion(event, state.user),
+        fetchVoteQuestions(event.vote, state.user),
+      ])]
+    case 'vote:questionPosted':
+      return [{
+        ...state,
+        votes: {
+          ...state.votes,
+          [event.vote.id]: {
+            ...state.votes[event.vote.id],
+            showQuestionForm: false,
+          },
+        },
+      }, preventDefault(event.event)]
+    case 'vote:questionsRequested':
+      return [{
+        ...state,
+        loading: { ...state.loading, questions: true },
+      }, fetchVoteQuestions(event.vote, state.user)]
+    case 'vote:questionsReceived':
+      return [{
+        ...state,
+        loading: { ...state.loading, questions: false },
+        votes: {
+          ...state.votes,
+          [event.vote.id]: {
+            ...state.votes[event.vote.id],
+            questions: event.questions,
+          }
+        },
+      }]
+    case 'vote:questionReceived':
+      return [{
+        ...state,
+        loading: { ...state.loading, questions: false, questionsVotes: false },
+        votes: {
+          ...state.votes,
+          [event.vote.id]: {
+            ...state.votes[event.vote.id],
+            questions: (state.votes[event.vote.id].questions || []).map((question) => {
+              if (question.id === event.question.id) {
+                return event.question
+              }
+              return question
+            }),
+          }
+        },
+      }]
+    case 'vote:questionVoted':
+      if (!state.user) {
+        return [state, redirect('/join', 302)]
+      }
+
+      return [{
+        ...state,
+        error: null,
+        errors: {},
+        loading: { ...state.loading, questionsVotes: true },
+        votes: {
+          ...state.votes,
+          [event.vote.id]: {
+            ...state.votes[event.vote.id],
+            questions: state.votes[event.vote.id].questions.map((question) => {
+              question = { ...question }
+              if (question.id === event.question.id) {
+                question.current_user_voted = !question.current_user_voted
+              }
+              return question
+            }),
+          }
+        },
+      }, combineEffectsInSeries([
+        preventDefault(event.event),
+        postQuestionVote(event.question, state.user),
+        fetchVoteQuestion(event.question, event.vote, state.user),
+      ])]
     case 'vote:toggledMobileEndorsementForm':
       return [{
         ...state,
@@ -68,7 +164,7 @@ module.exports = (event, state) => {
         },
       }, combineEffects([preventDefault(event.event), reportVote(event.vote, state.user)])]
     case 'vote:endorsed':
-      // TODO cannot change state here otherwise iframes in comments will re-render and Chrome will dismiss the confirm dialog whenever an iframe loads.
+      // TODO cannot change state here otherwise iframes in questions will re-render and Chrome will dismiss the confirm dialog whenever an iframe loads.
       return [state, combineEffectsInSeries([
         preventDefault(event.event),
         endorse(event.vote, state.user, event.measure, event.is_public),
@@ -103,6 +199,17 @@ module.exports = (event, state) => {
         fetchMeasure(event.vote.short_id, state.offices, state.user),
         fetchMeasureVotes(event.vote.short_id, state.location.query.order, state.location.query.position, state.user),
       ])]
+    case 'vote:endorsementToggledPrivacyCheckbox':
+      return [{
+        ...state,
+        votes: {
+          ...state.votes,
+          [event.vote.id]: {
+            ...state.votes[event.vote.id],
+            endorsement_public: event.event.currentTarget.checked,
+          },
+        },
+      }]
     case 'vote:toggledRepsMessage':
       return [{
         ...state,
@@ -172,6 +279,17 @@ module.exports = (event, state) => {
           },
         },
       }]
+    case 'vote:questionFormActivated':
+      return [{
+        ...state,
+        votes: {
+          ...state.votes,
+          [event.vote.id]: {
+            ...state.votes[event.vote.id],
+            showQuestionForm: true,
+          },
+        },
+      }, combineEffects([preventDefault(event.event), scrollQuestionFormIntoView])]
     case 'vote:voted':
       return [{
         ...state,
@@ -209,6 +327,59 @@ module.exports = (event, state) => {
   }
 }
 
+const postQuestion = ({ event, type, vote, ...formData }, user) => (dispatch) => {
+  event.preventDefault()
+
+  return api(dispatch, `/questions`, {
+    method: 'POST',
+    body: JSON.stringify(formData),
+    user,
+  })
+  .then(() => dispatch({ type: 'vote:questionPosted', vote }))
+  .catch((error) => {
+    if (error.message.match(/questions_question_check/)) {
+      error.message = `Questions must be between 12 and 512 characters.`
+    }
+    dispatch({ type: 'error', error })
+  })
+}
+
+const postQuestionVote = (question, user) => (dispatch) => {
+  if (question.current_user_voted) {
+    return deleteQuestionVote(question, user)(dispatch)
+  }
+
+  return api(dispatch, `/questions_votes`, {
+    method: 'POST',
+    body: JSON.stringify({
+      question_id: question.id,
+      user_id: user.id,
+    }),
+    user,
+  })
+  .catch((error) => dispatch({ type: 'error', error }))
+}
+
+const deleteQuestionVote = (question, user) => (dispatch) => {
+  return api(dispatch, `/questions_votes?question_id=eq.${question.id}&user_id=eq.${user.id}`, {
+    method: 'DELETE',
+    user,
+  })
+  .catch((error) => dispatch({ type: 'error', error }))
+}
+
+const fetchVoteQuestion = (question, vote, user) => (dispatch) => {
+  return api(dispatch, `/questions_detailed?id=eq.${question.id}`, { user })
+    .then(([question]) => dispatch({ type: 'vote:questionReceived', vote, question }))
+    .catch((error) => dispatch({ type: 'error', error }))
+}
+
+const fetchVoteQuestions = (vote, user) => (dispatch) => {
+  return api(dispatch, `/questions_detailed?vote_id=eq.${vote.id}&order=votes.desc,created_at.desc`, { user })
+    .then((questions) => dispatch({ type: 'vote:questionsReceived', vote, questions }))
+    .catch((error) => dispatch({ type: 'error', error }))
+}
+
 const vote = ({ event, measure, ...form }, user) => (dispatch) => {
   if (event) event.preventDefault()
 
@@ -226,12 +397,17 @@ const vote = ({ event, measure, ...form }, user) => (dispatch) => {
     return dispatch({ type: 'redirected', url: '/join' })
   }
 
-  return api(dispatch, '/rpc/vote', {
-    method: 'POST',
+  console.log(form.vote_id)
+  return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${measure.id}`, {
+    method: form.vote_id ? 'PATCH' : 'POST',
+    headers: { Prefer: 'return=minimal' },
     body: JSON.stringify({
       user_id: user.id,
       measure_id: measure.id,
       vote_position: form.vote_position,
+      root_delegate_id: user.id,
+      delegate_id: null,
+      delegate_name: null,
       comment: form.comment || null,
       public: form.public,
     }),
@@ -288,14 +464,36 @@ const endorse = (vote, user, measure, is_public = false) => (dispatch) => {
     }
   }
 
-  return api(dispatch, '/rpc/endorse', {
-    method: 'POST',
-    body: JSON.stringify({ user_id: user.id, vote_id, measure_id, public: is_public }),
+  return api(dispatch, `/endorsements?user_id=eq.${user.id}&measure_id=eq.${measure_id}`, {
+    method: position && measure.endorsed ? 'PATCH' : 'POST',
+    body: JSON.stringify({
+      user_id: user.id,
+      vote_id,
+      measure_id,
+      public: is_public,
+    }),
     user,
   })
   .then(() => api(dispatch, `/votes_detailed?id=eq.${vote.id}`, { user }))
   .then(([vote]) => dispatch({ type: 'vote:updated', vote }))
-  .catch((error) => dispatch({ type: 'error', error }))
+  .catch((error) => {
+    if (error.code === 23505) {
+      return api(dispatch, `/endorsements?user_id=eq.${user.id}&measure_id=eq.${measure_id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          user_id: user.id,
+          vote_id,
+          measure_id,
+          public: is_public,
+        }),
+        user,
+      })
+      .then(() => api(dispatch, `/votes_detailed?id=eq.${vote.id}`, { user }))
+      .then(([vote]) => dispatch({ type: 'vote:updated', vote }))
+      .catch((error) => dispatch({ type: 'error', error }))
+    }
+    dispatch({ type: 'error', error })
+  })
 }
 
 const unendorse = (vote, user) => (dispatch) => {
@@ -305,11 +503,14 @@ const unendorse = (vote, user) => (dispatch) => {
   if (!window.confirm(`Are you sure you want to remove this endorsement?`)) {
     return
   }
-  const endorsed_vote = !(user && user.id === vote.user_id && vote.comment) && vote.endorsed_vote
-  const { id: vote_id } = endorsed_vote || vote
-  return api(dispatch, '/rpc/unendorse', {
-    method: 'POST',
-    body: JSON.stringify({ vote_id }),
+  return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${vote.measure_id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      vote_position: 'abstain',
+      delegate_rank: -1,
+      root_delegate_id: user.id,
+      delegate_id: null,
+    }),
     user,
   })
   .then(() => api(dispatch, `/votes_detailed?id=eq.${vote.id}`, { user }))
@@ -321,8 +522,8 @@ const changeVotePrivacy = (vote, is_public, user) => (dispatch) => {
   const endorsed_vote = !(user && user.id === vote.user_id && vote.comment) && vote.endorsed_vote
   const { measure_id, id: vote_id } = endorsed_vote || vote
 
-  return api(dispatch, '/rpc/endorse', {
-    method: 'POST',
+  return api(dispatch, `/endorsements?user_id=eq.${user.id}&measure_id=eq.${measure_id}`, {
+    method: 'PATCH',
     body: JSON.stringify({ user_id: user.id, vote_id, measure_id, public: is_public }),
     user,
   })
@@ -397,8 +598,11 @@ const updateNameAndAddressFromEndorsement = (form, user) => (dispatch) => {
   return updateNameAndAddress({
     addressData: {
       address,
-      city: window.lastSelectedGooglePlacesAddress.city,
-      state: window.lastSelectedGooglePlacesAddress.state,
+      locality: window.lastSelectedGooglePlacesAddress.locality,
+      administrative_area_level_1: window.lastSelectedGooglePlacesAddress.administrative_area_level_1,
+      administrative_area_level_2: window.lastSelectedGooglePlacesAddress.administrative_area_level_2,
+      postal_code: window.lastSelectedGooglePlacesAddress.postal_code,
+      country: window.lastSelectedGooglePlacesAddress.country,
       geocoords: makePoint(window.lastSelectedGooglePlacesAddress.lon, window.lastSelectedGooglePlacesAddress.lat),
     },
     nameData: { first_name, last_name, voter_status },
@@ -427,8 +631,11 @@ const signupAndEndorse = ({ vote, ...form }, offices, location) => (dispatch) =>
       return updateNameAndAddress({
         addressData: {
           address,
-          city: window.lastSelectedGooglePlacesAddress.city,
-          state: window.lastSelectedGooglePlacesAddress.state,
+          locality: window.lastSelectedGooglePlacesAddress.locality,
+          administrative_area_level_1: window.lastSelectedGooglePlacesAddress.administrative_area_level_1,
+          administrative_area_level_2: window.lastSelectedGooglePlacesAddress.administrative_area_level_2,
+          postal_code: window.lastSelectedGooglePlacesAddress.postal_code,
+          country: window.lastSelectedGooglePlacesAddress.country,
           geocoords: makePoint(window.lastSelectedGooglePlacesAddress.lon, window.lastSelectedGooglePlacesAddress.lat),
         },
         nameData: { first_name, last_name, voter_status },
@@ -452,7 +659,7 @@ const endorsementPageTitleAndMeta = (measures, vote, location) => {
 
   // Determine social media image: start with database image, then any image in the comment, any image in measure summary, author avatar, legislature image
   const dbImage = measure.image_name ? `${ASSETS_URL}/measure-images/${measure.image_name}` : ''
-  const inlineImageMatch = vote && vote.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
+  const inlineImageMatch = vote && vote.comment && vote.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
   const inlineImage = inlineImageMatch && inlineImageMatch[0]
   const measureInlineImageMatch = measure && measure.summary && measure.summary.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
   const measureInlineImage = measureInlineImageMatch && measureInlineImageMatch[0]
@@ -475,3 +682,13 @@ const debounce = (function debouncer() {
     timeout = setTimeout(fn, ms)
   }
 }())
+
+const scrollQuestionFormIntoView = () => {
+  const elem = document.getElementById('measure-vote-form')
+    if (elem) {
+      const scrollY = elem.getBoundingClientRect().top + window.scrollY
+      if (scrollY) {
+        window.scrollTo(0, scrollY, { behavior: 'smooth' })
+      }
+    }
+  }

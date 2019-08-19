@@ -5,7 +5,7 @@ const { fetchOfficesFromAddress, fetchOfficesFromIP } = require('./office')
 
 exports.fetchUser = (id, jwt, refresh_token, ip) => (dispatch) => {
   if (id && jwt) {
-    return api(dispatch, `/users?select=id,about,intro_video_url,email,first_name,last_name,username,phone_verified,inherit_votes_public,voter_status,update_emails_preference,is_admin,address:user_addresses(id,formatted_address,address,city,state)&id=eq.${id}`, { user: { id, jwt, refresh_token } })
+    return api(dispatch, `/users?select=id,about,intro_video_url,email,first_name,last_name,username,phone_verified,inherit_votes_public,voter_status,update_emails_preference,is_admin,address:user_addresses(*)&id=eq.${id}`, { user: { id, jwt, refresh_token } })
     .then(([result]) => {
       if (result) {
         const user = { ...result, address: result.address[0], jwt, refresh_token }
@@ -67,11 +67,20 @@ const geocode = exports.geocode = (address) => {
     const geocoords = place.geometry.location
     newAddressData.formatted_address = place.formatted_address
     newAddressData.geocoords = makePoint(geocoords.lng, geocoords.lat)
-    newAddressData.city = place.address_components.filter((item) => {
+    newAddressData.locality = place.address_components.filter((item) => {
       return item.types.some((type) => type === 'locality')
     }).map((item) => item.long_name).shift() || ''
-    newAddressData.state = place.address_components.filter((item) => {
+    newAddressData.administrative_area_level_1 = place.address_components.filter((item) => {
       return item.types.some((type) => type === 'administrative_area_level_1')
+    }).map((item) => item.long_name).shift() || ''
+    newAddressData.administrative_area_level_2 = place.address_components.filter((item) => {
+      return item.types.some((type) => type === 'administrative_area_level_2')
+    }).map((item) => item.long_name).shift() || ''
+    newAddressData.postal_code = place.address_components.filter((item) => {
+      return item.types.some((type) => type === 'postal_code')
+    }).map((item) => item.long_name).shift() || ''
+    newAddressData.country = place.address_components.filter((item) => {
+      return item.types.some((type) => type === 'country')
     }).map((item) => item.short_name).shift() || ''
     return newAddressData
   })

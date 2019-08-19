@@ -11,11 +11,14 @@ const { fetchMetrics } = require('./effects/metrics')
 const { fetchUser } = require('./effects/user')
 const { fetchOfficesFromIP } = require('./effects/office')
 const { changePageTitle, randomQuote, startNProgress, stopNProgress, scrollToTop } = require('./effects/page')
+const trackPageView = require('./effects/pageview')
 
 module.exports = {
   init: [{
     cookies: {}, // initialized in browser/server.js
     contactForm: { open: false, submitted: false },
+    error: null,
+    errors: {},
     firstPageLoad: true,
     forms: {
       contact: { submitted: false },
@@ -60,11 +63,18 @@ module.exports = {
       case 'contactForm':
         return require('./models/contact')(event, state)
       case 'error':
-        return [{
-          ...state,
-          loading: { page: state.loading.page },
-          error: event.error,
-        }, logError(event.error)]
+        switch (event.type) {
+          case 'error:dismissedErrors':
+            return [{ ...state, errors: {} }]
+          case 'error:network':
+            return [{ ...state, errors: { ...state.errors, network: event.error } }, dismissErrors]
+          default:
+            return [{
+              ...state,
+              loading: { page: state.loading.page },
+              error: event.error,
+            }, logError(event.error)]
+        }
       case 'loaded':
         return [{ ...state, loading: { ...state.loading, [event.name]: false } }]
       case 'import':
@@ -75,8 +85,10 @@ module.exports = {
         return [{ ...state, usersCount: event.usersCount }]
       case 'navHamburgerToggled':
         return [{ ...state, navbar: { hamburgerVisible: !state.navbar.hamburgerVisible } }, preventDefault(event.event)]
-      case 'office':
-        return require('./models/office')(event, state)
+      case 'legislature':
+        return require('./models/legislature')(event, state)
+      case 'metric':
+        return require('./models/metric')(event, state)
       case 'pageChanged':
         // page has been changed
         return [{
@@ -104,7 +116,7 @@ module.exports = {
             firstPageLoad: false,
             loading: { page: false },
             view: event.view,
-          }]
+          }, trackPageView(state)]
         }
         // route JS code has been loaded (route JS is asynchronously loaded in chunks using webpack)
         const [pageState, pageEffect] = ((state) => {
@@ -119,6 +131,7 @@ module.exports = {
             case '/sign_in':
             case '/sign_in/verify':
             case '/join':
+            case '/candidate':
             case '/sign_out':
               return require('./models/session')(event, state)
             case '/get_started':
@@ -151,6 +164,8 @@ module.exports = {
             case '/settings':
             case '/settings/unsubscribe':
               return require('./models/user')(event, state)
+            case '/metrics':
+              return require('./models/metric')(event, state)
             default:
               return [state]
           }
@@ -160,7 +175,7 @@ module.exports = {
           loading: { page: false },
           view: event.view,
         })
-        return [pageState, combineEffects([changePageTitle(pageState.location.title), pageEffect])]
+        return [pageState, combineEffects([changePageTitle(pageState.location.title), pageEffect, trackPageView(pageState)])]
       case 'onboard':
         return require('./models/onboard')(event, state)
       case 'profile':
@@ -186,8 +201,10 @@ module.exports = {
     }
   },
   view: (state, dispatch) => {
+    const networkError = state.errors.network
     return html`
       <div id="wrapper">
+        ${bannerAlert(networkError, `No connection. Check your Internet connectivity.`)}
         ${navbar(state, dispatch)}
         <div class="router">
           ${!state.loading.page && state.view
@@ -199,6 +216,34 @@ module.exports = {
       ${contactForm(state, dispatch)}
     `
   },
+}
+
+const dismissErrors = (dispatch) => {
+  setTimeout(() => {
+    dispatch({ type: 'error:dismissedErrors' })
+  }, 5000)
+}
+
+const bannerAlert = (error, msg) => {
+  const style = {
+    boxShadow: '0 0 1em rgba(0, 0, 0, 0.05)',
+    borderBottom: '1px solid #f2e9e9',
+    position: 'fixed',
+    top: '-1px',
+    backgroundColor: '#fff5f7',
+    width: '100%',
+    color: '#cd0930',
+    zIndex: 99,
+    overflow: 'hidden',
+    textAlign: 'center',
+    transition: 'height .2s ease-in-out',
+    height: error ? '3.5em' : '0',
+  }
+  const pStyle = {
+    lineHeight: '3.5em',
+    height: '3.5em',
+  }
+  return html`<div style=${style} aria-hidden=${!error}><p style=${pStyle}>${msg}<p></div>`
 }
 
 const routeOrErrorView = (state, dispatch) => {

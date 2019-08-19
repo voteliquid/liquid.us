@@ -18,7 +18,7 @@ module.exports = ({ loading, query, results, showResults }, dispatch) => {
           <button type="submit" class="is-hidden">Search</button>
         </div>
       </form>
-      ${showResults ? searchResults({ query, results }, dispatch) : ''}
+      ${showResults ? searchResults({ query, results }, dispatch) : html``}
     </div>
   `
 }
@@ -45,7 +45,7 @@ const searchResults = ({ query, results = [] }, dispatch) => {
     zIndex: 999,
   }
 
-  return html.for(searchResults, query)`
+  return html`
     <div class="search-results" style="${style}" onkeydown=${(event) => dispatch({ type: 'resultsKeyPressed', event })}>
       <style>
         .search-results.has-results {

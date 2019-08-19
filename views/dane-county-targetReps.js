@@ -4,6 +4,7 @@ const { html } = require('../helpers')
 module.exports = ({ vote, user, reps }) => {
   const measureImage = `${ASSETS_URL}/legislature-images/Dane County.png`
   const reply = (vote.replies || []).filter(({ user_id }) => (user && user.id === user_id))[0]
+  const supervisor = reps.filter(({ name }) => name.includes('Dane'))[0]
 
   return html`
     <br />
@@ -25,14 +26,11 @@ module.exports = ({ vote, user, reps }) => {
         </div>
       </div>
     </div>
-    ${reply && reps[4] && reps[4].name.includes('Dane') ? callToAction(reps) : ''}
+    ${reply && supervisor ? callToAction(supervisor) : ''}
   `
 }
 
-const callToAction = (reps) => {
-  const last = (arr) => arr[arr.length - 1]
-  const supervisor = reps[4] ? reps[4].office_holder : ''
-  let district; let email
+const callToAction = ({ name, office_holder: supervisor }) => {
   const emailExceptions = {
     '7': 'veldran@countyofdane.com', // Veldran
     '8': 'bayrd@countyofdane.com', // Bayrd
@@ -44,10 +42,8 @@ const callToAction = (reps) => {
     '37': 'salov@countyofdane.com', // Salov
     '25': 'kiefer.timothy@countyofdane.com', // Kiefer
   }
-  if (supervisor.elected_office_name.includes('Dane')) {
-    district = last(supervisor.elected_office_name.split(' '))
-    email = emailExceptions[district] || `${supervisor.last_name.toLowerCase()}.${supervisor.first_name.toLowerCase()}@countyofdane.gov`
-  }
+  const district = name.split(' ').pop()
+  const email = emailExceptions[district] || `${supervisor.last_name.toLowerCase()}.${supervisor.first_name.toLowerCase()}@countyofdane.gov`
   const noSup = ['1', '17', '33'].includes(district)
   const supSupportsProDane = ['2', '4', '6', '32'].includes(district)
   const supSemiSupports = ['35', '27'].includes(district)

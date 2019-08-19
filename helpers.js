@@ -187,7 +187,7 @@ exports.combineEffects = (effects) => (dispatch) => {
 }
 
 exports.combineEffectsInSeries = (effects) => (dispatch) => {
-  effects.reduce((promise, effect) => promise.then(() => Promise.resolve(effect && effect(dispatch))), Promise.resolve())
+  return effects.reduce((promise, effect) => promise.then(() => Promise.resolve(effect && effect(dispatch))), Promise.resolve())
 }
 
 // Wait for all promises before dispatching optional event
@@ -228,7 +228,12 @@ exports.api = (dispatch, url, params = {}) => {
             body: JSON.stringify({ refresh_token }),
           })
           .then(res => res.json())
-          .then(results => results[0])
+          .then(results => {
+            if (!results[0]) {
+              return Promise.reject(Object.assign(new Error(`Session not found!`), { status: 500 }))
+            }
+            return results[0]
+          })
           .then(({ jwt }) => {
             const oneYearFromNow = new Date(Date.now() + (365 * 24 * 60 * 60 * 1000))
             dispatch({ type: 'cookieSet', key: 'jwt', value: jwt, opts: { expires: oneYearFromNow } })
@@ -264,6 +269,9 @@ exports.api = (dispatch, url, params = {}) => {
             dispatch({ type: 'session:signedOut' })
             dispatch({ type: 'cookieUnset', key: 'refresh_token' })
             dispatch({ type: 'cookieUnset', key: 'jwt' })
+            if (error.message.match(/^NetworkError/)) {
+              dispatch({ type: 'error:network', error })
+            }
           })
         }
         const error = new Error(json.message)
@@ -275,6 +283,14 @@ exports.api = (dispatch, url, params = {}) => {
       })
     }
     return res.json()
+  })
+  .catch(error => {
+    console.log(error)
+    if (error.message.match(/^NetworkError/)) {
+      dispatch({ type: 'error:network', error })
+    } else {
+      return Promise.reject(error)
+    }
   })
 }
 
@@ -293,3 +309,7 @@ serverHtml.for = () => serverHtml
 exports.html = server
   ? serverHtml
   : require('lighterhtml-plus').html
+
+exports.svg = server
+  ? serverHtml
+  : require('lighterhtml-plus').svg
