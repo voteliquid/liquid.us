@@ -52,7 +52,7 @@ const backersTableRow = (backer) => {
   if (rep2) {
     rep2_display = `${rep2.office_holder.first_name} ${rep2.office_holder.last_name} (D-${last(rep2.name.split(' '))})`
   }
-  const name = (backer.user && `${backer.user.first_name} ${backer.user.last_name}`) || '[private]'
+  const name = backer.public ? backer.name : '[private]'
 
   return html`
     <tr>
