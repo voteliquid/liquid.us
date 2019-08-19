@@ -21,7 +21,7 @@ module.exports = (state, dispatch) => {
             <thead>
               <tr>
                 <th></th>
-                <th>Time (pt)</th>
+                <th>Time</th>
                 <th>Name</th>
                 <th>Location</th>
                 <th>Senator</th>
@@ -39,16 +39,30 @@ module.exports = (state, dispatch) => {
   `
 }
 
+const last = (array) => array[array.length - 1]
+
 const backersTableRow = (backer) => {
+  let rep1_display = ''
+  const rep1 = backer.offices[0]
+  if (rep1) {
+    rep1_display = `${rep1.office_holder.first_name} ${rep1.office_holder.last_name} (D-${last(rep1.name.split(' '))})`
+  }
+  let rep2_display = ''
+  const rep2 = backer.offices[1]
+  if (rep2) {
+    rep2_display = `${rep2.office_holder.first_name} ${rep2.office_holder.last_name} (D-${last(rep2.name.split(' '))})`
+  }
+  const name = (backer.user && `${backer.user.first_name} ${backer.user.last_name}`) || '[private]'
+
   return html`
     <tr>
       <td><span style="width: 30px; display: inline-block; text-align: right;">${backer.index}</span></td>
-      <td><span style="width: 175px; display: inline-block;">${backer['Time (pt)']}</span></td>
-      <td><span style="width: 165px; display: inline-block;">${backer.Name}</span></td>
-      <td><span style="width: 145px; display: inline-block;">${backer.City}</span></td>
-      <td><span style="width: 165px; display: inline-block;">${backer.Senator}</span></td>
-      <td><span style="width: 165px; display: inline-block;">${backer.Assembly}</span></td>
-      <td><span style="width: 398px; display: inline-block;">${backer.Comment}</span></td>
+      <td><span style="width: 175px; display: inline-block;">${new Date(backer.created_at).toLocaleString()}</span></td>
+      <td><span style="width: 165px; display: inline-block;">${name}</span></td>
+      <td><span style="width: 145px; display: inline-block;">${backer.locality}</span></td>
+      <td><span style="width: 165px; display: inline-block;">${rep1_display}</span></td>
+      <td><span style="width: 165px; display: inline-block;">${rep2_display}</span></td>
+      <td><span style="width: 398px; display: inline-block;">${backer.comment}</span></td>
     </tr>
   `
 }

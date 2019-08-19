@@ -9,8 +9,6 @@ const { updateNameAndAddress } = require('../effects/user')
 const { signIn } = require('../effects/session')
 const { changePageTitle } = require('../effects/page')
 const { logEndorsed } = require('../effects/analytics')
-const fetch = require('isomorphic-fetch')
-const csvParse = require('csv-parse/lib/sync')
 
 module.exports = (event, state) => {
   switch (event.type) {
@@ -545,9 +543,7 @@ const fetchVoteReplies = (voteId, user) => (dispatch) => {
 }
 
 const fetchVoteBackers = (voteId) => (dispatch) => {
-  return fetch('https://raw.githubusercontent.com/voteliquid/proof-of-vote/master/votes/EducatorsForDemocraticSchools/hold-charter-schools-accountable.csv')
-    .then(res => res.text())
-    .then(data => csvParse(data, { columns: true }))
+  return api(dispatch, `/endorsements_detailed?measure_id=eq.5495d487-e121-4410-958b-045d788bb491&vote_id=eq.6c198250-1430-48e2-980e-a761067454f6&order=created_at.asc`)
     .then((backers) => dispatch({ type: 'vote:backersReceived', voteId, backers }))
     .catch((error) => dispatch({ type: 'error', error }))
 }
