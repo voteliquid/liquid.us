@@ -53,8 +53,8 @@ module.exports = (state, dispatch) => {
           </label>
           ${!isPublic ? html`
             <p class="is-size-7 has-text-grey">
-              We will still share your name with your rep so they know you're
-              their real constituent.
+              Your reps will still be able to see your name,
+              so they know you're their real constituent.
             </p>
           ` : html``}
         </div>
