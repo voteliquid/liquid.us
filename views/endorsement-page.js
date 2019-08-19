@@ -24,7 +24,6 @@ module.exports = (state, dispatch) => {
   const path = location.path
 
   const numComments = (vote && vote.replies && !loading.comments && vote.replies.length) || '...'
-  const numQuestions = (vote && vote.questions && !loading.questions && vote.questions.length) || '...'
   const numBackers = (vote && vote.backers && !loading.backers && vote.backers.length) || '...'
 
   return html`
@@ -53,7 +52,7 @@ module.exports = (state, dispatch) => {
             <div class="tabs">
               <ul>
                 <li class=${tab === 'comments' ? 'is-active' : ''}><a href=${`${location.path}?tab=comments`}>Comments (${numComments})</a></li>
-                <li class=${tab === 'questions' ? 'is-active' : ''}><a href=${`${path}?tab=questions`}>Questions (${numQuestions})</a></li>
+                <li class=${tab === 'questions' ? 'is-active' : ''}><a href=${`${path}?tab=questions`}>Questions</a></li>
                 <li class=${tab === 'backers' ? 'is-active' : ''}><a href=${`${location.path}?tab=backers`}>Backers (${numBackers})</a></li>
               </ul>
             </div>
