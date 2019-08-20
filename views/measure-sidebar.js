@@ -34,7 +34,7 @@ module.exports = (state, dispatch) => {
       ${measureVoteCounts(measure)}
       ${showStatusTracker ? measureStatusPanel(measure) : ''}
       ${measure.sponsor || measure.author ? measureSponsorPanel(measure) : ''}
-      ${l.author_username ? measureLinksPanel(measure) : ''}
+      ${!l.author_username ? measureLinksPanel(measure) : ''}
       ${measureActionsPanel(state, dispatch)}
     </nav>
   `

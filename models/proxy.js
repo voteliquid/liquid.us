@@ -81,9 +81,9 @@ const reorderProxies = ({ event, ...form }, proxies, user) => (dispatch) => {
   // send new delegate rank to API
   dispatch({ type: 'proxy:proxiesUpdated', proxies: reorderProxyRanks(reordered, reordered[new_index], old_rank, new_rank) })
 
-  return api(dispatch, '/rpc/reorder_delegation', {
-    method: 'POST',
-    body: JSON.stringify({ delegation_id: proxy_id, new_rank }),
+  return api(dispatch, `/delegations?id=eq.${proxy_id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ delegate_rank: new_rank, updated_at: new Date() }),
     user,
   })
 }

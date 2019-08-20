@@ -138,6 +138,16 @@ compile((err, stats) => {
   }
 })
 
+function contentType(filename) {
+  switch (path.extname(filename)) {
+    case '.css':
+      return 'text/css'
+    case '.js':
+    default:
+      return 'text/javascript'
+  }
+}
+
 function startAppServer() {
   server
     .disable('x-powered-by')
@@ -152,6 +162,16 @@ function startAppServer() {
 
   server
     .use('/assets', serveStatic(path.join(__dirname, 'assets'), { maxAge: '4h' }))
+    .get('/assets/:filename', (req, res) => {
+      mfs.readFile(`/${req.params.filename}`, 'utf8', (error, content) => {
+        if (error) return res.status(404).end()
+        res.setHeader('Content-Type', contentType(req.params.filename))
+        // Cache build JS/CSS for 3 months, since they use unique hashes for filenames.
+        res.setHeader('Cache-Control', `max-age=${90 * 24 * 60 * 60}`)
+        res.write(content)
+        res.end()
+      })
+    })
     .get('/rpc/healthcheck', (req, res) => res.status(200).end())
     .get('/rpc/geoip/:ip', geoip)
     .get('/rpc/image-proxy/:url', imageProxy)
@@ -160,14 +180,6 @@ function startAppServer() {
     .get('/rpc/eztexting_webhook', eztextingWebhook)
     .post('/rpc/twitter_username_search', bodyParser.json(), twitterUsernameSearch)
     .post('/rpc/geocode', bodyParser.json(), geocode)
-    .get('/hyperloop/:filename', (req, res) => {
-      res.setHeader('Content-Type', 'text/javascript')
-      mfs.readFile(`/${req.params.filename}`, 'utf8', (error, js) => {
-        if (error) return res.status(404).end()
-        res.write(js)
-        res.end()
-      })
-    })
     .use(cookieParser(), serveApp)
     .use(errorHandler(htmlWrapper))
     .listen(port, () => {
@@ -231,7 +243,8 @@ function runApp(req, res, done) {
           return res.redirect(state.location.url)
         }
         const appHtml = App.view(state, dispatch)
-        const pageHtml = htmlWrapper(state, appHtml, `${webpackConfig.output.publicPath}${webpackStats.compilation.hash}.js`)
+        const entries = webpackStats.compilation.entrypoints.get('main').getFiles().filter((file) => file.slice(-4) !== '.map')
+        const pageHtml = htmlWrapper(state, appHtml, entries.reverse())
         done(null, pageHtml, state.location.status)
       }
     },

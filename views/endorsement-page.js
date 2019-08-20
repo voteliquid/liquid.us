@@ -4,6 +4,7 @@ const endorsementCount = require('./endorsement-count')
 const measureSummary = require('./measure-summary')
 const sidebar = require('./endorsement-page-sidebar')
 const stateNames = require('datasets-us-states-abbr-names')
+const stateAbbreviations = require('datasets-us-states-names-abbr')
 
 module.exports = (state, dispatch) => {
   const { location, measures, user, votes } = state
@@ -31,7 +32,9 @@ module.exports = (state, dispatch) => {
             </div>
             <br />
             ${endorsementComment(measure, vote)}
-            <div style="border-left: 2px solid hsl(0, 0%, 60%); padding-left: 2rem; margin-top: 2rem;">
+            <br />
+            <h3 class="title is-5" style="font-weight: 500;">Policy Details</h3>
+            <div style="border: 1px solid hsl(0, 0%, 85%); padding: 1.2rem; height: 400px; overflow-y: scroll; box-shadow: inset hsl(0, 0%, 92%) 3px 3px 3px 0px; margin-bottom: 2rem;">
               ${measureSummary({ ...measure, alwaysExpanded: true, size: 5 }, dispatch)}
             </div>
             <div class="small-screens-only">
@@ -155,22 +158,19 @@ const rep = (r) => {
 }
 
 const legislature = (measure) => {
-  const isState = measure.legislature_name.length === 2
-  const measureImage = isState ? `${ASSETS_URL}/legislature-images/${measure.legislature_name}.png` : ''
-  const name = isState ? stateNames[measure.legislature_name] : measure.legislature_name
+  const local = measure.legislature_name.includes(',') || measure.legislature_name.includes('County')
+  const measureImage = local ? `${ASSETS_URL}/legislature-images/local.png` : `${ASSETS_URL}/legislature-images/${stateAbbreviations[measure.legislature_name] || 'U.S. Congress'}.png`
 
   return html`
     <div class="column">
       <div class="media">
-        ${isState ? html`
-          <div class="media-left">
-            <div class="image is-48x48 is-clipped">
-              <img src=${measureImage} style="background: hsla(0, 0%, 87%, 0.5); padding: 4px;"/>
-            </div>
+        <div class="media-left">
+          <div class="image is-48x48">
+            <img src=${measureImage} style="background: hsla(0, 0%, 87%, 0.5);"/>
           </div>
-        ` : ''}
+        </div>
         <div class="media-content has-text-weight-semibold is-size-5" style="line-height: 24px;">
-          ${name}<br />
+          ${measure.legislature_name}<br />
           ${measure.legislature_name === 'U.S. Congress' ? '' : 'Legislature'}
         </div>
       </div>

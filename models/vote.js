@@ -2,7 +2,7 @@ const { ASSETS_URL } = process.env
 const stateNames = require('datasets-us-states-abbr-names')
 const {
   api, avatarURL, combineEffects, combineEffectsInSeries, escapeHtml,
-  makePoint, possessive, preventDefault, redirect,
+  makePoint, possessive, preventDefault, redirect, waitEffects
 } = require('../helpers')
 const { fetchMeasure, fetchMeasureVotes } = require('../effects/measure')
 const { updateNameAndAddress } = require('../effects/user')
@@ -28,10 +28,12 @@ module.exports = (event, state) => {
                 expanded: state.location.query.show_more === 'true',
               },
             },
-          }, combineEffectsInSeries([
-            fetchMeasure(state.location.params.shortId, state.offices, state.user),
+          }, waitEffects([
+            combineEffectsInSeries([
+              fetchMeasure(state.location.params.shortId, state.offices, state.user),
+              fetchVote(state.location.params.voteId, state.user),
+            ]),
             fetchVoteReplies(state.location.params.voteId, state.user),
-            fetchVote(state.location.params.voteId, state.user),
           ])]
         default:
           return [state]
@@ -191,6 +193,17 @@ module.exports = (event, state) => {
         fetchMeasure(event.vote.short_id, state.offices, state.user),
         fetchMeasureVotes(event.vote.short_id, state.location.query.order, state.location.query.position, state.user),
       ])]
+    case 'vote:endorsementToggledPrivacyCheckbox':
+      return [{
+        ...state,
+        votes: {
+          ...state.votes,
+          [event.vote.id]: {
+            ...state.votes[event.vote.id],
+            endorsement_public: event.event.currentTarget.checked,
+          },
+        },
+      }]
     case 'vote:toggledRepsMessage':
       return [{
         ...state,
@@ -347,12 +360,17 @@ const vote = ({ event, measure, ...form }, user) => (dispatch) => {
     return dispatch({ type: 'redirected', url: '/join' })
   }
 
-  return api(dispatch, '/rpc/vote', {
-    method: 'POST',
+  console.log(form.vote_id)
+  return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${measure.id}`, {
+    method: form.vote_id ? 'PATCH' : 'POST',
+    headers: { Prefer: 'return=minimal' },
     body: JSON.stringify({
       user_id: user.id,
       measure_id: measure.id,
       vote_position: form.vote_position,
+      root_delegate_id: user.id,
+      delegate_id: null,
+      delegate_name: null,
       comment: form.comment || null,
       public: form.public,
     }),
@@ -409,14 +427,36 @@ const endorse = (vote, user, measure, is_public = false) => (dispatch) => {
     }
   }
 
-  return api(dispatch, '/rpc/endorse', {
-    method: 'POST',
-    body: JSON.stringify({ user_id: user.id, vote_id, measure_id, public: is_public }),
+  return api(dispatch, `/endorsements?user_id=eq.${user.id}&measure_id=eq.${measure_id}`, {
+    method: position && measure.endorsed ? 'PATCH' : 'POST',
+    body: JSON.stringify({
+      user_id: user.id,
+      vote_id,
+      measure_id,
+      public: is_public,
+    }),
     user,
   })
   .then(() => api(dispatch, `/votes_detailed?id=eq.${vote.id}`, { user }))
   .then(([vote]) => dispatch({ type: 'vote:updated', vote }))
-  .catch((error) => dispatch({ type: 'error', error }))
+  .catch((error) => {
+    if (error.code === 23505) {
+      return api(dispatch, `/endorsements?user_id=eq.${user.id}&measure_id=eq.${measure_id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          user_id: user.id,
+          vote_id,
+          measure_id,
+          public: is_public,
+        }),
+        user,
+      })
+      .then(() => api(dispatch, `/votes_detailed?id=eq.${vote.id}`, { user }))
+      .then(([vote]) => dispatch({ type: 'vote:updated', vote }))
+      .catch((error) => dispatch({ type: 'error', error }))
+    }
+    dispatch({ type: 'error', error })
+  })
 }
 
 const unendorse = (vote, user) => (dispatch) => {
@@ -426,11 +466,14 @@ const unendorse = (vote, user) => (dispatch) => {
   if (!window.confirm(`Are you sure you want to remove this endorsement?`)) {
     return
   }
-  const endorsed_vote = !(user && user.id === vote.user_id && vote.comment) && vote.endorsed_vote
-  const { id: vote_id } = endorsed_vote || vote
-  return api(dispatch, '/rpc/unendorse', {
-    method: 'POST',
-    body: JSON.stringify({ vote_id }),
+  return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${vote.measure_id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      vote_position: 'abstain',
+      delegate_rank: -1,
+      root_delegate_id: user.id,
+      delegate_id: null,
+    }),
     user,
   })
   .then(() => api(dispatch, `/votes_detailed?id=eq.${vote.id}`, { user }))
@@ -442,8 +485,8 @@ const changeVotePrivacy = (vote, is_public, user) => (dispatch) => {
   const endorsed_vote = !(user && user.id === vote.user_id && vote.comment) && vote.endorsed_vote
   const { measure_id, id: vote_id } = endorsed_vote || vote
 
-  return api(dispatch, '/rpc/endorse', {
-    method: 'POST',
+  return api(dispatch, `/endorsements?user_id=eq.${user.id}&measure_id=eq.${measure_id}`, {
+    method: 'PATCH',
     body: JSON.stringify({ user_id: user.id, vote_id, measure_id, public: is_public }),
     user,
   })
@@ -571,7 +614,7 @@ const endorsementPageTitleAndMeta = (measures, vote, location) => {
 
   // Determine social media image: start with database image, then any image in the comment, any image in measure summary, author avatar, legislature image
   const dbImage = measure.image_name ? `${ASSETS_URL}/measure-images/${measure.image_name}` : ''
-  const inlineImageMatch = vote && vote.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
+  const inlineImageMatch = vote && vote.comment && vote.comment.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
   const inlineImage = inlineImageMatch && inlineImageMatch[0]
   const measureInlineImageMatch = measure && measure.summary && measure.summary.match(/\bhttps?:\/\/\S+\.(png|jpg|jpeg|gif)\b/i)
   const measureInlineImage = measureInlineImageMatch && measureInlineImageMatch[0]

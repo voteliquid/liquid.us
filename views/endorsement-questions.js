@@ -1,6 +1,6 @@
 const { avatarURL, handleForm, html } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
-const moment = require('moment')
+const timeAgo = require('timeago.js')
 
 module.exports = (state, dispatch) => {
   const { loading, location, votes } = state
@@ -114,7 +114,7 @@ const questionView = (question, vote, state, dispatch) => {
           <p>
             <strong>${name || 'Anonymous'}</strong>
             ${name ? html`<a href=${`/${question.user.username}`}><small>@${question.user.username}</small></a>` : ''}
-            <small class="has-text-grey">${moment.utc(question.created_at).fromNow()}</small>
+            <small class="has-text-grey">${timeAgo().format(`${question.created_at}Z`)}</small>
             ${state.user && question.user_id === state.user.id && !question.public ? html`<span class="tag is-light">Posted Anonymously</span>` : ''}
             <br>
             ${question.question}

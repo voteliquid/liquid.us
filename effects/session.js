@@ -72,12 +72,15 @@ const proxy = (dispatch, user, params) => {
 
 const vote = (dispatch, user, params) => {
   if (params.vote_position && params.vote_bill_id) {
-    return api(dispatch, '/rpc/vote', {
+    return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${params.vote_bill_id}`, {
       method: 'POST',
       body: JSON.stringify({
         user_id: user.id,
         measure_id: params.vote_bill_id,
         vote_position: params.vote_position,
+        root_delegate_id: user.id,
+        delegate_id: null,
+        delegate_name: null,
         comment: params.vote_comment || null,
         public: params.vote_public === 'true',
       }),
