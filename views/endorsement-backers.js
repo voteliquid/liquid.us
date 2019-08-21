@@ -1,4 +1,5 @@
 const { html } = require('../helpers')
+const stateNames = require('datasets-us-states-names-abbr')
 
 module.exports = (state, dispatch) => {
   const { backersFilterQuery, location, votes, loading } = state
@@ -53,13 +54,14 @@ const backersTableRow = (backer) => {
     rep2_display = `${rep2.office_holder.first_name} ${rep2.office_holder.last_name} (D-${last(rep2.name.split(' '))})`
   }
   const name = backer.public ? backer.name : '[private]'
+  const stateAbbr = stateNames[backer.administrative_area_level_1]
 
   return html`
     <tr>
       <td><span style="width: 30px; display: inline-block; text-align: right;">${backer.index}</span></td>
-      <td><span style="width: 175px; display: inline-block;">${new Date(backer.created_at).toLocaleString()}</span></td>
+      <td><span style="width: 165px; display: inline-block;">${new Date(backer.created_at).toLocaleString()}</span></td>
       <td><span style="width: 165px; display: inline-block;">${name}</span></td>
-      <td><span style="width: 145px; display: inline-block;">${backer.locality}</span></td>
+      <td><span style="width: 145px; display: inline-block;">${backer.locality}${backer.locality && stateAbbr ? `, ` : ''}${stateAbbr}</span></td>
       <td><span style="width: 165px; display: inline-block;">${rep1_display}</span></td>
       <td><span style="width: 165px; display: inline-block;">${rep2_display}</span></td>
       <td><span style="width: 398px; display: inline-block;">${backer.comment}</span></td>
