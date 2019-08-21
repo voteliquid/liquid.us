@@ -63,6 +63,9 @@ module.exports = (state, dispatch) => {
               .small-screens-only {
                 display: block;
               }
+              .sticky-panel.column {
+                display: none;
+              }
               @media (min-width: 1050px) {
                 .sticky-panel.column {
                   display: block;
