@@ -9,6 +9,8 @@ module.exports = ({ navbar: { hamburgerVisible }, location, search, user }, disp
         <div class="navbar-brand">
           <a class="navbar-item" href="/">
             <img src="${APP_LOGO}" alt="${APP_NAME}" />
+            ${location.path === '/BenGleibForPresident/direct-say'
+              ? html`<img src="/assets/for-connected-democracy.png" alt="for Connected Democracy" style="height: 14px; position: absolute; bottom: -6px; left: 10px; opacity: .85;" />` : ''}
           </a>
           <div role="button" href="#" aria-label="menu" aria-expanded="${hamburgerVisible ? 'true' : 'false'}" class="${`navbar-burger burger ${hamburgerVisible ? 'is-active' : ''}`}" onclick=${(event) => dispatch({ type: 'navHamburgerToggled', event })}>
             <span aria-hidden="true"></span>
