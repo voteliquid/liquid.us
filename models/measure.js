@@ -181,7 +181,7 @@ module.exports = (event, state) => {
             showVoteForm: true,
           },
         },
-      }, combineEffects([preventDefault(event.event), scrollVoteFormIntoView])]
+      }, combineEffects([preventDefault(event.event), scrollVoteFormIntoView, selectVotePosition(event.vote_position)])]
     case 'measure:voteFormToggled':
       if (!event.measure) return [state]
       return [{
@@ -339,6 +339,14 @@ const scrollVoteFormIntoView = () => {
     if (scrollY) {
       window.scrollTo(0, scrollY, { behavior: 'smooth' })
     }
+  }
+}
+
+const selectVotePosition = (position) => () => {
+  if (position) {
+    setTimeout(() => {
+      document.querySelector(`input[type="radio"][name="vote_position"][value="${position}"]`).checked = true
+    }, 20)
   }
 }
 

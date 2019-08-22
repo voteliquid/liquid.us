@@ -89,7 +89,7 @@ const voteButtons = ({ loading, measure }, dispatch) => {
     <div class="columns is-gapless is-multiline is-marginless">
       ${vote_position === 'abstain' ? abstainButton({ loading, measure }, dispatch) : html``}
       <div class="column is-half">
-        <form method="POST" onsubmit=${handleForm(dispatch, { type: 'vote:voted', measure })} style="height: 100%;">
+        <form method="POST" onsubmit=${handleForm(dispatch, { type: 'measure:voteFormActivated', measure })} style="height: 100%;">
           <input type="hidden" name="vote_id" value="${my_vote.vote_position || ''}" />
           <input type="hidden" name="vote_position" value="yea" />
           <input type="hidden" name="public" value="${typeof my_vote.public === 'boolean' ? my_vote.public : 'true'}" />
@@ -101,7 +101,7 @@ const voteButtons = ({ loading, measure }, dispatch) => {
         </form>
       </div>
       <div class="column is-half" style="border-left: 1px solid white;">
-        <form method="POST" onsubmit=${handleForm(dispatch, { type: 'vote:voted', measure })} style="height: 100%;">
+        <form method="POST" onsubmit=${handleForm(dispatch, { type: 'measure:voteFormActivated', measure })} style="height: 100%;">
           <input type="hidden" name="vote_id" value="${my_vote.vote_position || ''}" />
           <input type="hidden" name="vote_position" value="nay" />
           <input type="hidden" name="public" value="${typeof my_vote.public === 'boolean' ? my_vote.public : 'true'}" />
