@@ -325,9 +325,12 @@ const updateMeasure = (measure, form, user) => (dispatch) => {
   .then(() => api(dispatch, `/measures_detailed?id=eq.${measure.id}`, { user }))
   .then(([measure]) => {
     dispatch({ type: 'measure:updated', measure })
-    dispatch({ type: 'redirected', status: 303, url: `/${user.username}/${measure.short_id}` })
   })
-
+  .then(() => api(dispatch, `/votes_detailed?measure_id=eq.${measure.id}&user_id=eq.${user.id}`, { user }))
+  .then(([vote]) => {
+    dispatch({ type: 'vote:updated', vote })
+    dispatch({ type: 'redirected', status: 303, url: `/${user.username}/${measure.short_id}/votes/${vote.id}` })
+  })
   .catch(handleError(dispatch))
 }
 
