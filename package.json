@@ -35,7 +35,6 @@
     "core-js": "^3.1.4",
     "corejs": "^1.0.0",
     "cors": "^2.8.4",
-    "csv-parse": "^4.4.3",
     "datasets-us-states-abbr-names": "^1.0.0",
     "datasets-us-states-names-abbr": "^1.0.0",
     "express": "^4.16.1",
