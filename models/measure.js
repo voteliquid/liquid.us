@@ -293,11 +293,11 @@ const insertMeasure = (measure, form, user) => (dispatch) => {
     }),
     user,
   })
-  .then((measure) => api(dispatch, `/votes`, {
+  .then(([measure]) => api(dispatch, `/votes`, {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({
-      author_id: user.id,
+      user_id: user.id,
       measure_id: measure.id,
       vote_position: 'yea',
       comment: form.comment || null,
@@ -314,14 +314,20 @@ const updateMeasure = (measure, form, user) => (dispatch) => {
   return api(dispatch, `/measures?id=eq.${measure.id}`, {
     method: 'PATCH',
     headers: { Prefer: 'return=representation' },
-    body: JSON.stringify({ ...form, short_id: form.short_id.toLowerCase() }),
+    body: JSON.stringify({ title: form.title, summary: form.summary, short_id: form.short_id.toLowerCase() }),
     user,
   })
+  .then(() => api(dispatch, `/votes?measure_id=eq.${measure.id}&user_id=eq.${user.id}`, {
+    method: 'PATCH',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({ comment: form.comment || null }),
+    user }))
   .then(() => api(dispatch, `/measures_detailed?id=eq.${measure.id}`, { user }))
   .then(([measure]) => {
     dispatch({ type: 'measure:updated', measure })
     dispatch({ type: 'redirected', status: 303, url: `/${user.username}/${measure.short_id}` })
   })
+
   .catch(handleError(dispatch))
 }
 
