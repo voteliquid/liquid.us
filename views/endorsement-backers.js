@@ -2,7 +2,7 @@ const { html } = require('../helpers')
 const stateNames = require('datasets-us-states-names-abbr')
 
 module.exports = (state, dispatch) => {
-  const { backersFilterQuery, location, votes, loading } = state
+  const { backersFilterQuery, measures, loading, location, votes } = state
   const vote = votes[location.params.voteId]
   const backers = vote.backers
   const filteredBackers = backers && backers.reduce((memo, backer, index) => (
@@ -10,6 +10,8 @@ module.exports = (state, dispatch) => {
       ? memo.concat({ ...backer, index: index + 1 })
       : memo
   ), [])
+  const measure = measures[location.params.shortId]
+  const isCA = measure.legislature_name === 'California'
 
   return html`
     <div>
@@ -25,13 +27,15 @@ module.exports = (state, dispatch) => {
                 <th>Time</th>
                 <th>Name</th>
                 <th>Location</th>
-                <th>Senator</th>
-                <th>Assembly</th>
+                ${isCA ? html`
+                  <th>Senator</th>
+                  <th>Assembly</th>
+                ` : ''}
                 <th>Comment</th>
               </tr>
             </thead>
             <tbody>
-              ${filteredBackers.map((b) => backersTableRow(b))}
+              ${filteredBackers.map((b) => backersTableRow(b, isCA))}
             </tbody>
           </table>
         </div>
@@ -42,7 +46,7 @@ module.exports = (state, dispatch) => {
 
 const last = (array) => array[array.length - 1]
 
-const backersTableRow = (backer) => {
+const backersTableRow = (backer, isCA) => {
   let rep1_display = ''
   const rep1 = backer.offices[0]
   if (rep1) {
@@ -62,8 +66,10 @@ const backersTableRow = (backer) => {
       <td><span style="width: 165px; display: inline-block;">${new Date(backer.created_at).toLocaleString()}</span></td>
       <td><span style="width: 165px; display: inline-block;">${name}</span></td>
       <td><span style="width: 145px; display: inline-block;">${backer.locality}${backer.locality && stateAbbr ? `, ` : ''}${stateAbbr}</span></td>
-      <td><span style="width: 165px; display: inline-block;">${rep1_display}</span></td>
-      <td><span style="width: 165px; display: inline-block;">${rep2_display}</span></td>
+      ${isCA ? html`
+        <td><span style="width: 165px; display: inline-block;">${rep1_display}</span></td>
+        <td><span style="width: 165px; display: inline-block;">${rep2_display}</span></td>
+      ` : ''}
       <td><span style="width: 398px; display: inline-block;">${backer.comment}</span></td>
     </tr>
   `
