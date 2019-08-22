@@ -1,6 +1,11 @@
 const { html } = require('../helpers')
 const stateNames = require('datasets-us-states-names-abbr')
 
+const legislatorTitles = {
+  California: ['Senator', 'Assembly'],
+  'Dane County': ['Supervisor'],
+}
+
 module.exports = (state, dispatch) => {
   const { backersFilterQuery, measures, loading, location, votes } = state
   const vote = votes[location.params.voteId]
@@ -11,7 +16,8 @@ module.exports = (state, dispatch) => {
       : memo
   ), [])
   const measure = measures[location.params.shortId]
-  const isCA = measure.legislature_name === 'California'
+  const numLegislators = backers && backers.reduce((max, backer) => Math.max(max, backer.offices.length), 0)
+  const titles = legislatorTitles[measure.legislature_name] || []
 
   return html`
     <div>
@@ -27,15 +33,13 @@ module.exports = (state, dispatch) => {
                 <th>Time</th>
                 <th>Name</th>
                 <th>Location</th>
-                ${isCA ? html`
-                  <th>Senator</th>
-                  <th>Assembly</th>
-                ` : ''}
+                ${numLegislators > 0 ? html`<th>${titles[0] || 'Legislator'}</th>` : ''}
+                ${numLegislators > 1 ? html`<th>${titles[1] || 'Legislator 2'}</th>` : ''}
                 <th>Comment</th>
               </tr>
             </thead>
             <tbody>
-              ${filteredBackers.map((b) => backersTableRow(b, isCA))}
+              ${filteredBackers.map((b) => backersTableRow(b, numLegislators))}
             </tbody>
           </table>
         </div>
@@ -46,17 +50,13 @@ module.exports = (state, dispatch) => {
 
 const last = (array) => array[array.length - 1]
 
-const backersTableRow = (backer, isCA) => {
-  let rep1_display = ''
-  const rep1 = backer.offices[0]
-  if (rep1) {
-    rep1_display = `${rep1.office_holder.first_name} ${rep1.office_holder.last_name} (D-${last(rep1.name.split(' '))})`
-  }
-  let rep2_display = ''
-  const rep2 = backer.offices[1]
-  if (rep2) {
-    rep2_display = `${rep2.office_holder.first_name} ${rep2.office_holder.last_name} (D-${last(rep2.name.split(' '))})`
-  }
+const backersTableRow = (backer, numLegislators) => {
+  const reps = backer.offices.map(office => {
+    if (!office) { return '' }
+    const { office_holder } = office
+    if (!office_holder) { return '' }
+    return `${office_holder.first_name} ${office_holder.last_name} (D-${last(office.name.split(' '))})`
+  })
   const name = backer.public ? backer.name : '[private]'
   const stateAbbr = stateNames[backer.administrative_area_level_1]
 
@@ -66,9 +66,11 @@ const backersTableRow = (backer, isCA) => {
       <td><span style="width: 165px; display: inline-block;">${new Date(backer.created_at).toLocaleString()}</span></td>
       <td><span style="width: 165px; display: inline-block;">${name}</span></td>
       <td><span style="width: 145px; display: inline-block;">${backer.locality}${backer.locality && stateAbbr ? `, ` : ''}${stateAbbr}</span></td>
-      ${isCA ? html`
-        <td><span style="width: 165px; display: inline-block;">${rep1_display}</span></td>
-        <td><span style="width: 165px; display: inline-block;">${rep2_display}</span></td>
+      ${numLegislators > 0 ? html`
+        <td><span style="width: 165px; display: inline-block;">${reps[0]}</span></td>
+      ` : ''}
+      ${numLegislators > 1 ? html`
+        <td><span style="width: 165px; display: inline-block;">${reps[1]}</span></td>
       ` : ''}
       <td><span style="width: 398px; display: inline-block;">${backer.comment}</span></td>
     </tr>
