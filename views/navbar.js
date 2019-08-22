@@ -3,12 +3,15 @@ const { html, mapEvent } = require('../helpers')
 const searchView = require('./navbar-search')
 
 module.exports = ({ navbar: { hamburgerVisible }, location, search, user }, dispatch) => {
+  const isEmbeddedPage = location.path === '/BenGleibForPresident/direct-say'
   return html`
     <nav class="navbar" role="navigation" aria-label="main navigation">
       <div class="container is-widescreen">
         <div class="navbar-brand">
-          <a class="navbar-item" href="/">
+          <a class="navbar-item" href=${isEmbeddedPage ? WWW_URL : '/'} target=${isEmbeddedPage ? '_blank' : ''}>
             <img src="${APP_LOGO}" alt="${APP_NAME}" />
+            ${isEmbeddedPage
+              ? html`<img src="/assets/for-connected-democracy.png" alt="for Connected Democracy" style="height: 14px; position: absolute; bottom: -6px; left: 10px; opacity: .85;" />` : ''}
           </a>
           <div role="button" href="#" aria-label="menu" aria-expanded="${hamburgerVisible ? 'true' : 'false'}" class="${`navbar-burger burger ${hamburgerVisible ? 'is-active' : ''}`}" onclick=${(event) => dispatch({ type: 'navHamburgerToggled', event })}>
             <span aria-hidden="true"></span>

@@ -131,7 +131,6 @@ module.exports = {
             case '/sign_in':
             case '/sign_in/verify':
             case '/join':
-            case '/candidate':
             case '/sign_out':
               return require('./models/session')(event, state)
             case '/get_started':
@@ -166,6 +165,12 @@ module.exports = {
               return require('./models/user')(event, state)
             case '/metrics':
               return require('./models/metric')(event, state)
+            case '/candidate':
+              return [{ ...state,
+                location: { ...state.location,
+                  title: 'Run on ideas. Be a leader. Get elected.',
+                },
+              }]
             default:
               return [state]
           }

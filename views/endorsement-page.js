@@ -43,7 +43,7 @@ module.exports = (state, dispatch) => {
             ${endorsementComment(measure, vote)}
             <br />
             <h3 class="title is-5" style="font-weight: 500;">Policy Details</h3>
-            <div style="border: 1px solid hsl(0, 0%, 85%); padding: 1.2rem; height: 400px; overflow-y: scroll; box-shadow: inset hsl(0, 0%, 92%) 3px 3px 3px 0px; margin-bottom: 2rem;">
+            <div style="border: 1px solid hsl(0, 0%, 85%); padding: 1.2rem; height: 400px; overflow-y: scroll; box-shadow: inset hsl(0, 0%, 87%) 2px 2px 0px 0px; margin-bottom: 2rem;">
               ${measureSummary({ ...measure, alwaysExpanded: true, size: 5 }, dispatch)}
             </div>
             <div class="small-screens-only">
@@ -67,6 +67,9 @@ module.exports = (state, dispatch) => {
             <style>
               .small-screens-only {
                 display: block;
+              }
+              .sticky-panel.column {
+                display: none;
               }
               @media (min-width: 1050px) {
                 .sticky-panel.column {
