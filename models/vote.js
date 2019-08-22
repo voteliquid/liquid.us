@@ -543,7 +543,7 @@ const fetchVoteReplies = (voteId, user) => (dispatch) => {
 }
 
 const fetchVoteBackers = (voteId) => (dispatch) => {
-  return api(dispatch, `/endorsements_detailed?measure_id=eq.5495d487-e121-4410-958b-045d788bb491&vote_id=eq.6c198250-1430-48e2-980e-a761067454f6&order=created_at.asc`)
+  return api(dispatch, `/endorsements_detailed?vote_id=eq.${voteId}&order=created_at.asc`, { getAllPages: true })
     .then((backers) => dispatch({ type: 'vote:backersReceived', voteId, backers }))
     .catch((error) => dispatch({ type: 'error', error }))
 }
