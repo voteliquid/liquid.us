@@ -307,7 +307,7 @@ module.exports = (event, state) => {
       // Set query in URL bar &filter=${query} after delay
       debounce(() => {
         window.history.replaceState({}, '', `${state.location.path}?tab=backers&filter=${query}`)
-      }, 100)
+      }, 50)
 
       return [{
         ...state,
