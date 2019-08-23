@@ -33,8 +33,7 @@ module.exports = (state, dispatch) => {
                 <th>Time</th>
                 <th>Name</th>
                 <th>Location</th>
-                ${numLegislators > 0 ? html`<th>${titles[0] || 'Legislator'}</th>` : ''}
-                ${numLegislators > 1 ? html`<th>${titles[1] || 'Legislator 2'}</th>` : ''}
+                ${Array.from(Array(numLegislators)).map((a, idx) => html`<th>${titles[idx] || `Legislator ${idx + 1}`}</th>`)}
                 <th>Comment</th>
               </tr>
             </thead>
@@ -66,12 +65,9 @@ const backersTableRow = (backer, numLegislators) => {
       <td><span style="width: 165px; display: inline-block;">${new Date(backer.created_at).toLocaleString()}</span></td>
       <td><span style="width: 165px; display: inline-block;">${name}</span></td>
       <td><span style="width: 145px; display: inline-block;">${backer.locality}${backer.locality && stateAbbr ? `, ` : ''}${stateAbbr}</span></td>
-      ${numLegislators > 0 ? html`
-        <td><span style="width: 165px; display: inline-block;">${reps[0]}</span></td>
-      ` : ''}
-      ${numLegislators > 1 ? html`
-        <td><span style="width: 165px; display: inline-block;">${reps[1]}</span></td>
-      ` : ''}
+      ${Array.from(Array(numLegislators)).map((a, idx) => html`
+        <td><span style="width: 165px; display: inline-block;">${reps[idx]}</span></td>
+      `)}
       <td><span style="width: 398px; display: inline-block;">${backer.comment}</span></td>
     </tr>
   `
