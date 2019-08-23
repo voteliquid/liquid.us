@@ -24,7 +24,11 @@ module.exports = (state, dispatch) => {
     }),
     Comment: backer.comment,
   }))
-  const filteredBackers = backers && backers.filter(backer => passesFilter({ ...backer }, backersFilterQuery))
+
+  const filteredBackers = !backersFilterQuery
+    ? backers
+    : backers && backers.filter(backer => Object.keys(backer).some((key) => String(backer[key]).toLowerCase().includes(String(backersFilterQuery).toLowerCase())))
+
   const measure = measures[location.params.shortId]
   const numLegislators = backers && backers.reduce((max, backer) => Math.max(max, backer.reps.length), 0)
   const titles = legislatorTitles[measure.legislature_name] || []
@@ -93,8 +97,4 @@ const searchBar = (dispatch, { backers, backersFilterQuery, filteredBackers }) =
     </div>
     <br />
   `
-}
-
-function passesFilter(backer, backersFilterQuery) {
-  return !backersFilterQuery || Object.keys(backer).some((key) => String(backer[key]).toLowerCase().includes(String(backersFilterQuery).toLowerCase()))
 }
