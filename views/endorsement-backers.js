@@ -16,7 +16,13 @@ module.exports = (state, dispatch) => {
     Time: new Date(backer.created_at).toLocaleString(),
     Name: backer.public ? backer.name : '[private]',
     Location: `${backer.locality || ''}${backer.locality && stateNames[backer.administrative_area_level_1] ? `, ` : ''}${stateNames[backer.administrative_area_level_1] || ''}`,
-    reps: backer.offices.map(office => {
+    reps: backer.offices
+    .sort((a, b) => {
+      if (a.chamber === 'Upper' && b.chamber === 'Lower') { return -1 }
+      if (a.chamber === 'Lower' && b.chamber === 'Upper') { return 1 }
+      return 0
+    })
+    .map(office => {
       if (!office) { return '' }
       const { office_holder } = office
       if (!office_holder) { return '' }
