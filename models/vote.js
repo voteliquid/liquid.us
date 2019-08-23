@@ -17,9 +17,13 @@ module.exports = (event, state) => {
         case '/legislation/:shortId/votes/:voteId':
         case '/nominations/:shortId/votes/:voteId':
         case '/:username/:shortId/votes/:voteId':
+          const vote = state.votes && state.votes[state.location.params.voteId]
+          const commentsLoaded = vote && vote.replies
+          const backersLoaded = vote && vote.backers
           return [{
             ...state,
-            loading: { ...state.loading, page: !state.votes[event.voteId] },
+            loading: { ...state.loading, page: !state.votes[event.voteId], backers: !backersLoaded, comments: !commentsLoaded },
+            backersFilterQuery: decodeURI(state.location.query.filter || ''),
             votes: {
               ...state.votes,
               [event.voteId]: {
@@ -247,17 +251,29 @@ module.exports = (event, state) => {
     case 'vote:replied':
       return [{
         ...state,
-        loading: { ...state.loading, reply: true },
+        loading: { ...state.loading, comments: true },
       }, combineEffects([preventDefault(event.event), reply(event, state.user)])]
     case 'vote:repliesReceived':
       return [{
         ...state,
-        loading: { ...state.loading, reply: false },
+        loading: { ...state.loading, comments: false },
         votes: {
           ...state.votes,
           [event.voteId]: {
             ...state.votes[event.voteId],
             replies: event.replies,
+          },
+        },
+      }]
+    case 'vote:backersReceived':
+      return [{
+        ...state,
+        loading: { ...state.loading, backers: false },
+        votes: {
+          ...state.votes,
+          [event.voteId]: {
+            ...state.votes[event.voteId],
+            backers: event.backers,
           },
         },
       }]
@@ -284,6 +300,25 @@ module.exports = (event, state) => {
         vote(event, state.user),
         fetchMeasure(event.measure.short_id, state.offices, state.user),
         fetchMeasureVotes(event.measure.short_id, state.location.query.order, state.location.query.position, state.user),
+      ])]
+    case 'vote:backersFilterUpdated':
+      const query = event.event.target ? event.event.target.value : ''
+
+      // Set query in URL bar &filter=${query} after delay
+      debounce(() => {
+        window.history.replaceState({}, '', `${state.location.path}?tab=backers&filter=${query}`)
+      }, 50)
+
+      return [{
+        ...state,
+        backersFilterQuery: query,
+      }]
+    case 'vote:fetchRepliesAndBackers':
+      return [{
+        ...state,
+      }, combineEffects([
+        fetchVoteReplies(state.location.params.voteId, state.user),
+        fetchVoteBackers(state.location.params.voteId),
       ])]
     default:
       return [state]
@@ -507,6 +542,12 @@ const fetchVoteReplies = (voteId, user) => (dispatch) => {
     .catch((error) => dispatch({ type: 'error', error }))
 }
 
+const fetchVoteBackers = (voteId) => (dispatch) => {
+  return api(dispatch, `/endorsements_detailed?vote_id=eq.${voteId}&order=created_at.asc`, { getAllPages: true })
+    .then((backers) => dispatch({ type: 'vote:backersReceived', voteId, backers }))
+    .catch((error) => dispatch({ type: 'error', error }))
+}
+
 const reply = ({ vote, content }, user) => (dispatch) => {
   const reply = {
     vote_id: vote.id,
@@ -629,6 +670,14 @@ const endorsementPageTitleAndMeta = (measures, vote, location) => {
     title,
   }
 }
+
+const debounce = (function debouncer() {
+  let timeout = null
+  return (fn, ms) => {
+    if (timeout) clearTimeout(timeout)
+    timeout = setTimeout(fn, ms)
+  }
+}())
 
 const scrollQuestionFormIntoView = () => {
   const elem = document.getElementById('measure-vote-form')

@@ -202,6 +202,9 @@ exports.api = (dispatch, url, params = {}) => {
   if (params.user && params.user.jwt) {
     params.headers.Authorization = `Bearer ${params.user.jwt}`
   }
+  if (params.getAllPages) {
+    params.headers.Prefer = params.headers.Prefer || 'count=exact'
+  }
   return fetch(`${API_URL}${url}`, {
     ...params,
     headers: {
@@ -281,6 +284,20 @@ exports.api = (dispatch, url, params = {}) => {
         error.hint = json.hint
         return Promise.reject(error)
       })
+    }
+    if (res.status === 206 && params.getAllPages) {
+      const contentRange = res.headers.get('Content-Range')
+      const [range, length] = contentRange.split('/')
+      if (range === '*') { return [] } // End of recurse
+      const end = Number(range.split('-')[1])
+      // console.log('fetching', range, 'of', length)
+      if (end < Number(length)) {
+        // Recursively fetch remaining pages of data
+        return exports.api(dispatch, url, { ...params, headers: { Range: `${end + 1}-` } })
+          .then(latestPage => res.json()
+            .then(memo => memo.concat(latestPage))
+          )
+      }
     }
     return res.json()
   })
