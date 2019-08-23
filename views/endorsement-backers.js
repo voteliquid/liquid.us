@@ -9,14 +9,24 @@ const legislatorTitles = {
 module.exports = (state, dispatch) => {
   const { backersFilterQuery, measures, loading, location, votes } = state
   const vote = votes[location.params.voteId]
-  const backers = vote.backers
-  const filteredBackers = backers && backers.reduce((memo, backer, index) => (
-    passesFilter({ ...backer, index: index + 1 }, backersFilterQuery)
-      ? memo.concat({ ...backer, index: index + 1 })
-      : memo
-  ), [])
+
+  // Prepare the row for display, so data is searchable
+  const backers = vote.backers && vote.backers.map((backer, index) => ({
+    index: index + 1,
+    Time: new Date(backer.created_at).toLocaleString(),
+    Name: backer.public ? backer.name : '[private]',
+    Location: `${backer.locality || ''}${backer.locality && stateNames[backer.administrative_area_level_1] ? `, ` : ''}${stateNames[backer.administrative_area_level_1] || ''}`,
+    reps: backer.offices.map(office => {
+      if (!office) { return '' }
+      const { office_holder } = office
+      if (!office_holder) { return '' }
+      return `${office_holder.first_name} ${office_holder.last_name} (D-${last(office.name.split(' '))})`
+    }),
+    Comment: backer.comment,
+  }))
+  const filteredBackers = backers && backers.filter(backer => passesFilter({ ...backer }, backersFilterQuery))
   const measure = measures[location.params.shortId]
-  const numLegislators = backers && backers.reduce((max, backer) => Math.max(max, backer.offices.length), 0)
+  const numLegislators = backers && backers.reduce((max, backer) => Math.max(max, backer.reps.length), 0)
   const titles = legislatorTitles[measure.legislature_name] || []
 
   return html`
@@ -50,25 +60,16 @@ module.exports = (state, dispatch) => {
 const last = (array) => array[array.length - 1]
 
 const backersTableRow = (backer, numLegislators) => {
-  const reps = backer.offices.map(office => {
-    if (!office) { return '' }
-    const { office_holder } = office
-    if (!office_holder) { return '' }
-    return `${office_holder.first_name} ${office_holder.last_name} (D-${last(office.name.split(' '))})`
-  })
-  const name = backer.public ? backer.name : '[private]'
-  const stateAbbr = stateNames[backer.administrative_area_level_1]
-
   return html`
     <tr>
       <td><span style="width: 30px; display: inline-block; text-align: right;">${backer.index}</span></td>
-      <td><span style="width: 165px; display: inline-block;">${new Date(backer.created_at).toLocaleString()}</span></td>
-      <td><span style="width: 165px; display: inline-block;">${name}</span></td>
-      <td><span style="width: 145px; display: inline-block;">${backer.locality}${backer.locality && stateAbbr ? `, ` : ''}${stateAbbr}</span></td>
+      <td><span style="width: 165px; display: inline-block;">${backer.Time}</span></td>
+      <td><span style="width: 165px; display: inline-block;">${backer.Name}</span></td>
+      <td><span style="width: 145px; display: inline-block;">${backer.Location}</span></td>
       ${Array.from(Array(numLegislators)).map((a, idx) => html`
-        <td><span style="width: 165px; display: inline-block;">${reps[idx]}</span></td>
+        <td><span style="width: 165px; display: inline-block;">${backer.reps[idx]}</span></td>
       `)}
-      <td><span style="width: 398px; display: inline-block;">${backer.comment}</span></td>
+      <td><span style="width: 398px; display: inline-block;">${backer.Comment}</span></td>
     </tr>
   `
 }
