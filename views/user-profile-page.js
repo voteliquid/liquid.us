@@ -1,6 +1,7 @@
 const { APP_NAME, WWW_DOMAIN } = process.env
 const { avatarURL, handleForm, html, linkifyUrls } = require('../helpers')
 const endorsedVoteView = require('../views/endorsed-vote')
+const signatureView = require('../views/signature')
 
 module.exports = (state, dispatch) => {
   const { location, measures, proxied_name, profiles, user, votes } = state
@@ -201,18 +202,13 @@ const aboutUser = (profile) => {
 }
 
 const publicVotes = (votes, measures, user, dispatch) => {
-  return html`
-    <div>
-      <style>
-        .comment {
-          border-bottom: 1px solid #eee;
-          margin-bottom: 1rem !important;
-          padding-bottom: 1rem;
-        }
-      </style>
-      ${votes.map((vote) => endorsedVoteView({ key: 'profile', vote, measure: measures[vote.short_id], user }, dispatch))}
-    </div>
-  `
+  return votes.map((vote) => {
+    const measure = measures[vote.short_id]
+    if (vote.type === 'petition') {
+      return signatureView({ key: 'profile', displayTitle: true, vote, measure, user }, dispatch)
+    }
+    return endorsedVoteView({ key: 'profile', vote, measure, user }, dispatch)
+  })
 }
 
 const proxyButton = (profile, dispatch) => {

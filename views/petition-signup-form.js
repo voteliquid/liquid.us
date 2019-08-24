@@ -1,19 +1,14 @@
 const { handleForm, html } = require('../helpers')
 
 module.exports = (state, dispatch) => {
-  const { error, vote } = state
-  const loading = state.loading.endorsedFromSignupForm
+  const { loading, error, measure } = state
   const isPublic =
-    vote && typeof vote.endorsement_public === 'boolean'
-      ? vote.endorsement_public
+    measure && typeof measure.vote_public === 'boolean'
+      ? measure.vote_public
       : true
 
-  let action = 'Endorse'; let color = 'is-success'
-  if (vote.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
-  if (vote.position === 'abstain') { action = 'Weigh in'; color = 'is-success' }
-
   return html`
-    <form method="POST" style="width: 100%;" method="POST" onsubmit=${handleForm(dispatch, { type: 'vote:endorsedFromSignupForm', vote })}>
+    <form method="POST" style="width: 100%;" method="POST" onsubmit=${handleForm(dispatch, { type: 'petition:signatureSignupFormSubmitted', measure })}>
       <div class="field">
         <label class="label has-text-grey">Your Name *</label>
         <div class="control has-icons-left">
@@ -57,7 +52,7 @@ module.exports = (state, dispatch) => {
               name="is_public"
               type="checkbox"
               checked="${isPublic}"
-              onchange="${(event) => dispatch({ type: 'vote:endorsementToggledPrivacyCheckbox', vote, event })}"
+              onchange="${(event) => dispatch({ type: 'petition:signatureToggledPrivacyCheckbox', measure, event })}"
             />
             <span>Share my name publicly</span>
           </label>
@@ -71,7 +66,7 @@ module.exports = (state, dispatch) => {
       </div>
       <div class="field">
         <div class="control">
-          <button class=${`button ${color} is-fullwidth has-text-weight-bold fix-bulma-centered-text is-size-5 ${loading ? 'is-loading' : ''}`} disabled=${loading} type="submit">${action}</button>
+          <button class=${`button is-success is-fullwidth has-text-weight-bold fix-bulma-centered-text is-size-5 ${loading.form ? 'is-loading' : ''}`} disabled=${loading.form} type="submit">Sign Petition</button>
         </div>
       </div>
     </form>

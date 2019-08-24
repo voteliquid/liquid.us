@@ -1,7 +1,7 @@
 const { html, linkifyUrls } = require('../helpers')
 
-module.exports = (measure, dispatch) => {
-  const { chamber, congress, number, type, short_id, size = 6 } = measure
+module.exports = ({ measure, size = 6 }, dispatch) => {
+  const { chamber, congress, number, type, short_id } = measure
   const expanded = measure.alwaysExpanded ? true : measure.expanded
   const index = short_id.indexOf('-')
   const bill_id = short_id.slice(index + 1)

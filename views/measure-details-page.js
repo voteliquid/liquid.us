@@ -3,17 +3,20 @@ const measureSummary = require('./measure-summary')
 const measureVotes = require('./measure-votes')
 const topComments = require('./measure-top-comments')
 const sidebar = require('./measure-sidebar')
+const petitionView = require('./petition-page')
 
 module.exports = (state, dispatch) => {
   const { location, measures, user, votes } = state
   const measure = measures[location.params.shortId]
-  const l = measure
-  const title = l.type === 'nomination' ? `Do you support ${l.title.replace(/\.$/, '')}?` : l.title
+
+  if (measure.type === 'petition') {
+    return petitionView(state, dispatch)
+  }
 
   return html`
     <section class="section">
       <div class="container is-widescreen">
-        ${(l.vote_position && !user.phone_verified) ? html`
+        ${(measure.vote_position && !user.phone_verified) ? html`
           <p class="notification is-info">
             <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
             <strong>Help hold your reps accountable!</strong><br />
@@ -22,12 +25,12 @@ module.exports = (state, dispatch) => {
         ` : ''}
         <div class="columns">
           <div class="column is-two-thirds-tablet is-three-quarters-desktop">
-            <h2 class="title has-text-weight-normal is-4">${title}</h2>
-            ${l.type !== 'nomination' ? measureSummary({ ...measure }, dispatch) : ''}
-            ${topComments({ ...state, measure, yea: votes[l.topYea], nay: votes[l.topNay] }, dispatch)}
+            <h2 class="title has-text-weight-normal is-4">${measure.title}</h2>
+            ${measure.type !== 'nomination' ? measureSummary({ measure }, dispatch) : ''}
+            ${topComments({ ...state, measure, yea: votes[measure.topYea], nay: votes[measure.topNay] }, dispatch)}
             ${measureVotes({ ...state, measure }, dispatch)}
           </div>
-          <div class="${`column ${l.introduced_at ? `column is-one-third-tablet is-one-quarter-desktop` : ''}`}">
+          <div class="${`column ${measure.introduced_at ? `column is-one-third-tablet is-one-quarter-desktop` : ''}`}">
             ${sidebar({ ...state, measure }, dispatch)}
           </div>
         </div>

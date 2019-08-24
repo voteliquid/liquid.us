@@ -121,17 +121,6 @@ module.exports = (event, state) => {
         postQuestionVote(event.question, state.user),
         fetchVoteQuestion(event.question, event.vote, state.user),
       ])]
-    case 'vote:toggledMobileEndorsementForm':
-      return [{
-        ...state,
-        votes: {
-          ...state.votes,
-          [event.vote.id]: {
-            ...state.votes[event.vote.id],
-            showMobileEndorsementForm: !state.votes[event.vote.id].showMobileEndorsementForm,
-          },
-        },
-      }, preventDefault(event.event)]
     case 'vote:toggledExpanded':
       return [{
         ...state,
@@ -193,28 +182,6 @@ module.exports = (event, state) => {
         fetchMeasure(event.vote.short_id, state.offices, state.user),
         fetchMeasureVotes(event.vote.short_id, state.location.query.order, state.location.query.position, state.user),
       ])]
-    case 'vote:endorsementToggledPrivacyCheckbox':
-      return [{
-        ...state,
-        votes: {
-          ...state.votes,
-          [event.vote.id]: {
-            ...state.votes[event.vote.id],
-            endorsement_public: event.event.currentTarget.checked,
-          },
-        },
-      }]
-    case 'vote:toggledRepsMessage':
-      return [{
-        ...state,
-        votes: {
-          ...state.votes,
-          [event.vote.id]: {
-            ...state.votes[event.vote.id],
-            notYourRepsMessageVisible: !state.votes[event.vote.id].notYourRepsMessageVisible,
-          },
-        },
-      }, preventDefault(event.event)]
     case 'vote:received':
       if (!event.vote) {
         return [{ ...state, loading: { page: false }, location: { ...state.location, status: 404 } }]
@@ -360,7 +327,6 @@ const vote = ({ event, measure, ...form }, user) => (dispatch) => {
     return dispatch({ type: 'redirected', url: '/join' })
   }
 
-  console.log(form.vote_id)
   return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${measure.id}`, {
     method: form.vote_id ? 'PATCH' : 'POST',
     headers: { Prefer: 'return=minimal' },

@@ -41,6 +41,7 @@ module.exports = (event, state) => {
             fetchMeasure(state.location.params.shortId, state.offices, state.user),
             state.location.hash === 'measure-vote-form' && scrollVoteFormIntoView,
           ])]
+        case '/petitions/create':
         case '/legislation/propose':
         case '/:username/:shortId/edit':
           if (!state.user) return [state, redirect('/sign_in')]
@@ -56,6 +57,7 @@ module.exports = (event, state) => {
             changePageTitle('Propose Legislation'),
             fetchUserMeasure(state.location.params.shortId, state.user)
           ])]
+        case '/petitions/yours':
         case '/legislation/yours':
           if (!state.user) return [state, redirect('/sign_in')]
           return [{
@@ -112,13 +114,18 @@ module.exports = (event, state) => {
       if (!event.measure) {
         return [{
           ...state,
-          loading: { ...state.loading, page: false, measure: false },
+          loading: { ...state.loading, page: false, measure: false, form: false },
           location: { ...state.location, status: 404 }
         }]
       }
       return [{
         ...state,
-        loading: { ...state.loading, page: isMeasureDetailPage(state.location.route) ? false : state.loading.page, measure: false },
+        loading: {
+          ...state.loading,
+          page: isMeasureDetailPage(state.location.route) ? false : state.loading.page,
+          measure: false,
+          form: false,
+        },
         location: {
           ...state.location,
           title: isMeasureDetailPage(state.location.route) ? `${hideLegNameSocial ? '' : `${event.measure.legislature_name}: `}${event.measure.title}` : state.location.title,
@@ -134,6 +141,7 @@ module.exports = (event, state) => {
             topYea: event.topYea ? event.topYea.id : null,
             topNay: event.topNay ? event.topNay.id : null,
             votePower: event.votePower ? event.votePower : (state.measures[event.measure.short_id] && state.measures[event.measure.short_id].votePower),
+            commentCount: event.commentCount,
           },
         },
         votes: (event.votes || []).concat([event.topYea, event.topNay].filter(v => v)).reduce((votes, vote) => {
@@ -205,6 +213,21 @@ module.exports = (event, state) => {
           },
         },
       }, preventDefault(event.event)]
+    case 'measure:deleteFormSubmitted':
+      return [state, combineEffects([
+        preventDefault(event.event),
+        confirmDeleteMeasure(event.measure)
+      ])]
+    case 'measure:deleteConfirmed':
+      return [state, deleteMeasure(event.measure, state.user)]
+    case 'measure:deleted':
+      return [{
+        ...state,
+        measures: Object.keys(state.measures).reduce((b, a) => {
+          if (a !== event.measure.short_id) b[a] = state.measures[a]
+          return b
+        }, {}),
+      }]
     case 'measure:editFormError':
       return [{ ...state, error: event.error }]
     case 'measure:editFormSaved':
@@ -225,6 +248,23 @@ module.exports = (event, state) => {
     default:
       return [state]
   }
+}
+
+const confirmDeleteMeasure = (measure) => (dispatch) => {
+  const confirmed = window.confirm('Are you sure you want to delete? This cannot be undone!')
+  if (confirmed) {
+    dispatch({ type: 'measure:deleteConfirmed', measure })
+  }
+}
+
+const deleteMeasure = (measure, user) => (dispatch) => {
+  const redirectTo = measure.type === 'petition' ? '/petitions/yours' : '/legislation/yours'
+  return api(dispatch, `/measures?id=eq.${measure.id}`, {
+    method: 'DELETE',
+    user,
+  })
+  .then(() => dispatch({ type: 'redirected', status: 302, url: redirectTo }))
+  .then(() => dispatch({ type: 'measure:deleted', measure }))
 }
 
 const fetchMeasures = (params, user) => (dispatch) => {
@@ -288,14 +328,16 @@ const insertMeasure = (measure, form, user) => (dispatch) => {
       title: form.title,
       summary: form.summary,
       chamber: 'Lower',
-      type: 'bill',
+      type: form.measure_type,
       short_id: form.short_id.toLowerCase(),
     }),
     user,
   })
   .then(() => api(dispatch, `/measures_detailed?short_id=eq.${form.short_id}`, { user }))
-  .then(([measure]) => dispatch({ type: 'measure:updated', measure }))
-  .then(() => dispatch({ type: 'redirected', status: 303, url: `/legislation/yours` }))
+  .then(([measure]) => {
+    dispatch({ type: 'measure:updated', measure })
+    dispatch({ type: 'redirected', status: 303, url: `/${user.username}/${measure.short_id}` })
+  })
   .catch(handleError(dispatch))
 }
 
@@ -303,7 +345,7 @@ const updateMeasure = (measure, form, user) => (dispatch) => {
   return api(dispatch, `/measures?id=eq.${measure.id}`, {
     method: 'PATCH',
     headers: { Prefer: 'return=representation' },
-    body: JSON.stringify({ ...form, short_id: form.short_id.toLowerCase() }),
+    body: JSON.stringify({ ...form, short_id: form.short_id.toLowerCase(), type: form.measure_type }),
     user,
   })
   .then(() => api(dispatch, `/measures_detailed?id=eq.${measure.id}`, { user }))

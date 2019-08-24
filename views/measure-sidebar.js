@@ -23,21 +23,34 @@ module.exports = (state, dispatch) => {
       <div class="panel-heading has-text-centered">
         <h3 class="title has-text-weight-semibold is-size-5">
           <a href="${measureUrl}" class="has-text-dark">
-            ${l.introduced_at ? `${l.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}` : (l.short_id === 'should-nancy-pelosi-be-speaker' ? 'Proposed Nomination' : 'Proposed Legislation')}
+            ${sidebarTitle(l)}
           </a>
         </h3>
         <h4 class="subtitle is-size-7 has-text-grey is-uppercase has-text-weight-semibold">
-          ${stateNames[l.legislature_name] || l.legislature_name}
+          ${l.type === 'petition' ? 'to ' : ''}${stateNames[l.legislature_name] || l.legislature_name}
         </h4>
       </div>
       ${reps && reps.length ? measureRepsPanel({ measure, reps }) : ''}
       ${measureVoteCounts(measure)}
       ${showStatusTracker ? measureStatusPanel(measure) : ''}
       ${measure.sponsor || measure.author ? measureSponsorPanel(measure) : ''}
-      ${!l.author_username ? measureLinksPanel(measure) : ''}
+      ${!l.author_id ? measureLinksPanel(measure) : ''}
       ${measureActionsPanel(state, dispatch)}
     </nav>
   `
+}
+
+function sidebarTitle(measure) {
+  switch (measure.type) {
+    case 'petition':
+      return 'Petition'
+    case 'bill':
+    default:
+      if (measure.introduced_at) {
+        return measure.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()
+      }
+      return 'Proposed Legislation'
+  }
 }
 
 const panelTitleBlock = (title) => html`
@@ -51,7 +64,7 @@ const measureActionsPanel = (state, dispatch) => {
   const { author_id } = measure
   return html`
     <div class="panel-block is-size-7 has-background-light" style="justify-content: center;">
-      ${user && user.id === author_id ? editButtons(state, measure, dispatch) : shareButtons(measure)}
+      ${user && user.id === author_id ? editButtons(user, measure, dispatch) : shareButtons(measure)}
     </div>
   `
 }

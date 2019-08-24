@@ -202,6 +202,10 @@ exports.api = (dispatch, url, params = {}) => {
   if (params.user && params.user.jwt) {
     params.headers.Authorization = `Bearer ${params.user.jwt}`
   }
+  if (params.method === 'COUNT') {
+    params.method = 'GET'
+    params.headers.Prefer = 'count=exact'
+  }
   return fetch(`${API_URL}${url}`, {
     ...params,
     headers: {
@@ -210,6 +214,9 @@ exports.api = (dispatch, url, params = {}) => {
       ...params.headers,
     },
   }).then((res) => {
+    if (res.status < 400 && params.headers.Prefer === 'count=exact') {
+      return res.headers.get('Content-Range').split('/').pop()
+    }
     if (res.status === 201 && !params.headers.Prefer) return res
     if (res.status < 400 && params.headers.Prefer === 'return=minimal') return res
     if (res.status === 204) return res

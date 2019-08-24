@@ -7,7 +7,7 @@ module.exports = (state, dispatch) => {
   return html`
     <section class="section">
       <div class="container is-widescreen">
-        ${user.username ? proposedLegislationList(state, dispatch) : publicProfileRequiredMsg(user.phone_verified)}
+        ${user.username ? petitionsList(state, dispatch) : publicProfileRequiredMsg(user.phone_verified)}
       </div>
     </section>
   `
@@ -16,7 +16,7 @@ module.exports = (state, dispatch) => {
 const publicProfileRequiredMsg = (verified) => {
   return html`
     <p class="notification">
-      You must create a public profile to propose legislation.
+      You must create a public profile to start a petition.
       ${verified
         ? html`<a href="/get_started">Choose a username</a> and make a public profile.</a>`
         : html`<a href="/get_started">Verify your phone number</a> to choose a username and make a public profile.</a>`
@@ -25,28 +25,23 @@ const publicProfileRequiredMsg = (verified) => {
   `
 }
 
-const proposedLegislationList = (state, dispatch) => {
+const petitionsList = (state, dispatch) => {
   const { loading, measures, user } = state
-  const usersMeasures = Object.values(measures).filter(({ author_id }) => author_id === user.id)
+  const petitions = Object.values(measures).filter(({ type, author_id }) => author_id === user.id && type === 'petition')
   return html`
     <div>
-      <style>
-        .highlight-hover:hover {
-          background: #f6f8fa;
-        }
-      </style>
-      ${proposeButton()}
-      <h2 class="title is-5">Your Proposed Legislation</h2>
+      ${createPetitionButton()}
+      <h2 class="title is-5">Petitions</h2>
       ${loading.page
         ? loadingIndicator()
-        : usersMeasures.length
-          ? usersMeasures.map((measure) => proposedLegislationItem(state, measure, dispatch))
-          : html`<p>You have not proposed any legislation yet.</p>`}
+        : petitions.length
+          ? petitions.map((measure) => petitionsListItem(state, measure, dispatch))
+          : html`<p>You have not started any petitions.</p>`}
     </div>
   `
 }
 
-const proposedLegislationItem = (state, measure, dispatch) => {
+const petitionsListItem = (state, measure, dispatch) => {
   const { user } = state
   const l = measure
 
@@ -57,13 +52,13 @@ const proposedLegislationItem = (state, measure, dispatch) => {
           <div class="column">
             <h3><a href="${`/${user.username}/${l.short_id}`}">${l.title}</a></h3>
             <p class="is-size-7 has-text-grey">
-              Proposed for ${l.legislature_name} &bullet; ${l.author_username
-            ? html`Authored by <a href="${`/${l.author_username}`}">${l.author_first_name} ${l.author_last_name}</a> on ${(new Date(l.created_at)).toLocaleDateString()}`
+              Petition to ${l.legislature_name} &bullet; ${l.author
+            ? html`Authored by <a href="${`/${l.author.username}`}">${l.author.first_name} ${l.author.last_name}</a> on ${(new Date(l.created_at)).toLocaleDateString()}`
             : html`Authored anonymously on ${(new Date(l.created_at)).toLocaleDateString()}`}
             </p>
           </div>
           <div class="column has-text-right has-text-left-mobile">
-            ${editButtons(state, measure, dispatch)}
+            ${editButtons(user, measure, dispatch)}
           </div>
         </div>
       </div>
@@ -71,11 +66,11 @@ const proposedLegislationItem = (state, measure, dispatch) => {
   `
 }
 
-const proposeButton = () => {
+const createPetitionButton = () => {
   return html`
-    <a class="button is-pulled-right is-small" href="/legislation/propose">
+    <a class="button is-pulled-right" href="/petitions/create">
       <span class="icon"><i class='fa fa-file'></i></span>
-      <span class="has-text-weight-semibold">Propose a Bill</span>
+      <span class="has-text-weight-semibold">Start a Petition</span>
     </a>
   `
 }

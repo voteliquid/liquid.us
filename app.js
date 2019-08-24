@@ -81,6 +81,8 @@ module.exports = {
         return require('./models/import')(event, state)
       case 'measure':
         return require('./models/measure')(event, state)
+      case 'petition':
+        return require('./models/petition')(event, state)
       case 'metricsReceived':
         return [{ ...state, usersCount: event.usersCount }]
       case 'navHamburgerToggled':
@@ -144,6 +146,8 @@ module.exports = {
               return require('./models/profile')(event, state)
             case '/legislation':
             case '/legislation/propose':
+            case '/petitions/create':
+            case '/petitions/yours':
             case '/legislation/yours':
             case '/legislation/:shortId':
             case '/nominations/:shortId':

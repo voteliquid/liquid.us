@@ -8,14 +8,18 @@ exports.fetchMeasure = (shortId, offices, user) => (dispatch) => {
         fetchMeasureVoteCountsByOffice(dispatch, measure, offices, user),
         api(dispatch, `/votes_detailed?measure_id=eq.${measure.id}&public=eq.true&comment=not.is.null&comment=not.eq.&position=eq.yea&order=proxy_vote_count.desc.nullslast,created_at.desc`, { user }),
         api(dispatch, `/votes_detailed?measure_id=eq.${measure.id}&public=eq.true&comment=not.is.null&comment=not.eq.&position=eq.nay&order=proxy_vote_count.desc.nullslast,created_at.desc`, { user }),
+        api(dispatch, `/votes_detailed?select=id&measure_id=eq.${measure.id}&public=eq.true&comment=not.is.null&comment=not.eq.&limit=1`, {
+          method: 'COUNT',
+          user,
+        }),
         user && api(dispatch, `/rpc/vote_power_for_measure`, {
           method: 'POST',
           body: JSON.stringify({ user_id: user.id, measure_id: measure.id }),
           user
         }),
-      ]).then(([voteCounts, officeVoteCounts, [topYea], [topNay], votePower]) => {
+      ]).then(([voteCounts, officeVoteCounts, [topYea], [topNay], commentCount, votePower]) => {
         const measureWithVotes = { ...measure, vote_counts: voteCounts.concat(officeVoteCounts) }
-        dispatch({ type: 'measure:received', measure: measureWithVotes, topYea, topNay, votePower })
+        dispatch({ type: 'measure:received', measure: measureWithVotes, topYea, topNay, commentCount, votePower })
         return measureWithVotes
       })
     }

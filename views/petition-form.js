@@ -1,21 +1,17 @@
 const { handleForm, html } = require('../helpers')
 
 module.exports = (state, dispatch) => {
-  const { loading, user, vote } = state
+  const { loading, user, measure } = state
   const isPublic =
-    vote && typeof vote.endorsement_public === 'boolean'
-      ? vote.endorsement_public
+    measure && typeof measure.vote_public === 'boolean'
+      ? measure.vote_public
       : user.last_vote_public
-
-  let action = 'Endorse'; let color = 'is-success'
-  if (vote.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
-  if (vote.position === 'abstain') { action = 'Weigh in'; color = 'is-success' }
 
   const name = [user.first_name, user.last_name].filter(a => a).join(' ')
   const address = user.address ? user.address.address : ''
 
   return html`
-    <form method="POST" style="width: 100%;" method="POST" onsubmit=${handleForm(dispatch, { type: 'vote:endorsed', vote })}>
+    <form method="POST" style="width: 100%;" method="POST" onsubmit=${handleForm(dispatch, { type: 'petition:signatureFormSubmitted', measure })}>
       <div class="field">
         <label class="label has-text-grey">Your Name *</label>
         <div class="control has-icons-right">
@@ -47,7 +43,7 @@ module.exports = (state, dispatch) => {
               name="is_public"
               type="checkbox"
               checked="${isPublic}"
-              onchange="${(event) => dispatch({ type: 'vote:endorsementToggledPrivacyCheckbox', vote, event })}"
+              onchange="${(event) => dispatch({ type: 'measure:signatureToggledPrivacyCheckbox', measure, event })}"
             />
             <span>Share my name publicly</span>
           </label>
@@ -61,7 +57,7 @@ module.exports = (state, dispatch) => {
       </div>
       <div class="field">
         <div class="control">
-          <button class=${`button ${color} is-fullwidth has-text-weight-bold fix-bulma-centered-text is-size-5 ${loading.vote ? 'is-loading' : ''}`} disabled=${loading.vote} type="submit">${action}</button>
+          <button class=${`button is-success is-fullwidth has-text-weight-bold fix-bulma-centered-text is-size-5 ${loading.form ? 'is-loading' : ''}`} disabled=${loading.form} type="submit">Sign Petition</button>
         </div>
       </div>
     </form>

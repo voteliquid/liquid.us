@@ -41,7 +41,7 @@ module.exports = (state, dispatch) => {
               : html`<img src="${avatarURL}" alt="avatar" class="round-avatar-img" />`}
           </div>
         </div>
-        <div class="media-content" style="${`border-left: 1px solid ${position === 'yea' ? 'hsl(141, 71%, 87%)' : 'hsl(348, 100%, 93%)'}; margin-left: -2rem; padding-left: 2rem;`}">
+        <div class="media-content">
           <div>
             <span class="has-text-weight-semibold">
               ${!is_public && user && user_id === user.id
@@ -53,22 +53,22 @@ module.exports = (state, dispatch) => {
             ${html`<span>voted <strong style="${`color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};`}">${position}</strong>${onBehalfOfCount > 1 && is_public ? html` on behalf of <span class="has-text-weight-semibold">${onBehalfOfCount}</span> people` : ''}${is_public ? '' : ' privately'}</span>`}
             ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}
           </div>
-          ${showBill ? html`<div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>` : ''}
-          ${comment ? commentContent(key, vote, parent, dispatch) : ''}
-          <div class="${`${!is_public ? 'is-hidden' : ''} endorse-control is-size-7`}">
-            <a href="#" onclick=${(event) => dispatch({ type: endorsed ? 'vote:unendorsed' : 'vote:endorsed', measure, vote, event })} class="${`endorse-btn has-text-weight-semibold has-text-grey button is-small ${endorsed ? 'is-light' : ''}`}">
-              <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
-            </a>
-            <form class="${`select ${endorsed ? '' : 'is-hidden'}`}" onchange=${handleForm(dispatch, { type: 'vote:changedPrivacy', vote })}>
-              <select name="public" class="has-text-grey is-light">
-                <option selected=${endorsement_public} value="true">Public${measure && measure.votePower ? ` (Vote Power: ${measure.votePower || 1})` : ''}</option>
-                <option selected=${!endorsement_public} value="false">Private${measure && measure.votePower ? ` (Vote Power: 1)` : ''}</option>
-              </select>
-            </form>
-          </div>
-          <div class="is-size-7" style="position: relative; line-height: 25px; margin-top: 0.2rem;">
-            <a class="has-text-grey-light" title="Permalink" href="${comment_url}">${timeAgo().format(`${updated_at}Z`)}</a>
-            <span class="has-text-grey-light">
+          ${showBill ? html`<div><a href="${measure_url}">${measure_title}</a></div>` : ''}
+          ${commentContent(key, vote, parent, dispatch)}
+          <div class="is-size-7">
+            <span class="${`${!is_public ? 'is-hidden' : ''} is-inline-flex`}">
+              <a href="#" onclick=${(event) => dispatch({ type: endorsed ? 'vote:unendorsed' : 'vote:endorsed', measure, vote, event })} class="${`endorse-btn has-text-weight-semibold has-text-grey button is-small ${endorsed ? 'is-light' : ''}`}">
+                <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
+              </a>
+              <form class="${`is-inline-flex select ${endorsed ? '' : 'is-hidden'}`}" onchange=${handleForm(dispatch, { type: 'vote:changedPrivacy', vote })}>
+                <select name="public" class="has-text-grey is-light">
+                  <option selected=${endorsement_public} value="true">Public${measure && measure.votePower ? ` (Vote Power: ${measure.votePower || 1})` : ''}</option>
+                  <option selected=${!endorsement_public} value="false">Private${measure && measure.votePower ? ` (Vote Power: 1)` : ''}</option>
+                </select>
+              </form>
+            </span>
+            <a class="has-text-grey-light is-inline-flex" title="Permalink" href="${comment_url}">${timeAgo().format(`${updated_at}Z`)}</a>
+            <span class="has-text-grey-light is-inline-flex">
               ${user && user.id === user_id ? html`
                 <span class="has-text-grey-lighter">&bullet;</span>
                 <a href="${`${measure_url}#measure-vote-form`}" onclick=${(event) => dispatch({ type: 'measure:voteFormActivated', measure, event })} class="has-text-grey-light">
@@ -107,7 +107,7 @@ const commentContent = (key, vote, parent, dispatch) => {
   const comment = vote.comment || ''
   const { isTruncated: showExpander, truncated } = truncateOnWord(comment, 300)
   return html`
-    <div class="content" style="margin: .25rem 0 .75rem;">
+    <div class="content">
       ${{ html: linkifyUrls(expanded || !showExpander ? comment : truncated) }}
       <span class="${showExpander ? '' : 'is-hidden'}">
         <a href="#" onclick=${(event) => dispatch({ type: 'vote:toggledExpanded', event, vote: parent || vote })} class="is-size-7">

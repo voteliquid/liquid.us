@@ -26,7 +26,7 @@ module.exports = (state, html, jsBundleUrls) => {
         <meta property="og:type" content="website" />
         <link rel="icon" type="image/png" href=${`${ASSETS_URL}/favicon.png`} />
         <link rel="apple-touch-icon" sizes="180x180" href=${`${ASSETS_URL}/apple-touch-icon.png`}>
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css" crossorigin="anonymous">
         <link rel="stylesheet" href="${`${ASSETS_URL}/${NODE_ENV === 'production' ? 'styles.min.css' : 'styles.css'}`}" type="text/css" />
         <style>
           ${nprogressStyle}
@@ -99,6 +99,9 @@ module.exports = (state, html, jsBundleUrls) => {
             opacity: 0.65;
           }
 
+          .border-radius-small {
+            border-radius: 2px;
+          }
         </style>
         <style>
           ${responsiveTableStyle}
