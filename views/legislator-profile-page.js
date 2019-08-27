@@ -29,7 +29,7 @@ module.exports = (state, dispatch) => {
               </div>
               <div class="media-content">
                 <h1 class="title">${profile.first_name} ${profile.last_name}</h1>
-                <h2 class="subtitle is-6 has-text-grey">${profile.elected_office_name}</h2>
+                <h2 class="subtitle is-6 has-text-grey">${profile.office.name}</h2>
                 <form onsubmit=${handleForm(dispatch, { type: 'proxy:addedProxyViaProfile', profile })} method="POST">
                   ${html`<button disabled=${proxied} type="submit" class="button">
                     <span class="icon is-small"><i class="far fa-handshake"></i></span>

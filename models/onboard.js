@@ -113,7 +113,7 @@ const finishOrSkip = (cookies, user, dispatch) => {
       if (user) {
         return dispatch({ type: 'redirected', url: `/${user.username}` })
       }
-      return dispatch({ type: 'redirected', url: '/legislation' })
+      return dispatch({ type: 'redirected', url: '/activity' })
     })
   }
 
@@ -123,7 +123,7 @@ const finishOrSkip = (cookies, user, dispatch) => {
     return dispatch({ type: 'redirected', url: `/legislation/${bill_short_id}` })
   }
 
-  return dispatch({ type: 'redirected', url: '/legislation' })
+  return dispatch({ type: 'redirected', url: '/activity' })
 }
 
 const validateNameAndAddressForm = (address, name) => {

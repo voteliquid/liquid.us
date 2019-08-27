@@ -73,7 +73,7 @@ module.exports = (event, state) => {
         }, state.votes),
       }, combineEffects([
         changePageTitle((event.location && event.location.title) || state.location.title),
-        event.profile.username && fetchProposedMeasureCount(event.profile.user_id, event.profile.username.toLowerCase()),
+        event.profile.username && fetchProposedMeasureCount(event.profile.id, event.profile.username.toLowerCase()),
       ])]
     case 'profile:proposedMeasureCountUpdated':
       return [{
@@ -110,42 +110,50 @@ const saveProfile = ({ event, about, intro_video_url, user }) => (dispatch) => {
 const fetchProfile = ({ id, username, twitter, ...params }, cookies, user) => (dispatch) => {
   const url = username
     ? `/user_profiles?${twitter ? 'twitter_username' : 'username'}=eq.${username}`
-    : `/user_profiles?user_id=eq.${id}`
+    : `/user_profiles?id=eq.${id}`
 
   return api(dispatch, url, { user }).then(([profile]) => {
     if (!profile) {
       return dispatch({ type: 'profile:received', profile: null })
     }
 
-    profile.name = `${profile.first_name} ${profile.last_name}`
+    const officeUrl = `/legislature_offices?select=name,short_name,chamber,legislature_id,code&office_holder_id=eq.${profile.id}`
 
-    if (profile.twitter_username && !profile.username) {
-      profile.name = profile.twitter_displayname
-    }
+    return api(dispatch, officeUrl, { user }).then((offices) => {
+      if (offices && offices[0]) {
+        profile.office = offices[0]
+      }
 
-    return Promise.all([
-      fetchMaxVotePower(profile, dispatch),
-      fetchPublicVotes(profile, user, dispatch),
-      fetchLegislatorVotes(params, profile, user, dispatch),
-      fetchIsProxyingToProfile(profile, user, dispatch),
-      fetchProxiedNameIfOwnProfile(cookies, user, dispatch),
-    ])
-    .then(([max_vote_power, public_votes, votes, proxied, proxied_name]) => {
-      dispatch({
-        type: 'profile:received',
-        location: {
-          title: profile.name,
-          description: `Empower ${profile.first_name} to represent you in our legislatures.`,
-          ogImage: avatarURL(profile),
-        },
-        profile: {
-          ...profile,
-          max_vote_power,
-          proxied,
-          proxied_name,
-          public_votes,
-          votes,
-        },
+      if (profile.twitter_username && !profile.username) {
+        profile.name = profile.twitter_displayname
+      }
+
+      return Promise.all([
+        fetchMaxVotePower(profile, dispatch),
+        fetchPublicVotes(profile, user, dispatch),
+        fetchLegislatorGrade(profile, user, dispatch),
+        fetchLegislatorVotes(params, profile, user, dispatch),
+        fetchIsProxyingToProfile(profile, user, dispatch),
+        fetchProxiedNameIfOwnProfile(cookies, user, dispatch),
+      ])
+      .then(([max_vote_power, public_votes, grade, votes, proxied, proxied_name]) => {
+        dispatch({
+          type: 'profile:received',
+          location: {
+            title: profile.name,
+            description: `Empower ${profile.first_name} to represent you in our legislatures.`,
+            ogImage: avatarURL(profile),
+          },
+          profile: {
+            ...profile,
+            grade,
+            max_vote_power,
+            proxied,
+            proxied_name,
+            public_votes,
+            votes,
+          },
+        })
       })
     })
   })
@@ -156,26 +164,33 @@ const fetchMaxVotePower = (profile, dispatch) => {
   if (profile) {
     return api(dispatch, `/rpc/max_vote_power`, {
       method: 'POST',
-      body: JSON.stringify({ user_id: profile.user_id, since: new Date('1970').toISOString() }),
+      body: JSON.stringify({ user_id: profile.id, since: new Date('1970').toISOString() }),
     })
   }
 }
 
 const fetchIsProxyingToProfile = (profile, user, dispatch) => {
   if (profile && user) { // If logged in, check if already proxying
-    return api(dispatch, `/delegations?from_id=eq.${user.id}&to_id=eq.${profile.user_id}`, { user })
+    return api(dispatch, `/delegations?from_id=eq.${user.id}&to_id=eq.${profile.id}`, { user })
       .then((proxies) => !!proxies[0])
   }
 }
 
 const fetchPublicVotes = (profile, user, dispatch) => {
-  if (profile && !profile.elected_office_name) {
-    return api(dispatch, `/votes_detailed?user_id=eq.${profile.user_id}&order=created_at.desc&limit=25`, { user })
+  if (profile && !profile.office) {
+    return api(dispatch, `/votes_detailed?user_id=eq.${profile.id}&order=created_at.desc&limit=25`, { user })
+  }
+}
+
+const fetchLegislatorGrade = (profile, user, dispatch) => {
+  if (profile && profile.office) {
+    return api(dispatch, `/legislator_grades?user_id=eq.${profile.id}&order=calculated_at.desc&limit=1`, { user })
+      .then(([grade]) => grade)
   }
 }
 
 const fetchLegislatorVotes = (params, profile, user, dispatch) => {
-  if (profile && profile.elected_office_name) {
+  if (profile && profile.office) {
     const page_size = 20
     const page = Number(params.page || 1)
 
@@ -188,7 +203,7 @@ const fetchLegislatorVotes = (params, profile, user, dispatch) => {
       representation_delta: `representation_delta.${sort}.nullslast,rollcall_occurred_at.desc.nullslast`,
     })
 
-    return api(dispatch, `/legislator_votes?legislator_user_id=eq.${profile.user_id}&order=${order(params.order)[params.order_by || 'date']}`, {
+    return api(dispatch, `/legislator_votes?legislator_user_id=eq.${profile.id}&order=${order(params.order)[params.order_by || 'date']}`, {
       headers: {
         'Range-Unit': 'items',
         'Range': `${range_start}-${range_end}`,
@@ -204,7 +219,7 @@ const fetchProxiedNameIfOwnProfile = (cookies, user, dispatch) => {
   if (proxied_user_id) {
     dispatch({ type: 'cookieUnset', key: 'proxied_user_id' })
 
-    return api(dispatch, `/user_profiles?select=user_id,first_name,last_name&user_id=eq.${proxied_user_id}`, { user }).then(users => {
+    return api(dispatch, `/user_profiles?select=id,first_name,last_name&id=eq.${proxied_user_id}`, { user }).then(users => {
       if (users[0]) return `${users[0].first_name} ${users[0].last_name}`
     })
   }

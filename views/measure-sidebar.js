@@ -108,7 +108,7 @@ const measureStatusPanel = (measure) => {
 }
 
 const measureVoteCounts = (measure) => {
-  const { delegate_name, vote_counts = [], vote_position } = measure
+  const { delegate_name, voteCounts = [], vote } = measure
 
   return html`
     ${panelTitleBlock('Votes')}
@@ -124,11 +124,11 @@ const measureVoteCounts = (measure) => {
       </style>
       <table class="table vote-table is-narrow is-fullwidth">
         <tbody>
-          ${vote_position ? html`
+          ${vote ? html`
           <tr>
             <td class="has-text-left has-text-grey">Your Vote</td>
             <td colspan="2" class="has-text-right">
-              <span class="${`${vote_position === 'yea' ? 'has-text-success' : 'has-text-danger'} has-text-weight-semibold`}">${capitalize(vote_position)}</span>
+              <span class="${`${vote.position === 'yea' ? 'has-text-success' : 'has-text-danger'} has-text-weight-semibold`}">${capitalize(vote.position)}</span>
             </td>
           </tr>
           ${delegate_name ? html`<tr><td colspan="3" class="has-text-grey">Inherited from ${delegate_name}</td></tr>` : ''}
@@ -139,7 +139,7 @@ const measureVoteCounts = (measure) => {
             <td class="has-text-right">Yea</td>
             <td class="has-text-right">Nay</td>
           </tr>
-          ${vote_counts.map(({ yeas, nays, office_name, legislature_name }) => html`
+          ${voteCounts.map(({ yeas, nays, office_name, legislature_name }) => html`
             <tr>
               <td class="has-text-left has-text-grey">${office_name || legislature_name}</td>
               <td class="has-text-right">${yeas || 0}</td>
@@ -188,8 +188,8 @@ const measureRepsPanel = ({ measure, reps }) => {
     <div class="panel-block">
       <div>
         <h4 class="has-text-centered has-text-weight-semibold" style="margin: 0 0 .5rem;">
-          ${measure.vote_position
-          ? `We told your rep${reps.length > 1 ? 's' : ''} to vote ${measure.vote_position}`
+          ${measure.vote
+          ? `We told your rep${reps.length > 1 ? 's' : ''} to vote ${measure.vote.position}`
           : `Vote to tell your rep${reps.length > 1 ? 's' : ''}`}
         </h4>
         ${reps.map((rep) => repSnippet(rep.office_holder))}

@@ -26,11 +26,11 @@ module.exports = (state, dispatch) => {
             ? html`
               ${!user || loading.measure
                 ? petitionSignupForm(state, dispatch) // case 1: not logged in
-                : !measure.vote_position
+                : !measure.vote
                   ? petitionForm(state, dispatch) // - case 2: logged in, haven't endorsed
                   : html`
                     ${petitionCallReps({ measure, reps })}
-                    ${!measure.comment
+                    ${!measure.vote.comment
                       ? petitionCommentForm(state, dispatch) // - case 3: endorsed, haven't commented
                       : petitionSocialShare(measure) // - case 4: after commenting
                     }
@@ -39,11 +39,11 @@ module.exports = (state, dispatch) => {
             ` : html`
               ${!user || loading.measure // logged out
                 ? petitionSignupForm(state, dispatch)
-                : measure.vote_position // logged in, already endorsed
+                : measure.vote // logged in, already endorsed
                   ? petitionSocialShare(measure)
                   : petitionForm(state, dispatch) // logged in, voted differently or haven't voted
                }
-              ${user && !loading.measure && measure.vote_position && !measure.comment
+              ${user && !loading.measure && measure.vote && !measure.vote.comment
                 ? petitionCommentForm(state, dispatch)
               : html``}
             `

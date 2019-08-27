@@ -5,7 +5,8 @@ const measureSummary = require('./measure-summary')
 const sidebar = require('./petition-page-sidebar')
 const stateAbbreviations = require('datasets-us-states-names-abbr')
 const daneTargetReps = require('./dane-county-targetReps')
-const commentView = require('./signature')
+const commentsView = require('./measure-comments')
+const signaturesView = require('./measure-votes')
 
 module.exports = (state, dispatch) => {
   const { location, measures, user } = state
@@ -16,6 +17,8 @@ module.exports = (state, dispatch) => {
   const tab = location.query.tab || 'comments'
   const path = location.path
   const isOwnPetition = user && user.id === measure.author_id
+  const commentCount = measure.commentsPagination ? measure.commentsPagination.count : 0
+  const signatureCount = measure.voteCounts && measure.voteCounts[0] && measure.voteCounts[0].yeas
 
   return html`
     <section class="section">
@@ -38,15 +41,17 @@ module.exports = (state, dispatch) => {
               <div class="tabs is-centered is-boxed">
                 <ul>
                   <li class=${tab === 'comments' ? 'is-active' : ''}>
-                    <a href=${path}>Comments${measure.commentCount ? ` (${measure.commentCount})` : ''}</a>
+                    <a href=${path}>Comments${commentCount ? ` (${commentCount})` : ''}</a>
                   </li>
-                  <li class=${tab === 'signatures' ? 'is-active' : ''}><a href=${`${path}?tab=signatures`}>Signatures</a></li>
+                  <li class=${tab === 'votes' ? 'is-active' : ''}>
+                    <a href=${`${path}?tab=votes`}>Signatures${signatureCount ? ` (${signatureCount})` : ''}</a>
+                  </li>
                   ${isOwnPetition ? html`
                     <li><a href=${`${measureUrl}/edit`}>Manage</a></li>
                   ` : html``}
                 </ul>
               </div>
-              ${commentsView(measure, state, dispatch)}
+              ${tab === 'votes' ? signaturesView({ ...state, displayPosition: false }, dispatch) : commentsView({ displayFilters: false, ...state }, dispatch)}
             </div>
           </div>
           <div class="${`column ${measure.showMobileEndorsementForm ? '' : 'is-hidden-mobile'} is-one-third is-one-quarter-widescreen`}">
@@ -55,16 +60,6 @@ module.exports = (state, dispatch) => {
         </div>
       </div>
     </section>
-  `
-}
-
-const commentsView = (measure, state, dispatch) => {
-  const votes = measure.votes.map((id) => state.votes[id])
-  return html`
-    <div>
-      ${!votes.length ? html`<p class="has-text-grey has-text-centered">No comments have been posted yet.</p>` : ''}
-      ${votes.map((vote) => commentView({ key: 'petition-comment', vote, ...state }, dispatch))}
-    </div>
   `
 }
 
@@ -150,7 +145,7 @@ const legislature = (measure) => {
 
 const mobileHoverBar = (measure, dispatch) => {
   let action = 'Sign Petition'; let color = 'is-success'
-  if (measure.vote_position) { action = 'Share'; color = 'is-link' }
+  if (measure.vote) { action = 'Share'; color = 'is-link' }
 
   return html`
     <div style="

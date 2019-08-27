@@ -1,5 +1,5 @@
 const { api, combineEffects, combineEffectsInSeries, makePoint, preventDefault } = require('../helpers')
-const { fetchMeasure, fetchMeasureVotes } = require('../effects/measure')
+const { fetchMeasure } = require('../effects/measure')
 const { updateNameAndAddress } = require('../effects/user')
 const { signIn } = require('../effects/session')
 
@@ -49,9 +49,8 @@ module.exports = (event, state) => {
         } : state.user,
       }, combineEffectsInSeries([
         preventDefault(event.event),
-        sign(event.measure, state.user, event.comment),
-        fetchMeasure(event.measure.short_id, state.offices, state.user),
-        fetchMeasureVotes(event.measure.short_id, state.location.query.order, state.location.query.position, state.user),
+        sign(event, state.user, event.comment),
+        fetchMeasure(event.measure.short_id, state),
       ])]
     case 'petition:signatureSignupFormSubmitted':
       return [{
@@ -63,25 +62,26 @@ module.exports = (event, state) => {
         } : state.user,
       }, combineEffects([
         preventDefault(event.event),
-        signupAndSign(event, state.offices, state.location),
+        signupAndSign(event, state),
       ])]
     default:
       return [state]
   }
 }
 
-const sign = (measure, user, comment) => (dispatch) => {
+const sign = ({ measure, ...form }, user, comment) => (dispatch) => {
   return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${measure.id}`, {
-    method: measure.vote_position ? 'PATCH' : 'POST',
+    method: measure.vote ? 'PATCH' : 'POST',
     headers: { Prefer: 'return=minimal' },
     body: JSON.stringify({
       user_id: user.id,
       measure_id: measure.id,
-      vote_position: 'yea',
+      position: 'yea',
       root_delegate_id: user.id,
+      delegate_rank: -1,
       delegate_id: null,
       delegate_name: null,
-      public: measure.vote_public,
+      public: form.is_public,
       comment,
     }),
     user,
@@ -108,7 +108,8 @@ const validateNameAndAddressForm = (address, name) => {
   }
 }
 
-const signupAndSign = ({ measure, event, ...form }, offices, location) => (dispatch) => {
+const signupAndSign = (form, state) => (dispatch) => {
+  const { location } = state
   const { address, email, voter_status } = form
   const error = validateNameAndAddressForm(address || '', form.name)
 
@@ -139,9 +140,8 @@ const signupAndSign = ({ measure, event, ...form }, offices, location) => (dispa
         nameData: { first_name, last_name, voter_status },
         user,
       })(dispatch)
-        .then(() => sign(measure, user)(dispatch))
-        .then(() => fetchMeasure(measure.short_id, offices, user)(dispatch))
-        .then(() => fetchMeasureVotes(measure.short_id, location.query.order, location.query.position, user)(dispatch))
+        .then(() => sign(form, user)(dispatch))
+        .then(() => fetchMeasure(form.measure.short_id, state)(dispatch))
     }
   })
 }

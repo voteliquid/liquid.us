@@ -1,85 +1,120 @@
-const { html } = require('../helpers')
-const measureVoteForm = require('./measure-vote-form')
-const voteView = require('./vote')
+const { handleForm, html } = require('../helpers')
+const activityIndicator = require('./activity-indicator')
+const stateNames = require('datasets-us-states-names-abbr')
 
 module.exports = (state, dispatch) => {
-  const { location, measure, user, votes } = state
-  const { votes: voteIds = [], showVoteForm } = measure
-  const { order, path, position } = location.query
+  const { displayPosition = true, measures, loading, location } = state
+  const measure = measures[location.params.shortId]
+  const votes = (measure.votes || []).map((id) => state.votes[id]).map((vote) => {
+    return {
+      ...vote,
+      name: vote.public ? `${vote.user.first_name} ${vote.user.last_name}` : '[private]',
+      created_at: new Date(vote.created_at).toLocaleString(),
+      location: `${vote.locality || ''}${vote.locality && stateNames[vote.administrative_area_level_1] ? `, ` : ''}${stateNames[vote.administrative_area_level_1] || ''}`,
+    }
+  })
+  const colspan = displayPosition ? 7 : 6
 
   return html`
-    <div id="votes">
-      <form name="vote-filters" style="margin-bottom: 2rem;" class="vote-filters" method="GET" action="${path}">
-        <div class="field">
-          <h4 class="title is-size-6 has-text-grey has-text-weight-semibold is-inline">
-            All Arguments
-          </h4>
-        </div>
-        <div class="field is-horizontal">
-          <div class="field-body">
-            <div class="field is-narrow has-addons">
-              <div class="control">
-                <label for="vote_sort" class="button is-static is-small">
-                  Sort by
-                </label>
-              </div>
-              <div class="control">
-                <div class="select is-small">
-                  <select autocomplete="off" name="order" onchange=${autosubmit}>
-                    <option value="most_recent" selected=${!order || order === 'most_recent'}>Most recent</option>
-                    <option value="vote_power" selected=${order === 'vote_power'}>Vote power</option>
-                  </select>
-                </div>
-                <button type="submit" class="vote-filters-submit is-hidden"></button>
-              </div>
-            </div>
-            <div class="field is-narrow has-addons">
-              <div class="control">
-                <label for="vote_sort" class="button is-static is-small">
-                  Position
-                </label>
-              </div>
-              <div class="control">
-                <div class="select is-small">
-                  <select autocomplete="off" name="position" onchange=${autosubmit}>
-                    <option value="all" selected=${!position || position === 'all'}>All</option>
-                    <option value="yea" selected=${position === 'yea'}>Yea</option>
-                    <option value="nay" selected=${position === 'nay'}>Nay</option>
-                  </select>
-                </div>
-                <button type="submit" class="vote-filters-submit is-hidden"></button>
-              </div>
-            </div>
-            <div class="field is-narrow">
-              <div class="control">
-                <button onclick=${(event) => dispatch({ type: 'measure:voteFormActivated', measure, event })} class="${`button is-primary has-text-weight-semibold is-small ${showVoteForm ? 'is-hidden' : ''}`}">
-                  <span class="icon"><i class="fa fa-edit"></i></span>
-                  <span>Add your argument</span>
-                </button>
-              </div>
-            </div>
-            ${user && user.is_admin ? html`
-              <div class="field is-narrow">
-                <div class="control">
-                  <a href=${`${location.path}/import`} class="button is-link has-text-weight-semibold is-small">
-                    <span class="icon"><i class="fa fa-plus-circle"></i></span>
-                    <span>Import external argument</span>
-                  </a>
-                </div>
-              </div>
-            ` : ''}
-          </div>
-        </div>
-      </form>
-      <div id="measure-vote-form">${showVoteForm ? measureVoteForm({ ...state, measure }, dispatch) : ''}</div>
-      ${voteIds.length
-        ? voteIds.map((id) => voteView({ key: 'measure-votes', measure, vote: votes[id], user }, dispatch))
-        : html`<p class="notification has-background-light has-text-grey">No ${position ? `${position} ` : ''}arguments.</p>`
-      }
+    <div>
+      ${filterView(state, dispatch)}
+      <table class="table is-fullwidth is-striped">
+        <thead>
+          <tr>
+            <th>Id</th>
+            ${displayPosition ? html`<th>Position</th>` : html``}
+            <th>Name</th>
+            <th>Location</th>
+            <th>District</th>
+            <th>Voter Registration</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody class="is-size-7">
+          ${loading.votes ? html`<tr><td class="has-text-centered" colspan="${colspan}">${activityIndicator()}</td></tr>` : html``}
+          ${!loading.votes && !votes.length ? html`<tr><td class="has-text-centered" colspan="${colspan}">No votes yet.</td></tr>` : html``}
+          ${!loading.votes && votes.length ? votes.map((b) => voteTableRow(b, { displayPosition })) : html``}
+        </tbody>
+      </table>
     </div>
   `
 }
 
-const autosubmit = () => {
-  document.querySelector('.vote-filters-submit').click()
+const voteTableRow = (vote, { displayPosition = true }) => {
+  const district = vote.offices.filter(({ chamber }) => chamber === 'Lower').map(({ short_name }) => short_name)[0]
+  return html`
+    <tr>
+      <td>${vote.id}</td>
+      ${displayPosition ? html`<td>${vote.position}</td>` : html``}
+      <td>${vote.name}</td>
+      <td>${vote.location}</td>
+      <td>${district}</td>
+      <td>${vote.voter_verified ? 'Verified' : 'Unverified'}</td>
+      <td>${vote.created_at}</td>
+    </tr>
+  `
+}
+
+const filterView = (state, dispatch) => {
+  const { loading, location, measures } = state
+  const measure = measures[location.params.shortId]
+  const pagination = measure.votesPagination || { offset: 0, limit: 50 }
+  const prevOffset = Math.max(0, Number(pagination.offset) - Number(pagination.limit))
+  return html`
+    <div style="margin-bottom: 2em;">
+      <div class="field is-horizontal">
+        <div class="field-body">
+          <form class="field" method="POST" onsubmit=${handleForm(dispatch, { type: 'measure:voteCSVRequested', measure })}>
+            <div class="control">
+              <button type="submit" disabled=${loading.voteReport} class="${`button ${loading.voteReport ? 'is-loading' : ''}`}">
+                <span class="icon is-small"><i class="fas fa-table"></i></span>
+                <span>Download CSV</span>
+              </button>
+            </div>
+          </form>
+          ${Number(pagination.count) > Number(pagination.limit) ? html`
+            <nav class="field is-narrow has-addons">
+              ${prevOffset ? html`
+                <div class="control">
+                  <a class="${`button ${loading.votes ? 'is-loading' : ''}`}" href="${prevPage(state)}">Previous</a>
+                </div>
+              ` : html``}
+              <div class="control">
+                <div class="button is-static">
+                  ${prevOffset + 1} - ${Math.min((measure.votes || []).length, pagination.limit) + prevOffset} of ${pagination.count}
+                </div>
+              </div>
+              ${Number(pagination.offset) < Number(pagination.count) ? html`
+                <div class="control">
+                  <a class="${`button ${loading.votes ? 'is-loading' : ''}`}" href="${nextPage(state)}">Next</a>
+                </div>
+              ` : html``}
+            </nav>
+          ` : html``}
+        </div>
+      </div>
+    </form>
+  `
+}
+
+const prevPage = ({ location, measures }) => {
+  const measure = measures[location.params.shortId]
+  const pagination = measure.commentsPagination || { offset: 0, limit: 50 }
+  const query = {
+    ...location.query,
+    limit: pagination.limit,
+    offset: Math.max(0, Number(pagination.offset) - Number(pagination.limit)),
+  }
+  return `${location.path}?${Object.keys(query).map((key) => `${key}=${query[key]}`).join('&')}`
+}
+
+const nextPage = ({ location, measures }) => {
+  const measure = measures[location.params.shortId]
+  const pagination = measure.commentsPagination || { offset: 0, limit: 50 }
+  const query = {
+    ...location.query,
+    limit: pagination.limit,
+    offset: Number(pagination.offset) + Number(pagination.limit),
+  }
+  return `${location.path}?${Object.keys(query).map((key) => `${key}=${query[key]}`).join('&')}`
 }

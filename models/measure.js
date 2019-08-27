@@ -1,29 +1,23 @@
 const { ASSETS_URL } = process.env
-const { api, combineEffects, combineEffectsInSeries, preventDefault, redirect } = require('../helpers')
-const { fetchMeasure, fetchMeasureVotes } = require('../effects/measure')
+const { api, combineEffects, combineEffectsInSeries, download, preventDefault, redirect } = require('../helpers')
+const { fetchMeasure, fetchMeasureDetails, fetchComments, fetchVotes } = require('../effects/measure')
 const { changePageTitle } = require('../effects/page')
 
 module.exports = (event, state) => {
-  const query = state.location.query
   switch (event.type) {
     case 'pageLoaded':
       switch (state.location.route) {
-        case '/legislation':
-          return [{
-            ...state,
-            loading: { ...state.loading, page: !state.browser, measures: true },
-            location: {
-              ...state.location,
-              title: 'Legislation',
-              ogImage: query.legislature && query.legislature.length === 2 && `${ASSETS_URL}/legislature-images/${query.legislature}.png`
-            },
-          }, fetchMeasures({ hide_direct_votes: state.cookies.hide_direct_votes, ...state.location.query }, state.user)]
         case '/legislation/:shortId':
         case '/nominations/:shortId':
         case '/:username/:shortId':
           return [{
             ...state,
-            loading: { ...state.loading, page: true },
+            loading: {
+              ...state.loading,
+              page: !state.measures[state.location.params.shortId],
+              comments: state.location.query.tab !== 'votes',
+              votes: state.location.query.tab === 'votes',
+            },
             location: {
               ...state.location,
               description: `Discuss with your fellow voters & be heard by your elected officials.`,
@@ -37,27 +31,58 @@ module.exports = (event, state) => {
               },
             },
           }, combineEffectsInSeries([
-            fetchMeasureVotes(state.location.params.shortId, state.location.query.order, state.location.query.position, state.user),
-            fetchMeasure(state.location.params.shortId, state.offices, state.user),
+            fetchMeasure(state.location.params.shortId, state),
             state.location.hash === 'measure-vote-form' && scrollVoteFormIntoView,
           ])]
         case '/petitions/create':
-        case '/legislation/propose':
-        case '/:username/:shortId/edit':
-          if (!state.user) return [state, redirect('/sign_in')]
+          if (!state.user) return [state, redirect('/join')]
+          return [{
+            ...state,
+            location: {
+              ...state.location,
+              title: 'Start a petition',
+            },
+            loading: { ...state.loading, page: false },
+            forms: { ...state.forms, editMeasureShortId: null },
+          }, changePageTitle('Start a Petition')]
+        case '/legislation/create':
+          if (!state.user) return [state, redirect('/join')]
           return [{
             ...state,
             location: {
               ...state.location,
               title: 'Propose Legislation',
             },
+            loading: { ...state.loading, page: false },
+            forms: { ...state.forms, editMeasureShortId: null },
+          }, changePageTitle('Propose Legislation')]
+        case '/:username/:shortId/edit':
+          if (!state.user) return [state, redirect('/sign_in')]
+          return [{
+            ...state,
+            location: {
+              ...state.location,
+              title: 'Edit Measure',
+            },
             loading: { ...state.loading, page: true },
             forms: { ...state.forms, editMeasureShortId: null },
           }, combineEffects([
-            changePageTitle('Propose Legislation'),
-            fetchUserMeasure(state.location.params.shortId, state.user)
+            changePageTitle('Edit Measure'),
+            fetchMeasure(state.location.params.shortId, state)
           ])]
         case '/petitions/yours':
+          if (!state.user) return [state, redirect('/sign_in')]
+          return [{
+            ...state,
+            loading: { ...state.loading, page: true },
+            location: {
+              ...state.location,
+              title: 'Petitions',
+            },
+          }, combineEffects([
+            changePageTitle('Petitions'),
+            fetchUserMeasures(state.user)
+          ])]
         case '/legislation/yours':
           if (!state.user) return [state, redirect('/sign_in')]
           return [{
@@ -65,10 +90,10 @@ module.exports = (event, state) => {
             loading: { ...state.loading, page: true },
             location: {
               ...state.location,
-              title: 'Proposed Legislation',
+              title: 'Legislation',
             },
           }, combineEffects([
-            changePageTitle('Proposed Legislation'),
+            changePageTitle('Legislation'),
             fetchUserMeasures(state.user)
           ])]
         default:
@@ -85,46 +110,17 @@ module.exports = (event, state) => {
           },
         },
       }]
-    case 'measure:userMeasureReceived':
-      if (!event.measure) {
-        return [{ ...state, loading: { ...state.loading, page: false, measure: false } }]
-      }
-      return [{
-        ...state,
-        loading: { ...state.loading, page: false, measure: false },
-        measures: {
-          ...state.measures,
-          [event.measure.short_id]: {
-            ...state.measures[event.measure.short_id],
-            ...event.measure,
-            votes: state.measures[event.measure.short_id] ? (state.measures[event.measure.short_id].votes || []) : [],
-            // only store ids on measure to keep one vote object shared by various views
-            topYea: event.topYea ? event.topYea.id : null,
-            topNay: event.topNay ? event.topNay.id : null,
-            votePower: event.votePower ? event.votePower : (state.measures[event.measure.short_id] && state.measures[event.measure.short_id].votePower),
-          },
-        },
-        votes: (event.votes || []).concat([event.topYea, event.topNay].filter(v => v)).reduce((votes, vote) => {
-          votes[vote.id] = { ...votes[vote.id], ...vote }
-          return votes
-        }, state.votes),
-      }]
     case 'measure:received':
     case 'measure:updated':
       if (!event.measure) {
-        return [{
-          ...state,
-          loading: { ...state.loading, page: false, measure: false, form: false },
-          location: { ...state.location, status: 404 }
-        }]
+        return [{ ...state, loading: {}, location: { ...state.location, status: 404 } }]
       }
       return [{
         ...state,
         loading: {
           ...state.loading,
-          page: isMeasureDetailPage(state.location.route) ? false : state.loading.page,
-          measure: false,
-          form: false,
+          comments: state.location.query.tab !== 'votes',
+          votes: state.location.query.tab === 'votes',
         },
         location: {
           ...state.location,
@@ -136,29 +132,73 @@ module.exports = (event, state) => {
           [event.measure.short_id]: {
             ...state.measures[event.measure.short_id],
             ...event.measure,
-            votes: state.measures[event.measure.short_id] ? (state.measures[event.measure.short_id].votes || []) : [],
-            // only store ids on measure to keep one vote object shared by various views
+            votes: state.measures[event.measure.short_id] && state.measures[event.measure.short_id].votes || [],
+            comments: state.measures[event.measure.short_id] && state.measures[event.measure.short_id].comments || [],
+          },
+        },
+      }, combineEffectsInSeries([
+        changePageTitle(
+          isMeasureDetailPage(state.location.route) ? `${event.measure.legislature_name}: ${event.measure.title}` : state.location.title
+        ),
+        fetchMeasureDetails(event.measure, state),
+        (state.location.query.tab === 'votes' ? fetchVotes : fetchComments)(event.measure, state),
+      ])]
+    case 'measure:detailsReceived':
+      return [{
+        ...state,
+        loading: { ...state.loading, measure: false, form: false },
+        measures: {
+          ...state.measures,
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
+            ...event.measure,
+            voteCounts: event.voteCounts,
             topYea: event.topYea ? event.topYea.id : null,
             topNay: event.topNay ? event.topNay.id : null,
             votePower: event.votePower ? event.votePower : (state.measures[event.measure.short_id] && state.measures[event.measure.short_id].votePower),
             commentCount: event.commentCount,
           },
         },
-        votes: (event.votes || []).concat([event.topYea, event.topNay].filter(v => v)).reduce((votes, vote) => {
+      }]
+    case 'measure:commentsRequested':
+      return [{
+        ...state,
+        loading: { ...state.loading, comments: true },
+      }, fetchComments(event.measure, state)]
+    case 'measure:commentsReceived':
+      return [{
+        ...state,
+        loading: { ...state.loading, page: false, comments: false },
+        measures: {
+          ...state.measures,
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
+            // only store ids on measure to keep one vote object shared by various views
+            comments: event.votes.map((vote) => vote.id),
+            commentsPagination: event.pagination,
+          },
+        },
+        votes: event.votes.reduce((votes, vote) => {
           votes[vote.id] = { ...votes[vote.id], ...vote }
           return votes
         }, state.votes),
-      }, changePageTitle(isMeasureDetailPage(state.location.route) ? `${event.measure.legislature_name}: ${event.measure.title}` : state.location.title)]
+      }]
+    case 'measure:votesRequested':
+      return [{
+        ...state,
+        loading: { ...state.loading, votes: true },
+      }, fetchVotes(event.measure, state)]
     case 'measure:votesReceived':
       return [{
         ...state,
-        loading: { ...state.loading, measure: false, vote: false },
+        loading: { ...state.loading, page: false, votes: false },
         measures: {
           ...state.measures,
-          [event.shortId]: {
-            ...state.measures[event.shortId],
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
             // only store ids on measure to keep one vote object shared by various views
             votes: event.votes.map((vote) => vote.id),
+            votesPagination: event.pagination,
           },
         },
         votes: event.votes.reduce((votes, vote) => {
@@ -189,7 +229,7 @@ module.exports = (event, state) => {
             showVoteForm: true,
           },
         },
-      }, combineEffects([preventDefault(event.event), scrollVoteFormIntoView, selectVotePosition(event.vote_position)])]
+      }, combineEffects([preventDefault(event.event), scrollVoteFormIntoView, selectVotePosition(event.position)])]
     case 'measure:voteFormToggled':
       if (!event.measure) return [state]
       return [{
@@ -233,6 +273,7 @@ module.exports = (event, state) => {
     case 'measure:editFormSaved':
       return [{
         ...state,
+        loading: { ...state.forms, editMeasure: true },
         forms: { ...state.forms, editMeasure: {}, editMeasureShortId: null },
         measures: Object.values(state.measures).reduce((measures, measure) => {
           if (event.oldShortId !== measure.short_id) {
@@ -240,14 +281,56 @@ module.exports = (event, state) => {
           }
           return measures
         }, {}),
-      }, saveMeasure(state.measures[state.location.params.shortId], event, state.user)]
+      }, saveMeasure(state.measures[state.location.params.shortId], event, state)]
     case 'measure:editFormChanged':
       return [{ ...state, forms: { ...state.forms, editMeasure: event } }]
     case 'measure:editFormShortIdChanged':
       return [{ ...state, forms: { ...state.forms, editMeasureShortId: event.shortId } }]
+    case 'measure:voteCSVRequested':
+      return [{
+        ...state,
+        loading: { ...state.loading, voteReport: true },
+      }, combineEffects([preventDefault(event.event), fetchVotesReport(event.measure, state)])]
+    case 'measure:voteCSVReceivedChunk':
+      return [{
+        ...state,
+        measures: {
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
+            csv: (state.measures[event.measure.short_id] && state.measures[event.measure.short_id].csv || '') + event.csv,
+          },
+        },
+      }]
+    case 'measure:voteCSVReceived':
+      return [{
+        ...state,
+        loading: { ...state.loading, voteReport: false },
+      }, () => download(state.measures[event.measure.short_id].csv, `${event.measure.short_id}-votes.csv`, 'text/csv;encoding=utf-8')]
     default:
       return [state]
   }
+}
+
+const fetchVotesReport = (measure, state, pagination = { offset: 0, limit: 500 }) => (dispatch) => {
+  const { user } = state
+  return api(dispatch, `/votes_detailed_with_offices?select=id,position,public,comment,user->>first_name,user->>last_name,city:locality,state:administrative_area_level_1,district:offices->0->>short_name,registered_voter:voter_verified,date:created_at&measure_id=eq.${measure.id}`, {
+    headers: { Accept: 'text/csv' },
+    pagination,
+    user,
+  })
+  .then(({ pagination: nextPagination, results: csv }) => {
+    dispatch({
+      type: 'measure:voteCSVReceivedChunk',
+      csv: pagination.offset ? csv.substring(csv.indexOf('\n') + 1) : csv,
+      measure,
+      pagination,
+      nextPagination,
+    })
+    if ((pagination ? pagination.count : nextPagination.count) > nextPagination.offset) {
+      return fetchVotesReport(measure, state, { ...pagination, ...nextPagination })(dispatch)
+    }
+    dispatch({ type: 'measure:voteCSVReceived', measure, pagination, nextPagination })
+  })
 }
 
 const confirmDeleteMeasure = (measure) => (dispatch) => {
@@ -267,58 +350,18 @@ const deleteMeasure = (measure, user) => (dispatch) => {
   .then(() => dispatch({ type: 'measure:deleted', measure }))
 }
 
-const fetchMeasures = (params, user) => (dispatch) => {
-  const terms = params.terms && params.terms.replace(/[^\w\d ]/g, '').replace(/(hr|s) (\d+)/i, '$1$2').replace(/(\S)\s+(\S)/g, '$1 & $2')
-  const fts = terms ? `&tsv=fts(simple).${encodeURIComponent(terms)}` : ''
-
-  const orders = {
-    upcoming: '&status=not.eq.Introduced&introduced_at=not.is.null&failed_lower_at=is.null&failed_upper_at=is.null&or=(passed_lower_at.is.null,passed_upper_at.is.null,and(passed_lower_at.is.null,passed_upper_at.is.null))&order=next_agenda_action_at.asc.nullslast,next_agenda_begins_at.asc.nullslast,next_agenda_category.asc.nullslast,last_action_at.desc.nullslast,number.desc',
-    new: '&introduced_at=not.is.null&order=introduced_at.desc,number.desc',
-    proposed: '&introduced_at=is.null&order=created_at.desc,title.asc',
-  }
-
-  const order = orders[params.order || 'upcoming']
-
-  const hide_direct_votes = params.hide_direct_votes
-  const hide_direct_votes_params = hide_direct_votes === 'on' ? 'or=(delegate_rank.is.null,delegate_rank.neq.-1)' : ''
-  const policy_area_query = params.policy_area ? `&policy_area=eq.${params.policy_area}` : ''
-
-  const legislature = params.legislature_id ? `&legislature_id=eq.${params.legislature_id}` : `&legislature_name=eq.U.S. Congress`
-
-  const url = `/measures_detailed?${hide_direct_votes_params}${policy_area_query}${fts}${legislature}&type=not.eq.nomination${order}&limit=40`
-
-  return api(dispatch, url, { user })
-    .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
-    .catch((error) => {
-      dispatch({ type: 'error', error })
-      dispatch({ type: 'measure:receivedList', measures: [] })
-    })
-}
-
 const fetchUserMeasures = (user) => (dispatch) => {
   return api(dispatch, `/measures_detailed?author_id=eq.${user.id}&order=created_at.desc`, { user })
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
 }
 
-const fetchUserMeasure = (shortId, user) => (dispatch) => {
-  if (!shortId) {
-    return dispatch({ type: 'measure:userMeasureReceived', measure: null })
-  }
-  return api(dispatch, `/measures_detailed?author_id=eq.${user.id}&short_id=eq.${shortId}`, { user }).then(([measure]) => {
-    if (measure) {
-      dispatch({ type: 'measure:userMeasureReceived', measure })
-    } else {
-      dispatch({ type: 'redirected', status: 302, url: `/legislation/${measure.short_id}` })
-    }
-  })
-}
-
-const saveMeasure = (measure, { event, oldShortId, ...form }, user) => (dispatch) => {
+const saveMeasure = (measure, { event, oldShortId, ...form }, state) => (dispatch) => {
   if (event) event.preventDefault()
-  return (measure && measure.id ? updateMeasure : insertMeasure)(measure, form, user)(dispatch)
+  return (measure && measure.id ? updateMeasure : insertMeasure)(measure, form, state)(dispatch)
 }
 
-const insertMeasure = (measure, form, user) => (dispatch) => {
+const insertMeasure = (measure, form, state) => (dispatch) => {
+  const { user } = state
   return api(dispatch, '/measures', {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
@@ -333,25 +376,24 @@ const insertMeasure = (measure, form, user) => (dispatch) => {
     }),
     user,
   })
-  .then(() => api(dispatch, `/measures_detailed?short_id=eq.${form.short_id}`, { user }))
-  .then(([measure]) => {
-    dispatch({ type: 'measure:updated', measure })
-    dispatch({ type: 'redirected', status: 303, url: `/${user.username}/${measure.short_id}` })
+  .then(() => fetchMeasure(form.short_id, state)(dispatch))
+  .then(() => {
+    dispatch({ type: 'redirected', status: 303, url: `/${user.username}/${form.short_id}` })
   })
   .catch(handleError(dispatch))
 }
 
-const updateMeasure = (measure, form, user) => (dispatch) => {
+const updateMeasure = (measure, form, state) => (dispatch) => {
+  const { user } = state
   return api(dispatch, `/measures?id=eq.${measure.id}`, {
     method: 'PATCH',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({ ...form, short_id: form.short_id.toLowerCase(), type: form.measure_type }),
     user,
   })
-  .then(() => api(dispatch, `/measures_detailed?id=eq.${measure.id}`, { user }))
-  .then(([measure]) => {
-    dispatch({ type: 'measure:updated', measure })
-    dispatch({ type: 'redirected', status: 303, url: `/${user.username}/${measure.short_id}` })
+  .then(() => fetchMeasure(form.short_id, state)(dispatch))
+  .then(() => {
+    dispatch({ type: 'redirected', status: 303, url: `/${user.username}/${form.short_id}` })
   })
   .catch(handleError(dispatch))
 }
@@ -387,7 +429,7 @@ const scrollVoteFormIntoView = () => {
 const selectVotePosition = (position) => () => {
   if (position) {
     setTimeout(() => {
-      document.querySelector(`input[type="radio"][name="vote_position"][value="${position}"]`).checked = true
+      document.querySelector(`input[type="radio"][name="position"][value="${position}"]`).checked = true
     }, 20)
   }
 }

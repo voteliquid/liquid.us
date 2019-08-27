@@ -27,11 +27,20 @@ const publicProfileRequiredMsg = (verified) => {
 
 const proposedLegislationList = (state, dispatch) => {
   const { loading, measures, user } = state
-  const usersMeasures = Object.values(measures).filter(({ type, author_id }) => author_id === user.id && type !== 'petition')
+  const usersMeasures = Object.values(measures).filter(({ author_id }) => author_id === user.id)
   return html`
     <div>
-      ${proposeButton()}
       <h2 class="title is-5">Legislation</h2>
+      <div style="margin-bottom: 2em;">
+        <a class="button is-small" href="/petitions/create">
+          <span class="icon"><i class='fa fa-pencil-alt'></i></span>
+          <span class="has-text-weight-semibold">Start a Petition</span>
+        </a>
+        <a class="button is-small" href="/legislation/create">
+          <span class="icon"><i class='fa fa-file'></i></span>
+          <span class="has-text-weight-semibold">Propose a Bill</span>
+        </a>
+      </div>
       ${loading.page
         ? loadingIndicator()
         : usersMeasures.length
@@ -52,7 +61,7 @@ const proposedLegislationItem = (state, measure, dispatch) => {
           <div class="column">
             <h3><a href="${`/${user.username}/${l.short_id}`}">${l.title}</a></h3>
             <p class="is-size-7 has-text-grey">
-              Proposed for ${l.legislature_name} &bullet; ${l.author
+              ${l.type === 'petition' ? 'Petition to' : 'Proposed for'} ${l.legislature_name} &bullet; ${l.author
             ? html`Authored by <a href="${`/${l.author.username}`}">${l.author.first_name} ${l.author.last_name}</a> on ${(new Date(l.created_at)).toLocaleDateString()}`
             : html`Authored anonymously on ${(new Date(l.created_at)).toLocaleDateString()}`}
             </p>
@@ -63,14 +72,5 @@ const proposedLegislationItem = (state, measure, dispatch) => {
         </div>
       </div>
     </div>
-  `
-}
-
-const proposeButton = () => {
-  return html`
-    <a class="button is-pulled-right" href="/legislation/propose">
-      <span class="icon"><i class='fa fa-file'></i></span>
-      <span class="has-text-weight-semibold">Propose a Bill</span>
-    </a>
   `
 }

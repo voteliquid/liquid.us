@@ -4,7 +4,7 @@ const voteView = require('./vote')
 
 module.exports = (state, dispatch) => {
   const { loading, measure, yea, nay, user } = state
-  const { vote_position } = measure
+  const { vote } = measure
   return html`
     <div>
       <style>
@@ -29,7 +29,7 @@ module.exports = (state, dispatch) => {
       <div class="columns is-gapless is-multiline is-marginless">
         <div class="column is-half" style="background-color: hsla(141, 71%, 97%, 1); color: #222;">
           <div style="padding: 1rem;">
-            <h4 style="color: hsl(141, 80%, 38%); padding-bottom: 1rem;" class="${`${vote_position ? 'has-text-weight-semibold' : ''} has-text-centered`}">Top Argument In Favor</h4>
+            <h4 style="color: hsl(141, 80%, 38%); padding-bottom: 1rem;" class="${`${vote ? 'has-text-weight-semibold' : ''} has-text-centered`}">Top Argument In Favor</h4>
             ${loading.vote
               ? activityIndicator()
               : yea
@@ -39,7 +39,7 @@ module.exports = (state, dispatch) => {
         </div>
         <div class="column is-half" style="border-left: 1px solid white; background-color: hsla(348, 100%, 98%, 1); color: #222;">
           <div style="padding: 1rem;">
-            <h4 style="padding-bottom: 1rem;" class="${`${vote_position ? 'has-text-weight-semibold' : ''} has-text-centered has-text-danger`}">Top Argument Against</h4>
+            <h4 style="padding-bottom: 1rem;" class="${`${vote ? 'has-text-weight-semibold' : ''} has-text-centered has-text-danger`}">Top Argument Against</h4>
             ${loading.vote
               ? activityIndicator()
               : nay
@@ -57,7 +57,7 @@ const noArgumentsMsg = (measure, position, dispatch) => {
   return html`
     <p class="has-text-grey-light has-text-centered">
       No arguments ${position === 'yea' ? 'in favor' : 'against'} yet.
-      ${!measure.vote_position || measure.vote_position !== position
+      ${!measure.vote || measure.vote.position !== position
         ? addArgumentLink(measure, position, dispatch)
         : ''}
     </p>
@@ -83,32 +83,32 @@ const abstainButton = ({ loading, measure }, dispatch) => {
 }
 
 const voteButtons = ({ loading, measure }, dispatch) => {
-  const { delegate_name, vote_position } = measure
-  const { my_vote = { vote_position } } = measure
+  const { delegate_name, vote } = measure
+  const { my_vote = { position: vote ? vote.position : null } } = measure
   return html`
     <div class="columns is-gapless is-multiline is-marginless">
-      ${vote_position === 'abstain' ? abstainButton({ loading, measure }, dispatch) : html``}
+      ${my_vote.position === 'abstain' ? abstainButton({ loading, measure }, dispatch) : html``}
       <div class="column is-half">
         <form method="POST" onsubmit=${handleForm(dispatch, { type: 'measure:voteFormActivated', measure })} style="height: 100%;">
-          <input type="hidden" name="vote_id" value="${my_vote.vote_position || ''}" />
-          <input type="hidden" name="vote_position" value="yea" />
+          <input type="hidden" name="vote_id" value="${my_vote.position || ''}" />
+          <input type="hidden" name="position" value="yea" />
           <input type="hidden" name="public" value="${typeof my_vote.public === 'boolean' ? my_vote.public : 'true'}" />
           <input type="hidden" name="comment" value="${my_vote.comment || ''}" />
-          <button type="submit" style="${`${vote_position && vote_position !== 'yea' ? 'opacity: .3;' : ''} display: block; line-height: 100%; height: 100%; white-space: normal;`}" class="${`${loading.vote ? 'is-loading' : ''} button vote-button-yea is-success has-text-weight-semibold is-fullwidth`}">
+          <button type="submit" style="${`${vote && my_vote.position !== 'yea' ? 'opacity: .3;' : ''} display: block; line-height: 100%; height: 100%; white-space: normal;`}" class="${`${loading.vote ? 'is-loading' : ''} button vote-button-yea is-success has-text-weight-semibold is-fullwidth`}">
             <span class="icon is-small"><i class="fa fa-check"></i></span>
-            <span>${vote_position === 'yea' ? delegate_name ? `Inherited Yea vote from ${delegate_name}` : 'You voted Yea' : 'Vote Yea'}</span>
+            <span>${my_vote.position === 'yea' ? delegate_name ? `Inherited Yea vote from ${delegate_name}` : 'You voted Yea' : 'Vote Yea'}</span>
           </button>
         </form>
       </div>
       <div class="column is-half" style="border-left: 1px solid white;">
         <form method="POST" onsubmit=${handleForm(dispatch, { type: 'measure:voteFormActivated', measure })} style="height: 100%;">
-          <input type="hidden" name="vote_id" value="${my_vote.vote_position || ''}" />
-          <input type="hidden" name="vote_position" value="nay" />
+          <input type="hidden" name="vote_id" value="${my_vote.position || ''}" />
+          <input type="hidden" name="position" value="nay" />
           <input type="hidden" name="public" value="${typeof my_vote.public === 'boolean' ? my_vote.public : 'true'}" />
           <input type="hidden" name="comment" value="${my_vote.comment || ''}" />
-          <button type="submit" style="${`${vote_position && vote_position !== 'nay' ? 'opacity: .3;' : ''} display: block; line-height: 100%; height: 100%; white-space: normal;`}" class="${`${loading.vote ? 'is-loading' : ''} button vote-button-nay is-danger has-text-weight-semibold is-fullwidth`}">
+          <button type="submit" style="${`${vote && my_vote.position !== 'nay' ? 'opacity: .3;' : ''} display: block; line-height: 100%; height: 100%; white-space: normal;`}" class="${`${loading.vote ? 'is-loading' : ''} button vote-button-nay is-danger has-text-weight-semibold is-fullwidth`}">
             <span class="icon is-small"><i class="fa fa-times"></i></span>
-            <span>${vote_position === 'nay' ? delegate_name ? `Inherited Nay vote from ${delegate_name}` : 'You voted Nay' : 'Vote Nay'}</span>
+            <span>${my_vote.position === 'nay' ? delegate_name ? `Inherited Nay vote from ${delegate_name}` : 'You voted Nay' : 'Vote Nay'}</span>
           </button>
         </form>
       </div>

@@ -79,12 +79,11 @@ const style = `
 const navbarAnon = ({ location }) => {
   const { path } = location
   return html`
-    <a class=${`navbar-item ${path === `/legislation` ? 'is-active' : ''}`} href="/legislation">
-      <span class="icon"><i class="fa fa-list"></i></span>
-      <span>Browse</span>
+    <a class=${`navbar-item ${path === `/activity` ? 'is-active' : ''}`} href="/activity">
+      <span>Activity</span>
     </a>
-    <a class=${`navbar-item has-text-link has-text-weight-bold ${path === '/join' ? 'is-active' : ''}`} href="/join">Join</a>
     <a class=${`navbar-item ${path.slice(0, 8) === '/sign_in' ? 'is-active' : ''}`} href="/sign_in">Sign in</a>
+    <a class=${`navbar-item has-text-link has-text-weight-bold ${path === '/join' ? 'is-active' : ''}`} href="/join">Join</a>
   `
 }
 
@@ -93,13 +92,8 @@ const navbarAuthed = ({ location, user }) => {
   const { path } = location
 
   return html`
-    <a class=${`navbar-item has-text-link ${path === `/legislation/propose` ? 'is-active' : ''}`} href="/legislation/propose">
-      <span class="icon"><i class="fa fa-file"></i></span>
-      <span class="has-text-weight-semibold">Propose</span>
-    </a>
-    <a class=${`navbar-item ${path === `/legislation` ? 'is-active' : ''}`} href="/legislation">
-      <span class="icon"><i class="fa fa-list"></i></span>
-      <span>Browse</span>
+    <a class=${`navbar-item ${path === `/activity` ? 'is-active' : ''}`} href="/activity">
+      <span>Activity</span>
     </a>
     <div class="navbar-item has-dropdown is-hoverable">
       <a class="navbar-link" href="${username_url}">
@@ -114,9 +108,11 @@ const navbarAuthed = ({ location, user }) => {
         }
         <a class=${`navbar-item ${path === username_url ? 'is-active' : ''}`} href=${username_url}>Profile</a>
         <a class=${`navbar-item ${path.slice(0, 8) === '/proxies' ? 'is-active' : ''}`} href="/proxies">Proxies</a>
-        <a class=${`navbar-item ${path === `/legislation/yours` ? 'is-active' : ''}`} href="/legislation/yours">Legislation</a>
-        <a class=${`navbar-item ${path === `/petitions/yours` ? 'is-active' : ''}`} href="/petitions/yours">Petitions</a>
+        <a class=${`navbar-item ${path === `/legislation/yours` ? 'is-active' : ''}`} href="/legislation/yours">Bills & Petitions</a>
         <a class=${`navbar-item ${path === '/settings' ? 'is-active' : ''}`} href="/settings">Settings</a>
+        <hr />
+        <a class=${`navbar-item ${path === `/petitions/create` ? 'is-active' : ''}`} href="/petitions/create">Start a Petition</a>
+        <a class=${`navbar-item ${path === `/legislation/create` ? 'is-active' : ''}`} href="/legislation/create">Propose a Bill</a>
         <a class=${`navbar-item ${path === '/sign_out' ? 'is-active' : ''}`} href=${`${WWW_URL}/sign_out`}>Sign out</a>
       </div>
     </div>

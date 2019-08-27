@@ -23,7 +23,7 @@ module.exports = ({ cookies, error, loading, location }, dispatch) => {
                   <input name="endorsed_vote_id" type="hidden" value="${cookies.endorsed_vote_id}" />
                   <input name="endorsed_measure_id" type="hidden" value="${cookies.endorsed_measure_id}" />
                   <input name="proxying_user_id" type="hidden" value="${cookies.proxying_user_id}" />
-                  <input name="vote_position" type="hidden" value="${cookies.vote_position}" />
+                  <input name="position" type="hidden" value="${cookies.vote_position}" />
                   <input name="vote_bill_id" type="hidden" value="${cookies.vote_bill_id}" />
                   <input name="vote_comment" type="hidden" value="${cookies.vote_comment}" />
                   <input name="vote_public" type="hidden" value="${cookies.vote_public}" />

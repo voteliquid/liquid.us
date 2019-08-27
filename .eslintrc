@@ -9,6 +9,7 @@
     // Hard rules
     semi: [2, 'never'],
     no-console: 0,
+    no-mixed-operators: 0,
     react/no-multi-comp: 0,
     react/no-unused-state: 0,
     react/prop-types: 0,

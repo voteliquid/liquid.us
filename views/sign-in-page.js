@@ -3,7 +3,7 @@ const atob = require('atob')
 
 module.exports = ({ cookies, error, loading, location, profiles = {} }, dispatch) => {
   const proxying_username = cookies.proxying_username
-  const vote_position = cookies.vote_position
+  const position = cookies.vote_position
   const endorsed_vote_id = cookies.endorsed_vote_id
   const reqProxyProfile = profiles[proxying_username]
   const hasError = error && error.field === 'email'
@@ -45,7 +45,7 @@ module.exports = ({ cookies, error, loading, location, profiles = {} }, dispatch
             </div>
           </div>
         ` : []}
-        ${vote_position ? html`
+        ${position ? html`
           <div class="columns is-centered is-gapless">
             <div class="column is-half">
               <div class="notification has-text-centered is-info">Sign in to save your vote and hold your representatives accountable.</div>

@@ -2,9 +2,9 @@ const { ASSETS_URL } = process.env
 const stateNames = require('datasets-us-states-abbr-names')
 const {
   api, avatarURL, combineEffects, combineEffectsInSeries, escapeHtml,
-  makePoint, possessive, preventDefault, redirect, waitEffects
+  makePoint, possessive, preventDefault, waitEffects
 } = require('../helpers')
-const { fetchMeasure, fetchMeasureVotes } = require('../effects/measure')
+const { fetchMeasure } = require('../effects/measure')
 const { updateNameAndAddress } = require('../effects/user')
 const { signIn } = require('../effects/session')
 const { changePageTitle } = require('../effects/page')
@@ -17,9 +17,13 @@ module.exports = (event, state) => {
         case '/legislation/:shortId/votes/:voteId':
         case '/nominations/:shortId/votes/:voteId':
         case '/:username/:shortId/votes/:voteId':
+          const vote = state.votes && state.votes[state.location.params.voteId]
+          const commentsLoaded = vote && vote.replies
+          const backersLoaded = vote && vote.backers
           return [{
             ...state,
-            loading: { ...state.loading, page: !state.votes[event.voteId] },
+            loading: { ...state.loading, page: !state.votes[event.voteId], backers: !backersLoaded, comments: !commentsLoaded },
+            backersFilterQuery: decodeURI(state.location.query.filter || ''),
             votes: {
               ...state.votes,
               [event.voteId]: {
@@ -38,90 +42,8 @@ module.exports = (event, state) => {
         default:
           return [state]
       }
-    case 'vote:questionFormSubmitted':
-      return [{
-        ...state,
-        error: null,
-        errors: {},
-        loading: { ...state.loading, questions: true },
-      }, combineEffectsInSeries([
-        postQuestion(event, state.user),
-        fetchVoteQuestions(event.vote, state.user),
-      ])]
-    case 'vote:questionPosted':
-      return [{
-        ...state,
-        votes: {
-          ...state.votes,
-          [event.vote.id]: {
-            ...state.votes[event.vote.id],
-            showQuestionForm: false,
-          },
-        },
-      }, preventDefault(event.event)]
-    case 'vote:questionsRequested':
-      return [{
-        ...state,
-        loading: { ...state.loading, questions: true },
-      }, fetchVoteQuestions(event.vote, state.user)]
-    case 'vote:questionsReceived':
-      return [{
-        ...state,
-        loading: { ...state.loading, questions: false },
-        votes: {
-          ...state.votes,
-          [event.vote.id]: {
-            ...state.votes[event.vote.id],
-            questions: event.questions,
-          }
-        },
-      }]
-    case 'vote:questionReceived':
-      return [{
-        ...state,
-        loading: { ...state.loading, questions: false, questionsVotes: false },
-        votes: {
-          ...state.votes,
-          [event.vote.id]: {
-            ...state.votes[event.vote.id],
-            questions: (state.votes[event.vote.id].questions || []).map((question) => {
-              if (question.id === event.question.id) {
-                return event.question
-              }
-              return question
-            }),
-          }
-        },
-      }]
-    case 'vote:questionVoted':
-      if (!state.user) {
-        return [state, redirect('/join', 302)]
-      }
-
-      return [{
-        ...state,
-        error: null,
-        errors: {},
-        loading: { ...state.loading, questionsVotes: true },
-        votes: {
-          ...state.votes,
-          [event.vote.id]: {
-            ...state.votes[event.vote.id],
-            questions: state.votes[event.vote.id].questions.map((question) => {
-              question = { ...question }
-              if (question.id === event.question.id) {
-                question.current_user_voted = !question.current_user_voted
-              }
-              return question
-            }),
-          }
-        },
-      }, combineEffectsInSeries([
-        preventDefault(event.event),
-        postQuestionVote(event.question, state.user),
-        fetchVoteQuestion(event.question, event.vote, state.user),
-      ])]
     case 'vote:toggledExpanded':
+      console.log(event.vote.id, state.votes)
       return [{
         ...state,
         votes: {
@@ -152,8 +74,7 @@ module.exports = (event, state) => {
         preventDefault(event.event),
         endorse(event.vote, state.user, event.measure, event.is_public),
         typeof event.name !== 'undefined' && state.user && updateNameAndAddressFromEndorsement(event, state.user),
-        fetchMeasure(event.vote.short_id, state.offices, state.user),
-        fetchMeasureVotes(event.vote.short_id, state.location.query.order, state.location.query.position, state.user),
+        fetchMeasure(event.vote.measure.short_id, state),
         logEndorsed,
       ])]
     case 'vote:endorsedFromSignupForm':
@@ -162,7 +83,7 @@ module.exports = (event, state) => {
         loading: { ...state.loading, vote: true, endorsedFromSignupForm: true },
       }, combineEffectsInSeries([
         preventDefault(event.event),
-        signupAndEndorse(event, state.offices, state.location),
+        signupAndEndorse(event, state),
         logEndorsed,
       ])]
     case 'vote:unendorsed':
@@ -172,15 +93,13 @@ module.exports = (event, state) => {
       }, combineEffectsInSeries([
         preventDefault(event.event),
         unendorse(event.vote, state.user),
-        fetchMeasure(event.vote.short_id, state.offices, state.user),
-        fetchMeasureVotes(event.vote.short_id, state.location.query.order, state.location.query.position, state.user),
+        fetchMeasure(event.vote.measure.short_id, state),
       ])]
     case 'vote:changedPrivacy':
       return [state, combineEffectsInSeries([
         preventDefault(event.event),
         changeVotePrivacy(event.vote, event.public, state.user),
-        fetchMeasure(event.vote.short_id, state.offices, state.user),
-        fetchMeasureVotes(event.vote.short_id, state.location.query.order, state.location.query.position, state.user),
+        fetchMeasure(event.vote.measure.short_id, state),
       ])]
     case 'vote:received':
       if (!event.vote) {
@@ -214,17 +133,29 @@ module.exports = (event, state) => {
     case 'vote:replied':
       return [{
         ...state,
-        loading: { ...state.loading, reply: true },
+        loading: { ...state.loading, comments: true },
       }, combineEffects([preventDefault(event.event), reply(event, state.user)])]
     case 'vote:repliesReceived':
       return [{
         ...state,
-        loading: { ...state.loading, reply: false },
+        loading: { ...state.loading, comments: false },
         votes: {
           ...state.votes,
           [event.voteId]: {
             ...state.votes[event.voteId],
             replies: event.replies,
+          },
+        },
+      }]
+    case 'vote:backersReceived':
+      return [{
+        ...state,
+        loading: { ...state.loading, backers: false },
+        votes: {
+          ...state.votes,
+          [event.voteId]: {
+            ...state.votes[event.voteId],
+            backers: event.backers,
           },
         },
       }]
@@ -249,78 +180,43 @@ module.exports = (event, state) => {
         } : state.user,
       }, combineEffectsInSeries([
         vote(event, state.user),
-        fetchMeasure(event.measure.short_id, state.offices, state.user),
-        fetchMeasureVotes(event.measure.short_id, state.location.query.order, state.location.query.position, state.user),
+        fetchMeasure(event.measure.short_id, state),
+      ])]
+    case 'vote:backersFilterUpdated':
+      const query = event.event.target ? event.event.target.value : ''
+
+      // Set query in URL bar &filter=${query} after delay
+      debounce(() => {
+        window.history.replaceState({}, '', `${state.location.path}?tab=backers&filter=${query}`)
+      }, 50)
+
+      return [{
+        ...state,
+        backersFilterQuery: query,
+      }]
+    case 'vote:fetchRepliesAndBackers':
+      return [{
+        ...state,
+      }, combineEffects([
+        fetchVoteReplies(state.location.params.voteId, state.user),
+        fetchVoteBackers(state.location.params.voteId),
       ])]
     default:
       return [state]
   }
 }
 
-const postQuestion = ({ event, type, vote, ...formData }, user) => (dispatch) => {
-  event.preventDefault()
-
-  return api(dispatch, `/questions`, {
-    method: 'POST',
-    body: JSON.stringify(formData),
-    user,
-  })
-  .then(() => dispatch({ type: 'vote:questionPosted', vote }))
-  .catch((error) => {
-    if (error.message.match(/questions_question_check/)) {
-      error.message = `Questions must be between 12 and 512 characters.`
-    }
-    dispatch({ type: 'error', error })
-  })
-}
-
-const postQuestionVote = (question, user) => (dispatch) => {
-  if (question.current_user_voted) {
-    return deleteQuestionVote(question, user)(dispatch)
-  }
-
-  return api(dispatch, `/questions_votes`, {
-    method: 'POST',
-    body: JSON.stringify({
-      question_id: question.id,
-      user_id: user.id,
-    }),
-    user,
-  })
-  .catch((error) => dispatch({ type: 'error', error }))
-}
-
-const deleteQuestionVote = (question, user) => (dispatch) => {
-  return api(dispatch, `/questions_votes?question_id=eq.${question.id}&user_id=eq.${user.id}`, {
-    method: 'DELETE',
-    user,
-  })
-  .catch((error) => dispatch({ type: 'error', error }))
-}
-
-const fetchVoteQuestion = (question, vote, user) => (dispatch) => {
-  return api(dispatch, `/questions_detailed?id=eq.${question.id}`, { user })
-    .then(([question]) => dispatch({ type: 'vote:questionReceived', vote, question }))
-    .catch((error) => dispatch({ type: 'error', error }))
-}
-
-const fetchVoteQuestions = (vote, user) => (dispatch) => {
-  return api(dispatch, `/questions_detailed?vote_id=eq.${vote.id}&order=votes.desc,created_at.desc`, { user })
-    .then((questions) => dispatch({ type: 'vote:questionsReceived', vote, questions }))
-    .catch((error) => dispatch({ type: 'error', error }))
-}
-
 const vote = ({ event, measure, ...form }, user) => (dispatch) => {
   if (event) event.preventDefault()
 
-  if (!form.vote_position) {
+  if (!form.position) {
     return dispatch({ type: 'error', error: new Error('You must choose a position.') })
   }
 
   if (!user) {
     dispatch({ type: 'cookieSet', key: 'vote_bill_id', value: measure.id })
     dispatch({ type: 'cookieSet', key: 'vote_bill_short_id', value: measure.short_id })
-    dispatch({ type: 'cookieSet', key: 'vote_position', value: form.vote_position })
+    dispatch({ type: 'cookieSet', key: 'vote_position', value: form.position })
     dispatch({ type: 'cookieSet', key: 'vote_public', value: form.public ? 'true' : '' })
     dispatch({ type: 'cookieSet', key: 'vote_comment', value: form.comment })
 
@@ -328,13 +224,13 @@ const vote = ({ event, measure, ...form }, user) => (dispatch) => {
   }
 
   return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${measure.id}`, {
-    method: form.vote_id ? 'PATCH' : 'POST',
-    headers: { Prefer: 'return=minimal' },
+    method: measure.vote ? 'PATCH' : 'POST',
     body: JSON.stringify({
       user_id: user.id,
       measure_id: measure.id,
-      vote_position: form.vote_position,
+      position: form.position,
       root_delegate_id: user.id,
+      delegate_rank: -1,
       delegate_id: null,
       delegate_name: null,
       comment: form.comment || null,
@@ -369,7 +265,7 @@ const reportVote = (vote, user) => (dispatch) => {
 const endorse = (vote, user, measure, is_public = false) => (dispatch) => {
   const endorsed_vote = !(user && user.id === vote.user_id && vote.comment) && vote.endorsed_vote
   const { fullname, measure_id, short_id, id: vote_id } = endorsed_vote || vote
-  const position = measure && measure.vote_position
+  const position = measure && measure.vote && measure.vote.position
 
   if (!user) {
     dispatch({ type: 'cookieSet', key: 'endorsed_vote_id', value: vote_id })
@@ -380,9 +276,7 @@ const endorse = (vote, user, measure, is_public = false) => (dispatch) => {
 
   if (position) {
     let confirmation_text = 'You\'ve already '
-    if (measure.endorsed) {
-      confirmation_text += `endorsed ${possessive(measure.endorsement.fullname)} ${position} argument`
-    } else if (measure.vote_position) {
+    if (measure.vote && measure.vote.position) {
       confirmation_text += `commented. This will remove your previous comment`
     } else {
       confirmation_text += `voted ${position}`
@@ -432,10 +326,10 @@ const unendorse = (vote, user) => (dispatch) => {
   if (!window.confirm(`Are you sure you want to remove this endorsement?`)) {
     return
   }
-  return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${vote.measure_id}`, {
+  return api(dispatch, `/votes_detailed?user_id=eq.${user.id}&measure_id=eq.${vote.measure_id}`, {
     method: 'PATCH',
     body: JSON.stringify({
-      vote_position: 'abstain',
+      position: 'abstain',
       delegate_rank: -1,
       root_delegate_id: user.id,
       delegate_id: null,
@@ -470,6 +364,12 @@ const fetchVote = (id, user) => (dispatch) => {
 const fetchVoteReplies = (voteId, user) => (dispatch) => {
   return api(dispatch, `/replies_detailed?vote_id=eq.${voteId}&order=created_at.desc`, { user })
     .then((replies) => dispatch({ type: 'vote:repliesReceived', voteId, replies }))
+    .catch((error) => dispatch({ type: 'error', error }))
+}
+
+const fetchVoteBackers = (voteId) => (dispatch) => {
+  return api(dispatch, `/endorsements_detailed?vote_id=eq.${voteId}&order=created_at.asc`, { getAllPages: true })
+    .then((backers) => dispatch({ type: 'vote:backersReceived', voteId, backers }))
     .catch((error) => dispatch({ type: 'error', error }))
 }
 
@@ -531,7 +431,8 @@ const updateNameAndAddressFromEndorsement = (form, user) => (dispatch) => {
   })(dispatch)
 }
 
-const signupAndEndorse = ({ vote, ...form }, offices, location) => (dispatch) => {
+const signupAndEndorse = ({ vote, ...form }, state) => (dispatch) => {
+  const { location } = state
   const { address, email, voter_status } = form
   const error = validateNameAndAddressForm(address, form.name)
 
@@ -563,14 +464,13 @@ const signupAndEndorse = ({ vote, ...form }, offices, location) => (dispatch) =>
         user,
       })(dispatch)
         .then(() => endorse(vote, user, null, form.is_public)(dispatch))
-        .then(() => fetchMeasure(vote.short_id, offices, user)(dispatch))
-        .then(() => fetchMeasureVotes(vote.short_id, location.query.order, location.query.position, user)(dispatch))
+        .then(() => fetchMeasure(vote.measure.short_id, state)(dispatch))
     }
   })
 }
 
 const endorsementPageTitleAndMeta = (measures, vote, location) => {
-  const measure = measures[vote.short_id]
+  const measure = measures[vote.measure.short_id]
   const isCity = measure.legislature_name.includes(',')
   const anonymousName = `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
 
@@ -595,6 +495,14 @@ const endorsementPageTitleAndMeta = (measures, vote, location) => {
     title,
   }
 }
+
+const debounce = (function debouncer() {
+  let timeout = null
+  return (fn, ms) => {
+    if (timeout) clearTimeout(timeout)
+    timeout = setTimeout(fn, ms)
+  }
+}())
 
 const scrollQuestionFormIntoView = () => {
   const elem = document.getElementById('measure-vote-form')

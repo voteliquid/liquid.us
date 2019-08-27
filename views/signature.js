@@ -1,17 +1,16 @@
 const { avatarURL: getAvatarURL, linkifyUrls, html } = require('../helpers')
 const timeAgo = require('timeago.js')
-const stateNames = require('datasets-us-states-abbr-names')
 
 module.exports = (state, dispatch) => {
-  const { key, displayTitle = false, measure, vote, parent, user } = state
+  const { key, displayTitle = false, vote, parent, user } = state
   const {
-    comment, author_username, updated_at, fullname, short_id, user_id, public:
-    is_public, twitter_username, source_url, username, title
+    comment, measure, public: is_public, source_url, updated_at, offices
   } = vote
-  const avatarURL = getAvatarURL(vote)
-  const url = `${author_username}/${short_id}`
+  const avatarURL = getAvatarURL(vote.user)
+  const url = `${measure.author.username}/${measure.short_id}`
+  const district = offices.filter(({ chamber }) => chamber === 'Lower').map(({ short_name }) => short_name)[0]
   const anonymousName = measure
-    ? `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
+    ? `${district || 'American'} Resident`
     : 'Anonymous'
 
   return html`
@@ -19,8 +18,8 @@ module.exports = (state, dispatch) => {
       <div class="media">
         <div class="media-left">
           <div class="image is-32x32">
-            ${username || twitter_username
-              ? html`<a href="${`/${username || `twitter/${twitter_username}`}`}">
+            ${vote.user
+              ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">
                   <img src="${avatarURL}" alt="avatar" class="round-avatar-img" />
                 </a>`
               : html`<img src="${avatarURL}" alt="avatar" class="round-avatar-img" />`}
@@ -29,18 +28,20 @@ module.exports = (state, dispatch) => {
         <div class="media-content">
           <div>
             <span class="has-text-weight-semibold">
-              ${!is_public && user && user_id === user.id
+              ${!is_public && user && vote.user_id === user.id
                 ? 'You'
-                : username || twitter_username
-                  ? html`<a href="${`/${username || `twitter/${twitter_username}`}`}">${fullname}</a>`
+                : vote.user
+                  ? vote.user.public_profile
+                    ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">${vote.user.first_name} ${vote.user.last_name}</a>`
+                    : html`<span>${vote.user.first_name} ${vote.user.last_name}</span>`
                   : anonymousName}
             </span>
-            ${displayTitle ? html`<span>signed the petition <a href="${url}">${title}</a></span>` : html``}
+            ${displayTitle ? html`<span>signed the petition <a href="${url}">${measure.title}</a></span>` : html``}
             ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}
           </div>
           ${comment ? commentContent(key, vote, parent, dispatch) : ''}
           <div class="is-size-7">
-            <a class="has-text-grey-light">${timeAgo().format(`${updated_at}Z`)}</a>
+            <span class="has-text-grey-light">${timeAgo().format(`${updated_at}Z`)}</span>
             <span class="has-text-grey-light">
               ${user && comment ? reportLink(key, vote, url, dispatch) : ''}
             </span>

@@ -15,6 +15,7 @@ const trackPageView = require('./effects/pageview')
 
 module.exports = {
   init: [{
+    actions: [],
     cookies: {}, // initialized in browser/server.js
     contactForm: { open: false, submitted: false },
     error: null,
@@ -60,6 +61,8 @@ module.exports = {
     const eventPrefix = event.type.split(':')[0]
 
     switch (eventPrefix) {
+      case 'activity':
+        return require('./models/activity')(event, state)
       case 'contactForm':
         return require('./models/contact')(event, state)
       case 'error':
@@ -144,8 +147,9 @@ module.exports = {
             case '/:username':
             case '/twitter/:username':
               return require('./models/profile')(event, state)
-            case '/legislation':
-            case '/legislation/propose':
+            case '/activity':
+              return require('./models/activity')(event, state)
+            case '/legislation/create':
             case '/petitions/create':
             case '/petitions/yours':
             case '/legislation/yours':
