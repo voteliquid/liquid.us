@@ -77,8 +77,8 @@ const userSearchResult = (result, dispatch) => {
       onfocus="${() => dispatch({ type: 'resultFocused', result })}" href="${href}" class="search-result" style="display: block; padding: .3rem 1rem;">
       <div class="media is-marginless">
         <div class="media-left">
-          <div class="image is-32x32" style="${{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}">
-            <img src=${avatarURL(result)} class="is-rounded" />
+          <div class="image is-32x32">
+            <img src=${avatarURL(result)} class="is-rounded" style="max-height: none !important;" />
           </div>
         </div>
         <div class="media-content">

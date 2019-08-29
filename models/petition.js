@@ -1,4 +1,5 @@
 const { combineEffects, combineEffectsInSeries, preventDefault } = require('../helpers')
+const { fetchMeasure } = require('../effects/measure')
 
 module.exports = (event, state) => {
   switch (event.type) {
@@ -47,7 +48,7 @@ module.exports = (event, state) => {
       }, combineEffectsInSeries([
         preventDefault(event.event),
         importEffect('sign', event, state.user, event.comment),
-        importEffect('fetchMeasure', event.measure.short_id, state),
+        fetchMeasure(event.measure.short_id, state),
       ])]
     case 'petition:signatureSignupFormSubmitted':
       return [{
