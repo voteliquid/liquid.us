@@ -1,6 +1,8 @@
 const { handleForm, html } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
 const stateNames = require('datasets-us-states-names-abbr')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faTable } = require('@fortawesome/free-solid-svg-icons/faTable')
 
 module.exports = (state, dispatch) => {
   const { displayPosition = true, measures, loading, location } = state
@@ -67,7 +69,7 @@ const filterView = (state, dispatch) => {
           <form class="field" method="POST" onsubmit=${handleForm(dispatch, { type: 'measure:voteCSVRequested', measure })}>
             <div class="control">
               <button type="submit" disabled=${loading.voteReport} class="${`button ${loading.voteReport ? 'is-loading' : ''}`}">
-                <span class="icon is-small"><i class="fas fa-table"></i></span>
+                <span class="icon is-small">${icon(faTable)}</span>
                 <span>Download CSV</span>
               </button>
             </div>

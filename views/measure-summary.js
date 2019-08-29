@@ -1,4 +1,7 @@
 const { html, linkifyUrls } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faMinus } = require('@fortawesome/free-solid-svg-icons/faMinus')
+const { faPlus } = require('@fortawesome/free-solid-svg-icons/faPlus')
 
 module.exports = ({ measure, size = 6 }, dispatch) => {
   const expanded = measure.alwaysExpanded ? true : measure.expanded
@@ -19,7 +22,7 @@ module.exports = ({ measure, size = 6 }, dispatch) => {
       <div class="${`read-more ${summary && summary.length > 512 ? '' : 'is-hidden'}`}"></div>
       <a class="${`read-more-link is-size-7 ${summary && summary.length > 512 ? '' : 'is-hidden'}`}" href="#" onclick=${(event) => dispatch({ type: 'measure:toggleSummaryExpanded', measure, event })}>
         ${summary && !measure.alwaysExpanded
-          ? html`<span class="icon is-small"><i class="${`fa fa-${expanded ? 'minus' : 'plus'}`}"></i></span> ${expanded ? 'Show less' : 'Show more'}`
+          ? html`<span class="icon is-small">${expanded ? icon(faMinus) : icon(faPlus)}</span> ${expanded ? 'Show less' : 'Show more'}`
           : ''}
       </a>
       <style>

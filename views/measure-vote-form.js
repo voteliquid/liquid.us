@@ -1,4 +1,8 @@
 const { handleForm, html } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faUsers } = require('@fortawesome/free-solid-svg-icons/faUsers')
+const { faEdit } = require('@fortawesome/free-solid-svg-icons/faEdit')
+const { faAddressBook } = require('@fortawesome/free-solid-svg-icons/faAddressBook')
 
 module.exports = (state, dispatch) => {
   const { error, loading, location, measure: l, user } = state
@@ -13,7 +17,7 @@ module.exports = (state, dispatch) => {
       </div>
       ${v.id && !v.comment && l.votePower !== undefined && public_checked ? html`
         <p class="notification">
-          <span class="icon"><i class="fa fa-users"></i></span>
+          <span class="icon">${icon(faUsers)}</span>
           ${v.id ? 'You cast' : 'You are casting'}
           a vote for <strong>${l.votePower}</strong> people as their proxy.
           Consider including an explanation of your position.
@@ -41,10 +45,10 @@ module.exports = (state, dispatch) => {
           <div class="column">
             <div class="control has-text-right has-text-left-mobile has-text-grey is-size-7">
               ${public_checked && l.votePower !== undefined ? html`
-                  <span class="icon"><i class="fas fa-users"></i></span>You are casting
+                  <span class="icon">${icon(faUsers)}</span>You are casting
                   a vote for <span class="has-text-weight-semibold">${l.votePower}</span> people as their proxy.
               ` : l.votePower !== undefined ? html`
-                  <span class="icon"><i class="fas fa-address-book"></i></span>You are casting
+                  <span class="icon">${icon(faAddressBook)}</span>You are casting
                   a private vote for yourself only. Only you can see it.
               ` : ''}
             </div>
@@ -60,7 +64,7 @@ module.exports = (state, dispatch) => {
         <div class="field is-grouped">
           <div class="control">
             <button class=${`button ${loading.vote ? 'is-loading' : ''}`} disabled=${loading.vote} type="submit">
-              <span class="icon"><i class="fa fa-edit"></i></span>
+              <span class="icon">${icon(faEdit)}</span>
               <span>${v.id ? 'Save' : 'Publish'}</span>
             </button>
           </div>

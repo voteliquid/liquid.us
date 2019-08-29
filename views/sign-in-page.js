@@ -1,5 +1,8 @@
 const { handleForm, html } = require('../helpers')
 const atob = require('atob')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faUser } = require('@fortawesome/free-solid-svg-icons/faUser')
+const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
 
 module.exports = ({ cookies, error, loading, location, profiles = {} }, dispatch) => {
   const proxying_username = cookies.proxying_username
@@ -74,10 +77,10 @@ module.exports = ({ cookies, error, loading, location, profiles = {} }, dispatch
                   <input name="vote_public" type="hidden" value="${cookies.vote_public}" />
                   <input name="email" class="${`input ${hasError ? 'is-danger' : ''}`}" type="text" placeholder="you@example.com" />
                   <span class="icon is-small is-left">
-                    <i class="fa fa-user"></i>
+                    ${icon(faUser)}
                   </span>
                   ${hasError ? html`<span class="icon is-small is-right">
-                    <i class="fa fa-warning"></i>
+                    ${icon(faExclamationTriangle)}
                   </span>` : ''}
                   ${hasError ? html`<p class="help is-danger">${error.message}</p>` : ''}
                 </div>

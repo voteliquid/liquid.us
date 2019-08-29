@@ -1,5 +1,5 @@
 const { ASSETS_URL } = process.env
-const { avatarURL, html } = require('../helpers')
+const { avatarURL, html, linkifyUrls } = require('../helpers')
 const signatureCount = require('./petition-signature-count')
 const measureSummary = require('./measure-summary')
 const sidebar = require('./petition-page-sidebar')
@@ -9,8 +9,9 @@ const commentsView = require('./measure-comments')
 const signaturesView = require('./measure-votes')
 
 module.exports = (state, dispatch) => {
-  const { location, measures, user } = state
+  const { location, measures, user, votes } = state
   const measure = measures[location.params.shortId]
+  const vote = votes[location.params.voteId]
   const hideTargetReps = (l) => l.author_username === 'councilmemberbas'
   const isDane = (l) => l.short_id === 'press-pause-on-227m-new-jail'
   const measureUrl = `/${measure.author.username}/${measure.short_id}`
@@ -33,7 +34,15 @@ module.exports = (state, dispatch) => {
               : targetReps({ measure, ...state }, dispatch)
             }
             <hr />
-            ${measureSummary({ measure, size: 5 }, dispatch)}
+            ${vote && vote.comment ? html.for(vote, `petition-comment-content-${vote.id}`)`
+              <div>
+                <div class="content is-size-5">
+                  ${{ html: linkifyUrls(vote.comment) }}
+                </div>
+                <hr />
+              </div>
+            ` : html``}
+            ${measureSummary({ measure, size: vote ? 6 : 5 }, dispatch)}
             <div class="is-hidden-tablet">
               ${measure.showMobileEndorsementForm ? '' : mobileHoverBar(measure, dispatch)}
             </div>

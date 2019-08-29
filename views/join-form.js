@@ -1,6 +1,10 @@
 const { APP_NAME } = process.env
 const { handleForm, html } = require('../helpers')
 const atob = require('atob')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faUser } = require('@fortawesome/free-solid-svg-icons/faUser')
+const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
+const { faLock } = require('@fortawesome/free-solid-svg-icons/faLock')
 
 module.exports = ({ cookies, error, loading, location, profiles = {}, usersCount }, dispatch) => {
   const proxy_to = cookies.proxying_username || location.query.proxy_to
@@ -61,10 +65,10 @@ module.exports = ({ cookies, error, loading, location, profiles = {}, usersCount
               <div class="${`control is-expanded has-icons-left ${hasError ? 'has-icons-right' : ''}`}">
                 <input name="email" class="${`input ${hasError ? 'is-danger' : ''}`}" type="text" required placeholder="you@example.com" />
                 <span class="icon is-small is-left">
-                  <i class="fa fa-user"></i>
+                  ${icon(faUser)}
                 </span>
                 ${hasError ? html`<span class="icon is-small is-right">
-                  <i class="fa fa-warning"></i>
+                  ${icon(faExclamationTriangle)}
                 </span>` : ''}
                 ${hasError ? html`<p class="help is-danger">${error.message}</p>` : ''}
               </div>
@@ -82,7 +86,7 @@ module.exports = ({ cookies, error, loading, location, profiles = {}, usersCount
             <div class="content">
               <p>
                 <span class="icon is-small has-text-grey-lighter">
-                  <i class="fa fa-lock"></i>
+                  ${icon(faLock)}
                 </span>
                 No need to choose a password &mdash; one less thing to forget or have compromised.
               </p>

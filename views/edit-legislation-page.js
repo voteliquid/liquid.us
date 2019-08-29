@@ -88,8 +88,7 @@ const form = (state, dispatch) => {
       <div class="field is-grouped">
         <div class="control">
           <button class=${`button is-primary ${loading.form === 'saving' ? 'is-loading' : ''}`} disabled="${loading.form}" type="submit">
-            <span class="icon"><i class="fa fa-edit"></i></span>
-            <span>Save</span>
+            ${measure.id ? 'Save' : 'Create'}
           </button>
         </div>
       </div>

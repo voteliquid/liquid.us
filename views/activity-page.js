@@ -1,4 +1,4 @@
-const { escapeHtml, html } = require('../helpers')
+const { escapeHtml, html, prettyShortId } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
 const timeAgo = require('timeago.js')
 const voteView = require('./vote')
@@ -107,7 +107,7 @@ const actionContent = (state, action, dispatch) => {
       return html`
         <h4 class="has-text-weight-bold is-size-6" style="padding-bottom: .5em;">
           <a href="${`/${action.resource.author_username || 'legislation'}/${action.resource.short_id}`}">
-            ${action.resource.title}
+            ${action.resource.author_id ? action.resource.title : `${prettyShortId(action.resource.short_id)} - ${action.resource.title}`}
           </a>
         </h4>
         ${action.resource.summary ? html`

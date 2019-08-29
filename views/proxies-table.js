@@ -1,5 +1,10 @@
 const { api, avatarURL, handleForm, html } = require('../helpers')
 const { animateProxies, reorderProxyRanks } = require('../effects/proxy')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faTimes } = require('@fortawesome/free-solid-svg-icons/faTimes')
+const { faBars } = require('@fortawesome/free-solid-svg-icons/faBars')
+const { faArrowUp } = require('@fortawesome/free-solid-svg-icons/faArrowUp')
+const { faArrowDown } = require('@fortawesome/free-solid-svg-icons/faArrowDown')
 
 module.exports = (state, dispatch) => {
   const { proxies = [], user } = state
@@ -34,10 +39,10 @@ const proxyListItem = (proxies, proxy, idx, user, dispatch) => {
             <div class="image is-32x32">
               ${username || twitter_username
               ? html`<a href="${username ? `/${username}` : `/twitter/${twitter_username}`}" target="_blank">
-                  <img src=${avatarURL(proxy)} class="round-avatar-img" />
+                  <img src=${avatarURL(proxy)} class="is-rounded" />
                 </a>`
               : html`
-                <img src=${avatarURL(proxy)} class="round-avatar-img" />
+                <img src=${avatarURL(proxy)} class="is-rounded" />
               `}
             </div>
           </div>
@@ -58,10 +63,12 @@ const proxyListItem = (proxies, proxy, idx, user, dispatch) => {
               <input value="${to_id}" name="to_id" type="hidden" />
               <input value="${id}" name="id" type="hidden" />
               <button class="button is-small" type="submit" title="Remove">
-                <span class="icon has-text-grey"><i class="fa fa-times"></i></span>
+                <span class="icon has-text-grey">${icon(faTimes)}</span>
               </button>
             </form>
-            <span style="cursor: move;" class="icon has-text-grey is-hidden-touch" title="Click and hold to drag to a new position"><i class="fa fa-bars"></i></span>
+            <span style="cursor: move;" class="icon has-text-grey is-hidden-touch" title="Click and hold to drag to a new position">
+              ${icon(faBars)}
+            </span>
           </div>
         </div>
       </td>
@@ -76,7 +83,7 @@ const moveButton = ({ direction, id, idx }, dispatch) => {
       <input name="reorder_proxies[direction]" value=${direction} type="hidden" />
       <input name="reorder_proxies[index]" value=${idx} type="hidden" />
       <button class="button is-small" type="submit" title=${`Move ${direction}`}>
-        <span class="icon has-text-grey"><i class=${`fa fa-arrow-${direction}`}></i></span>
+        <span class="icon has-text-grey">${direction === 'up' ? icon(faArrowUp) : icon(faArrowDown)}</span>
       </button>
     </form>
   `

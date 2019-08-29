@@ -1,6 +1,10 @@
 const { APP_NAME } = process.env
 const { avatarURL, handleForm, html } = require('../helpers')
 const legislatorScoreCard = require('./legislator-scorecard')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faHandshake } = require('@fortawesome/free-solid-svg-icons/faHandshake')
+const { faSortUp } = require('@fortawesome/free-solid-svg-icons/faSortUp')
+const { faSortDown } = require('@fortawesome/free-solid-svg-icons/faSortDown')
 
 module.exports = (state, dispatch) => {
   const { location, profiles, user, reps } = state
@@ -32,7 +36,7 @@ module.exports = (state, dispatch) => {
                 <h2 class="subtitle is-6 has-text-grey">${profile.office.name}</h2>
                 <form onsubmit=${handleForm(dispatch, { type: 'proxy:addedProxyViaProfile', profile })} method="POST">
                   ${html`<button disabled=${proxied} type="submit" class="button">
-                    <span class="icon is-small"><i class="far fa-handshake"></i></span>
+                    <span class="icon is-small">${icon(faHandshake)}</span>
                     <span>&nbsp;Prox${proxied ? 'ied' : 'y'} to ${profile.first_name}</span>
                   </button>`}
                   ${proxied ? html`
@@ -81,7 +85,7 @@ const latestVotesTable = (location, profile, user) => {
           </style>
           <th style="vertical-align: bottom;" rowspan="2">
             <a href=${setQuery(query, { order_by: 'date', order: order_by === 'date' ? opposite_order : 'desc' })}>
-              <span>Date&nbsp;${order_by === 'date' ? html`<i class="${`fa ${order === 'asc' ? `fa-sort-asc` : `fa-sort-desc`}`}" style="display:inline;"></i></span>` : ''}
+              <span>Date&nbsp;${order_by === 'date' ? order === 'asc' ? icon(faSortUp) : icon(faSortDown) : ''}</span>
             </a>
           </th>
           <th style="vertical-align: bottom;" rowspan="2">Bill</th>
@@ -96,12 +100,12 @@ const latestVotesTable = (location, profile, user) => {
         <tr>
           <th class="has-text-centered">
             <a href=${setQuery(query, { order_by: 'with_constituents', order: order_by === 'with_constituents' ? opposite_order : 'desc' })}>
-              <span>With&nbsp;${order_by === 'with_constituents' ? html`<i class="${`fa ${order === 'asc' ? `fa-sort-asc` : `fa-sort-desc`}`}" style="display:inline;"></i></span>` : ''}
+              <span>With&nbsp;${order_by === 'with_constituents' ? order === 'asc' ? icon(faSortUp) : icon(faSortDown) : ''}
             </a>
           </th>
           <th class="has-text-centered">
             <a href=${setQuery(query, { order_by: 'against_constituents', order: order_by === 'against_constituents' ? opposite_order : 'desc' })}>
-              <span>Against&nbsp;${order_by === 'against_constituents' ? html`<i class="${`fa ${order === 'asc' ? `fa-sort-asc` : `fa-sort-desc`}`}" style="display:inline;"></i></span>` : ''}
+              <span>Against&nbsp;${order_by === 'against_constituents' ? order === 'asc' ? icon(faSortUp) : icon(faSortDown) : ''}
             </a>
           </th>
         </tr>

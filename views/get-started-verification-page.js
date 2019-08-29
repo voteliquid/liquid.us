@@ -1,5 +1,8 @@
 const { WWW_DOMAIN } = process.env
 const { handleForm, html } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faKey } = require('@fortawesome/free-solid-svg-icons/faKey')
+const { faMobileAlt } = require('@fortawesome/free-solid-svg-icons/faMobileAlt')
 
 module.exports = ({ error, loading, forms: { verification: formData = {} }, user }, dispatch) => {
   return html`
@@ -50,7 +53,7 @@ const verifyOtpForm = (error, phone, { verification: loading }, dispatch) => {
       <div class="field is-grouped">
         <div class="control has-icons-left">
           <input name="otp" class="${`input ${error ? 'is-danger' : ''}`}" type="text" placeholder="123 578" />
-          <span class="icon is-left"><i class="fa fa-key"></i></span>
+          <span class="icon is-left">${icon(faKey)}</span>
           <p class="help">
             Didn't receive it?
             <a href="/get_started/verification" onclick=${(event) => dispatch({ type: 'onboard:toggledVerificationCodeForm', event })}>Try again</a>
@@ -81,7 +84,7 @@ const requestOtpForm = (error, { verification: loading }, dispatch) => {
         <div class="control has-icons-left">
 
           <input name="phone" class="${`input ${error ? 'is-danger' : ''}`}" type="tel" placeholder="(415) 123-1234" />
-          <span class="icon is-left"><i class="fa fa-mobile-alt"></i></span>
+          <span class="icon is-left">${icon(faMobileAlt)}</span>
           <p class="help">We won't share your number with anyone.</p>
         </div>
       </div>

@@ -1,12 +1,14 @@
 const { WWW_URL } = process.env
 const { avatarURL: getAvatarURL, handleForm, linkifyUrls, html } = require('../helpers')
 const timeAgo = require('timeago.js')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faPencilAlt } = require('@fortawesome/free-solid-svg-icons/faPencilAlt')
 
 module.exports = (state, dispatch) => {
   const { key, vote, parent, padded = true, showBill, user } = state
   const {
     id, comment, endorsement, measure, position, proxy_vote_count, public:
-    is_public, source_url, updated_at, locality, administrative_area_level_1
+    is_public, source_url, updated_at
   } = vote
   const avatarURL = getAvatarURL(vote.user)
   let measure_url = `${measure.type === 'nomination' ? '/nominations' : '/legislation'}/${measure.short_id}`
@@ -16,9 +18,6 @@ module.exports = (state, dispatch) => {
   const comment_url = `${measure_url}/votes/${id}`
   const share_url = `${WWW_URL}${comment_url}`
   const measure_title = measure.number ? `${measure.short_id.replace(/^[^-]+-/, '').toUpperCase()} — ${measure.title}` : measure.title
-  const anonymousName = measure
-    ? `${locality}, ${administrative_area_level_1} Resident`
-    : 'Anonymous'
   const onBehalfOfCount = proxy_vote_count
 
   return html`
@@ -28,9 +27,9 @@ module.exports = (state, dispatch) => {
           <div class="image is-32x32">
             ${vote.user && vote.user.public_profile
               ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">
-                  <img src="${avatarURL}" alt="avatar" class="round-avatar-img" />
+                  <img src="${avatarURL}" alt="avatar" class="is-rounded" />
                 </a>`
-              : html`<img src="${avatarURL}" alt="avatar" class="round-avatar-img" />`}
+              : html`<img src="${avatarURL}" alt="avatar" class="is-rounded" />`}
           </div>
         </div>
         <div class="media-content">
@@ -42,7 +41,7 @@ module.exports = (state, dispatch) => {
                   ? vote.user.public_profile
                     ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">${vote.user.first_name} ${vote.user.last_name}</a>`
                     : html`<span>${vote.user.first_name} ${vote.user.last_name}</span>`
-                  : anonymousName}
+                  : '[private]'}
             </span>
             ${html`<span>voted <strong style="${`color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};`}">${position}</strong>${onBehalfOfCount > 1 && is_public ? html` on behalf of <span class="has-text-weight-semibold">${onBehalfOfCount}</span> people` : ''}${is_public ? '' : ' privately'}</span>`}
             ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}
@@ -66,7 +65,7 @@ module.exports = (state, dispatch) => {
               ${user && user.id === vote.user_id ? html`
                 <span class="has-text-grey-lighter">&bullet;</span>
                 <a href="${`${measure_url}#measure-vote-form`}" onclick=${(event) => dispatch({ type: 'measure:voteFormActivated', measure, event })} class="has-text-grey-light">
-                  <span class="icon is-small"><i class="fas fa-pencil-alt"></i></span>
+                  <span class="icon is-small">${icon(faPencilAlt)}</span>
                   <span>Edit</span>
                 </a>
               ` : ''}

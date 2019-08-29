@@ -2,6 +2,9 @@ const { handleForm, html } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
 const signatureView = require('./signature')
 const voteView = require('./vote')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faComment } = require('@fortawesome/free-solid-svg-icons/faComment')
+const { faPlus } = require('@fortawesome/free-solid-svg-icons/faPlus')
 
 module.exports = (state, dispatch) => {
   const { displayFilters = true, loading, location, measures, votes } = state
@@ -99,7 +102,7 @@ const filtersView = (state, dispatch) => {
                 onclick=${(event) => dispatch({ type: 'measure:voteFormActivated', measure, event })}
                 class="${`button is-small ${measure.showVoteForm ? 'is-hidden' : ''}`}"
               >
-                <span class="icon"><i class="fa fa-comment"></i></span>
+                <span class="icon">${icon(faComment)}</span>
                 <span>Add your argument</span>
               </button>
             </div>
@@ -108,7 +111,7 @@ const filtersView = (state, dispatch) => {
             <div class="field is-narrow">
               <div class="control">
                 <a href=${`${location.path}/import`} class="button is-link has-text-weight-semibold is-small">
-                  <span class="icon"><i class="fa fa-plus-circle"></i></span>
+                  <span class="icon">${icon(faPlus)}</span>
                   <span>Import external argument</span>
                 </a>
               </div>

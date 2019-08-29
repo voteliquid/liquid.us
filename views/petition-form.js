@@ -1,4 +1,8 @@
 const { handleForm, html } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faUser } = require('@fortawesome/free-solid-svg-icons/faUser')
+const { faLock } = require('@fortawesome/free-solid-svg-icons/faLock')
+const { faMapMarkerAlt } = require('@fortawesome/free-solid-svg-icons/faMapMarkerAlt')
 
 module.exports = (state, dispatch) => {
   const { loading, user, measure } = state
@@ -16,7 +20,7 @@ module.exports = (state, dispatch) => {
         <label class="label has-text-grey">Your Name *</label>
         <div class="control has-icons-right">
           <input name="name" autocomplete="off" class="input" placeholder="John Doe" required value="${name}" required disabled=${!!name} />
-          <span class="icon is-small is-right"><i class="${`fa fa-${name ? 'lock' : 'user'}`}"></i></span>
+          <span class="icon is-small is-right">${name ? icon(faLock) : icon(faUser)}</span>
         </div>
       </div>
       <div class="field">
@@ -24,7 +28,7 @@ module.exports = (state, dispatch) => {
         <div class="field has-addons join-input-field">
           <div class="control is-expanded has-icons-right">
             <input name="email" class="input" type="text" placeholder="you@example.com" value=${user.email} required disabled />
-            <span class="icon is-small is-right"><i class="fa fa-lock"></i></span>
+            <span class="icon is-small is-right">${icon(faLock)}</span>
           </div>
         </div>
       </div>
@@ -32,7 +36,7 @@ module.exports = (state, dispatch) => {
         <label class="label has-text-grey">Your Address</label>
         <div class="control has-icons-right">
           <input onconnected=${initGoogleMaps} id="address_autocomplete_sidebar" class="input" autocomplete="off" name="address" placeholder="185 Berry Street, San Francisco, CA 94121" value="${address}" disabled=${!!address} />
-          <span class="icon is-small is-right"><i class="${`fa fa-${address ? 'lock' : 'map-marker-alt'}`}"></i></span>
+          <span class="icon is-small is-right">${address ? icon(faLock) : icon(faMapMarkerAlt)}</span>
         </div>
         <p class="is-size-7" style="margin-top: .3rem;">So your reps know you're their constituent.</p>
       </div>

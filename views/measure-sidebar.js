@@ -3,6 +3,10 @@ const { avatarURL, capitalize, html } = require('../helpers')
 const stateNames = require('datasets-us-states-abbr-names')
 const editButtons = require('./measure-edit-buttons')
 const shareButtons = require('./measure-share-buttons')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faExternalLinkAlt } = require('@fortawesome/free-solid-svg-icons/faExternalLinkAlt')
+const { faCheckCircle } = require('@fortawesome/free-regular-svg-icons/faCheckCircle')
+const { faCircle } = require('@fortawesome/free-regular-svg-icons/faCircle')
 
 module.exports = (state, dispatch) => {
   const { measure } = state
@@ -92,7 +96,7 @@ const measureStatusPanel = (measure) => {
             <li class="${`step ${fulfilled ? 'fulfilled' : 'has-text-grey'}`}">
               <div class="columns is-gapless is-multiline is-mobile">
                 <div class="column is-two-thirds">
-                  <span class="icon is-small"><i class="${`far ${fulfilled ? 'fa-check-circle' : 'fa-circle'}`}"></i></span>
+                  <span class="icon is-small">${fulfilled ? icon(faCheckCircle) : icon(faCircle)}</span>
                   <span>${step}</span>
                 </div>
                 <div class="column is-one-third has-text-right">
@@ -174,7 +178,7 @@ const measureLinksPanel = (measure) => {
           <div class="has-text-right">
             <a href="${url}">
               ${domain}
-              <span class="icon is-small"><i class="fas fa-external-link-alt"></i></span>
+              <span class="icon is-small">${icon(faExternalLinkAlt)}</span>
             </a>
           </div>
         </div>

@@ -2,6 +2,9 @@ const { APP_NAME, WWW_DOMAIN } = process.env
 const { avatarURL, handleForm, html, linkifyUrls } = require('../helpers')
 const endorsedVoteView = require('../views/endorsed-vote')
 const signatureView = require('../views/signature')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faUser } = require('@fortawesome/free-solid-svg-icons/faUser')
+const { faHandshake } = require('@fortawesome/free-solid-svg-icons/faHandshake')
 
 module.exports = (state, dispatch) => {
   const { location, measures, proxied_name, profiles, user, votes } = state
@@ -136,7 +139,7 @@ const proxyButton = (profile, { user }, dispatch) => {
     <form onsubmit="${handleForm(dispatch, { type: 'proxy:addedProxyViaProfile', profile })}" method="POST">
       <div class="buttons has-addons is-centered is-marginless">
         <span class="button is-static">
-          <span class="icon is-small"><i class="far fa-handshake"></i></span>
+          <span class="icon is-small">${icon(faHandshake)}</span>
           <span>${profile.max_vote_power || 1}</span>
         </span>
         <button
@@ -163,7 +166,7 @@ const proxyButton = (profile, { user }, dispatch) => {
 const unverifiedNotification = () => {
   return html`
     <div class="notification">
-      <span class="icon"><i class="fa fa-user"></i></span> Want a profile page of your own? <a href="/get_started"><strong>Finish verification</strong></a> to start to build your voting power.
+      <span class="icon">${icon(faUser)}</span> Want a profile page of your own? <a href="/get_started"><strong>Finish verification</strong></a> to start to build your voting power.
     </div>
   `
 }

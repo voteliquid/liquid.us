@@ -1,5 +1,7 @@
 const { html, possessive } = require('../helpers')
 const ordinalSuffix = require('ordinal-suffix')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faQuestion } = require('@fortawesome/free-solid-svg-icons/faQuestion')
 
 module.exports = (state) => {
   const { grade, first_name, office, party_affiliation } = state
@@ -21,7 +23,7 @@ module.exports = (state) => {
             <span class="has-text-weight-bold has-text-grey-dark is-size-6">${ordinalSuffix(percentile)} </span>
             <span class="is-size-6 has-text-grey">percentile among ${office.chamber === 'Lower' ? 'House' : 'Senate'} ${party_affiliation}s</span>
           ` : html`
-            <span class="has-text-weight-bold has-text-grey-dark is-size-5"><span class="icon"><i class="fa fa-question"></i></span></span>
+            <span class="has-text-weight-bold has-text-grey-dark is-size-5"><span class="icon">${icon(faQuestion)}</span></span>
             <span>Need more constituent votes to calculate their scorecard.<span>
           `}
         </p>

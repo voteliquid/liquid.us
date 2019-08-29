@@ -4,14 +4,10 @@ const timeAgo = require('timeago.js')
 module.exports = (state, dispatch) => {
   const { key, displayTitle = false, vote, parent, user } = state
   const {
-    comment, measure, public: is_public, source_url, updated_at, offices
+    comment, measure, public: is_public, source_url, updated_at
   } = vote
   const avatarURL = getAvatarURL(vote.user)
   const url = `${measure.author.username}/${measure.short_id}`
-  const district = offices.filter(({ chamber }) => chamber === 'Lower').map(({ short_name }) => short_name)[0]
-  const anonymousName = measure
-    ? `${district || 'American'} Resident`
-    : 'Anonymous'
 
   return html`
     <div class="comment" style="margin-bottom: 1.5em;">
@@ -20,9 +16,9 @@ module.exports = (state, dispatch) => {
           <div class="image is-32x32">
             ${vote.user
               ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">
-                  <img src="${avatarURL}" alt="avatar" class="round-avatar-img" />
+                  <img src="${avatarURL}" alt="avatar" class="is-rounded" />
                 </a>`
-              : html`<img src="${avatarURL}" alt="avatar" class="round-avatar-img" />`}
+              : html`<img src="${avatarURL}" alt="avatar" class="is-rounded" />`}
           </div>
         </div>
         <div class="media-content">
@@ -34,7 +30,7 @@ module.exports = (state, dispatch) => {
                   ? vote.user.public_profile
                     ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">${vote.user.first_name} ${vote.user.last_name}</a>`
                     : html`<span>${vote.user.first_name} ${vote.user.last_name}</span>`
-                  : anonymousName}
+                  : '[Private]'}
             </span>
             ${displayTitle ? html`<span>signed the petition <a href="${url}">${measure.title}</a></span>` : html``}
             ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}

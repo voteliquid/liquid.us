@@ -384,3 +384,12 @@ exports.download = (content, fileName, mimeType) => {
     window.location.href = `data:application/octet-stream,${encodeURIComponent(content)}` // only this mime type is supported
   }
 }
+
+exports.prettyShortId = (shortId) => {
+  return (shortId || '')
+    .split('-')
+    .slice(1)
+    .join('-')
+    .toUpperCase()
+    .replace(/(\d+)/, ' $1')
+}

@@ -1,6 +1,9 @@
 const { html } = require('../helpers')
 const loadingIndicator = require('../views/activity-indicator')
 const editButtons = require('../views/measure-edit-buttons')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faPencilAlt } = require('@fortawesome/free-solid-svg-icons/faPencilAlt')
+const { faFile } = require('@fortawesome/free-solid-svg-icons/faFile')
 
 module.exports = (state, dispatch) => {
   const { user } = state
@@ -30,22 +33,22 @@ const proposedLegislationList = (state, dispatch) => {
   const usersMeasures = Object.values(measures).filter(({ author_id }) => author_id === user.id)
   return html`
     <div>
-      <h2 class="title is-5">Legislation</h2>
+      <h2 class="title is-5">Bills and Petitions</h2>
       <div style="margin-bottom: 2em;">
-        <a class="button is-small" href="/petitions/create">
-          <span class="icon"><i class='fa fa-pencil-alt'></i></span>
-          <span class="has-text-weight-semibold">Start a Petition</span>
-        </a>
         <a class="button is-small" href="/legislation/create">
-          <span class="icon"><i class='fa fa-file'></i></span>
+          <span class="icon">${icon(faFile)}</span>
           <span class="has-text-weight-semibold">Propose a Bill</span>
+        </a>
+        <a class="button is-small" href="/petitions/create">
+          <span class="icon">${icon(faPencilAlt)}</span>
+          <span class="has-text-weight-semibold">Start a Petition</span>
         </a>
       </div>
       ${loading.page
         ? loadingIndicator()
         : usersMeasures.length
           ? usersMeasures.map((measure) => proposedLegislationItem(state, measure, dispatch))
-          : html`<p>You have not proposed any legislation.</p>`}
+          : html`<p>You have not proposed any bills or petitions.</p>`}
     </div>
   `
 }

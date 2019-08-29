@@ -1,5 +1,9 @@
 const { WWW_URL } = process.env
 const { html } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faTwitter } = require('@fortawesome/free-brands-svg-icons/faTwitter')
+const { faFacebook } = require('@fortawesome/free-brands-svg-icons/faFacebook')
+const { faLink } = require('@fortawesome/free-solid-svg-icons/faLink')
 
 module.exports = (state) => {
   const ClipboardJS = typeof window === 'object' && require('clipboard')
@@ -20,10 +24,10 @@ module.exports = (state) => {
 
   return html`
     <a class="is-small" href="${twitter_url}" title="Share on Twitter">
-      <span class="icon"><i class="fab fa-twitter"></i></span><span>Twitter</span>
+      <span class="icon">${icon(faTwitter)}</span><span>Twitter</span>
     </a>
     <a class="is-small" href="${facebook_url}" title="Share on Facebook">
-      <span class="icon"><i class="fab fa-facebook"></i></span><span>Facebook</span>
+      <span class="icon">${icon(faFacebook)}</span><span>Facebook</span>
     </a>
     <link rel="stylesheet" href="/assets/bulma-tooltip.min.css">
     <a
@@ -34,7 +38,7 @@ module.exports = (state) => {
       title="Permalink"
       onclick=${copy2clipboard}
     >
-      <span class="icon"><i class="fa fa-link"></i></span><span>Permalink</span>
+      <span class="icon">${icon(faLink)}</span><span>Permalink</span>
     </a>
   `
 }

@@ -1,5 +1,9 @@
 const { APP_NAME, WWW_DOMAIN } = process.env
 const { handleForm, html } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
+const { faUser } = require('@fortawesome/free-solid-svg-icons/faUser')
+const { faMapMarkerAlt } = require('@fortawesome/free-solid-svg-icons/faMapMarkerAlt')
 
 module.exports = ({ error, loading, location, user }, dispatch) => {
   return html`
@@ -22,8 +26,8 @@ module.exports = ({ error, loading, location, user }, dispatch) => {
               <div class="control has-icons-left">
                 <input name="name" autocomplete="off" class=${`input ${error && error.field === 'name' && 'is-danger'}`} placeholder="John Doe" required value="${[user.first_name, user.last_name].filter(a => a).join(' ')}" />
                 ${error && error.field === 'name'
-                  ? html`<span class="icon is-small is-left"><i class="fas fa-exclamation-triangle"></i></span>`
-                  : html`<span class="icon is-small is-left"><i class="fa fa-user"></i></span>`
+                  ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
+                  : html`<span class="icon is-small is-left">${icon(faUser)}</span>`
                 }
                 ${error && error.field === 'name' ? html`<p class="help is-danger">${error.message}</p>` : ''}
               </div>
@@ -33,8 +37,8 @@ module.exports = ({ error, loading, location, user }, dispatch) => {
               <div class="control has-icons-left">
                 <input onconnected=${initAutocomplete} class=${`input ${error && error.field === 'address' && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete" required placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.address : ''}" />
                 ${error && error.field === 'address'
-                  ? html`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`
-                  : html`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`
+                  ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
+                  : html`<span class="icon is-small is-left">${icon(faMapMarkerAlt)}</span>`
                 }
                 ${error && error.field === 'address' ? html`<p class="help is-danger">${error.message}</p>` : ''}
               </div>

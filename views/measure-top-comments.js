@@ -1,6 +1,10 @@
 const { handleForm, html } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
 const voteView = require('./vote')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faCircle } = require('@fortawesome/free-regular-svg-icons/faCircle')
+const { faCheck } = require('@fortawesome/free-solid-svg-icons/faCheck')
+const { faTimes } = require('@fortawesome/free-solid-svg-icons/faTimes')
 
 module.exports = (state, dispatch) => {
   const { loading, measure, yea, nay, user } = state
@@ -75,7 +79,7 @@ const abstainButton = ({ loading, measure }, dispatch) => {
   return html`
     <div class="column is-full">
       <a href="#" onclick=${(event) => dispatch({ type: 'measure:voteFormActivated', event, measure })} style="display: block; line-height: 100%; height: 100%; white-space: normal;" class="${`${loading.vote ? 'is-loading' : ''} button vote-button-yea is-outline has-text-weight-semibold is-fullwidth`}">
-        <span class="icon is-small"><i class="far fa-circle"></i></span>
+        <span class="icon is-small">${icon(faCircle)}</span>
         <span>${delegate_name ? `Inherited Abstain vote from ${delegate_name}` : 'You Abstained'}</span>
       </a>
     </div>
@@ -95,7 +99,7 @@ const voteButtons = ({ loading, measure }, dispatch) => {
           <input type="hidden" name="public" value="${typeof my_vote.public === 'boolean' ? my_vote.public : 'true'}" />
           <input type="hidden" name="comment" value="${my_vote.comment || ''}" />
           <button type="submit" style="${`${vote && my_vote.position !== 'yea' ? 'opacity: .3;' : ''} display: block; line-height: 100%; height: 100%; white-space: normal;`}" class="${`${loading.vote ? 'is-loading' : ''} button vote-button-yea is-success has-text-weight-semibold is-fullwidth`}">
-            <span class="icon is-small"><i class="fa fa-check"></i></span>
+            <span class="icon is-small">${icon(faCheck)}</span>
             <span>${my_vote.position === 'yea' ? delegate_name ? `Inherited Yea vote from ${delegate_name}` : 'You voted Yea' : 'Vote Yea'}</span>
           </button>
         </form>
@@ -107,7 +111,7 @@ const voteButtons = ({ loading, measure }, dispatch) => {
           <input type="hidden" name="public" value="${typeof my_vote.public === 'boolean' ? my_vote.public : 'true'}" />
           <input type="hidden" name="comment" value="${my_vote.comment || ''}" />
           <button type="submit" style="${`${vote && my_vote.position !== 'nay' ? 'opacity: .3;' : ''} display: block; line-height: 100%; height: 100%; white-space: normal;`}" class="${`${loading.vote ? 'is-loading' : ''} button vote-button-nay is-danger has-text-weight-semibold is-fullwidth`}">
-            <span class="icon is-small"><i class="fa fa-times"></i></span>
+            <span class="icon is-small">${icon(faTimes)}</span>
             <span>${my_vote.position === 'nay' ? delegate_name ? `Inherited Nay vote from ${delegate_name}` : 'You voted Nay' : 'Vote Nay'}</span>
           </button>
         </form>

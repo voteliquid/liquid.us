@@ -1,5 +1,7 @@
 const { APP_LOGO, APP_NAME, WWW_URL } = process.env
 const { html, mapEvent } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faUserCircle } = require('@fortawesome/free-solid-svg-icons/faUserCircle')
 const searchView = require('./navbar-search')
 
 module.exports = ({ navbar: { hamburgerVisible }, location, search, user }, dispatch) => {
@@ -97,7 +99,7 @@ const navbarAuthed = ({ location, user }) => {
     </a>
     <div class="navbar-item has-dropdown is-hoverable">
       <a class="navbar-link" href="${username_url}">
-        <span class="icon"><i class="fa fa-user-circle"></i></span>
+        <span class="icon">${icon(faUserCircle)}</span>
         <span>${user.first_name || 'You'}</span>
       </a>
       <div class="navbar-dropdown is-right">

@@ -7,6 +7,8 @@ const votesView = require('./measure-votes')
 const topComments = require('./measure-top-comments')
 const sidebar = require('./measure-sidebar')
 const petitionView = require('./petition-page')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
 
 module.exports = (state, dispatch) => {
   const { location, measures, user, votes } = state
@@ -32,7 +34,7 @@ module.exports = (state, dispatch) => {
         <h2 class="title has-text-weight-normal has-text-centered has-text-left-mobile is-4">${measure.title}</h2>
         ${(measure.vote && !user.phone_verified) ? html`
           <p class="notification is-info">
-            <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
+            <span class="icon">${icon(faExclamationTriangle)}</span>
             <strong>Help hold your reps accountable!</strong><br />
             Your vote has been saved, and we'll send it to your elected reps, but it won't be counted publicly until you <a href="/get_started">verify your identity</a>.
           </p>

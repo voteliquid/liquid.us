@@ -99,3 +99,105 @@ exports.fetchComments = (measure, { location, user }, pagination) => (dispatch) 
     dispatch({ type: 'measure:commentsReceived', measure, votes: results, pagination })
   })
 }
+
+const fetchVotesReport = exports.fetchVotesReport = (measure, state, pagination = { offset: 0, limit: 500 }) => (dispatch) => {
+  const { user } = state
+  return api(dispatch, `/votes_detailed_with_offices?select=id,position,public,comment,user->>first_name,user->>last_name,city:locality,state:administrative_area_level_1,district:offices->0->>short_name,registered_voter:voter_verified,date:created_at&measure_id=eq.${measure.id}`, {
+    headers: { Accept: 'text/csv' },
+    pagination,
+    user,
+  })
+  .then(({ pagination: nextPagination, results: csv }) => {
+    dispatch({
+      type: 'measure:voteCSVReceivedChunk',
+      csv: pagination.offset ? csv.substring(csv.indexOf('\n') + 1) : csv,
+      measure,
+      pagination,
+      nextPagination,
+    })
+    if ((pagination ? pagination.count : nextPagination.count) > nextPagination.offset) {
+      return fetchVotesReport(measure, state, { ...pagination, ...nextPagination })(dispatch)
+    }
+    dispatch({ type: 'measure:voteCSVReceived', measure, pagination, nextPagination })
+  })
+}
+
+exports.confirmDeleteMeasure = (measure) => (dispatch) => {
+  const confirmed = window.confirm('Are you sure you want to delete? This cannot be undone!')
+  if (confirmed) {
+    dispatch({ type: 'measure:deleteConfirmed', measure })
+  }
+}
+
+exports.deleteMeasure = (measure, user) => (dispatch) => {
+  const redirectTo = measure.type === 'petition' ? '/petitions/yours' : '/legislation/yours'
+  return api(dispatch, `/measures?id=eq.${measure.id}`, {
+    method: 'DELETE',
+    user,
+  })
+  .then(() => dispatch({ type: 'redirected', status: 302, url: redirectTo }))
+  .then(() => dispatch({ type: 'measure:deleted', measure }))
+}
+
+exports.fetchUserMeasures = (user) => (dispatch) => {
+  return api(dispatch, `/measures_detailed?author_id=eq.${user.id}&order=created_at.desc`, { user })
+    .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
+}
+
+exports.saveMeasure = (measure, { oldShortId, ...form }, state) => (dispatch) => {
+  return (measure && measure.id ? updateMeasure : insertMeasure)(measure, form, state)(dispatch)
+}
+
+const insertMeasure = (measure, form, state) => (dispatch) => {
+  const { user } = state
+  return api(dispatch, '/measures', {
+    method: 'POST',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({
+      author_id: user.id,
+      legislature_id: form.legislature_id,
+      title: form.title,
+      summary: form.summary,
+      chamber: 'Lower',
+      type: form.measure_type,
+      short_id: form.short_id.toLowerCase(),
+    }),
+    user,
+  })
+  .then(() => exports.fetchMeasure(form.short_id, state)(dispatch))
+  .then(() => {
+    dispatch({ type: 'redirected', status: 303, url: `/${user.username}/${form.short_id}` })
+  })
+  .catch(handleError(dispatch))
+}
+
+const updateMeasure = (measure, form, state) => (dispatch) => {
+  const { user } = state
+  return api(dispatch, `/measures?id=eq.${measure.id}`, {
+    method: 'PATCH',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({ ...form, short_id: form.short_id.toLowerCase(), type: form.measure_type }),
+    user,
+  })
+  .then(() => exports.fetchMeasure(form.short_id, state)(dispatch))
+  .then(() => {
+    dispatch({ type: 'redirected', status: 303, url: `/${user.username}/${form.short_id}` })
+  })
+  .catch(handleError(dispatch))
+}
+
+const handleError = (dispatch) => (error) => {
+  dispatch({ type: 'error', error })
+  switch (error.message) {
+    case 'new row for relation "measures" violates check constraint "short_id_length"':
+      error.message = 'URL ID must be between 2 and 32 characters.'
+      break
+    case 'duplicate key value violates unique constraint "legislation_unique"':
+      error.message = 'There is already a bill with this URL. Please choose another.'
+      break
+    default:
+      dispatch({ type: 'contactForm:toggled' })
+      error.message = 'An error on our end occurred. Please contact support.'
+  }
+  dispatch({ type: 'measure:editFormError', error })
+}
