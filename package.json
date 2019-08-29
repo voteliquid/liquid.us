@@ -6,7 +6,8 @@
   "scripts": {
     "css-build": "node-sass --omit-source-map-url styles.sass assets/styles.css && node-sass --omit-source-map-url --output-style=compressed styles.sass assets/styles.min.css",
     "start": "node server.js",
-    "test": "echo \"Linting...\" && eslint ."
+    "test": "echo \"Linting...\" && npm run eslint",
+    "eslint": "LIST=`git diff-index --name-only --diff-filter=d HEAD | grep .*.js | grep -v json`; if [ \"$LIST\" ]; then eslint --fix $LIST; fi"
   },
   "main": "server.js",
   "pre-commit": {
@@ -20,6 +21,10 @@
     "@babel/polyfill": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
     "@babel/register": "^7.4.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.22",
+    "@fortawesome/free-brands-svg-icons": "^5.10.2",
+    "@fortawesome/free-regular-svg-icons": "^5.10.2",
+    "@fortawesome/free-solid-svg-icons": "^5.10.2",
     "@google/maps": "^0.5.5",
     "babel-loader": "^8.0.5",
     "babel-plugin-dynamic-import-node": "^1.2.0",

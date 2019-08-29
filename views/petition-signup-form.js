@@ -1,26 +1,26 @@
 const { handleForm, html } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faUser } = require('@fortawesome/free-solid-svg-icons/faUser')
+const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
+const { faMapMarkerAlt } = require('@fortawesome/free-solid-svg-icons/faMapMarkerAlt')
+const { faEnvelope } = require('@fortawesome/free-solid-svg-icons/faEnvelope')
 
 module.exports = (state, dispatch) => {
-  const { error, vote } = state
-  const loading = state.loading.endorsedFromSignupForm
+  const { loading, error, measure } = state
   const isPublic =
-    vote && typeof vote.endorsement_public === 'boolean'
-      ? vote.endorsement_public
+    measure && typeof measure.vote_public === 'boolean'
+      ? measure.vote_public
       : true
 
-  let action = 'Endorse'; let color = 'is-success'
-  if (vote.position === 'nay') { action = 'Join opposition'; color = 'is-danger' }
-  if (vote.position === 'abstain') { action = 'Weigh in'; color = 'is-success' }
-
   return html`
-    <form method="POST" style="width: 100%;" method="POST" onsubmit=${handleForm(dispatch, { type: 'vote:endorsedFromSignupForm', vote })}>
+    <form method="POST" style="width: 100%;" method="POST" onsubmit=${handleForm(dispatch, { type: 'petition:signatureSignupFormSubmitted', measure })}>
       <div class="field">
         <label class="label has-text-grey">Your Name *</label>
         <div class="control has-icons-left">
           <input name="name" autocomplete="off" class=${`input ${error && error.field === 'name' && 'is-danger'}`} placeholder="John Doe" required />
           ${error && error.field === 'name'
-            ? html`<span class="icon is-small is-left"><i class="fas fa-exclamation-triangle"></i></span>`
-            : html`<span class="icon is-small is-left"><i class="fa fa-user"></i></span>`
+            ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
+            : html`<span class="icon is-small is-left">${icon(faUser)}</span>`
           }
           ${error && error.field === 'name' ? html`<p class="help is-danger">${error.message}</p>` : ''}
         </div>
@@ -31,8 +31,8 @@ module.exports = (state, dispatch) => {
           <div class="${`control is-expanded has-icons-left ${error && error.field === 'email' ? 'has-icons-right' : ''}`}">
             <input name="email" class="${`input ${error && error.field === 'email' ? 'is-danger' : ''}`}" type="text" placeholder="you@example.com" required />
             ${error && error.field === 'email'
-              ? html`<span class="icon is-small is-left"><i class="fas fa-exclamation-triangle"></i></span>`
-              : html`<span class="icon is-small is-left"><i class="fa fa-user"></i></span>`
+              ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
+              : html`<span class="icon is-small is-left">${icon(faEnvelope)}</span>`
             }
             ${error && error.field === 'email' ? html`<p class="help is-danger">This email is invalid.</p>` : ''}
           </div>
@@ -43,8 +43,8 @@ module.exports = (state, dispatch) => {
         <div class="control has-icons-left">
           <input onconnected=${initGoogleMaps} class=${`input ${error && error.field === 'address' && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete_sidebar" placeholder="185 Berry Street, San Francisco, CA 94121" />
           ${error && error.field === 'address'
-            ? html`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`
-            : html`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`
+              ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
+              : html`<span class="icon is-small is-left">${icon(faMapMarkerAlt)}</span>`
           }
           ${error && error.field === 'address' ? html`<p class="help is-danger">${error.message}</p>` : ''}
         </div>
@@ -57,7 +57,7 @@ module.exports = (state, dispatch) => {
               name="is_public"
               type="checkbox"
               checked="${isPublic}"
-              onchange="${(event) => dispatch({ type: 'vote:endorsementToggledPrivacyCheckbox', vote, event })}"
+              onchange="${(event) => dispatch({ type: 'petition:signatureToggledPrivacyCheckbox', measure, event })}"
             />
             <span>Share my name publicly</span>
           </label>
@@ -71,7 +71,7 @@ module.exports = (state, dispatch) => {
       </div>
       <div class="field">
         <div class="control">
-          <button class=${`button ${color} is-fullwidth has-text-weight-bold fix-bulma-centered-text is-size-5 ${loading ? 'is-loading' : ''}`} disabled=${loading} type="submit">${action}</button>
+          <button class=${`button is-primary is-fullwidth has-text-weight-bold fix-bulma-centered-text is-size-5 ${loading.form ? 'is-loading' : ''}`} disabled=${loading.form} type="submit">Sign Petition</button>
         </div>
       </div>
     </form>

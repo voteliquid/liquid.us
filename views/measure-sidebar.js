@@ -3,6 +3,10 @@ const { avatarURL, capitalize, html } = require('../helpers')
 const stateNames = require('datasets-us-states-abbr-names')
 const editButtons = require('./measure-edit-buttons')
 const shareButtons = require('./measure-share-buttons')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faExternalLinkAlt } = require('@fortawesome/free-solid-svg-icons/faExternalLinkAlt')
+const { faCheckCircle } = require('@fortawesome/free-regular-svg-icons/faCheckCircle')
+const { faCircle } = require('@fortawesome/free-regular-svg-icons/faCircle')
 
 module.exports = (state, dispatch) => {
   const { measure } = state
@@ -23,21 +27,34 @@ module.exports = (state, dispatch) => {
       <div class="panel-heading has-text-centered">
         <h3 class="title has-text-weight-semibold is-size-5">
           <a href="${measureUrl}" class="has-text-dark">
-            ${l.introduced_at ? `${l.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()}` : (l.short_id === 'should-nancy-pelosi-be-speaker' ? 'Proposed Nomination' : 'Proposed Legislation')}
+            ${sidebarTitle(l)}
           </a>
         </h3>
         <h4 class="subtitle is-size-7 has-text-grey is-uppercase has-text-weight-semibold">
-          ${stateNames[l.legislature_name] || l.legislature_name}
+          ${l.type === 'petition' ? 'to ' : ''}${stateNames[l.legislature_name] || l.legislature_name}
         </h4>
       </div>
       ${reps && reps.length ? measureRepsPanel({ measure, reps }) : ''}
       ${measureVoteCounts(measure)}
       ${showStatusTracker ? measureStatusPanel(measure) : ''}
       ${measure.sponsor || measure.author ? measureSponsorPanel(measure) : ''}
-      ${!l.author_username ? measureLinksPanel(measure) : ''}
+      ${!l.author_id ? measureLinksPanel(measure) : ''}
       ${measureActionsPanel(state, dispatch)}
     </nav>
   `
+}
+
+function sidebarTitle(measure) {
+  switch (measure.type) {
+    case 'petition':
+      return 'Petition'
+    case 'bill':
+    default:
+      if (measure.introduced_at) {
+        return measure.short_id.replace(/^[^-]+-(\D+)(\d+)/, '$1 $2').toUpperCase()
+      }
+      return 'Proposed Legislation'
+  }
 }
 
 const panelTitleBlock = (title) => html`
@@ -51,7 +68,7 @@ const measureActionsPanel = (state, dispatch) => {
   const { author_id } = measure
   return html`
     <div class="panel-block is-size-7 has-background-light" style="justify-content: center;">
-      ${user && user.id === author_id ? editButtons(state, measure, dispatch) : shareButtons(measure)}
+      ${user && user.id === author_id ? editButtons(user, measure, dispatch) : shareButtons(measure)}
     </div>
   `
 }
@@ -79,7 +96,7 @@ const measureStatusPanel = (measure) => {
             <li class="${`step ${fulfilled ? 'fulfilled' : 'has-text-grey'}`}">
               <div class="columns is-gapless is-multiline is-mobile">
                 <div class="column is-two-thirds">
-                  <span class="icon is-small"><i class="${`far ${fulfilled ? 'fa-check-circle' : 'fa-circle'}`}"></i></span>
+                  <span class="icon is-small">${fulfilled ? icon(faCheckCircle) : icon(faCircle)}</span>
                   <span>${step}</span>
                 </div>
                 <div class="column is-one-third has-text-right">
@@ -95,7 +112,7 @@ const measureStatusPanel = (measure) => {
 }
 
 const measureVoteCounts = (measure) => {
-  const { delegate_name, vote_counts = [], vote_position } = measure
+  const { delegate_name, voteCounts = [], vote } = measure
 
   return html`
     ${panelTitleBlock('Votes')}
@@ -111,11 +128,11 @@ const measureVoteCounts = (measure) => {
       </style>
       <table class="table vote-table is-narrow is-fullwidth">
         <tbody>
-          ${vote_position ? html`
+          ${vote ? html`
           <tr>
             <td class="has-text-left has-text-grey">Your Vote</td>
             <td colspan="2" class="has-text-right">
-              <span class="${`${vote_position === 'yea' ? 'has-text-success' : 'has-text-danger'} has-text-weight-semibold`}">${capitalize(vote_position)}</span>
+              <span class="${`${vote.position === 'yea' ? 'has-text-success' : 'has-text-danger'} has-text-weight-semibold`}">${capitalize(vote.position)}</span>
             </td>
           </tr>
           ${delegate_name ? html`<tr><td colspan="3" class="has-text-grey">Inherited from ${delegate_name}</td></tr>` : ''}
@@ -126,7 +143,7 @@ const measureVoteCounts = (measure) => {
             <td class="has-text-right">Yea</td>
             <td class="has-text-right">Nay</td>
           </tr>
-          ${vote_counts.map(({ yeas, nays, office_name, legislature_name }) => html`
+          ${voteCounts.map(({ yeas, nays, office_name, legislature_name }) => html`
             <tr>
               <td class="has-text-left has-text-grey">${office_name || legislature_name}</td>
               <td class="has-text-right">${yeas || 0}</td>
@@ -161,7 +178,7 @@ const measureLinksPanel = (measure) => {
           <div class="has-text-right">
             <a href="${url}">
               ${domain}
-              <span class="icon is-small"><i class="fas fa-external-link-alt"></i></span>
+              <span class="icon is-small">${icon(faExternalLinkAlt)}</span>
             </a>
           </div>
         </div>
@@ -175,8 +192,8 @@ const measureRepsPanel = ({ measure, reps }) => {
     <div class="panel-block">
       <div>
         <h4 class="has-text-centered has-text-weight-semibold" style="margin: 0 0 .5rem;">
-          ${measure.vote_position
-          ? `We told your rep${reps.length > 1 ? 's' : ''} to vote ${measure.vote_position}`
+          ${measure.vote
+          ? `We told your rep${reps.length > 1 ? 's' : ''} to vote ${measure.vote.position}`
           : `Vote to tell your rep${reps.length > 1 ? 's' : ''}`}
         </h4>
         ${reps.map((rep) => repSnippet(rep.office_holder))}

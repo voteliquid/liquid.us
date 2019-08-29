@@ -1,6 +1,9 @@
 const { html } = require('../helpers')
 const loadingIndicator = require('../views/activity-indicator')
 const editButtons = require('../views/measure-edit-buttons')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faPencilAlt } = require('@fortawesome/free-solid-svg-icons/faPencilAlt')
+const { faFile } = require('@fortawesome/free-solid-svg-icons/faFile')
 
 module.exports = (state, dispatch) => {
   const { user } = state
@@ -30,18 +33,22 @@ const proposedLegislationList = (state, dispatch) => {
   const usersMeasures = Object.values(measures).filter(({ author_id }) => author_id === user.id)
   return html`
     <div>
-      <style>
-        .highlight-hover:hover {
-          background: #f6f8fa;
-        }
-      </style>
-      ${proposeButton()}
-      <h2 class="title is-5">Your Proposed Legislation</h2>
+      <h2 class="title is-5">Bills and Petitions</h2>
+      <div style="margin-bottom: 2em;">
+        <a class="button is-small" href="/legislation/create">
+          <span class="icon">${icon(faFile)}</span>
+          <span class="has-text-weight-semibold">Propose a Bill</span>
+        </a>
+        <a class="button is-small" href="/petitions/create">
+          <span class="icon">${icon(faPencilAlt)}</span>
+          <span class="has-text-weight-semibold">Start a Petition</span>
+        </a>
+      </div>
       ${loading.page
         ? loadingIndicator()
         : usersMeasures.length
           ? usersMeasures.map((measure) => proposedLegislationItem(state, measure, dispatch))
-          : html`<p>You have not proposed any legislation yet.</p>`}
+          : html`<p>You have not proposed any bills or petitions.</p>`}
     </div>
   `
 }
@@ -57,25 +64,16 @@ const proposedLegislationItem = (state, measure, dispatch) => {
           <div class="column">
             <h3><a href="${`/${user.username}/${l.short_id}`}">${l.title}</a></h3>
             <p class="is-size-7 has-text-grey">
-              Proposed for ${l.legislature_name} &bullet; ${l.author_username
-            ? html`Authored by <a href="${`/${l.author_username}`}">${l.author_first_name} ${l.author_last_name}</a> on ${(new Date(l.created_at)).toLocaleDateString()}`
+              ${l.type === 'petition' ? 'Petition to' : 'Proposed for'} ${l.legislature_name} &bullet; ${l.author
+            ? html`Authored by <a href="${`/${l.author.username}`}">${l.author.first_name} ${l.author.last_name}</a> on ${(new Date(l.created_at)).toLocaleDateString()}`
             : html`Authored anonymously on ${(new Date(l.created_at)).toLocaleDateString()}`}
             </p>
           </div>
           <div class="column has-text-right has-text-left-mobile">
-            ${editButtons(state, measure, dispatch)}
+            ${editButtons(user, measure, dispatch)}
           </div>
         </div>
       </div>
     </div>
-  `
-}
-
-const proposeButton = () => {
-  return html`
-    <a class="button is-pulled-right is-small" href="/legislation/propose">
-      <span class="icon"><i class='fa fa-file'></i></span>
-      <span class="has-text-weight-semibold">Propose a Bill</span>
-    </a>
   `
 }

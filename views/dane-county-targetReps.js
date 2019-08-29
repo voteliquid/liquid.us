@@ -1,9 +1,8 @@
 const { ASSETS_URL } = process.env
 const { html } = require('../helpers')
 
-module.exports = ({ vote, user, reps }) => {
+module.exports = ({ measure, reps }) => {
   const measureImage = `${ASSETS_URL}/legislature-images/Dane County.png`
-  const reply = (vote.replies || []).filter(({ user_id }) => (user && user.id === user_id))[0]
   const supervisor = reps.filter(({ name }) => name.includes('Dane'))[0]
 
   return html`
@@ -26,7 +25,7 @@ module.exports = ({ vote, user, reps }) => {
         </div>
       </div>
     </div>
-    ${reply && supervisor ? callToAction(supervisor) : ''}
+    ${measure.comment && supervisor ? callToAction(supervisor) : ''}
   `
 }
 

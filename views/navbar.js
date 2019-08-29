@@ -1,5 +1,7 @@
 const { APP_LOGO, APP_NAME, WWW_URL } = process.env
 const { html, mapEvent } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faUserCircle } = require('@fortawesome/free-solid-svg-icons/faUserCircle')
 const searchView = require('./navbar-search')
 
 module.exports = ({ navbar: { hamburgerVisible }, location, search, user }, dispatch) => {
@@ -79,12 +81,11 @@ const style = `
 const navbarAnon = ({ location }) => {
   const { path } = location
   return html`
-    <a class=${`navbar-item ${path === `/legislation` ? 'is-active' : ''}`} href="/legislation">
-      <span class="icon"><i class="fa fa-list"></i></span>
-      <span>Browse</span>
+    <a class=${`navbar-item ${path === `/activity` ? 'is-active' : ''}`} href="/activity">
+      <span>Activity</span>
     </a>
-    <a class=${`navbar-item has-text-link has-text-weight-bold ${path === '/join' ? 'is-active' : ''}`} href="/join">Join</a>
     <a class=${`navbar-item ${path.slice(0, 8) === '/sign_in' ? 'is-active' : ''}`} href="/sign_in">Sign in</a>
+    <a class=${`navbar-item has-text-link has-text-weight-bold ${path === '/join' ? 'is-active' : ''}`} href="/join">Join</a>
   `
 }
 
@@ -93,17 +94,12 @@ const navbarAuthed = ({ location, user }) => {
   const { path } = location
 
   return html`
-    <a class=${`navbar-item has-text-link ${path === `/legislation/propose` ? 'is-active' : ''}`} href="/legislation/propose">
-      <span class="icon"><i class="fa fa-file"></i></span>
-      <span class="has-text-weight-semibold">Propose</span>
-    </a>
-    <a class=${`navbar-item ${path === `/legislation` ? 'is-active' : ''}`} href="/legislation">
-      <span class="icon"><i class="fa fa-list"></i></span>
-      <span>Browse</span>
+    <a class=${`navbar-item ${path === `/activity` ? 'is-active' : ''}`} href="/activity">
+      <span>Activity</span>
     </a>
     <div class="navbar-item has-dropdown is-hoverable">
       <a class="navbar-link" href="${username_url}">
-        <span class="icon"><i class="fa fa-user-circle"></i></span>
+        <span class="icon">${icon(faUserCircle)}</span>
         <span>${user.first_name || 'You'}</span>
       </a>
       <div class="navbar-dropdown is-right">
@@ -113,9 +109,12 @@ const navbarAuthed = ({ location, user }) => {
             : ''
         }
         <a class=${`navbar-item ${path === username_url ? 'is-active' : ''}`} href=${username_url}>Profile</a>
-        <a class=${`navbar-item ${path.slice(0, 8) === '/proxies' ? 'is-active' : ''}`} href="/proxies">Your Proxies</a>
-        <a class=${`navbar-item ${path === `/legislation/yours` ? 'is-active' : ''}`} href="/legislation/yours">Proposed Legislation</a>
+        <a class=${`navbar-item ${path.slice(0, 8) === '/proxies' ? 'is-active' : ''}`} href="/proxies">Proxies</a>
+        <a class=${`navbar-item ${path === `/legislation/yours` ? 'is-active' : ''}`} href="/legislation/yours">Bills & Petitions</a>
         <a class=${`navbar-item ${path === '/settings' ? 'is-active' : ''}`} href="/settings">Settings</a>
+        <hr />
+        <a class=${`navbar-item ${path === `/petitions/create` ? 'is-active' : ''}`} href="/petitions/create">Start a Petition</a>
+        <a class=${`navbar-item ${path === `/legislation/create` ? 'is-active' : ''}`} href="/legislation/create">Propose a Bill</a>
         <a class=${`navbar-item ${path === '/sign_out' ? 'is-active' : ''}`} href=${`${WWW_URL}/sign_out`}>Sign out</a>
       </div>
     </div>

@@ -1,5 +1,8 @@
 const { WWW_URL } = process.env
 const { handleForm, html } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faUnlock } = require('@fortawesome/free-solid-svg-icons/faUnlock')
+const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
 
 module.exports = ({ cookies, error, loading, location }, dispatch) => {
   const email = cookies.sign_in_email
@@ -23,16 +26,16 @@ module.exports = ({ cookies, error, loading, location }, dispatch) => {
                   <input name="endorsed_vote_id" type="hidden" value="${cookies.endorsed_vote_id}" />
                   <input name="endorsed_measure_id" type="hidden" value="${cookies.endorsed_measure_id}" />
                   <input name="proxying_user_id" type="hidden" value="${cookies.proxying_user_id}" />
-                  <input name="vote_position" type="hidden" value="${cookies.vote_position}" />
+                  <input name="position" type="hidden" value="${cookies.vote_position}" />
                   <input name="vote_bill_id" type="hidden" value="${cookies.vote_bill_id}" />
                   <input name="vote_comment" type="hidden" value="${cookies.vote_comment}" />
                   <input name="vote_public" type="hidden" value="${cookies.vote_public}" />
                   <input name="totp" class="${`input ${error ? 'is-danger' : ''}`}" type="text" placeholder="123 456" />
                   <span class="icon is-small is-left">
-                    <i class="fa fa-unlock-alt"></i>
+                    ${icon(faUnlock)}
                   </span>
                   ${error ? html`<span class="icon is-small is-right">
-                    <i class="fa fa-warning"></i>
+                    ${icon(faExclamationTriangle)}
                   </span>` : ''}
                   ${error ? html`<p class="help is-danger">${error.message}</p>` : ''}
                 </div>

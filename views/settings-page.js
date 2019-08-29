@@ -1,4 +1,7 @@
 const { handleForm, html } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
+const { faMapMarkerAlt } = require('@fortawesome/free-solid-svg-icons/faMapMarkerAlt')
 
 module.exports = ({ error, forms: { settings }, user }, dispatch) => {
   const formChanged = settings && (
@@ -83,8 +86,8 @@ module.exports = ({ error, forms: { settings }, user }, dispatch) => {
             <div class="control has-icons-left">
               <input onconnected=${initAutocomplete} class=${`input ${error && error.field === 'address' && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete" required placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.formatted_address : ''}" />
               ${error && error.field === 'address'
-                ? html`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`
-                : html`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`
+                ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
+                : html`<span class="icon is-small is-left">${icon(faMapMarkerAlt)}</span>`
               }
               ${error && error.field === 'address' ? html`<p class="help is-danger">${error.message}</p>` : ''}
             </div>
