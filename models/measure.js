@@ -1,5 +1,5 @@
 const { ASSETS_URL } = process.env
-const { combineEffects, combineEffectsInSeries, download, preventDefault, redirect, waitEffects } = require('../helpers')
+const { combineEffects, combineEffectsInSeries, download, preventDefault, redirect } = require('../helpers')
 const { changePageTitle } = require('../effects/page')
 
 module.exports = (event, state) => {
@@ -139,7 +139,7 @@ module.exports = (event, state) => {
         changePageTitle(
           isMeasureDetailPage(state.location.route) ? `${event.measure.legislature_name}: ${event.measure.title}` : state.location.title
         ),
-        waitEffects([
+        combineEffectsInSeries([
           importEffect('fetchMeasureDetails', event.measure, state),
           importEffect(state.location.query.tab === 'votes' ? 'fetchVotes' : 'fetchComments', event.measure, state),
         ]),
