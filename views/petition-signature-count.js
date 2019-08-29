@@ -2,7 +2,7 @@ const { html } = require('../helpers')
 const milestones = [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000]
 
 module.exports = ({ vote, voteCounts = [] }) => {
-  const count = voteCounts[0] && voteCounts[0].yeas
+  const count = voteCounts[0] && voteCounts[0].yeas || 0
 
   return html`
     <div>
