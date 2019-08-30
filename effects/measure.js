@@ -35,7 +35,7 @@ const fetchMeasureVotePower = (dispatch, measure, user) => {
 }
 
 const fetchMeasureTopVote = (dispatch, measure, position, user) => {
-  return api(dispatch, `/votes_detailed?measure_id=eq.${measure.id}&public=eq.true&comment=not.is.null&comment=not.eq.&position=eq.${position}&delegate_rank=eq.-1&order=proxy_vote_count.desc.nullslast,created_at.desc`, { user })
+  return api(dispatch, `/votes_detailed?measure_id=eq.${measure.id}&public=eq.true&comment=not.is.null&comment=not.eq.&position=eq.${position}&delegate_rank=eq.-1&order=vote_power.desc.nullslast,created_at.desc`, { user })
 }
 
 const fetchMeasureVoteCounts = (dispatch, measure, user) => {
@@ -74,7 +74,7 @@ exports.fetchComments = (measure, { location, user }, pagination) => (dispatch) 
   const { order = 'most_recent', position = 'all', offset = 0, limit = 25 } = location.query
   const orders = {
     most_recent: 'created_at.desc',
-    vote_power: 'proxy_vote_count.desc.nullslast,created_at.desc',
+    vote_power: 'vote_power.desc.nullslast,created_at.desc',
   }
 
   const positions = {

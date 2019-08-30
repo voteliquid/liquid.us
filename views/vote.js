@@ -7,7 +7,7 @@ const { faPencilAlt } = require('@fortawesome/free-solid-svg-icons/faPencilAlt')
 module.exports = (state, dispatch) => {
   const { key, vote, parent, padded = true, showBill, user } = state
   const {
-    id, comment, endorsement, measure, position, proxy_vote_count, public:
+    id, comment, endorsement, measure, position, vote_power, public:
     is_public, source_url, updated_at
   } = vote
   const avatarURL = getAvatarURL(vote.user)
@@ -18,7 +18,6 @@ module.exports = (state, dispatch) => {
   const comment_url = `${measure_url}/votes/${id}`
   const share_url = `${WWW_URL}${comment_url}`
   const measure_title = measure.number ? `${measure.short_id.replace(/^[^-]+-/, '').toUpperCase()} — ${measure.title}` : measure.title
-  const onBehalfOfCount = proxy_vote_count
 
   return html`
     <div class="comment" style=${padded ? 'padding-bottom: 2em;' : ''}>
@@ -43,7 +42,7 @@ module.exports = (state, dispatch) => {
                     : html`<span>${vote.user.first_name} ${vote.user.last_name}</span>`
                   : '[private]'}
             </span>
-            ${html`<span>voted <strong style="${`color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};`}">${position}</strong>${onBehalfOfCount > 1 && is_public ? html` on behalf of <span class="has-text-weight-semibold">${onBehalfOfCount}</span> people` : ''}${is_public ? '' : ' privately'}</span>`}
+            ${html`<span>voted <strong style="${`color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};`}">${position}</strong>${vote_power > 1 && is_public ? html` on behalf of <span class="has-text-weight-semibold">${vote_power}</span> people` : ''}${is_public ? '' : ' privately'}</span>`}
             ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}
           </div>
           ${showBill ? html`<div><a href="${measure_url}">${measure_title}</a></div>` : ''}
