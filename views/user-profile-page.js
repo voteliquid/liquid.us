@@ -128,7 +128,11 @@ const aboutUser = (profile) => {
           </style>
         </div>
       ` : ''}
-      ${about_text ? html`<div class="content"><p class="is-size-5">${{ html: about_text }}</p></div>` : ''}
+      ${about_text ? html`
+        <div class="${`content ${~about_text.indexOf(`<br /><br />`) ? 'has-text-left' : ''}`}">
+          <p class="is-size-5">${{ html: about_text }}</p>
+        </div>
+      ` : ''}
     </div>
   `
 }
