@@ -130,12 +130,12 @@ exports.confirmDeleteMeasure = (measure) => (dispatch) => {
 }
 
 exports.deleteMeasure = (measure, user) => (dispatch) => {
-  const redirectTo = measure.type === 'petition' ? '/petitions/yours' : '/legislation/yours'
   return api(dispatch, `/measures?id=eq.${measure.id}`, {
-    method: 'DELETE',
+    method: 'PATCH',
+    body: JSON.stringify({ deleted_at: new Date() }),
     user,
   })
-  .then(() => dispatch({ type: 'redirected', status: 302, url: redirectTo }))
+  .then(() => dispatch({ type: 'redirected', status: 302, url: '/legislation/yours' }))
   .then(() => dispatch({ type: 'measure:deleted', measure }))
 }
 
