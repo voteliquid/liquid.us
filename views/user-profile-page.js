@@ -4,6 +4,7 @@ const endorsedVoteView = require('../views/endorsed-vote')
 const signatureView = require('../views/signature')
 const { icon } = require('@fortawesome/fontawesome-svg-core')
 const { faUser } = require('@fortawesome/free-solid-svg-icons/faUser')
+const { faPencilAlt } = require('@fortawesome/free-solid-svg-icons/faPencilAlt')
 const { faHandshake } = require('@fortawesome/free-solid-svg-icons/faHandshake')
 
 module.exports = (state, dispatch) => {
@@ -32,6 +33,7 @@ module.exports = (state, dispatch) => {
               <h1 class="title is-3">${p.name}</h1>
               ${p.username ? html`<h2 class="subtitle is-5 has-text-grey-light">@${p.username}</h2>` : ''}
               ${proxyButton(p, state, dispatch)}
+              ${user && p.id === user.id ? editProfileButton() : html``}
               ${p.about ? aboutUser(p) : html``}
               <div class="has-text-left">
                 ${(!p.about && !p.public_votes.length) || (p.public_votes && p.public_votes.length && !user)
@@ -46,6 +48,15 @@ module.exports = (state, dispatch) => {
         </div>
       </div>
     </section>
+  `
+}
+
+const editProfileButton = () => {
+  return html`
+    <a class="button" href="/edit_profile">
+      <span class="icon">${icon(faPencilAlt)}</span>
+      <span>Edit Profile</span>
+    </a>
   `
 }
 
@@ -136,29 +147,24 @@ const proxyButton = (profile, { user }, dispatch) => {
   const ownProfile = user && profile.id === user.id
   const proxied = profile.proxied
   return html`
-    <form onsubmit="${handleForm(dispatch, { type: 'proxy:addedProxyViaProfile', profile })}" method="POST">
+    <form class="is-inline-block" onsubmit="${handleForm(dispatch, { type: 'proxy:addedProxyViaProfile', profile })}" method="POST">
       <div class="buttons has-addons is-centered is-marginless">
         <span class="button is-static">
           <span class="icon is-small">${icon(faHandshake)}</span>
           <span>${profile.max_vote_power || 1}</span>
         </span>
-        <button
-          disabled=${proxied || ownProfile}
-          type="submit"
-          class="${`button ${proxied ? '' : ''} fix-bulma-centered-text is-outlined`}"
-        >
-          ${ownProfile ? 'Vote Power' : proxied ? 'Proxied' : `Proxy to ${profile.first_name}`}
-        </button>
+        ${ownProfile || proxied
+          ? html`
+              <a href="/proxies" class="button fix-bulma-centered-text is-outlined">
+                ${proxied ? 'Proxied' : 'Vote Power'}
+              </a>
+            `
+          : html`
+              <button type="submit" class="button fix-bulma-centered-text is-outlined">
+                Proxy to ${profile.first_name}
+              </button>
+          `}
       </div>
-      ${proxied
-        ? html`
-            <p class="is-size-7">
-              You've proxied to ${profile.name}.<br />
-              <a href="/proxies">Manage proxies</a>
-            </p>
-          `
-        : html``
-        }
     </form>
   `
 }
