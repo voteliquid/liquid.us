@@ -24,7 +24,7 @@ module.exports = ({ loading, metrics }, dispatch) => {
 }
 
 const graphs = (metricsLoading = {}, metrics = {}) => {
-  const loading = ['users', 'active_users', 'votes', 'proposals', 'pageviews', 'conversion'].reduce((b, a) => {
+  const loading = ['users', 'active_users', 'votes', 'proposals'].reduce((b, a) => {
     b[a] = metricsLoading[a] || !metrics[a]
     return b
   }, {})
@@ -45,14 +45,6 @@ const graphs = (metricsLoading = {}, metrics = {}) => {
       <section class="column is-half" style="padding-bottom: 3em;">
         <h2 class="has-text-centered title is-size-6">Proposals</h2>
         ${loading.proposals ? activityIndicator() : graph(metrics.proposals, ['proposals'])}
-      </section>
-      <section class="column is-half" style="padding-bottom: 3em;">
-        <h2 class="has-text-centered title is-size-6">Unique page views</h2>
-        ${loading.pageviews ? activityIndicator() : graph(metrics.pageviews, ['pageviews'])}
-      </section>
-      <section class="column is-half" style="padding-bottom: 3em;">
-        <h2 class="has-text-centered title is-size-6">Conversion</h2>
-        ${loading.conversion ? activityIndicator() : graph(metrics.conversion, ['conversion'])}
       </section>
     </div>
   `

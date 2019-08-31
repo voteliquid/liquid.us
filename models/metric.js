@@ -12,8 +12,6 @@ module.exports = (event, state) => {
             active_users: true,
             votes: true,
             proposals: true,
-            pageviews: true,
-            conversion: true,
           },
         },
       }, combineEffects([
@@ -21,8 +19,6 @@ module.exports = (event, state) => {
         fetchMetrics('active_users'),
         fetchMetrics('votes'),
         fetchMetrics('proposals'),
-        fetchMetrics('pageviews'),
-        fetchMetrics('conversion'),
       ])]
     case 'metric:received':
       return [{
