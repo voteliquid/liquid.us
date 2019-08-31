@@ -1,7 +1,18 @@
-const { escapeHtml, html, prettyShortId } = require('../helpers')
+const { capitalize, escapeHtml, html, prettyShortId } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
 const timeAgo = require('timeago.js')
 const voteView = require('./vote')
+const signatureView = require('./signature')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faBoxBallot } = require('@fortawesome/pro-solid-svg-icons/faBoxBallot')
+const { faVoteYea } = require('@fortawesome/free-solid-svg-icons/faVoteYea')
+const { faVoteNay } = require('@fortawesome/pro-solid-svg-icons/faVoteNay')
+const { faFileSignature } = require('@fortawesome/free-solid-svg-icons/faFileSignature')
+const { faSignature } = require('@fortawesome/free-solid-svg-icons/faSignature')
+const { faLandmarkAlt } = require('@fortawesome/pro-solid-svg-icons/faLandmarkAlt')
+const { faCheck } = require('@fortawesome/pro-solid-svg-icons/faCheck')
+const { faTimes } = require('@fortawesome/pro-solid-svg-icons/faTimes')
+const { faPencilAlt } = require('@fortawesome/free-solid-svg-icons/faPencilAlt')
 
 module.exports = (state, dispatch) => {
   const { actions, legislatures, loading, location } = state
@@ -64,17 +75,24 @@ const actionView = (state, dispatch) => (action) => {
 }
 
 const actionTitle = (state, action) => {
+  const vote = state.votes[action.resource] || {}
   switch (action.action) {
     case 'vote-inherited':
       return html`
         <span class="has-text-weight-normal has-text-grey">
-          Inherited vote from <span class="has-text-weight-semibold">${(action.relation || {}).name}</span>
+          <span class="icon is-small has-text-grey-light">
+            ${icon(vote.measure.type === 'petition' ? faSignature : vote.position === 'yea' ? faVoteYea : vote.position === 'nay' ? faVoteNay : faBoxBallot)}
+          </span>
+          <span>${vote.measure.type === 'petition' ? 'Petition signature' : 'Vote'} inherited from your proxy</span>
+          <span class="has-text-weight-semibold">${(action.relation || {}).name}</span>
         </span>
       `
     case 'measure-introduced':
       return html`
         <span class="has-text-weight-normal has-text-grey">
-          Bill introduced for ${action.resource.legislature_name}
+          <span class="icon is-small has-text-grey-light">${icon(faLandmarkAlt)}</span>
+          <span>Bill introduced for</span>
+          <span class="has-text-weight-semibold">${action.resource.legislature_name}</span>
           ${action.resource.sponsor ? html`
             <span>
               by <span class="has-text-weight-semibold">
@@ -87,11 +105,15 @@ const actionTitle = (state, action) => {
     case 'measure-proposed':
       return html`
         <span class="has-text-weight-normal has-text-grey">
-          ${action.resource.type === 'petition' ? 'Petition started for' : 'Bill proposed for'}
-          ${action.resource.legislature_name} by
-          <a class="has-text-weight-semibold has-text-grey" href="${`/${action.resource.author.username}`}">
-            ${action.resource.author.first_name} ${action.resource.author.last_name}
-          </a>
+          <span class="icon is-small has-text-grey-light">${icon(action.resource.type === 'petition' ? faFileSignature : faLandmarkAlt)}</span>
+          <span>${action.resource.type === 'petition' ? 'Petition started' : 'Bill proposed'} for </span>
+          <span class="has-text-weight-semibold">${action.resource.legislature_name}</span>
+          <span>
+            by
+            <a class="has-text-weight-semibold has-text-grey" href="${`/${action.resource.author.username}`}">
+              ${action.resource.author.first_name} ${action.resource.author.last_name}
+            </a>
+          </span>
         </span>`
     default:
       return html``
@@ -99,14 +121,16 @@ const actionTitle = (state, action) => {
 }
 
 const actionContent = (state, action, dispatch) => {
+  const vote = state.votes[action.resource] || {}
   switch (action.action) {
     case 'vote-inherited':
-      return voteView({ ...state, vote: state.votes[action.resource], padded: false, showBill: true }, dispatch)
+      return (vote.measure.type === 'petition' ? signatureView : voteView)({ ...state, vote, padded: false, displayTitle: true }, dispatch)
     case 'measure-introduced':
     case 'measure-proposed':
+      const measureUrl = `/${action.resource.author_username || 'legislation'}/${action.resource.short_id}`
       return html`
         <h4 class="has-text-weight-bold is-size-6" style="padding-bottom: .5em;">
-          <a href="${`/${action.resource.author_username || 'legislation'}/${action.resource.short_id}`}">
+          <a href="${measureUrl}">
             ${action.resource.author_id ? action.resource.title : `${prettyShortId(action.resource.short_id)} - ${action.resource.title}`}
           </a>
         </h4>
@@ -115,6 +139,57 @@ const actionContent = (state, action, dispatch) => {
             ${{ html: truncate(280, action.resource.summary) }}
           </div>
         ` : html``}
+        <div class="field is-grouped">
+          <div class="control">
+            <a class="button is-small" href="${measureUrl}">
+              <span class="icon has-text-grey-light">
+                ${icon(
+                  action.resource.type === 'petition'
+                    ? faPencilAlt
+                    : action.resource.vote
+                      ? action.resource.vote.position === 'yea'
+                        ? faVoteYea
+                        : action.resource.vote.position === 'nay' ? faVoteNay : faBoxBallot
+                      : faBoxBallot
+                )}
+              </span>
+              <span>
+                ${action.resource.vote
+                  ? action.resource.vote.delegate_rank === -1
+                    ? action.resource.type === 'petition' ? 'Signed' : `Voted ${capitalize(action.resource.vote.position)}`
+                    : `${action.resource.type === 'petition' ? 'Signed' : `Voted ${capitalize(action.resource.vote.position)}`} through your proxy ${action.resource.vote.delegate_name}`
+                  : action.resource.type === 'petition' ? 'Sign petition' : 'Vote'}
+              </span>
+            </a>
+          </div>
+          ${action.resource.type === 'petition'
+            ? html`
+                <div class="buttons has-addons">
+                  <span class="button is-static is-small">
+                    <span class="icon has-text-grey-light">${icon(faSignature)}</span>
+                    <span>Signatures</span>
+                  </span>
+                  <a class="button has-text-grey is-small" href="${measureUrl}">
+                    ${action.resource.yeas}
+                  </a>
+                </div>
+              `
+            : html`
+                <div class="buttons has-addons">
+                  <span class="button is-static is-small">
+                    Votes
+                  </span>
+                  <a class="button has-text-grey is-small" href="${measureUrl}">
+                    <span class="icon has-text-grey-light">${icon(faCheck)}</span>
+                    <span>${action.resource.yeas}</span>
+                    <span>&nbsp;</span>
+                    <span class="icon has-text-grey-light">${icon(faTimes)}</span>
+                    <span>${action.resource.nays}</span>
+                  </a>
+                </div>
+            `}
+          </div>
+        </div>
       `
     default:
       return html``

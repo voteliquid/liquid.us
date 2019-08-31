@@ -17,12 +17,7 @@ module.exports = (state, dispatch) => {
   const { showVoteForm } = measure
   const tab = location.query.tab || 'comments'
   const commentCount = measure.commentsPagination ? measure.commentsPagination.count : 0
-  const voteCount =
-    measure.voteCounts &&
-    measure.voteCounts[0] &&
-    (measure.voteCounts[0].yeas +
-      measure.voteCounts[0].nays +
-      measure.voteCounts[0].abstains)
+  const voteCount = measure.yeas + measure.nays + measure.abstains
 
   if (measure.type === 'petition') {
     return petitionView(state, dispatch)

@@ -19,7 +19,7 @@ module.exports = (state, dispatch) => {
   const path = location.path
   const isOwnPetition = user && user.id === measure.author_id
   const commentCount = measure.commentsPagination ? measure.commentsPagination.count : 0
-  const signatureCount = measure.voteCounts && measure.voteCounts[0] && measure.voteCounts[0].yeas
+  const signatureCount = measure.yeas || 0
 
   return html`
     <section class="section">

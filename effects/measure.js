@@ -8,16 +8,15 @@ exports.fetchMeasure = (shortId, { user }) => (dispatch) => {
 exports.fetchMeasureDetails = (measure, state) => (dispatch) => {
   const { offices, user } = state
   return Promise.all([
-    fetchMeasureVoteCounts(dispatch, measure, user),
     fetchMeasureVoteCountsByOffice(dispatch, measure, offices, user),
     fetchMeasureTopVote(dispatch, measure, 'yea', user),
     fetchMeasureTopVote(dispatch, measure, 'nay', user),
     fetchMeasureVotePower(dispatch, measure, user),
-  ]).then(([voteCounts, officeVoteCounts, [topYea], [topNay], votePower]) => {
+  ]).then(([officeVoteCounts, [topYea], [topNay], votePower]) => {
     dispatch({
       type: 'measure:detailsReceived',
       measure,
-      voteCounts: voteCounts.concat(officeVoteCounts),
+      voteCounts: officeVoteCounts,
       topYea,
       topNay,
       votePower,
@@ -38,17 +37,13 @@ const fetchMeasureTopVote = (dispatch, measure, position, user) => {
   return api(dispatch, `/votes_detailed?measure_id=eq.${measure.id}&public=eq.true&comment=not.is.null&comment=not.eq.&position=eq.${position}&delegate_rank=eq.-1&order=vote_power.desc.nullslast,created_at.desc`, { user })
 }
 
-const fetchMeasureVoteCounts = (dispatch, measure, user) => {
-  return api(dispatch, `/measure_vote_counts?measure_id=eq.${measure.id}`, { user })
-}
-
 const fetchMeasureVoteCountsByOffice = (dispatch, measure, offices, user) => {
   const officesInChamber = offices.filter(({ chamber, legislature }) => {
     return chamber === measure.chamber && measure.legislature_name === legislature.name
   })
   const office = officesInChamber[0]
   if (office) {
-    return api(dispatch, `/measure_vote_counts_by_office?measure_id=eq.${measure.id}&office_id=eq.${office.id}`, { user })
+    return api(dispatch, `/measure_vote_counts?measure_id=eq.${measure.id}&office_id=eq.${office.id}`, { user })
       .then((voteCounts) => {
         if (voteCounts.length === 0) {
           return [{ measure_id: measure.id, office_name: office.short_name, office_id: office.id || null, yeas: 0, nays: 0, abstains: 0 }]

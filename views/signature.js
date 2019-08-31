@@ -32,9 +32,10 @@ module.exports = (state, dispatch) => {
                     : html`<span>${vote.user.first_name} ${vote.user.last_name}</span>`
                   : '[Private]'}
             </span>
-            ${displayTitle ? html`<span>signed the petition <a href="${url}">${measure.title}</a></span>` : html``}
+            <span>signed petition</span>
             ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}
           </div>
+          ${displayTitle ? html`<div><a class="has-text-weight-semibold" href="${url}">${measure.title}</a></div>` : ''}
           ${comment ? commentContent(key, vote, parent, dispatch) : ''}
           <div class="is-size-7">
             <span class="has-text-grey-light">${timeAgo().format(`${updated_at}Z`)}</span>
@@ -64,7 +65,7 @@ const commentContent = (key, vote, parent, dispatch) => {
   const comment = vote.comment || ''
   const { isTruncated: showExpander, truncated } = truncateOnWord(comment, 300)
   return html`
-    <div class="content is-marginless">
+    <div class="content is-marginless" style="margin-top: .5em;">
       ${{ html: linkifyUrls(expanded || !showExpander ? comment : truncated) }}
       <span class="${showExpander ? '' : 'is-hidden'}">
         <a href="#" onclick=${(event) => dispatch({ type: 'vote:toggledExpanded', event, vote: parent || vote })} class="is-size-7">

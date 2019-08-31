@@ -2,8 +2,8 @@ const { html } = require('../helpers')
 const loadingIndicator = require('../views/activity-indicator')
 const editButtons = require('../views/measure-edit-buttons')
 const { icon } = require('@fortawesome/fontawesome-svg-core')
-const { faPencilAlt } = require('@fortawesome/free-solid-svg-icons/faPencilAlt')
-const { faFile } = require('@fortawesome/free-solid-svg-icons/faFile')
+const { faLandmarkAlt } = require('@fortawesome/pro-solid-svg-icons/faLandmarkAlt')
+const { faFileSignature } = require('@fortawesome/free-solid-svg-icons/faFileSignature')
 
 module.exports = (state, dispatch) => {
   const { user } = state
@@ -36,11 +36,11 @@ const proposedLegislationList = (state, dispatch) => {
       <h2 class="title is-5">Bills and Petitions</h2>
       <div style="margin-bottom: 2em;">
         <a class="button is-small" href="/legislation/create">
-          <span class="icon">${icon(faFile)}</span>
+          <span class="icon">${icon(faLandmarkAlt)}</span>
           <span class="has-text-weight-semibold">Propose a Bill</span>
         </a>
         <a class="button is-small" href="/petitions/create">
-          <span class="icon">${icon(faPencilAlt)}</span>
+          <span class="icon">${icon(faFileSignature)}</span>
           <span class="has-text-weight-semibold">Start a Petition</span>
         </a>
       </div>

@@ -112,7 +112,7 @@ const measureStatusPanel = (measure) => {
 }
 
 const measureVoteCounts = (measure) => {
-  const { delegate_name, voteCounts = [], vote } = measure
+  const { legislature_name, delegate_name, yeas, nays, voteCounts = [], vote } = measure
 
   return html`
     ${panelTitleBlock('Votes')}
@@ -142,6 +142,11 @@ const measureVoteCounts = (measure) => {
             <td class="has-text-left">${APP_NAME}</td>
             <td class="has-text-right">Yea</td>
             <td class="has-text-right">Nay</td>
+          </tr>
+          <tr>
+            <td class="has-text-left has-text-grey">${legislature_name}</td>
+            <td class="has-text-right">${yeas || 0}</td>
+            <td class="has-text-right">${nays || 0}</td>
           </tr>
           ${voteCounts.map(({ yeas, nays, office_name, legislature_name }) => html`
             <tr>
