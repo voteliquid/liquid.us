@@ -59,7 +59,9 @@ module.exports = (state, dispatch) => {
                   <li class=${tab === 'comments' ? 'is-active' : ''}>
                     <a href=${path}>Comments${commentCount ? ` (${commentCount})` : ''}</a>
                   </li>
-                  <li class="${tab === 'updates' ? 'is-active' : ''}"><a href=${`${path}?tab=updates`}>Updates</a></li>
+                  <li class="${tab === 'updates' ? 'is-active' : ''}">
+                    <a href=${`${path}?tab=updates`}>Updates</a>
+                  </li>
                   <li class=${tab === 'votes' ? 'is-active' : ''}>
                     <a href=${`${path}?tab=votes`}>Signatures${signatureCount ? ` (${signatureCount})` : ''}</a>
                   </li>

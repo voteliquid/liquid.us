@@ -9,6 +9,7 @@ const sidebar = require('./measure-sidebar')
 const petitionView = require('./petition-page')
 const { icon } = require('@fortawesome/fontawesome-svg-core')
 const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
+const updatesView = require('./measure-updates')
 
 module.exports = (state, dispatch) => {
   const { location, measures, user, votes } = state
@@ -46,12 +47,19 @@ module.exports = (state, dispatch) => {
                   <li class=${tab === 'comments' ? 'is-active' : ''}>
                     <a href=${location.path}>Arguments${commentCount ? ` (${commentCount})` : ''}</a>
                   </li>
+                  <li class="${tab === 'updates' ? 'is-active' : ''}">
+                    <a href=${`${location.path}?tab=updates`}>Updates</a>
+                  </li>
                   <li class=${tab === 'votes' ? 'is-active' : ''}>
                     <a href=${`${location.path}?tab=votes`}>Votes${voteCount ? ` (${voteCount})` : ''}</a>
                   </li>
                 </ul>
               </div>
-              ${tab === 'votes' ? votesView({ ...state, displayPosition: true }, dispatch) : commentsView(state, dispatch)}
+              ${tab === 'votes'
+                ? votesView({ ...state, displayPosition: true }, dispatch)
+                : tab === 'updates'
+                ? updatesView(state, dispatch)
+                : commentsView(state, dispatch)}
             </div>
           </div>
           <div class="${`column ${measure.introduced_at ? `column is-one-third-tablet is-one-quarter-desktop` : ''}`}">
