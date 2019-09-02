@@ -79,7 +79,7 @@ const filterView = (state, dispatch) => {
             class="input"
             onkeyup=${autosubmit}
             placeholder="Search by name, district, or location"
-            value="${decodeURIComponent(location.query.search)}"
+            value="${decodeURIComponent(location.query.search || '')}"
           />
           <span class="icon is-small is-left">${icon(faSearch)}</span>
           <button type="submit" class="button is-hidden">Search</button>
