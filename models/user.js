@@ -1,4 +1,4 @@
-const { api, combineEffects, makePoint, preventDefault } = require('../helpers')
+const { api, combineEffects, combineEffectsInSeries, makePoint, preventDefault } = require('../helpers')
 const { fetchUser, geocode, updateAddress } = require('../effects/user')
 const { logUser } = require('../effects/analytics')
 
@@ -33,7 +33,10 @@ module.exports = (event, state) => {
     case 'user:unsubscribeError':
       return [{ ...state, error: event.error, loading: {} }]
     case 'user:unsubscribed':
-      return [{ ...state, loading: {} }]
+      return [{
+        ...state,
+        loading: { ...state.loading, page: !!state.location.query.measure_id },
+      }]
     case 'user:updated':
     case 'user:received':
       return [{
@@ -54,7 +57,10 @@ module.exports = (event, state) => {
             ...state,
             loading: { page: true },
             location: { ...state.location, title: 'Unsubscribe' },
-          }, unsubscribe(state.location.query.id, state.location.query.list)]
+          }, combineEffectsInSeries([
+            unsubscribe(state.location.query),
+            state.location.query.measure_id && importMeasureEffect('fetchMeasure', state.location.query.short_id, state),
+          ])]
         default:
           return [state]
       }
@@ -146,12 +152,11 @@ const postUnsubscribe = (dispatch, user, list) => {
   })
 }
 
-
-const unsubscribe = (user_id, list) => (dispatch) => {
-  api(dispatch, '/unsubscribes', {
+const unsubscribe = ({ id: user_id, list, measure_id }) => (dispatch) => {
+  return api(dispatch, '/unsubscribes', {
     method: 'POST',
     headers: { 'Prefer': 'return=minimal' },
-    body: JSON.stringify({ user_id, list }),
+    body: JSON.stringify(measure_id ? { user_id, measure_id } : { user_id, list }),
   })
   .then(() => dispatch({ type: 'user:unsubscribed' }))
   .catch((error) => {
@@ -160,5 +165,11 @@ const unsubscribe = (user_id, list) => (dispatch) => {
     } else {
       dispatch({ type: 'user:unsubscribeError', error })
     }
+  })
+}
+
+const importMeasureEffect = (name, ...args) => (dispatch) => {
+  return import('../effects/measure').then((measureEffects) => {
+    return (measureEffects.default || measureEffects)[name].apply(null, args)(dispatch)
   })
 }

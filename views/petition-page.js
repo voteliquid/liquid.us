@@ -7,17 +7,16 @@ const stateAbbreviations = require('datasets-us-states-names-abbr')
 const daneTargetReps = require('./dane-county-targetReps')
 const commentsView = require('./measure-comments')
 const signaturesView = require('./measure-votes')
+const updatesView = require('./measure-updates')
 
 module.exports = (state, dispatch) => {
-  const { location, measures, user, votes } = state
+  const { location, measures, votes } = state
   const measure = measures[location.params.shortId]
   const vote = votes[location.params.voteId]
   const hideTargetReps = (l) => l.author_username === 'councilmemberbas'
   const isDane = (l) => l.short_id === 'press-pause-on-227m-new-jail'
-  const measureUrl = `/${measure.author.username}/${measure.short_id}`
   const tab = location.query.tab || 'comments'
   const path = location.path
-  const isOwnPetition = user && user.id === measure.author_id
   const commentCount = measure.commentsPagination ? measure.commentsPagination.count : 0
   const signatureCount = measure.yeas || 0
 
@@ -43,6 +42,14 @@ module.exports = (state, dispatch) => {
               </div>
             ` : html``}
             ${measureSummary({ measure, size: vote ? 6 : 5 }, dispatch)}
+            ${measure.latest_update ? html`
+              <div class="content">
+                <h4 class="is-size-6">Latest Update</h4>
+                <p>
+                  <span class="has-text-grey has-text-uppercase">${new Date(measure.latest_update.created_at).toLocaleDateString()} &mdash;</span>
+                  ${{ html: linkifyUrls(measure.latest_update.message) }}</p>
+              </div>
+            ` : html``}
             <div class="is-hidden-tablet">
               ${measure.showMobileEndorsementForm ? '' : mobileHoverBar(measure, dispatch)}
             </div>
@@ -52,15 +59,17 @@ module.exports = (state, dispatch) => {
                   <li class=${tab === 'comments' ? 'is-active' : ''}>
                     <a href=${path}>Comments${commentCount ? ` (${commentCount})` : ''}</a>
                   </li>
+                  <li class="${tab === 'updates' ? 'is-active' : ''}"><a href=${`${path}?tab=updates`}>Updates</a></li>
                   <li class=${tab === 'votes' ? 'is-active' : ''}>
                     <a href=${`${path}?tab=votes`}>Signatures${signatureCount ? ` (${signatureCount})` : ''}</a>
                   </li>
-                  ${isOwnPetition ? html`
-                    <li><a href=${`${measureUrl}/edit`}>Manage</a></li>
-                  ` : html``}
                 </ul>
               </div>
-              ${tab === 'votes' ? signaturesView({ ...state, displayPosition: false }, dispatch) : commentsView({ displayFilters: false, ...state }, dispatch)}
+              ${tab === 'votes'
+                ? signaturesView({ ...state, displayPosition: false }, dispatch)
+                : tab === 'updates'
+                ? updatesView(state, dispatch)
+                : commentsView({ displayFilters: false, ...state }, dispatch)}
             </div>
           </div>
           <div class="${`column ${measure.showMobileEndorsementForm ? '' : 'is-hidden-mobile'} is-one-third is-one-quarter-widescreen`}">

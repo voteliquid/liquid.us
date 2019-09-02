@@ -181,6 +181,49 @@ const updateMeasure = (measure, form, state) => (dispatch) => {
   .catch(handleError(dispatch))
 }
 
+exports.fetchUpdates = (measure, { user }) => (dispatch) => {
+  return api(dispatch, `/measure_updates?measure_id=eq.${measure.id}&order=created_at.desc`, { user }).then((updates) => dispatch({
+    type: 'measure:updatesReceived',
+    updates,
+    measure,
+  })).catch((error) => dispatch({ type: 'measure:error', measure, error }))
+}
+
+exports.postUpdate = ({ measure, ...form }, { user }) => (dispatch) => {
+  return api(dispatch, `/measure_updates${form.id ? `?id=eq.${form.id}` : ''}`, {
+    method: form.id ? 'PATCH' : 'POST',
+    body: JSON.stringify({
+      measure_id: measure.id,
+      message: form.message,
+      notify_voters: !!form.notify_voters,
+    }),
+    user,
+  })
+  .then(() => dispatch({ type: 'measure:updatesRequested', measure }))
+}
+
+exports.deleteUpdate = ({ measure, ...form }, { user }) => (dispatch) => {
+  return api(dispatch, `/measure_updates?id=eq.${form.id}`, {
+    method: 'DELETE',
+    user,
+  })
+  .then(() => dispatch({ type: 'measure:updatesRequested', measure }))
+}
+
+exports.toggleNotifications = ({ measure }, { user }) => (dispatch) => {
+  if (measure.notifications) {
+    return api(dispatch, `/unsubscribes`, {
+      method: 'POST',
+      body: JSON.stringify({ user_id: user.id, measure_id: measure.id }),
+      user,
+    })
+  }
+  return api(dispatch, `/unsubscribes?user_id=eq.${user.id}&measure_id=eq.${measure.id}`, {
+    method: 'DELETE',
+    user,
+  })
+}
+
 const handleError = (dispatch) => (error) => {
   dispatch({ type: 'error', error })
   switch (error.message) {

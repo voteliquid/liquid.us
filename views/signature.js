@@ -32,7 +32,7 @@ module.exports = (state, dispatch) => {
                     : html`<span>${vote.user.first_name} ${vote.user.last_name}</span>`
                   : '[Private]'}
             </span>
-            <span>signed petition</span>
+            ${displayTitle ? html`<span>signed petition</span>` : html``}
             ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}
           </div>
           ${displayTitle ? html`<div><a class="has-text-weight-semibold" href="${url}">${measure.title}</a></div>` : ''}

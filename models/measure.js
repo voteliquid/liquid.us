@@ -141,7 +141,15 @@ module.exports = (event, state) => {
         ),
         combineEffectsInSeries([
           importEffect('fetchMeasureDetails', event.measure, state),
-          importEffect(state.location.query.tab === 'votes' ? 'fetchVotes' : 'fetchComments', event.measure, state),
+          importEffect(
+            state.location.query.tab === 'votes'
+              ? 'fetchVotes'
+              : state.location.query.tab === 'updates'
+              ? 'fetchUpdates'
+              : 'fetchComments',
+            event.measure,
+            state
+          ),
         ]),
       ])]
     case 'measure:detailsReceived':
@@ -269,8 +277,9 @@ module.exports = (event, state) => {
           return b
         }, {}),
       }]
+    case 'measure:error':
     case 'measure:editFormError':
-      return [{ ...state, error: event.error }]
+      return [{ ...state, loading: { ...state.loading, form: false }, error: event.error }]
     case 'measure:editFormSaved':
       return [{
         ...state,
@@ -310,6 +319,67 @@ module.exports = (event, state) => {
         ...state,
         loading: { ...state.loading, voteReport: false },
       }, () => download(state.measures[event.measure.short_id].csv, `${event.measure.short_id}-votes.csv`, 'text/csv;encoding=utf-8')]
+    case 'measure:notificationsToggled':
+      return [{
+        ...state,
+        measures: {
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
+            notifications: !state.measures[event.measure.short_id],
+          },
+        },
+      }, combineEffects([preventDefault(event.event), importEffect('toggleNotifications', event, state)])]
+    case 'measure:toggledUpdateForm':
+      return [{
+        ...state,
+        measures: {
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
+            showUpdateForm: !state.measures[event.measure.short_id].showUpdateForm,
+          },
+        },
+      }, preventDefault(event.event)]
+    case 'measure:updateFormSubmitted':
+      return [{
+        ...state,
+        loading: { ...state.loading, form: true },
+      }, combineEffects([
+        preventDefault(event.event),
+        combineEffectsInSeries([
+          importEffect('postUpdate', event, state),
+          redirect(`${state.location.path}?tab=updates`, 303),
+        ]),
+      ])]
+    case 'measure:updateDeleted':
+      return [{
+        ...state,
+        loading: { ...state.loading, form: true },
+        measures: {
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
+            latest_update: null,
+            showUpdateForm: false,
+          },
+        },
+      }, combineEffects([preventDefault(event.event), importEffect('deleteUpdate', event, state)])]
+    case 'measure:updatesRequested':
+      return [{
+        ...state,
+        loading: { ...state.loading, updates: true },
+      }, importEffect('fetchUpdates', event.measure, state)]
+    case 'measure:updatesReceived':
+      return [{
+        ...state,
+        loading: { ...state.loading, page: false, form: false, updates: false },
+        measures: {
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
+            latest_update: state.measures[event.measure.short_id].latest_update || event.updates[0],
+            showUpdateForm: false,
+            updates: event.updates,
+          },
+        },
+      }]
     default:
       return [state]
   }
