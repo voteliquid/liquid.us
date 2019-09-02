@@ -93,6 +93,13 @@ module.exports = (event, state) => {
             ...event.vote,
           },
         },
+        measures: {
+          ...state.measures,
+          [event.vote.measure.short_id]: {
+            ...state.measures[event.vote.measure.short_id],
+            vote: event.vote,
+          },
+        },
       }]
     case 'vote:voted':
       return [{

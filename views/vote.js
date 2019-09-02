@@ -10,9 +10,10 @@ const { faVoteNay } = require('@fortawesome/pro-solid-svg-icons/faVoteNay')
 const { faBoxBallot } = require('@fortawesome/pro-solid-svg-icons/faBoxBallot')
 
 module.exports = (state, dispatch) => {
-  const { key, vote, parent, padded = true, displayTitle = false, user, showIcon = false } = state
+  const { key, vote, parent, padded = true, displayTitle = false, user, showIcon = false, measures = {} } = state
+  const measure = measures[vote.measure.short_id] || state.measure || vote.measure
   const {
-    id, comment, endorsement, measure, position, vote_power, public:
+    id, comment, endorsement, position, vote_power, public:
     is_public, source_url, updated_at, delegate_name, delegate_rank
   } = vote
   const avatarURL = getAvatarURL(vote.user)

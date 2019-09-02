@@ -59,8 +59,8 @@ exports.reportVote = (vote, user) => (dispatch) => {
 
 const endorse = exports.endorse = (vote, user, measure, is_public = false) => (dispatch) => {
   const endorsed_vote = !(user && user.id === vote.user_id && vote.comment) && vote.endorsed_vote
-  const { fullname, measure_id, short_id, id: vote_id } = endorsed_vote || vote
-  const position = measure && measure.vote && measure.vote.position
+  const { measure_id, short_id, id: vote_id } = endorsed_vote || vote
+  const fullname = (endorsed_vote || vote).user.name
 
   if (!user) {
     dispatch({ type: 'cookieSet', key: 'endorsed_vote_id', value: vote_id })
@@ -69,21 +69,13 @@ const endorse = exports.endorse = (vote, user, measure, is_public = false) => (d
     return dispatch({ type: 'redirected', url: '/join' })
   }
 
-  if (position) {
-    let confirmation_text = 'You\'ve already '
-    if (measure.vote && measure.vote.position) {
-      confirmation_text += `commented. This will remove your previous comment`
-    } else {
-      confirmation_text += `voted ${position}`
-    }
-    confirmation_text += `. Endorse ${fullname ? possessive(fullname) : 'this'} vote instead?`
-    if (!window.confirm(confirmation_text)) {
-      return
-    }
+  if (measure.vote && measure.vote.position) {
+    const confirmation_text = `You've already voted ${measure.vote.position}. Endorse ${fullname ? possessive(fullname) : 'this'} vote instead?`
+    if (!window.confirm(confirmation_text)) return dispatch({ type: 'vote:updated', vote })
   }
 
   return api(dispatch, `/endorsements?user_id=eq.${user.id}&measure_id=eq.${measure_id}`, {
-    method: position && measure.endorsed ? 'PATCH' : 'POST',
+    method: measure.vote && measure.vote.endorsement ? 'PATCH' : 'POST',
     body: JSON.stringify({
       user_id: user.id,
       vote_id,
@@ -119,17 +111,20 @@ exports.unendorse = (vote, user) => (dispatch) => {
     return dispatch({ type: 'redirected', url: '/join' })
   }
   if (!window.confirm(`Are you sure you want to remove this endorsement?`)) {
-    return
+    return dispatch({ type: 'vote:updated', vote })
   }
-  return api(dispatch, `/votes_detailed?user_id=eq.${user.id}&measure_id=eq.${vote.measure_id}`, {
-    method: 'PATCH',
-    body: JSON.stringify({
-      position: 'abstain',
-      delegate_rank: -1,
-      root_delegate_id: user.id,
-      delegate_id: null,
-    }),
-    user,
+  return api(dispatch, `/endorsements?id=eq.${vote.endorsement.id}`, { method: 'DELETE', user }).then(() => {
+    return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${vote.measure_id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        position: vote.position,
+        delegate_rank: -1,
+        root_delegate_id: user.id,
+        delegate_id: null,
+        delegate_name: null,
+      }),
+      user,
+    })
   })
   .then(() => api(dispatch, `/votes_detailed?id=eq.${vote.id}`, { user }))
   .then(([vote]) => dispatch({ type: 'vote:updated', vote }))
