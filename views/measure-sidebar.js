@@ -112,7 +112,7 @@ const measureStatusPanel = (measure) => {
 }
 
 const measureVoteCounts = (measure) => {
-  const { legislature_name, delegate_name, yeas, nays, voteCounts = [], vote } = measure
+  const { legislature_name, yeas, nays, voteCounts = [], vote } = measure
 
   return html`
     ${panelTitleBlock('Votes')}
@@ -135,7 +135,7 @@ const measureVoteCounts = (measure) => {
               <span class="${`${vote.position === 'yea' ? 'has-text-success' : 'has-text-danger'} has-text-weight-semibold`}">${capitalize(vote.position)}</span>
             </td>
           </tr>
-          ${delegate_name ? html`<tr><td colspan="3" class="has-text-grey">Inherited from ${delegate_name}</td></tr>` : ''}
+          ${vote && vote.delegate_name ? html`<tr><td colspan="3" class="has-text-grey">Inherited from ${vote.delegate_name}</td></tr>` : ''}
           <tr><td colspan="3">&nbsp;</td><tr/>
           ` : ''}
           <tr class="has-text-grey">

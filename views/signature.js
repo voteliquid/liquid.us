@@ -6,7 +6,7 @@ const { faSignature } = require('@fortawesome/pro-solid-svg-icons/faSignature')
 module.exports = (state, dispatch) => {
   const { key, displayTitle = false, vote, parent, user, showIcon = false } = state
   const {
-    comment, measure, public: is_public, source_url, updated_at
+    comment, measure, public: is_public, source_url, updated_at, delegate_rank, delegate_name
   } = vote
   const avatarURL = getAvatarURL(vote.user)
   const url = `${measure.author.username}/${measure.short_id}`
@@ -42,7 +42,11 @@ module.exports = (state, dispatch) => {
                     : html`<span>${vote.user.first_name} ${vote.user.last_name}</span>`
                   : '[Private]'}
             </span>
-            ${displayTitle ? html`<span>signed petition</span>` : html``}
+            ${displayTitle ? html`
+              <span>
+                ${delegate_rank !== -1 ? `inherited petition signature from ${delegate_name}` : 'signed petition'}
+              </span>
+            ` : html``}
             ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}
           </div>
           ${displayTitle ? html`<div><a class="has-text-weight-semibold" href="${url}">${measure.title}</a></div>` : ''}

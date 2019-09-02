@@ -75,7 +75,7 @@ const addArgumentLink = (measure, position, dispatch) => {
 }
 
 const abstainButton = ({ loading, measure }, dispatch) => {
-  const { delegate_name } = measure
+  const { delegate_name } = measure.vote || {}
   return html`
     <div class="column is-full">
       <a href="#" onclick=${(event) => dispatch({ type: 'measure:voteFormActivated', event, measure })} style="display: block; line-height: 100%; height: 100%; white-space: normal;" class="${`${loading.vote ? 'is-loading' : ''} button vote-button-yea is-outline has-text-weight-semibold is-fullwidth`}">
@@ -87,32 +87,32 @@ const abstainButton = ({ loading, measure }, dispatch) => {
 }
 
 const voteButtons = ({ loading, measure }, dispatch) => {
-  const { delegate_name, vote } = measure
-  const { my_vote = { position: vote ? vote.position : null } } = measure
+  const { vote } = measure
+  const { comment, delegate_name, position, public: is_public } = vote || {}
   return html`
     <div class="columns is-gapless is-multiline is-marginless">
-      ${my_vote.position === 'abstain' ? abstainButton({ loading, measure }, dispatch) : html``}
+      ${position === 'abstain' ? abstainButton({ loading, measure }, dispatch) : html``}
       <div class="column is-half">
         <form method="POST" onsubmit=${handleForm(dispatch, { type: 'measure:voteFormActivated', measure })} style="height: 100%;">
-          <input type="hidden" name="vote_id" value="${my_vote.position || ''}" />
+          <input type="hidden" name="vote_id" value="${position || ''}" />
           <input type="hidden" name="position" value="yea" />
-          <input type="hidden" name="public" value="${typeof my_vote.public === 'boolean' ? my_vote.public : 'true'}" />
-          <input type="hidden" name="comment" value="${my_vote.comment || ''}" />
-          <button type="submit" style="${`${vote && my_vote.position !== 'yea' ? 'opacity: .3;' : ''} display: block; line-height: 100%; height: 100%; white-space: normal;`}" class="${`${loading.vote ? 'is-loading' : ''} button vote-button-yea is-success has-text-weight-semibold is-fullwidth`}">
+          <input type="hidden" name="public" value="${typeof is_public === 'boolean' ? is_public : 'true'}" />
+          <input type="hidden" name="comment" value="${comment || ''}" />
+          <button type="submit" style="${`${vote && position !== 'yea' ? 'opacity: .3;' : ''} display: block; line-height: 100%; height: 100%; white-space: normal;`}" class="${`${loading.vote ? 'is-loading' : ''} button vote-button-yea is-success has-text-weight-semibold is-fullwidth`}">
             <span class="icon is-small">${icon(faCheck)}</span>
-            <span>${my_vote.position === 'yea' ? delegate_name ? `Inherited Yea vote from ${delegate_name}` : 'You voted Yea' : 'Vote Yea'}</span>
+            <span>${position === 'yea' ? delegate_name ? `Inherited Yea vote from ${delegate_name}` : 'You voted Yea' : 'Vote Yea'}</span>
           </button>
         </form>
       </div>
       <div class="column is-half" style="border-left: 1px solid white;">
         <form method="POST" onsubmit=${handleForm(dispatch, { type: 'measure:voteFormActivated', measure })} style="height: 100%;">
-          <input type="hidden" name="vote_id" value="${my_vote.position || ''}" />
+          <input type="hidden" name="vote_id" value="${position || ''}" />
           <input type="hidden" name="position" value="nay" />
-          <input type="hidden" name="public" value="${typeof my_vote.public === 'boolean' ? my_vote.public : 'true'}" />
-          <input type="hidden" name="comment" value="${my_vote.comment || ''}" />
-          <button type="submit" style="${`${vote && my_vote.position !== 'nay' ? 'opacity: .3;' : ''} display: block; line-height: 100%; height: 100%; white-space: normal;`}" class="${`${loading.vote ? 'is-loading' : ''} button vote-button-nay is-danger has-text-weight-semibold is-fullwidth`}">
+          <input type="hidden" name="public" value="${typeof is_public === 'boolean' ? is_public : 'true'}" />
+          <input type="hidden" name="comment" value="${comment || ''}" />
+          <button type="submit" style="${`${vote && position !== 'nay' ? 'opacity: .3;' : ''} display: block; line-height: 100%; height: 100%; white-space: normal;`}" class="${`${loading.vote ? 'is-loading' : ''} button vote-button-nay is-danger has-text-weight-semibold is-fullwidth`}">
             <span class="icon is-small">${icon(faTimes)}</span>
-            <span>${my_vote.position === 'nay' ? delegate_name ? `Inherited Nay vote from ${delegate_name}` : 'You voted Nay' : 'Vote Nay'}</span>
+            <span>${position === 'nay' ? delegate_name ? `Inherited Nay vote from ${delegate_name}` : 'You voted Nay' : 'Vote Nay'}</span>
           </button>
         </form>
       </div>
