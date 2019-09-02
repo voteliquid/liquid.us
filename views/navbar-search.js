@@ -2,7 +2,8 @@ const { avatarURL, html } = require('../helpers')
 const { icon } = require('@fortawesome/fontawesome-svg-core')
 const { faSearch } = require('@fortawesome/free-solid-svg-icons/faSearch')
 const { faUsers } = require('@fortawesome/free-solid-svg-icons/faUsers')
-const { faLandmark } = require('@fortawesome/free-solid-svg-icons/faLandmark')
+const { faLandmarkAlt } = require('@fortawesome/pro-solid-svg-icons/faLandmarkAlt')
+const { faFileSignature } = require('@fortawesome/pro-solid-svg-icons/faFileSignature')
 
 module.exports = ({ loading, query, results, showResults }, dispatch) => {
   return html`
@@ -123,13 +124,13 @@ const measureSearchResult = ({ id, author_username, number, type, title, legisla
             class="image is-32x32 has-text-grey"
             style="${{ alignItems: 'center', display: 'flex', justifyContent: 'center' }}"
           >
-            ${icon(faLandmark)}
+            ${icon(type === 'petition' ? faFileSignature : faLandmarkAlt)}
           </div>
         </div>
         <div class="media-content">
           <div>${titleFmt}</div>
           <div class="is-size-7 has-text-grey">
-            <span>${legislature_name}</span>
+            <span>${type === 'petition' ? 'Petition to' : 'Proposal for'} ${legislature_name}</span>
           </div>
         </div>
       </div>

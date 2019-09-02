@@ -5,16 +5,19 @@ const { icon } = require('@fortawesome/fontawesome-svg-core')
 const { faPencilAlt } = require('@fortawesome/free-solid-svg-icons/faPencilAlt')
 const { faStar } = require('@fortawesome/free-solid-svg-icons/faStar')
 const { faStar: faStarOutline } = require('@fortawesome/free-regular-svg-icons/faStar')
+const { faVoteYea } = require('@fortawesome/free-solid-svg-icons/faVoteYea')
+const { faVoteNay } = require('@fortawesome/pro-solid-svg-icons/faVoteNay')
+const { faBoxBallot } = require('@fortawesome/pro-solid-svg-icons/faBoxBallot')
 
 module.exports = (state, dispatch) => {
-  const { key, vote, parent, padded = true, displayTitle = false, user } = state
+  const { key, vote, parent, padded = true, displayTitle = false, user, showIcon = false } = state
   const {
     id, comment, endorsement, measure, position, vote_power, public:
     is_public, source_url, updated_at
   } = vote
   const avatarURL = getAvatarURL(vote.user)
   let measure_url = `${measure.type === 'nomination' ? '/nominations' : '/legislation'}/${measure.short_id}`
-  if (measure && measure.author) {
+  if (measure.author) {
     measure_url = `/${measure.author.username}/${measure.short_id}`
   }
   const comment_url = `${measure_url}/votes/${id}`
@@ -25,13 +28,21 @@ module.exports = (state, dispatch) => {
     <div class="comment" style=${padded ? 'padding-bottom: 2em;' : ''}>
       <div class="media">
         <div class="media-left">
-          <div class="image is-32x32">
-            ${vote.user && vote.user.public_profile
-              ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">
-                  <img src="${avatarURL}" alt="avatar" class="is-rounded" />
-                </a>`
-              : html`<img src="${avatarURL}" alt="avatar" class="is-rounded" />`}
-          </div>
+          ${showIcon
+            ? html`
+                <span class="icon has-text-grey">
+                  ${icon(position === 'yea' ? faVoteYea : position === 'nay' ? faVoteNay : faBoxBallot)}
+                </span>
+              `
+            : html`
+              <div class="image is-32x32">
+                ${vote.user && vote.user.public_profile
+                  ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">
+                      <img src="${avatarURL}" alt="avatar" class="is-rounded" />
+                    </a>`
+                  : html`<img src="${avatarURL}" alt="avatar" class="is-rounded" />`}
+              </div>
+            `}
         </div>
         <div class="media-content">
           <div>

@@ -37,8 +37,8 @@ module.exports = (state, dispatch) => {
         ` : ''}
         <div class="columns">
           <div class="column is-two-thirds-tablet is-three-quarters-desktop">
-            ${vote ? voteDetailView({ ...state, vote }, dispatch) : html``}
-            ${!vote && measure.type !== 'nomination' && measure.summary && measure.summary.trim() ? measureSummary({ measure }, dispatch) : ''}
+            ${vote && vote.comment ? voteDetailView({ ...state, vote }, dispatch) : html``}
+            ${(!vote || !vote.comment) && measure.type !== 'nomination' && measure.summary && measure.summary.trim() ? measureSummary({ measure }, dispatch) : ''}
             ${topComments({ ...state, measure, yea: votes[measure.topYea], nay: votes[measure.topNay] }, dispatch)}
             <div id="votes">
               <div id="measure-vote-form">${showVoteForm ? measureVoteForm({ ...state, measure }, dispatch) : ''}</div>
@@ -73,9 +73,8 @@ module.exports = (state, dispatch) => {
 
 const voteDetailView = (state, dispatch) => {
   return html`
-    <div class="is-size-5">
-      ${voteView(state, dispatch)}
-      <hr />
+    <div class="box is-size-5">
+      ${voteView({ ...state, padded: false }, dispatch)}
     </div>
   `
 }

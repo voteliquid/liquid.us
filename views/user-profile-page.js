@@ -8,7 +8,7 @@ const { faPencilAlt } = require('@fortawesome/free-solid-svg-icons/faPencilAlt')
 const { faHandshake } = require('@fortawesome/free-solid-svg-icons/faHandshake')
 
 module.exports = (state, dispatch) => {
-  const { location, measures, proxied_name, profiles, user, votes } = state
+  const { location, proxied_name, profiles, user, votes } = state
   const p = profiles[location.params.username]
 
   return html`
@@ -40,7 +40,7 @@ module.exports = (state, dispatch) => {
                   ? emptyProfileExplainer(p) : html``}
                  <hr />
                  ${p.public_votes.length
-                   ? publicVotes(p.public_votes.map((id) => votes[id]), measures, user, dispatch) : ''}
+                   ? publicVotes(p.public_votes.map((id) => votes[id]), state, dispatch) : ''}
                  ${!p.username ? ghostProfileMessage(p) : ''}
               </div>
             </div>
@@ -137,13 +137,12 @@ const aboutUser = (profile) => {
   `
 }
 
-const publicVotes = (votes, measures, user, dispatch) => {
+const publicVotes = (votes, { user }, dispatch) => {
   return votes.map((vote) => {
-    const measure = measures[vote.short_id]
-    if (vote.type === 'petition') {
-      return signatureView({ key: 'profile', displayTitle: true, vote, measure, user }, dispatch)
+    if (vote.measure.type === 'petition') {
+      return signatureView({ showIcon: true, key: 'profile', displayTitle: true, vote, measure: vote.measure, user }, dispatch)
     }
-    return endorsedVoteView({ key: 'profile', vote, measure, user }, dispatch)
+    return endorsedVoteView({ showIcon: true, key: 'profile', vote, measure: vote.measure, user }, dispatch)
   })
 }
 

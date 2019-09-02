@@ -1,8 +1,10 @@
 const { avatarURL: getAvatarURL, linkifyUrls, html } = require('../helpers')
 const timeAgo = require('timeago.js')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faSignature } = require('@fortawesome/pro-solid-svg-icons/faSignature')
 
 module.exports = (state, dispatch) => {
-  const { key, displayTitle = false, vote, parent, user } = state
+  const { key, displayTitle = false, vote, parent, user, showIcon = false } = state
   const {
     comment, measure, public: is_public, source_url, updated_at
   } = vote
@@ -13,13 +15,21 @@ module.exports = (state, dispatch) => {
     <div class="comment" style="margin-bottom: 1.5em;">
       <div class="media">
         <div class="media-left">
-          <div class="image is-32x32">
-            ${vote.user
-              ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">
-                  <img src="${avatarURL}" alt="avatar" class="is-rounded" />
-                </a>`
-              : html`<img src="${avatarURL}" alt="avatar" class="is-rounded" />`}
-          </div>
+          ${showIcon
+            ? html`
+                <span class="icon has-text-grey">
+                  ${icon(faSignature)}
+                </span>
+              `
+            : html`
+              <div class="image is-32x32">
+                ${vote.user && vote.user.public_profile
+                  ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">
+                      <img src="${avatarURL}" alt="avatar" class="is-rounded" />
+                    </a>`
+                  : html`<img src="${avatarURL}" alt="avatar" class="is-rounded" />`}
+              </div>
+            `}
         </div>
         <div class="media-content">
           <div>
