@@ -2,6 +2,7 @@ const { handleForm, html } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
 const stateNames = require('datasets-us-states-names-abbr')
 const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faSearch } = require('@fortawesome/free-solid-svg-icons/faSearch')
 const { faTable } = require('@fortawesome/free-solid-svg-icons/faTable')
 
 module.exports = (state, dispatch) => {
@@ -64,17 +65,27 @@ const filterView = (state, dispatch) => {
   const prevOffset = Math.max(0, Number(pagination.offset) - Number(pagination.limit))
   return html`
     <div style="margin-bottom: 2em;">
-      <div class="field is-horizontal">
-        <div class="field-body">
-          <form class="field" method="POST" onsubmit=${handleForm(dispatch, { type: 'measure:voteCSVRequested', measure })}>
-            <div class="control">
-              <button type="submit" disabled=${loading.voteReport} class="${`button ${loading.voteReport ? 'is-loading' : ''}`}">
-                <span class="icon is-small">${icon(faTable)}</span>
-                <span>Download CSV</span>
-              </button>
-            </div>
-          </form>
-          ${Number(pagination.count) > Number(pagination.limit) ? html`
+      <div class="field is-grouped">
+        <form class="control" method="POST" onsubmit=${handleForm(dispatch, { type: 'measure:voteCSVRequested', measure })}>
+          <button type="submit" disabled=${loading.voteReport} class="${`button ${loading.voteReport ? 'is-loading' : ''}`}">
+            <span class="icon is-small">${icon(faTable)}</span>
+            <span>Download CSV</span>
+          </button>
+        </form>
+        <form method="GET" onsubmit=${handleForm(dispatch, state)} class="control is-expanded has-icons-left">
+          <input
+            type="text"
+            name="search"
+            class="input"
+            onkeyup=${autosubmit}
+            placeholder="Search by name, district, or location"
+            value="${decodeURIComponent(location.query.search)}"
+          />
+          <span class="icon is-small is-left">${icon(faSearch)}</span>
+          <button type="submit" class="button is-hidden">Search</button>
+        </form>
+        ${Number(pagination.count) > Number(pagination.limit) ? html`
+          <div class="control">
             <nav class="field is-narrow has-addons">
               ${prevOffset ? html`
                 <div class="control">
@@ -92,8 +103,8 @@ const filterView = (state, dispatch) => {
                 </div>
               ` : html``}
             </nav>
-          ` : html``}
-        </div>
+          </div>
+        ` : html``}
       </div>
     </form>
   `
@@ -119,4 +130,12 @@ const nextPage = ({ location, measures }) => {
     offset: Number(pagination.offset) + Number(pagination.limit),
   }
   return `${location.path}?${Object.keys(query).map((key) => `${key}=${query[key]}`).join('&')}`
+}
+
+const autosubmit = (event) => {
+  clearTimeout(autosubmit.timeout)
+  autosubmit.timeout = setTimeout(() => {
+    const submit = event.target.parentNode.querySelector('.button.is-hidden')
+    if (submit) submit.click()
+  }, 300)
 }

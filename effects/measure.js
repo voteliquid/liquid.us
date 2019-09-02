@@ -55,8 +55,16 @@ const fetchMeasureVoteCountsByOffice = (dispatch, measure, offices, user) => {
 }
 
 exports.fetchVotes = (measure, { location, user }, pagination) => (dispatch) => {
-  const { offset = 0, limit = 50 } = location.query
-  return api(dispatch, `/votes_detailed_with_offices?measure_id=eq.${measure.id}&order=created_at.desc`, {
+  const { offset = 0, limit = 50, search = '' } = location.query
+  const params = {
+    measure_id: `eq.${measure.id}`,
+    order: 'created_at.desc',
+  }
+  if (search) {
+    params.or = `(locality.like.${search}*,administrative_area_level_1.like.${search}*,user->>name.like.${search}*,offices->0->>short_name.like.${search}*)`
+  }
+  const qs = Object.keys(params).map((key) => `${key}=${encodeURIComponent(params[key])}`).join('&')
+  return api(dispatch, `/votes_detailed_with_offices?${qs}`, {
     pagination: pagination || { offset, limit },
     user,
   })
