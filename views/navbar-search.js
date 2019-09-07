@@ -130,7 +130,7 @@ const measureSearchResult = ({ id, author_username, number, type, title, legisla
         <div class="media-content">
           <div>${titleFmt}</div>
           <div class="is-size-7 has-text-grey">
-            <span>${type === 'petition' ? 'Petition to' : 'Proposal for'} ${legislature_name}</span>
+            <span>${type === 'petition' ? 'Petition to' : author_username ? 'Proposal for' : 'Bill for'} ${legislature_name}</span>
           </div>
         </div>
       </div>
