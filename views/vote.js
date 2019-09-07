@@ -56,7 +56,7 @@ module.exports = (state, dispatch) => {
                     : html`<span>${vote.user.first_name} ${vote.user.last_name}</span>`
                   : '[private]'}
             </span>
-            ${html`<span>${delegate_name && delegate_rank !== -1 ? 'inherited' : 'voted'} <strong style="${`color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};`}">${position}</strong>${delegate_rank !== -1 ? ` vote from ${delegate_name}` : ''}${delegate_rank === -1 && vote_power > 1 && is_public ? html` on behalf of <span class="has-text-weight-semibold">${vote_power}</span> people` : ''}${is_public ? '' : ' privately'}</span>`}
+            ${html`<span>${delegate_name && delegate_rank !== -1 ? 'inherited' : 'voted'} <strong style="${`color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};`}">${position}</strong>${delegate_rank !== -1 && delegate_name ? ` vote from ${delegate_name}` : ''}${delegate_rank === -1 && vote_power > 1 && is_public ? html` on behalf of <span class="has-text-weight-semibold">${vote_power}</span> people` : ''}${is_public ? '' : ' privately'}</span>`}
             ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}
           </div>
           ${displayTitle ? html`<div><a class="has-text-weight-semibold" href="${measure_url}">${measure_title}</a></div>` : ''}
