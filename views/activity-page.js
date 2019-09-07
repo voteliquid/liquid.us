@@ -139,7 +139,7 @@ const actionContent = (state, action, dispatch) => {
             ${{ html: truncate(280, action.resource.summary) }}
           </div>
         ` : html``}
-        <div class="field is-grouped">
+        <div class="field is-grouped is-grouped-multiline">
           <div class="control">
             <a class="button is-small" href="${measureUrl}">
               <span class="icon has-text-grey-light">
@@ -162,32 +162,34 @@ const actionContent = (state, action, dispatch) => {
               </span>
             </a>
           </div>
-          ${action.resource.type === 'petition'
-            ? html`
-                <div class="buttons has-addons">
-                  <span class="button is-static is-small">
-                    <span class="icon has-text-grey-light">${icon(faSignature)}</span>
-                    <span>Signatures</span>
-                  </span>
-                  <a class="button has-text-grey is-small" href="${measureUrl}">
-                    ${action.resource.yeas}
-                  </a>
-                </div>
-              `
-            : html`
-                <div class="buttons has-addons">
-                  <span class="button is-static is-small">
-                    Votes
-                  </span>
-                  <a class="button has-text-grey is-small" href="${measureUrl}">
-                    <span class="icon has-text-grey-light">${icon(faCheck)}</span>
-                    <span>${action.resource.yeas}</span>
-                    <span>&nbsp;</span>
-                    <span class="icon has-text-grey-light">${icon(faTimes)}</span>
-                    <span>${action.resource.nays}</span>
-                  </a>
-                </div>
-            `}
+          <div class="control">
+            ${action.resource.type === 'petition'
+              ? html`
+                  <div class="buttons has-addons">
+                    <span class="button is-static is-small">
+                      <span class="icon has-text-grey-light">${icon(faSignature)}</span>
+                      <span>Signatures</span>
+                    </span>
+                    <a class="button has-text-grey is-small" href="${measureUrl}">
+                      ${action.resource.yeas}
+                    </a>
+                  </div>
+                `
+              : html`
+                  <div class="buttons has-addons">
+                    <span class="button is-static is-small">
+                      Votes
+                    </span>
+                    <a class="button has-text-grey is-small" href="${measureUrl}">
+                      <span class="icon has-text-grey-light">${icon(faCheck)}</span>
+                      <span>${action.resource.yeas}</span>
+                      <span>&nbsp;</span>
+                      <span class="icon has-text-grey-light">${icon(faTimes)}</span>
+                      <span>${action.resource.nays}</span>
+                    </a>
+                  </div>
+              `}
+            </div>
           </div>
         </div>
       `
