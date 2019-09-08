@@ -127,7 +127,7 @@ const actionContent = (state, action, dispatch) => {
       return (vote.measure.type === 'petition' ? signatureView : voteView)({ ...state, vote, padded: false, displayTitle: true }, dispatch)
     case 'measure-introduced':
     case 'measure-proposed':
-      const measureUrl = `/${action.resource.author_username || 'legislation'}/${action.resource.short_id}`
+      const measureUrl = `/${action.resource.author && action.resource.author.username || 'legislation'}/${action.resource.short_id}`
       return html`
         <h4 class="has-text-weight-bold is-size-6" style="padding-bottom: .5em;">
           <a href="${measureUrl}">
