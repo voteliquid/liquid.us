@@ -110,7 +110,7 @@ const updateForm = (measure, { loading, location }, dispatch) => {
           ${minUntilNotify > 1
           ? html`
               <label class="checkbox is-size-7">
-                <input name="notify_voters" type="checkbox" checked=${update ? update.checked : true} />
+                <input name="notify_voters" type="checkbox" checked=${update ? update.notify_voters : true} />
                 Notify ${measure.type === 'petition' ? 'petition supporters' : 'measure voters'}.
                 You${update ? '' : `'ll`} have ${minUntilNotify} minutes to edit or delete your update before ${measure.type === 'petition' ? 'petition supporters' : 'measure voters'} are notified.
               </label>
