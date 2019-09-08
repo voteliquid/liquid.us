@@ -247,7 +247,7 @@ module.exports = (event, state) => {
           ...state.measures,
           [event.measure.short_id]: {
             ...state.measures[event.measure.short_id],
-            showVoteForm: !state.measures[event.measure.short_id].showVoteForm,
+            showVoteForm: !(state.measures[event.measure.short_id] && state.measures[event.measure.short_id].showVoteForm),
           },
         },
       }, combineEffects([preventDefault(event.event), scrollVoteFormIntoView])]

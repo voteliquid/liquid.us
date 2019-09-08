@@ -1,4 +1,4 @@
-const { avatarURL: getAvatarURL, linkifyUrls, html } = require('../helpers')
+const { avatarURL: getAvatarURL, handleForm, linkifyUrls, html } = require('../helpers')
 const timeAgo = require('timeago.js')
 const { icon } = require('@fortawesome/fontawesome-svg-core')
 const { faSignature } = require('@fortawesome/pro-solid-svg-icons/faSignature')
@@ -10,6 +10,7 @@ module.exports = (state, dispatch) => {
   } = vote
   const avatarURL = getAvatarURL(vote.user)
   const url = `${measure.author.username}/${measure.short_id}`
+  const ownVote = user && user.id === vote.user_id
 
   return html`
     <div class="comment" style="margin-bottom: 1.5em;">
@@ -44,14 +45,23 @@ module.exports = (state, dispatch) => {
             </span>
             ${displayTitle ? html`
               <span>
-                ${delegate_rank !== -1 ? `inherited petition signature from ${delegate_name}` : 'signed petition'}
+                ${delegate_rank !== -1 && delegate_name ? `inherited petition signature from ${delegate_name}` : 'signed petition'}
+                ${!vote.public ? ' privately' : ''}
               </span>
             ` : html``}
             ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}
           </div>
           ${displayTitle ? html`<div><a class="has-text-weight-semibold" href="${url}">${measure.title}</a></div>` : ''}
           ${comment ? commentContent(key, vote, parent, dispatch) : ''}
-          <div class="is-size-7">
+          <div class="is-size-7" style="${ownVote ? 'margin-top: .75em;' : ''}">
+            ${ownVote ? html`
+              <form class="select is-small" style="margin-right: .5em;" onchange=${handleForm(dispatch, { type: 'vote:changedPrivacy', vote })}>
+                <select name="public" class="has-text-grey is-light">
+                  <option selected=${vote && vote.public} value="true">Public${measure && measure.votePower ? ` (Vote Power: ${measure.votePower || 1})` : ''}</option>
+                  <option selected=${vote && !vote.public} value="false">Private${measure && measure.votePower ? ` (Vote Power: 1)` : ''}</option>
+                </select>
+              </form>
+            ` : html``}
             <span class="has-text-grey-light">${timeAgo().format(`${updated_at}Z`)}</span>
             <span class="has-text-grey-light">
               ${user && comment ? reportLink(key, vote, url, dispatch) : ''}

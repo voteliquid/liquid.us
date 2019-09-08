@@ -135,9 +135,32 @@ exports.changeVotePrivacy = (vote, is_public, user) => (dispatch) => {
   const endorsed_vote = !(user && user.id === vote.user_id && vote.comment) && vote.endorsed_vote
   const { measure_id, id: vote_id } = endorsed_vote || vote
 
+  if (vote.endorsement) return exports.changeEndorsementPrivacy(vote, is_public, user)(dispatch)
+
+  return api(dispatch, `/votes?user_id=eq.${user.id}&measure_id=eq.${measure_id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      public: is_public,
+    }),
+    user,
+  })
+  .then(() => api(dispatch, `/votes_detailed?measure_id=eq.${measure_id}&id=eq.${vote_id}`, { user }))
+  .then(([vote]) => dispatch({ type: 'vote:updated', vote }))
+  .catch((error) => dispatch({ type: 'error', error }))
+}
+
+exports.changeEndorsementPrivacy = (vote, is_public, user) => (dispatch) => {
+  const endorsed_vote = !(user && user.id === vote.user_id && vote.comment) && vote.endorsed_vote
+  const { measure_id, id: vote_id } = endorsed_vote || vote
+
   return api(dispatch, `/endorsements?user_id=eq.${user.id}&measure_id=eq.${measure_id}`, {
     method: 'PATCH',
-    body: JSON.stringify({ user_id: user.id, vote_id, measure_id, public: is_public }),
+    body: JSON.stringify({
+      user_id: user.id,
+      vote_id,
+      measure_id,
+      public: is_public,
+    }),
     user,
   })
   .then(() => api(dispatch, `/votes_detailed?measure_id=eq.${measure_id}&id=eq.${vote_id}`, { user }))

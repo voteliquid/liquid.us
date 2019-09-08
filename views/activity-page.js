@@ -1,4 +1,4 @@
-const { capitalize, escapeHtml, html, prettyShortId } = require('../helpers')
+const { capitalize, escapeHtml, handleForm, html, prettyShortId } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
 const timeAgo = require('timeago.js')
 const voteView = require('./vote')
@@ -141,26 +141,50 @@ const actionContent = (state, action, dispatch) => {
         ` : html``}
         <div class="field is-grouped is-grouped-multiline">
           <div class="control">
-            <a class="button is-small" href="${measureUrl}">
-              <span class="icon has-text-grey-light">
-                ${icon(
-                  action.resource.type === 'petition'
-                    ? faPencilAlt
-                    : action.resource.vote
-                      ? action.resource.vote.position === 'yea'
-                        ? faVoteYea
-                        : action.resource.vote.position === 'nay' ? faVoteNay : faBoxBallot
-                      : faBoxBallot
-                )}
-              </span>
-              <span>
-                ${action.resource.vote
-                  ? action.resource.vote.delegate_rank === -1
-                    ? action.resource.type === 'petition' ? 'Signed' : `Voted ${capitalize(action.resource.vote.position)}`
-                    : `${action.resource.type === 'petition' ? 'Signed' : `Voted ${capitalize(action.resource.vote.position)}`} through your proxy ${action.resource.vote.delegate_name}`
-                  : action.resource.type === 'petition' ? 'Sign petition' : 'Vote'}
-              </span>
-            </a>
+            <div class="field has-addons">
+              <div class="control">
+                <a class="button is-small" href="${measureUrl}">
+                  <span class="icon has-text-grey-light">
+                    ${icon(
+                      action.resource.type === 'petition'
+                        ? faPencilAlt
+                        : action.resource.vote
+                          ? action.resource.vote.position === 'yea'
+                            ? faVoteYea
+                            : action.resource.vote.position === 'nay' ? faVoteNay : faBoxBallot
+                          : faBoxBallot
+                    )}
+                  </span>
+                  <span>
+                    ${action.resource.vote
+                      ? action.resource.vote.delegate_rank === -1
+                        ? action.resource.type === 'petition' ? 'Signed' : `Voted ${capitalize(action.resource.vote.position)}`
+                        : `${action.resource.type === 'petition' ? 'Signed' : `Voted ${capitalize(action.resource.vote.position)}`} through your proxy ${action.resource.vote.delegate_name}`
+                      : action.resource.type === 'petition' ? 'Sign petition' : 'Vote'}
+                  </span>
+                </a>
+              </div>
+              ${action.resource.vote ? html`
+                <form
+                  class="control"
+                  method="POST"
+                  action="${state.location.path}"
+                  onchange=${handleForm(dispatch, {
+                    type: 'vote:voted',
+                    measure: action.resource,
+                    position: action.resource.vote.position,
+                    comment: action.resource.vote.comment,
+                  })}
+                >
+                  <div class="select is-small">
+                    <select name="public">
+                      <option value="true" selected=${action.resource.vote.public}>Public</option>
+                      <option value="false" selected=${!action.resource.vote.public}>Private</option>
+                    </select>
+                  </div>
+                </form>
+              ` : html``}
+            </div>
           </div>
           <div class="control">
             ${action.resource.type === 'petition'

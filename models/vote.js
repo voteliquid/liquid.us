@@ -109,11 +109,13 @@ module.exports = (event, state) => {
           ...state.user,
           last_vote_public: event.public,
         } : state.user,
-      }, combineEffectsInSeries([
+      }, combineEffects([
         preventDefault(event.event),
-        importEffect('vote', event, state.user),
-        fetchMeasure(event.measure.short_id, state),
-      ])]
+        combineEffectsInSeries([
+          importEffect('vote', event, state.user),
+          fetchMeasure(event.measure.short_id, state),
+        ])],
+      )]
     default:
       return [state]
   }
