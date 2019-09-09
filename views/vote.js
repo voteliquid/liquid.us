@@ -1,89 +1,99 @@
 const { WWW_URL } = process.env
 const { avatarURL: getAvatarURL, handleForm, linkifyUrls, html } = require('../helpers')
 const timeAgo = require('timeago.js')
-const stateNames = require('datasets-us-states-abbr-names')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faPencilAlt } = require('@fortawesome/free-solid-svg-icons/faPencilAlt')
+const { faStar } = require('@fortawesome/free-solid-svg-icons/faStar')
+const { faStar: faStarOutline } = require('@fortawesome/free-regular-svg-icons/faStar')
+const { faVoteYea } = require('@fortawesome/free-solid-svg-icons/faVoteYea')
+const { faVoteNay } = require('@fortawesome/pro-solid-svg-icons/faVoteNay')
+const { faBoxBallot } = require('@fortawesome/pro-solid-svg-icons/faBoxBallot')
 
 module.exports = (state, dispatch) => {
-  const { key, measure, vote, parent, showBill, user } = state
+  const { key, vote, parent, padded = true, displayTitle = false, user, showIcon = false, measures = {} } = state
+  const measure = measures[vote.measure.short_id] || state.measure || vote.measure
   const {
-    comment, author_username, endorsed, updated_at, fullname, id,
-    number, proxy_vote_count, position, short_id, title, type,
-    username, user_id, public: is_public, twitter_username,
-    source_url, endorsement_public
+    id, comment, endorsement, position, vote_power, public:
+    is_public, source_url, updated_at, delegate_name, delegate_rank
   } = vote
-  const avatarURL = getAvatarURL(vote)
-  let measure_url = `/${author_username}/`
-  if (!author_username) {
-    measure_url = type === 'nomination' ? '/nominations/' : '/legislation/'
+  const avatarURL = getAvatarURL(vote.user)
+  let measure_url = `${measure.type === 'nomination' ? '/nominations' : '/legislation'}/${measure.short_id}`
+  if (measure.author) {
+    measure_url = `/${measure.author.username}/${measure.short_id}`
   }
-  measure_url += short_id
   const comment_url = `${measure_url}/votes/${id}`
   const share_url = `${WWW_URL}${comment_url}`
-  const measure_title = number ? `${short_id.replace(/^[^-]+-/, '').toUpperCase()} — ${title}` : title
-  const anonymousName = measure
-    ? `${measure.legislature_name === 'U.S. Congress' ? 'American' : (stateNames[measure.legislature_name] || measure.legislature_name)} Resident`
-    : 'Anonymous'
-  let twitter_share_text = `Good argument! Click to show your support or explain why you disagree. ${share_url}`
-  if (user && user.id === user_id) {
-    twitter_share_text = `I'm voting ${position}. See why: ${share_url}`
-  }
-  const onBehalfOfCount = proxy_vote_count
+  const measure_title = measure.number ? `${measure.short_id.replace(/^[^-]+-/, '').toUpperCase()} — ${measure.title}` : measure.title
+  const ownVote = user && user.id === vote.user_id
 
   return html`
-    <div class="comment" style="margin-bottom: 1.5em;">
+    <div class="comment" style=${padded ? 'padding-bottom: 2em;' : ''}>
       <div class="media">
         <div class="media-left">
-          <div class="image is-32x32">
-            ${username || twitter_username
-              ? html`<a href="${`/${twitter_username ? `twitter/${twitter_username}` : username}`}">
-                  <img src="${avatarURL}" alt="avatar" class="round-avatar-img" />
-                </a>`
-              : html`<img src="${avatarURL}" alt="avatar" class="round-avatar-img" />`}
-          </div>
+          ${showIcon
+            ? html`
+                <span class="icon has-text-grey">
+                  ${icon(position === 'yea' ? faVoteYea : position === 'nay' ? faVoteNay : faBoxBallot)}
+                </span>
+              `
+            : html`
+              <div class="image is-32x32">
+                ${vote.user && vote.user.public_profile
+                  ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">
+                      <img src="${avatarURL}" alt="avatar" class="is-rounded" />
+                    </a>`
+                  : html`<img src="${avatarURL}" alt="avatar" class="is-rounded" />`}
+              </div>
+            `}
         </div>
-        <div class="media-content" style="${`border-left: 1px solid ${position === 'yea' ? 'hsl(141, 71%, 87%)' : 'hsl(348, 100%, 93%)'}; margin-left: -2rem; padding-left: 2rem;`}">
+        <div class="media-content">
           <div>
             <span class="has-text-weight-semibold">
-              ${!is_public && user && user_id === user.id
+              ${!is_public && ownVote
                 ? 'You'
-                : username || twitter_username
-                  ? html`<a href="${`/${twitter_username ? `twitter/${twitter_username}` : username}`}">${fullname}</a>`
-                  : anonymousName}
+                : vote.user
+                  ? vote.user.public_profile
+                    ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">${vote.user.first_name} ${vote.user.last_name}</a>`
+                    : html`<span>${vote.user.first_name} ${vote.user.last_name}</span>`
+                  : '[private]'}
             </span>
-            ${html`<span>voted <strong style="${`color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};`}">${position}</strong>${onBehalfOfCount > 1 && is_public ? html` on behalf of <span class="has-text-weight-semibold">${onBehalfOfCount}</span> people` : ''}${is_public ? '' : ' privately'}</span>`}
-            ${source_url ? html`<span class="is-size-7"> via <a href="${source_url}" target="_blank">${source_url.split('/')[2] || source_url}</a></span>` : ''}
+            ${html`<span>${delegate_name && delegate_rank !== -1 ? 'inherited' : 'voted'} <strong style="${`color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};`}">${position}</strong>${delegate_rank !== -1 && delegate_name ? ` vote from ${delegate_name}` : ''}${delegate_rank === -1 && vote_power > 1 && is_public ? html` on behalf of <span class="has-text-weight-semibold">${vote_power}</span> people` : ''}${is_public ? '' : ' privately'}</span>`}
+            ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}
           </div>
-          ${showBill ? html`<div style="margin-bottom: .5rem;"><a href="${measure_url}">${measure_title}</a></div>` : ''}
-          ${comment ? commentContent(key, vote, parent, dispatch) : ''}
-          <div class="${`${!is_public ? 'is-hidden' : ''} endorse-control is-size-7`}">
-            <a href="#" onclick=${(event) => dispatch({ type: endorsed ? 'vote:unendorsed' : 'vote:endorsed', measure, vote, event })} class="${`endorse-btn has-text-weight-semibold has-text-grey button is-small ${endorsed ? 'is-light' : ''}`}">
-              <span>${endorsed ? 'Endorsed' : 'Endorse'}</span>
-            </a>
-            <form class="${`select ${endorsed ? '' : 'is-hidden'}`}" onchange=${handleForm(dispatch, { type: 'vote:changedPrivacy', vote })}>
-              <select name="public" class="has-text-grey is-light">
-                <option selected=${endorsement_public} value="true">Public${measure && measure.votePower ? ` (Vote Power: ${measure.votePower || 1})` : ''}</option>
-                <option selected=${!endorsement_public} value="false">Private${measure && measure.votePower ? ` (Vote Power: 1)` : ''}</option>
-              </select>
-            </form>
-          </div>
-          <div class="is-size-7" style="position: relative; line-height: 25px; margin-top: 0.2rem;">
-            <a class="has-text-grey-light" title="Permalink" href="${comment_url}">${timeAgo().format(`${updated_at}Z`)}</a>
-            <span class="has-text-grey-light">
-              ${user && user.id === user_id ? html`
-                <span class="has-text-grey-lighter">&bullet;</span>
-                <a href="${`${measure_url}#measure-vote-form`}" onclick=${(event) => dispatch({ type: 'measure:voteFormActivated', measure, event })} class="has-text-grey-light">
-                  <span class="icon is-small"><i class="fas fa-pencil-alt"></i></span>
-                  <span>Edit</span>
-                </a>
-              ` : ''}
-              ${user && comment ? reportLink(key, vote, share_url, dispatch) : ''}
-              ${is_public || !fullname ? html`
-                <span class="has-text-grey-lighter">&bullet;</span>
-                <a title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-facebook"></i></span></a>
-                <a target="_blank" title="Share on Twitter" href="${`https://twitter.com/intent/tweet?text=${twitter_share_text}`}" class="has-text-grey-light"><span class="icon is-small"><i class="fab fa-twitter"></i></span></a>
-                <a target="_blank" title="Permalink" href="${share_url}" class="has-text-grey-light"><span class="icon is-small"><i class="fa fa-link"></i></span></a>
-              ` : ''}
-            </span>
+          ${displayTitle ? html`<div><a class="has-text-weight-semibold" href="${measure_url}">${measure_title}</a></div>` : ''}
+          ${commentContent(key, vote, parent, dispatch)}
+          <div class="${`field is-grouped ${!is_public && !ownVote ? 'is-hidden' : ''}`}">
+            <div class="control">
+              <div class="field has-addons">
+                <div class="${`control is-size-7 ${ownVote ? 'is-hidden' : ''}`}">
+                  <a title="${endorsement ? 'Endorsed' : 'Endorse'}" href="#" onclick=${(event) => dispatch({ type: endorsement ? 'vote:unendorsed' : 'vote:endorsed', measure, vote, event })} class="${`endorse-btn has-text-weight-semibold has-text-grey button is-small ${endorsement ? 'has-background-light' : ''}`}">
+                    <span class="icon is-small">${icon(endorsement ? faStar : faStarOutline)}</span>
+                    <span>${vote_power || 1}</span>
+                  </a>
+                </div>
+                <div class="${`control is-size-7 ${endorsement || ownVote ? '' : 'is-hidden'}`}">
+                  <form class="select" onchange=${handleForm(dispatch, { type: 'vote:changedPrivacy', vote })}>
+                    <select name="public" class="has-text-grey is-light">
+                      <option selected=${ownVote ? vote.public : (endorsement && endorsement.public)} value="true">Public${measure && measure.votePower ? ` (Vote Power: ${measure.votePower || 1})` : ''}</option>
+                      <option selected=${ownVote ? !vote.public : (endorsement && !endorsement.public)} value="false">Private${measure && measure.votePower ? ` (Vote Power: 1)` : ''}</option>
+                    </select>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="control is-size-7">
+              <a class="has-text-grey-light is-inline-flex" title="Permalink" href="${comment_url}">${timeAgo().format(`${updated_at}Z`)}</a>
+              <span class="has-text-grey-light is-inline-flex">
+                ${ownVote ? html`
+                  <span class="has-text-grey-lighter">&bullet;</span>
+                  <a href="${`${measure_url}#measure-vote-form`}" onclick=${(event) => dispatch({ type: 'measure:voteFormActivated', measure, event })} class="has-text-grey-light">
+                    <span class="icon is-small">${icon(faPencilAlt)}</span>
+                    <span>Edit</span>
+                  </a>
+                ` : ''}
+                ${user && comment ? reportLink(key, vote, share_url, dispatch) : ''}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -107,7 +117,7 @@ const commentContent = (key, vote, parent, dispatch) => {
   const comment = vote.comment || ''
   const { isTruncated: showExpander, truncated } = truncateOnWord(comment, 300)
   return html`
-    <div class="content" style="margin: .25rem 0 .75rem;">
+    <div class="content" style="margin-top: .5em;">
       ${{ html: linkifyUrls(expanded || !showExpander ? comment : truncated) }}
       <span class="${showExpander ? '' : 'is-hidden'}">
         <a href="#" onclick=${(event) => dispatch({ type: 'vote:toggledExpanded', event, vote: parent || vote })} class="is-size-7">

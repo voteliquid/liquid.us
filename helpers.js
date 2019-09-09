@@ -6,13 +6,30 @@ const routes = require('./routes')
 const qs = require('qs')
 
 exports.handleForm = (dispatch, appEvent) => (domEvent) => {
-  const data = require('parse-form').parse(domEvent.currentTarget).body
+  const method = domEvent.currentTarget.getAttribute('method')
+  const data = {
+    ...appEvent.location ? appEvent.location.query : {},
+    ...require('parse-form').parse(domEvent.currentTarget).body,
+  }
   Object.keys(data).forEach((key) => {
-    if (data[key] === 'on' || data[key] === 'true') data[key] = true
     if (data[key] === 'false') data[key] = false
-    if (data[key] === '') data[key] = null
+    if (method !== 'GET') {
+      if (data[key] === 'on' || data[key] === 'true') data[key] = true
+      if (data[key] === '') data[key] = null
+    }
   })
-  dispatch({ ...data, ...appEvent, event: domEvent })
+
+  if (method === 'GET') {
+    domEvent.preventDefault()
+    dispatch({
+      type: 'redirected',
+      url: `${appEvent.location.path}?${Object.keys(data).map((key) => {
+        return `${key}=${data[key]}`
+      }).join('&')}`,
+    })
+  } else {
+    dispatch({ ...data, ...appEvent, event: domEvent })
+  }
 }
 
 exports.makePoint = (lon, lat) => {
@@ -80,7 +97,8 @@ exports.loadPage = (url, status = 200, dispatch, scroll = true) => {
   })
 }
 
-exports.avatarURL = ({ image, gravatar_hash, twitter_username }) => {
+exports.avatarURL = (user) => {
+  const { image, gravatar_hash, twitter_username } = user || {}
   if (image) return `${WWW_URL}/rpc/image-proxy/${encodeURIComponent(image)}`
   if (twitter_username) return `${WWW_URL}/rpc/avatarsio/${twitter_username}`
   return `https://www.gravatar.com/avatar/${gravatar_hash}?d=mm&s=200`
@@ -187,7 +205,7 @@ exports.combineEffects = (effects) => (dispatch) => {
 }
 
 exports.combineEffectsInSeries = (effects) => (dispatch) => {
-  effects.reduce((promise, effect) => promise.then(() => Promise.resolve(effect && effect(dispatch))), Promise.resolve())
+  return effects.reduce((promise, effect) => promise.then(() => Promise.resolve(effect && effect(dispatch))), Promise.resolve())
 }
 
 // Wait for all promises before dispatching optional event
@@ -198,9 +216,17 @@ exports.waitEffects = (effects, finalEvent) => (dispatch) => {
 }
 
 exports.api = (dispatch, url, params = {}) => {
+  params.url = url
   params.headers = params.headers || {}
   if (params.user && params.user.jwt) {
     params.headers.Authorization = `Bearer ${params.user.jwt}`
+  }
+  if (params.pagination) {
+    params.headers['Range-Unit'] = 'items'
+    params.headers.Range = `${params.pagination.offset}-${Number(params.pagination.offset) + Number(params.pagination.limit)}`
+    if (typeof params.pagination.count !== 'number') {
+      params.headers.Prefer = 'count=exact'
+    }
   }
   return fetch(`${API_URL}${url}`, {
     ...params,
@@ -210,79 +236,17 @@ exports.api = (dispatch, url, params = {}) => {
       ...params.headers,
     },
   }).then((res) => {
+    // No body, return response object
     if (res.status === 201 && !params.headers.Prefer) return res
     if (res.status < 400 && params.headers.Prefer === 'return=minimal') return res
     if (res.status === 204) return res
+
+    // Refresh token negotiation
     if (res.status >= 400 && res.status < 500) {
-      return res.json().then((json) => {
-        const refresh_token = params.user && params.user.refresh_token
-
-        if (json.message === 'JWT expired') {
-          return fetch(`${API_URL}/sessions?select=jwt,refresh_token`, {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-              'Prefer': 'return=representation',
-            },
-            body: JSON.stringify({ refresh_token }),
-          })
-          .then(res => res.json())
-          .then(results => {
-            if (!results[0]) {
-              return Promise.reject(Object.assign(new Error(`Session not found!`), { status: 500 }))
-            }
-            return results[0]
-          })
-          .then(({ jwt }) => {
-            const oneYearFromNow = new Date(Date.now() + (365 * 24 * 60 * 60 * 1000))
-            dispatch({ type: 'cookieSet', key: 'jwt', value: jwt, opts: { expires: oneYearFromNow } })
-            dispatch({ type: 'user:updated', user: { ...params.user, jwt } })
-
-            return fetch(`${API_URL}${url}`, {
-              ...params,
-              credentials: 'include',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                ...params.headers,
-                'Authorization': `Bearer ${jwt}`,
-              },
-            })
-            .then(res => {
-              if (res.status === 204) return {}
-              if (res.status >= 400 && res.status < 500) {
-                return res.json().then(json => {
-                  const error = new Error(json.message)
-                  error.details = json.details
-                  error.status = res.status
-                  error.code = isNaN(json.code) ? json.code : Number(json.code)
-                  error.hint = json.hint
-                  throw error
-                })
-              }
-              return res.json()
-            })
-          })
-          .catch(error => {
-            console.log(error)
-            dispatch({ type: 'session:signedOut' })
-            dispatch({ type: 'cookieUnset', key: 'refresh_token' })
-            dispatch({ type: 'cookieUnset', key: 'jwt' })
-            if (error.message.match(/^NetworkError/)) {
-              dispatch({ type: 'error:network', error })
-            }
-          })
-        }
-        const error = new Error(json.message)
-        error.details = json.details
-        error.status = res.status
-        error.code = isNaN(json.code) ? json.code : Number(json.code)
-        error.hint = json.hint
-        return Promise.reject(error)
-      })
+      return parseApiError(res, params, dispatch)
     }
-    return res.json()
+
+    return parseApiResponse(res, params)
   })
   .catch(error => {
     console.log(error)
@@ -292,6 +256,92 @@ exports.api = (dispatch, url, params = {}) => {
       return Promise.reject(error)
     }
   })
+}
+
+const parseApiResponse = (res, params) => {
+  const isJSON = ~res.headers.get('Content-Type').indexOf('json')
+  return (isJSON ? res.json() : res.text()).then((results) => {
+    if (params.pagination) {
+      return {
+        results,
+        pagination: {
+          ...params.pagination,
+          limit: Number(params.pagination.limit),
+          offset: Number(params.pagination.offset) + Number(params.pagination.limit),
+          count: typeof params.pagination.count !== 'number' ? Number(res.headers.get('Content-Range').split('/')[1]) : null,
+        },
+      }
+    }
+    return results
+  })
+}
+
+const parseApiError = (res, params, dispatch) => {
+  const url = params.url
+  return res.json().then((json) => {
+    const refresh_token = params.user && params.user.refresh_token
+
+    if (json.message === 'JWT expired') {
+      return fetch(`${API_URL}/sessions?select=jwt,refresh_token`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify({ refresh_token }),
+      })
+      .then(res => res.json())
+      .then(results => {
+        if (!results[0]) {
+          return Promise.reject(Object.assign(new Error(`Session not found!`), { status: 500 }))
+        }
+        return results[0]
+      })
+      .then(({ jwt }) => {
+        const oneYearFromNow = new Date(Date.now() + (365 * 24 * 60 * 60 * 1000))
+        dispatch({ type: 'cookieSet', key: 'jwt', value: jwt, opts: { expires: oneYearFromNow } })
+        dispatch({ type: 'user:updated', user: { ...params.user, jwt } })
+
+        return fetch(`${API_URL}${url}`, {
+          ...params,
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            ...params.headers,
+            'Authorization': `Bearer ${jwt}`,
+          },
+        })
+        .then(res => {
+          if (res.status === 204) return {}
+          if (res.status >= 400 && res.status < 500) {
+            return res.json().then(json => apiError(json, res))
+          }
+          return parseApiResponse(res, params)
+        })
+      })
+      .catch(error => {
+        console.log(error)
+        dispatch({ type: 'session:signedOut' })
+        dispatch({ type: 'cookieUnset', key: 'refresh_token' })
+        dispatch({ type: 'cookieUnset', key: 'jwt' })
+        if (error.message.match(/^NetworkError/)) {
+          dispatch({ type: 'error:network', error })
+        }
+      })
+    }
+    return apiError(json, res)
+  })
+}
+
+const apiError = (json, res) => {
+  const error = new Error(json.message)
+  error.details = json.details
+  error.status = res.status
+  error.code = isNaN(json.code) ? json.code : Number(json.code)
+  error.hint = json.hint
+  return Promise.reject(error)
 }
 
 const viperhtml = require('viperhtml')
@@ -309,3 +359,37 @@ serverHtml.for = () => serverHtml
 exports.html = server
   ? serverHtml
   : require('lighterhtml-plus').html
+
+exports.svg = server
+  ? serverHtml
+  : require('lighterhtml-plus').svg
+
+exports.download = (content, fileName, mimeType) => {
+  const a = document.createElement('a')
+  mimeType = mimeType || 'application/octet-stream'
+
+  if (window.navigator.msSaveBlob) { // IE10
+    window.navigator.msSaveBlob(new window.Blob([content], {
+      type: mimeType
+    }), fileName)
+  } else if (URL && 'download' in a) { // html5 A[download]
+    a.href = URL.createObjectURL(new window.Blob([content], {
+      type: mimeType
+    }))
+    a.setAttribute('download', fileName)
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  } else {
+    window.location.href = `data:application/octet-stream,${encodeURIComponent(content)}` // only this mime type is supported
+  }
+}
+
+exports.prettyShortId = (shortId) => {
+  return (shortId || '')
+    .split('-')
+    .slice(1)
+    .join('-')
+    .toUpperCase()
+    .replace(/(\d+)/, ' $1')
+}

@@ -3,6 +3,10 @@ const { html } = require('../helpers')
 const joinForm = require('./join-form')
 const yourLegislators = require('./your-legislators')
 const video = require('./video')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faStar } = require('@fortawesome/free-solid-svg-icons/faStar')
+const { faChevronDown } = require('@fortawesome/free-solid-svg-icons/faChevronDown')
+const { faCaretRight } = require('@fortawesome/free-solid-svg-icons/faCaretRight')
 
 module.exports = (state, dispatch) => {
   return html`
@@ -24,7 +28,7 @@ module.exports = (state, dispatch) => {
           <div class="delayed2 has-text-centered-mobile">
             ${!state.user ? html`
               <a class="button is-link is-inverted is-medium" href="/join">
-                <span class="icon"><i class="fa fa-star"></i></span>
+                <span class="icon">${icon(faStar)}</span>
                 <span><strong>Create your free account</strong></span>
               </a>
             ` : ''}
@@ -34,7 +38,7 @@ module.exports = (state, dispatch) => {
       <div class="hero-footer">
         <div class="container has-text-centered" style="position: relative; bottom: 40px; opacity: .4">
           <span class="learn-more is-hidden-mobile" style="cursor: default">Learn more</span><br />
-          <span class="icon is-large  down-arrow"><i class="fa fa-2x fa-chevron-down"></i></span>
+          <span class="icon is-large  down-arrow">${icon(faChevronDown, { transform: { size: 32 } })}</span>
         </div>
       </div>
       <style>
@@ -181,7 +185,7 @@ module.exports = (state, dispatch) => {
             <br />
             <br />
             ${!state.user ?
-              html`<h4 class="subtitle is-5 is-size-4-desktop"><a href="/join"><span class="icon is-size-5"><i class="fa fa-caret-right" style="position:relative;bottom: 2px;"></i></span> <strong>Join Now</strong></a> to help create a transparent accountability record.</h4>`
+              html`<h4 class="subtitle is-5 is-size-4-desktop"><a href="/join"><span class="icon is-size-5">${icon(faCaretRight)}</span> <strong>Join Now</strong></a> to help create a transparent accountability record.</h4>`
               : ''
             }
           </div>
@@ -202,7 +206,7 @@ module.exports = (state, dispatch) => {
             <br />
             <h4 class="subtitle is-5 is-size-4-desktop">
               <a href="http://liquidcandidates.com" target="_blank">
-                <span class="icon" style="font-size: 12px;position: relative;bottom: 3px;"><i class="fa fa-star"></i></span>
+                <span class="icon" style="font-size: 12px;position: relative;bottom: 3px;">${icon(faStar)}</span>
                 <span>Meet the <strong>growing list of Digital Democracy Candidates</strong></span></a>.
             </h4>
           </div>

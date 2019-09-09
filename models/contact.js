@@ -16,14 +16,17 @@ module.exports = (event, state) => {
       return [{
         ...state,
         contactForm: { ...state.contactForm, submitted: true },
-      }, sendMessage({ ...event, user: state.user })]
+      }, sendMessage({ url: state.location.url, ...event, user: state.user })]
     case 'contactForm:submitCandidatePage':
       return [{
         ...state,
         contactForm: { ...state.contactForm, submitted: true },
-      }, combineEffects([sendMessage({ ...event, user: state.user }), redirect('/candidate_confirmation')])
+      }, combineEffects([
+        sendMessage({ ...event, user: state.user }), 
+        redirect('/candidate_confirmation'),
+      ])
     ]
-      default:
+    default:
       return [state]
   }
 }

@@ -4,6 +4,7 @@ const server = express()
 
 server
   .all('/bills', (req, res) => res.redirect(301, '/legislation'))
+  .all('/legislation', (req, res) => res.redirect(301, '/activity'))
   .all('/congress', (req, res) => res.redirect(301, '/legislation'))
   .all('/representatives', (req, res) => res.redirect(301, '/delegates'))
   .all('/delegates', (req, res) => res.redirect(301, '/proxies'))
@@ -13,8 +14,6 @@ server
   .all('/reps/:username', (req, res) => res.redirect(301, `/${req.params.username}`))
   .all('/new-homepage', (req, res) => res.redirect(301, '/'))
   .all('/elon', (req, res) => res.redirect(301, '/twitter/elonmusk'))
-  .all('/wisconsin', (req, res) => res.redirect(301, '/legislation?order=proposed&legislature=WI&terms='))
-  .all('/madison', (req, res) => res.redirect(301, '/legislation?order=proposed&legislature=Madison,%20WI&terms='))
   .all('/:username/legislation/:shortId', (req, res) => res.redirect(301, `/${req.params.username}/${req.params.shortId}`))
   .all('/:username/legislation/:shortId/votes/:voteId', (req, res) => res.redirect(301, `/${req.params.username}/${req.params.shortId}/votes/${req.params.voteId}`))
 

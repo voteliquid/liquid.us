@@ -1,5 +1,8 @@
 const { APP_NAME } = process.env
 const { handleForm, html } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faEnvelope } = require('@fortawesome/free-solid-svg-icons/faEnvelope')
+const { faComment } = require('@fortawesome/free-solid-svg-icons/faComment')
 
 module.exports = (state, dispatch) => {
   return html`
@@ -29,7 +32,7 @@ const contactWidgetButton = (state, dispatch) => {
         onclick=${(event) => dispatch({ type: 'contactForm:toggled', event })}
       >
         <span class="icon is-small">
-          <i class="fa fa-comment"></i>
+          ${icon(faEnvelope)}
         </span>
         <span>Help</span>
       </a>
@@ -64,7 +67,7 @@ const contactWidgetForm = ({ contactForm: { submitted }, location: { url }, user
       <div class="message-header" onclick=${(event) => dispatch({ type: 'contactForm:toggled', event })}>
         <p>
           <span class="icon is-small">
-            <i class="fa fa-comment"></i>
+            ${icon(faComment)}
           </span>
           <span>&nbsp;Help</span>
         </p>
@@ -81,7 +84,7 @@ const contactWidgetForm = ({ contactForm: { submitted }, location: { url }, user
                   <div class="control has-icons-left">
                     <input class="input" type="email" name="email" placeholder="Email (optional)" />
                     <span class="icon is-small is-left">
-                      <i class="fa fa-envelope"></i>
+                      ${icon(faEnvelope)}
                     </span>
                   </div>
                 </div>

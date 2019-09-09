@@ -1,4 +1,5 @@
-require('@babel/polyfill')
+require('core-js/stable')
+require('regenerator-runtime/runtime')
 const debug = require('debug')('liquid:app')
 
 window.name = 'liquid.us'

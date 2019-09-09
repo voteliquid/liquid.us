@@ -1,9 +1,12 @@
 const { handleForm, html } = require('../helpers')
 const atob = require('atob')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faUser } = require('@fortawesome/free-solid-svg-icons/faUser')
+const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
 
 module.exports = ({ cookies, error, loading, location, profiles = {} }, dispatch) => {
   const proxying_username = cookies.proxying_username
-  const vote_position = cookies.vote_position
+  const position = cookies.vote_position
   const endorsed_vote_id = cookies.endorsed_vote_id
   const reqProxyProfile = profiles[proxying_username]
   const hasError = error && error.field === 'email'
@@ -45,7 +48,7 @@ module.exports = ({ cookies, error, loading, location, profiles = {} }, dispatch
             </div>
           </div>
         ` : []}
-        ${vote_position ? html`
+        ${position ? html`
           <div class="columns is-centered is-gapless">
             <div class="column is-half">
               <div class="notification has-text-centered is-info">Sign in to save your vote and hold your representatives accountable.</div>
@@ -74,10 +77,10 @@ module.exports = ({ cookies, error, loading, location, profiles = {} }, dispatch
                   <input name="vote_public" type="hidden" value="${cookies.vote_public}" />
                   <input name="email" class="${`input ${hasError ? 'is-danger' : ''}`}" type="text" placeholder="you@example.com" />
                   <span class="icon is-small is-left">
-                    <i class="fa fa-user"></i>
+                    ${icon(faUser)}
                   </span>
                   ${hasError ? html`<span class="icon is-small is-right">
-                    <i class="fa fa-warning"></i>
+                    ${icon(faExclamationTriangle)}
                   </span>` : ''}
                   ${hasError ? html`<p class="help is-danger">${error.message}</p>` : ''}
                 </div>

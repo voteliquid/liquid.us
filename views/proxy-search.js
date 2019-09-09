@@ -1,5 +1,13 @@
 const { APP_NAME } = process.env
 const { avatarURL, handleForm, html } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faUser } = require('@fortawesome/free-solid-svg-icons/faUser')
+const { faTwitter } = require('@fortawesome/free-brands-svg-icons/faTwitter')
+const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
+const { faEnvelope } = require('@fortawesome/free-solid-svg-icons/faEnvelope')
+const { faHandshake } = require('@fortawesome/free-solid-svg-icons/faHandshake')
+const { faPlus } = require('@fortawesome/free-solid-svg-icons/faPlus')
+const { faTimes } = require('@fortawesome/free-solid-svg-icons/faTimes')
 
 module.exports = (state, dispatch) => {
   const { location } = state
@@ -34,8 +42,8 @@ const addProxyByEmailForm = (state, dispatch) => {
             <div class="control has-icons-left">
               <input autocomplete="off" name="add_proxy[name]" class=${`input ${error && error.name ? 'is-danger' : ''}`} type="text" placeholder="First and Last Name" />
               ${error && error.name
-                ? html`<span class="icon is-small is-left"><i class="fas fa-exclamation-triangle"></i></span>`
-                : html`<span class="icon is-small is-left"><i class="fa fa-user"></i></span>`
+                ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
+                : html`<span class="icon is-small is-left">${icon(faUser)}</span>`
               }
               ${error && error.name ? html`<p class="help is-danger">${error.message}</p>` : ''}
             </div>
@@ -44,8 +52,8 @@ const addProxyByEmailForm = (state, dispatch) => {
             <div class="control has-icons-left">
               <input autocomplete="off" name="add_proxy[email]" class=${`input ${error && error.email ? 'is-danger' : ''}`} type="text" required placeholder="Email" />
               ${error && error.email
-                ? html`<span class="icon is-small is-left"><i class="fas fa-exclamation-triangle"></i></span>`
-                : html`<span class="icon is-small is-left"><i class="fa fa-envelope"></i></span>`
+                ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
+                : html`<span class="icon is-small is-left">${icon(faEnvelope)}</span>`
               }
               ${error && error.email ? html`<p class="help is-danger">${error.message}</p>` : ''}
             </div>
@@ -53,7 +61,7 @@ const addProxyByEmailForm = (state, dispatch) => {
           <div class="field">
             <div class="control">
               <button class="button is-link is-outlined">
-                <span class="icon is-small" style="margin-left:0 !important;"><i class="far fa-handshake"></i></span>
+                <span class="icon is-small" style="margin-left:0 !important;">${icon(faHandshake)}</span>
                 <span>Add</span>
               </button>
             </div>
@@ -76,14 +84,14 @@ const addProxyByTwitterForm = (state, dispatch) => {
             <div class="control is-expanded has-icons-left">
               <input autocomplete="off" name="add_proxy[twitter_username]" class=${`input ${error && error.email ? 'is-danger' : ''}`} type="text" required placeholder="Twitter @username" />
               ${error && error.message
-                ? html`<span class="icon is-small is-left"><i class="fas fa-exclamation-triangle"></i></span>`
-                : html`<span class="icon is-small is-left"><i class="fab fa-twitter"></i></span>`
+                ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
+                : html`<span class="icon is-small is-left">${icon(faTwitter)}</span>`
               }
               ${error && error.message ? html`<p class="help is-danger">${error.message}</p>` : ''}
             </div>
             <div class="control">
               <button class="button is-link is-outlined" type="submit">
-                <span class="icon is-small" style="margin-left:0 !important;"><i class="far fa-handshake"></i></span>
+                <span class="icon is-small" style="margin-left:0 !important;">${icon(faHandshake)}</span>
                 <span>Add</span>
               </button>
             </div>
@@ -117,8 +125,8 @@ const addProxyBySearchForm = (state, dispatch) => {
         <div class="${`control is-expanded has-icons-left ${loading.proxySearch ? 'is-loading' : ''}`}">
           <input autocomplete="off" onkeypress="autoSubmitProxySearch()" name="add_proxy[search]" class=${`input ${error && error.email ? 'is-danger' : ''}`} type="text" placeholder="Name or @username" />
           ${error && error.message
-            ? html`<span class="icon is-small is-left"><i class="fas fa-exclamation-triangle"></i></span>`
-            : html`<span class="icon is-small is-left"><i class="fa fa-user"></i></span>`
+            ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
+            : html`<span class="icon is-small is-left">${icon(faUser)}</span>`
           }
           ${error && error.message ? html`<p class="help is-danger">${error.message}</p>` : ''}
         </div>
@@ -148,10 +156,10 @@ const searchResult = (proxies, result, dispatch) => {
           ${username || twitter_username
           ? html`
             <a href="${username ? `/${username}` : `/twitter/${twitter_username}`}" target="_blank">
-              <img src=${avatarURL(result)} class="round-avatar-img" />
+              <img src=${avatarURL(result)} class="is-rounded" />
             </a>
           ` : html`
-            <img src=${avatarURL(result)} class="round-avatar-img" />
+            <img src=${avatarURL(result)} class="is-rounded" />
           `}
         </div>
       </div>
@@ -174,7 +182,7 @@ const searchResultAdd = (id, dispatch) => {
     <form method="POST" onsubmit=${handleForm(dispatch, { type: 'proxy:addedProxyViaSearch' })}>
       <input name="add_proxy[to_id]" type="hidden" value="${id}" />
       <button class="button is-outline is-small" type="submit">
-        <span class="icon"><i class="fa fa-plus"></i></span>
+        <span class="icon">${icon(faPlus)}</span>
         <span>Add</span>
       </button>
     </form>
@@ -186,7 +194,7 @@ const removeProxyButton = (id, dispatch) => {
     <form style="display: inline;" method="POST" onsubmit=${handleForm(dispatch, { type: 'proxy:removed' })}>
       <input value="${id}" name="remove_delegation[to_id]" type="hidden" />
       <button class="button is-small" type="submit">
-        <span class="icon has-text-grey"><i class="fa fa-times"></i></span>
+        <span class="icon has-text-grey">${icon(faTimes)}</span>
       </button>
     </form>
   `
@@ -197,7 +205,7 @@ const searchResultAdded = ({ id, proxies }, dispatch) => {
     <form style="display: inline;" method="POST">
       <input name="add_proxy[to_id]" type="hidden" value="${id}" />
       <button class="button is-small" disabled type="submit">
-        <span class="icon"><i class="far fa-handshake"></i></span>
+        <span class="icon">${icon(faHandshake)}</span>
         <span>Added</span>
       </button>
     </form>

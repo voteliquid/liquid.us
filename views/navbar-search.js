@@ -1,4 +1,9 @@
 const { avatarURL, html } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faSearch } = require('@fortawesome/free-solid-svg-icons/faSearch')
+const { faUsers } = require('@fortawesome/free-solid-svg-icons/faUsers')
+const { faLandmarkAlt } = require('@fortawesome/pro-solid-svg-icons/faLandmarkAlt')
+const { faFileSignature } = require('@fortawesome/pro-solid-svg-icons/faFileSignature')
 
 module.exports = ({ loading, query, results, showResults }, dispatch) => {
   return html`
@@ -11,14 +16,12 @@ module.exports = ({ loading, query, results, showResults }, dispatch) => {
               onblur=${(event) => dispatch({ type: 'blurred', event })}
               onkeyup=${(event) => dispatch({ type: 'inputChanged', event })}
               class="input" placeholder="Search Bills or People" />
-            <span class="icon is-left">
-              <i class="fa fa-search"></i>
-            </span>
+            <span class="icon is-left">${icon(faSearch)}</span>
           </div>
           <button type="submit" class="is-hidden">Search</button>
         </div>
       </form>
-      ${showResults ? searchResults({ query, results }, dispatch) : ''}
+      ${showResults ? searchResults({ query, results }, dispatch) : html``}
     </div>
   `
 }
@@ -45,7 +48,7 @@ const searchResults = ({ query, results = [] }, dispatch) => {
     zIndex: 999,
   }
 
-  return html.for(searchResults, query)`
+  return html`
     <div class="search-results" style="${style}" onkeydown=${(event) => dispatch({ type: 'resultsKeyPressed', event })}>
       <style>
         .search-results.has-results {
@@ -75,8 +78,8 @@ const userSearchResult = (result, dispatch) => {
       onfocus="${() => dispatch({ type: 'resultFocused', result })}" href="${href}" class="search-result" style="display: block; padding: .3rem 1rem;">
       <div class="media is-marginless">
         <div class="media-left">
-          <div class="image is-32x32" style="${{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}">
-            <img src=${avatarURL(result)} class="round-avatar-img" />
+          <div class="image is-32x32">
+            <img src=${avatarURL(result)} class="is-rounded" style="max-height: none !important;" />
           </div>
         </div>
         <div class="media-content">
@@ -85,7 +88,7 @@ const userSearchResult = (result, dispatch) => {
             <span class="has-text-grey is-size-7">@${username || twitter_username}</span>
           </div>
           <div class="${direct_proxy_count ? 'is-size-7 has-text-grey' : 'is-hidden'}">
-            <span class="icon is-small"><i class="fa fa-users is-small"></i></span>
+            <span class="icon is-small">${icon(faUsers)}</span>
             <span>Represents ${direct_proxy_count} ${direct_proxy_count === 1 ? 'person' : 'people'} directly</span>
           </div>
         </div>
@@ -121,13 +124,13 @@ const measureSearchResult = ({ id, author_username, number, type, title, legisla
             class="image is-32x32 has-text-grey"
             style="${{ alignItems: 'center', display: 'flex', justifyContent: 'center' }}"
           >
-            <i class="fa fa-landmark"></i>
+            ${icon(type === 'petition' ? faFileSignature : faLandmarkAlt)}
           </div>
         </div>
         <div class="media-content">
           <div>${titleFmt}</div>
           <div class="is-size-7 has-text-grey">
-            <span>${legislature_name}</span>
+            <span>${type === 'petition' ? 'Petition to' : author_username ? 'Proposal for' : 'Bill for'} ${legislature_name}</span>
           </div>
         </div>
       </div>

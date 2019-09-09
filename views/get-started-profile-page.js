@@ -1,5 +1,8 @@
 const { WWW_DOMAIN } = process.env
 const { handleForm, html } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faUser } = require('@fortawesome/free-solid-svg-icons/faUser')
+const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
 
 module.exports = (state, dispatch) => {
   const { error } = state
@@ -25,8 +28,8 @@ module.exports = (state, dispatch) => {
                     <div class="control has-icons-left is-expanded">
                       <input name="username" class=${`input ${error ? 'is-danger' : ''}`} placeholder="username (at least 5 characters)" />
                       ${error
-                        ? html`<span class="icon is-small is-left"><i class="fa fa-warning"></i></span>`
-                        : html`<span class="icon is-small is-left"><i class="fa fa-user"></i></span>`
+                        ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
+                        : html`<span class="icon is-small is-left">${icon(faUser)}</span>`
                       }
                       ${error ? html`<p class="help is-danger">${error.message}</p>` : ''}
                     </div>

@@ -1,4 +1,4 @@
-const { api, combineEffects, makePoint, preventDefault } = require('../helpers')
+const { api, combineEffects, combineEffectsInSeries, makePoint, preventDefault } = require('../helpers')
 const { fetchUser, geocode, updateAddress } = require('../effects/user')
 const { logUser } = require('../effects/analytics')
 
@@ -8,6 +8,7 @@ module.exports = (event, state) => {
       return [state]
     case 'user:settingsSaved':
       const settings = {
+        subscribedActivity: !!event.subscribedActivity,
         subscribedDrip: !!event.subscribedDrip,
         subscribedLifecycle: !!event.subscribedLifecycle,
         inherit_votes_public: !!event.inherit_votes_public,
@@ -32,7 +33,10 @@ module.exports = (event, state) => {
     case 'user:unsubscribeError':
       return [{ ...state, error: event.error, loading: {} }]
     case 'user:unsubscribed':
-      return [{ ...state, loading: {} }]
+      return [{
+        ...state,
+        loading: { ...state.loading, page: !!state.location.query.measure_id },
+      }]
     case 'user:updated':
     case 'user:received':
       return [{
@@ -53,7 +57,10 @@ module.exports = (event, state) => {
             ...state,
             loading: { page: true },
             location: { ...state.location, title: 'Unsubscribe' },
-          }, unsubscribe(state.location.query.id, state.location.query.list)]
+          }, combineEffectsInSeries([
+            unsubscribe(state.location.query),
+            state.location.query.measure_id && importMeasureEffect('fetchMeasure', state.location.query.short_id, state),
+          ])]
         default:
           return [state]
       }
@@ -70,6 +77,7 @@ const fetchSettings = (user) => (dispatch) => {
       user,
     }, dispatch).then((max_vote_power) => {
       user.max_vote_power = max_vote_power || 1
+      user.subscribedActivity = !unsubs.some(({ list }) => list === 'events')
       user.subscribedDrip = !unsubs.some(({ list }) => list === 'drip')
       user.subscribedLifecycle = !unsubs.some(({ list }) => list === 'lifecycle')
       dispatch({ type: 'user:settingsReceived', user })
@@ -78,12 +86,19 @@ const fetchSettings = (user) => (dispatch) => {
 }
 
 const saveSettings = (user, location, form) => (dispatch) => {
-  const { address, subscribedDrip, subscribedLifecycle, inherit_votes_public, voter_status, update_emails_preference } = form
+  const {
+    address, subscribedActivity, subscribedDrip,
+    subscribedLifecycle, inherit_votes_public, voter_status,
+    update_emails_preference
+  } = form
 
   const addressData = {
     address,
-    city: window.lastSelectedGooglePlacesAddress.city,
-    state: window.lastSelectedGooglePlacesAddress.state,
+    locality: window.lastSelectedGooglePlacesAddress.locality,
+    administrative_area_level_1: window.lastSelectedGooglePlacesAddress.administrative_area_level_1,
+    administrative_area_level_2: window.lastSelectedGooglePlacesAddress.administrative_area_level_2,
+    postal_code: window.lastSelectedGooglePlacesAddress.postal_code,
+    country: window.lastSelectedGooglePlacesAddress.country,
     geocoords: makePoint(window.lastSelectedGooglePlacesAddress.lon, window.lastSelectedGooglePlacesAddress.lat),
   }
 
@@ -99,6 +114,8 @@ const saveSettings = (user, location, form) => (dispatch) => {
   })
   .then(() =>
     (subscribedDrip ? deleteUnsubscribe(dispatch, user, 'drip') : postUnsubscribe(dispatch, user, 'drip')))
+  .then(() =>
+    (subscribedActivity ? deleteUnsubscribe(dispatch, user, 'events') : postUnsubscribe(dispatch, user, 'events')))
   .then(() =>
     (subscribedLifecycle ? deleteUnsubscribe(dispatch, user, 'lifecycle') : postUnsubscribe(dispatch, user, 'lifecycle')))
   .then(() => {
@@ -135,12 +152,11 @@ const postUnsubscribe = (dispatch, user, list) => {
   })
 }
 
-
-const unsubscribe = (user_id, list) => (dispatch) => {
-  api(dispatch, '/unsubscribes', {
+const unsubscribe = ({ id: user_id, list, measure_id }) => (dispatch) => {
+  return api(dispatch, '/unsubscribes', {
     method: 'POST',
     headers: { 'Prefer': 'return=minimal' },
-    body: JSON.stringify({ user_id, list }),
+    body: JSON.stringify(measure_id ? { user_id, measure_id } : { user_id, list }),
   })
   .then(() => dispatch({ type: 'user:unsubscribed' }))
   .catch((error) => {
@@ -149,5 +165,11 @@ const unsubscribe = (user_id, list) => (dispatch) => {
     } else {
       dispatch({ type: 'user:unsubscribeError', error })
     }
+  })
+}
+
+const importMeasureEffect = (name, ...args) => (dispatch) => {
+  return import('../effects/measure').then((measureEffects) => {
+    return (measureEffects.default || measureEffects)[name].apply(null, args)(dispatch)
   })
 }

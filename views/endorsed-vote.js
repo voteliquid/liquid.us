@@ -9,7 +9,7 @@ module.exports = (state, dispatch) => {
   return html`
     <div>
     ${endorsed_vote ? html`<p class="is-size-7 has-text-grey" style="margin-bottom: 1em;">Endorsed by <a href="${`/${vote.username}`}">${vote.fullname}</a>${(isOwnVote && endorsement_public) || vote.public ? '' : ' privately'}:</p>` : ''}
-    ${voteView({ ...state, showBill: true, vote: endorsed_vote || vote, parent: vote }, dispatch)}
+    ${voteView({ ...state, displayTitle: true, vote: endorsed_vote || vote, parent: vote }, dispatch)}
     </div>
   `
 }

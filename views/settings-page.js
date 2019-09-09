@@ -1,8 +1,12 @@
 const { handleForm, html } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
+const { faMapMarkerAlt } = require('@fortawesome/free-solid-svg-icons/faMapMarkerAlt')
 
 module.exports = ({ error, forms: { settings }, user }, dispatch) => {
   const formChanged = settings && (
        settings.subscribedDrip !== user.subscribedDrip
+    || settings.subscribedActivity !== user.subscribedActivity
     || settings.subscribedLifecycle !== user.subscribedLifecycle
     || settings.update_emails_preference !== user.update_emails_preference
     || settings.inherit_votes_public !== user.inherit_votes_public
@@ -19,6 +23,12 @@ module.exports = ({ error, forms: { settings }, user }, dispatch) => {
           <div class="field">
             <div class="control">
               <label class="checkbox">
+                <input name="subscribedActivity" type="checkbox" checked=${user.subscribedActivity} />
+                Notify me of new updates or comments on measures and petitions
+              </label>
+            </div>
+            <div class="control">
+              <label class="checkbox">
                 <input name="subscribedDrip" type="checkbox" checked=${user.subscribedDrip} />
                 Send me educational emails about Liquid Democracy
               </label>
@@ -26,7 +36,7 @@ module.exports = ({ error, forms: { settings }, user }, dispatch) => {
             <div class="control">
               <label class="checkbox">
                 <input name="subscribedLifecycle" type="checkbox" checked=${user.subscribedLifecycle} />
-                Send me reminder emails about things I've missed
+                Remind me of things I've missed
               </label>
             </div>
             <div class="control">
@@ -35,7 +45,7 @@ module.exports = ({ error, forms: { settings }, user }, dispatch) => {
               </label>
             </div>
           </div>
-          <div style="margin-left: 2rem;">
+          <div style="margin-top: 1rem; margin-left: 2rem;">
             <div class="field">
               <div class="control">
                 <label class="radio">
@@ -76,8 +86,8 @@ module.exports = ({ error, forms: { settings }, user }, dispatch) => {
             <div class="control has-icons-left">
               <input onconnected=${initAutocomplete} class=${`input ${error && error.field === 'address' && 'is-danger'}`} autocomplete="off" name="address" id="address_autocomplete" required placeholder="185 Berry Street, San Francisco, CA 94121" value="${user.address ? user.address.formatted_address : ''}" />
               ${error && error.field === 'address'
-                ? html`<span class="icon is-small is-left"><i class="fa fas fa-exclamation-triangle"></i></span>`
-                : html`<span class="icon is-small is-left"><i class="fa fa-map-marker-alt"></i></span>`
+                ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
+                : html`<span class="icon is-small is-left">${icon(faMapMarkerAlt)}</span>`
               }
               ${error && error.field === 'address' ? html`<p class="help is-danger">${error.message}</p>` : ''}
             </div>
