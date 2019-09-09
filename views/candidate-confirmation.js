@@ -1,4 +1,6 @@
 const { html } = require('../helpers')
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faChevronDown } = require('@fortawesome/free-solid-svg-icons/faChevronDown')
 
 module.exports = () => {
   return html`
@@ -20,7 +22,7 @@ module.exports = () => {
           <br />
           <div class="container has-text-centered" style="position: relative; bottom: 40px; opacity: .4">
             <span class="learn-more is-hidden-mobile" style="cursor: default">Learn more</span><br />
-            <span class="icon is-large down-arrow"><i class="fa fa-2x fa-chevron-down"></i></span>
+            <span class="icon is-large  down-arrow">${icon(faChevronDown, { transform: { size: 32 } })}</span>
           </div>
         </div>
       </div>
