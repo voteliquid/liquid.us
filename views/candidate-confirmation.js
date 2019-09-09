@@ -8,10 +8,10 @@ module.exports = () => {
           <h2 class="title is-3 is-size-2-desktop is-size-3-mobile has-text-centered reveal">Thank you! We received your policy idea.</h2>
           <br />
           <br />
-          <p class="subtitle is-4 is-size-4-desktop reveal">Please give us a day or two to think about your policy idea and whether we have any additional questions.</p> 
+          <p class="subtitle is-4 is-size-4-desktop reveal">Please give us a day or two to think about your policy idea and whether we have any additional questions.</p>
           <br />
           <p class="subtitle is-4 is-size-4-desktop reveal">Our next step is to sculpt your idea into a digital format designed to go viral.</p>
-          <br /> 
+          <br />
           <p class="subtitle is-4 is-size-4-desktop reveal">Meanwhile, read below for some inspiration around building awareness for your policy idea:</p>
           <br />
           <br />
@@ -20,59 +20,31 @@ module.exports = () => {
           <br />
           <div class="container has-text-centered" style="position: relative; bottom: 40px; opacity: .4">
             <span class="learn-more is-hidden-mobile" style="cursor: default">Learn more</span><br />
-            <span class="icon is-large  down-arrow"><i class="fa fa-2x fa-chevron-down"></i></span>
-          </div
+            <span class="icon is-large down-arrow"><i class="fa fa-2x fa-chevron-down"></i></span>
+          </div>
         </div>
       </div>
-      </div>
       <style>
-            .hero.is-fullheight.subtract-toolbar {
-              min-height: calc(100vh - 64px);
-            }
-            .delayed {
-              animation: delayed-animation 0.6s cubic-bezier(0.6, 0.2, 0.1, 1);
-            }
-            @keyframes delayed-animation {
-              0% { opacity: 0; transform: scale(0.9) translate(0, 20px); }
-              100% { opacity: 1; transform: scale(1) translate(0, 0); }
-            }
-            .delayed1 {
-              animation: delayed1-animation 1.8s cubic-bezier(0.6, 0.2, 0.1, 1);
-            }
-            @keyframes delayed1-animation {
-              0% { opacity: 0; }
-              55% { opacity: 0; transform: scale(0.9) translate(0, 20px); }
-              100% { opacity: 1; transform: scale(1) translate(0, 0); }
-            }
-            .delayed2 {
-              animation: delayed2-animation 2.8s cubic-bezier(0.6, 0.2, 0.1, 1);
-            }
-            @keyframes delayed2-animation {
-              0% { opacity: 0; }
-              71% { opacity: 0; transform: scale(0.9) translate(0, 20px); }
-              100% { opacity: 1; transform: scale(1) translate(0, 0); }
-            }
-            .down-arrow {
-              animation: down-arrow-animation 2s infinite;
-              animation-delay: 3s;
-              opacity: 0;
-            }
-            @keyframes down-arrow-animation {
-              0% { transform: translate(0, 0); opacity: 0; }
-              50% { opacity: 1; }
-              100% { transform: translate(0px, 20px); opacity: 0; }
-            }
-            .learn-more {
-              animation: fadein 4s;
-            }
-            @keyframes fadein {
-              0% { opacity: 0; }
-              75% { opacity: 0; }
-              100% { opacity: 1; }
-            }
-          </style>
+        .down-arrow {
+          animation: down-arrow-animation 2s infinite;
+          animation-delay: 3s;
+          opacity: 0;
+        }
+        @keyframes down-arrow-animation {
+          0% { transform: translate(0, 0); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translate(0px, 20px); opacity: 0; }
+        }
+        .learn-more {
+          animation: fadein 4s;
+        }
+        @keyframes fadein {
+          0% { opacity: 0; }
+          75% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+      </style>
     </section>
-
 
     <section class="section">
       <div class="container is-widescreen">
@@ -109,8 +81,9 @@ module.exports = () => {
             <li><strong>Follow up.</strong> Make sure your supporters, aligned activists and legislators see the level of support for your proposal. We automatically sends comments to the appropriate legislators on your behalf, but it's valuable to keep the pressure on.</li>
             <br />
             <li><strong>Share with media.</strong> Once you’ve built up a significant level of support, you can garner media
-            coverage by sharing the traction you've received. Liquid provides a centralized location for reporters to review comments and votes from verified voters.</li>  
+            coverage by sharing the traction you've received. Liquid provides a centralized location for reporters to review comments and votes from verified voters.</li>
           </ol>
+        </div>
       </div>
     </section>
   `
