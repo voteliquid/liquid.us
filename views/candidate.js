@@ -333,7 +333,7 @@ const activateScrollReveal = () => {
 const policyIdeaCTA = (state, dispatch) => {
   return html`
     <section class="hero">
-        ${joinFormCandidate({ ...state }, dispatch)}
+        ${joinFormCandidate(state, dispatch)}
     </section>
     <br />
     <section class="hero is-medium no-vertical-padding">

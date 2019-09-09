@@ -1,5 +1,5 @@
 const { NODE_ENV } = process.env
-const { preventDefault } = require('../helpers')
+const { preventDefault, redirect, combineEffects } = require('../helpers')
 const fetch = require('isomorphic-fetch')
 
 module.exports = (event, state) => {
@@ -17,6 +17,15 @@ module.exports = (event, state) => {
         ...state,
         contactForm: { ...state.contactForm, submitted: true },
       }, sendMessage({ url: state.location.url, ...event, user: state.user })]
+    case 'contactForm:submitCandidatePage':
+      return [{
+        ...state,
+        contactForm: { ...state.contactForm, submitted: true },
+      }, combineEffects([
+        sendMessage({ ...event, user: state.user }), 
+        redirect('/candidate_confirmation'),
+      ])
+    ]
     default:
       return [state]
   }
