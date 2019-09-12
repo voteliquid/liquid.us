@@ -172,14 +172,6 @@ module.exports = (state, dispatch) => {
               <br /><br />
             </div>
           </div>
-
-          <p class="subtitle is-4 is-size-4-desktop reveal">Learn about, share, and vote on any policy proposal, anywhere, and choose delegates to speak when you don't. We publicly track voter support for each proposal by district and city and update your legislators when you speak out.
-          <br /><br />
-          Have a popular policy that's going nowhere? Apply pressure to key legislators by demonstrating that voters in their district support your position.
-          <br /><br />
-          Is your legislator failing to represent their district? Upgrade your democracy by supporting or running as a liquid candidate. These candidates pledge to use a constituent-driven liquid platform to determine how to vote on every bill.</p>
-          <br />
-          <br />
         </div>
       </div>
     </section>
