@@ -19,7 +19,7 @@ module.exports = (state, dispatch) => {
   const colspan = displayPosition ? 7 : 6
 
   return html`
-    <div>
+    <div style="overflow-x: scroll;">
       ${filterView(state, dispatch)}
       <table class="table is-fullwidth is-striped">
         <thead>
