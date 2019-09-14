@@ -2,6 +2,7 @@ module.exports = {
   'not-found': () => import('./views/not-found-page'),
   '/': () => import('./views/home-page'),
   '/join': () => import('./views/join-page'),
+  '/cd7': () => import('./views/cd7'),
   '/candidate': () => import('./views/candidate'),
   '/candidate_confirmation': () => import('./views/candidate-confirmation'),
   '/sign_in': () => import('./views/sign-in-page'),
