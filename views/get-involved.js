@@ -26,9 +26,7 @@ module.exports = (state, dispatch) => {
               <br /><br />
               Of beauty pageants masquerading as elections that give voters no real choice or control?
               <br /><br />
-              So are we.
-              <br /><br />
-              We have a plan, but we need your help.
+              So are we. And we have a plan.
               <br />
             </div>
           </div>
