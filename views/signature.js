@@ -9,7 +9,8 @@ module.exports = (state, dispatch) => {
     comment, measure, public: is_public, source_url, updated_at, delegate_rank, delegate_name
   } = vote
   const avatarURL = getAvatarURL(vote.user)
-  const url = `${measure.author.username}/${measure.short_id}`
+  const url = `/${measure.author.username}/${measure.short_id}`
+  const commentUrl = `${url}/votes/${vote.id}`
   const ownVote = user && user.id === vote.user_id
 
   return html`
@@ -62,7 +63,7 @@ module.exports = (state, dispatch) => {
                 </select>
               </form>
             ` : html``}
-            <span class="has-text-grey-light">${timeAgo().format(`${updated_at}Z`)}</span>
+            <a class="has-text-grey-light is-inline-flex" href="${commentUrl}">${timeAgo().format(`${updated_at}Z`)}</a>
             <span class="has-text-grey-light">
               ${user && comment ? reportLink(key, vote, url, dispatch) : ''}
             </span>
