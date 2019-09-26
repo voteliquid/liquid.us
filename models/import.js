@@ -18,6 +18,12 @@ module.exports = (event, state) => {
         ...state,
         loading: { ...state.loading, proxySearch: true },
       }, combineEffects([preventDefault(event.event), importEffect('searchAuthor', event, state.user)])]
+    case 'import:addedAuthorViaEmail':
+      return [state, combineEffects([preventDefault(event.event), importEffect('addAuthorViaEmail', event, state.user)])]
+    case 'import:addedAuthorViaTwitter':
+      return [state, combineEffects([preventDefault(event.event), importEffect('addAuthorViaTwitter', event, state.user)])]
+    case 'import:addedAuthorViaSearch':
+      return [state, combineEffects([preventDefault(event.event), importEffect('addAuthorViaSearch', event, state.user)])]
     case 'import:authorSearchResultsUpdated':
         return [{
           ...state,

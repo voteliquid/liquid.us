@@ -4,8 +4,8 @@ const { icon } = require('@fortawesome/fontawesome-svg-core')
 const { faUser } = require('@fortawesome/free-solid-svg-icons/faUser')
 const { faTwitter } = require('@fortawesome/free-brands-svg-icons/faTwitter')
 const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
+const { faEdit } = require('@fortawesome/free-solid-svg-icons/faEdit')
 const { faEnvelope } = require('@fortawesome/free-solid-svg-icons/faEnvelope')
-const { faHandshake } = require('@fortawesome/free-solid-svg-icons/faHandshake')
 const { faPlus } = require('@fortawesome/free-solid-svg-icons/faPlus')
 
 module.exports = (state, dispatch) => {
@@ -34,7 +34,7 @@ const addAuthorByEmailForm = (state, dispatch) => {
 
   return html`
     <form method="POST" onsubmit=${handleForm(dispatch, { type: 'proxy:addedAuthorViaEmail' })}>
-      <label for="add_author[search]" class="label has-text-weight-normal">Author to someone not on ${APP_NAME} via email:</label>
+      <label for="add_author[search]" class="label has-text-weight-normal">Add author not on ${APP_NAME} via email:</label>
       <div class="field is-horizontal">
         <div class="field-body">
           <div class="field">
@@ -59,6 +59,16 @@ const addAuthorByEmailForm = (state, dispatch) => {
           </div>
           <div class="field">
             <div class="control has-icons-left">
+              <input autocomplete="off" name="add_author[image_url]" class=${`input ${error && error.name ? 'is-danger' : ''}`} type="text" placeholder="Profile image link" />
+              ${error && error.name
+                ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
+                : html`<span class="icon is-small is-left">${icon(faUser)}</span>`
+              }
+              ${error && error.name ? html`<p class="help is-danger">${error.message}</p>` : ''}
+            </div>
+          </div>
+          <div class="field">
+            <div class="control has-icons-left">
               <input autocomplete="off" name="add_author[email]" class=${`input ${error && error.email ? 'is-danger' : ''}`} type="text" required placeholder="Email" />
               ${error && error.email
                 ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
@@ -66,21 +76,11 @@ const addAuthorByEmailForm = (state, dispatch) => {
               }
               ${error && error.email ? html`<p class="help is-danger">${error.message}</p>` : ''}
             </div>
-            <div class="field">
-              <div class="control has-icons-left">
-                <input autocomplete="off" name="add_author[image_url]" class=${`input ${error && error.name ? 'is-danger' : ''}`} type="text" placeholder="Profile image link" />
-                ${error && error.name
-                  ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
-                  : html`<span class="icon is-small is-left">${icon(faUser)}</span>`
-                }
-                ${error && error.name ? html`<p class="help is-danger">${error.message}</p>` : ''}
-              </div>
-            </div>
           </div>
           <div class="field">
             <div class="control">
               <button class="button is-link is-outlined">
-                <span class="icon is-small" style="margin-left:0 !important;">${icon(faHandshake)}</span>
+                <span class="icon is-small" style="margin-left:0 !important;">${icon(faEdit)}</span>
                 <span>Add</span>
               </button>
             </div>
@@ -110,7 +110,7 @@ const addAuthorByTwitterForm = (state, dispatch) => {
             </div>
             <div class="control">
               <button class="button is-link is-outlined" type="submit">
-                <span class="icon is-small" style="margin-left:0 !important;">${icon(faHandshake)}</span>
+                <span class="icon is-small" style="margin-left:0 !important;">${icon(faEdit)}</span>
                 <span>Add</span>
               </button>
             </div>
@@ -123,7 +123,7 @@ const addAuthorByTwitterForm = (state, dispatch) => {
 }
 
 const addAuthorBySearchForm = (state, dispatch) => {
-  const { error, loading, proxies, authorSearchResults = [], authorSearchTerms } = state
+  const { error, loading, cookies, authorSearchResults = [], authorSearchTerms } = state
 
   return html`
     <script>
@@ -159,13 +159,13 @@ const addAuthorBySearchForm = (state, dispatch) => {
     <br />
     <div>
       ${authorSearchTerms && !authorSearchResults.length ? html`<p>No results for "<strong>${authorSearchTerms}</strong>"</p>` : ''}
-      ${authorSearchResults.map(result => searchResult(proxies, result, dispatch))}
+      ${authorSearchResults.map(result => searchResult(cookies, result, dispatch))}
       ${authorSearchTerms ? html`<br /><p class="notification has-text-grey">Can't find who you're looking for?<br />Add them by <a href="?tab=email">email</a> or <a href="?tab=twitter">Twitter username</a>.</p>` : ''}
     </div>
   `
 }
 
-const searchResult = (proxies, result, dispatch) => {
+const searchResult = (cookies, result, dispatch) => {
   const { first_name, id, last_name, username, twitter_username } = result
 
   return html`
@@ -189,17 +189,18 @@ const searchResult = (proxies, result, dispatch) => {
         </a>
       </div>
       <div class="media-right">
-        ${proxies.some(({ to_id }) => to_id === id)
-        ? searchResultAdded({ id, proxies }, dispatch) : searchResultAdd(id, dispatch)}
+        ${cookies.author_id && cookies.author_id === id
+        ? searchResultAdded({ id }, dispatch) : searchResultAdd(id, username, twitter_username, dispatch)}
       </div>
     </div>
   `
 }
 
-const searchResultAdd = (id, dispatch) => {
+const searchResultAdd = (id, username, twitter_username, dispatch) => {
   return html`
-    <form method="POST" onsubmit=${handleForm(dispatch, { type: 'proxy:addedAuthorViaSearch' })}>
-      <input name="add_proxy[to_id]" type="hidden" value="${id}" />
+    <form method="POST" onsubmit=${handleForm(dispatch, { type: 'import:addedAuthorViaSearch' })}>
+      <input name="author_id" type="hidden" value="${id}" />
+      <input name="author_username" type="hidden" value="${username || twitter_username}" />
       <button class="button is-outline is-small" type="submit">
         <span class="icon">${icon(faPlus)}</span>
         <span>Select author</span>
@@ -213,7 +214,7 @@ const searchResultAdded = ({ id }) => {
     <form style="display: inline;" method="POST">
       <input name="add_proxy[to_id]" type="hidden" value="${id}" />
       <button class="button is-small" disabled type="submit">
-        <span class="icon">${icon(faHandshake)}</span>
+        <span class="icon">${icon(faEdit)}</span>
         <span>Current author</span>
       </button>
     </form>
