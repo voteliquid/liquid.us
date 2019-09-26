@@ -30,25 +30,20 @@ exports.addAuthorViaEmail = ({ event, ...formData }, proxies, user) => (dispatch
   const first_name = formData.add_author.name.trim().split(' ')[0]
   const last_name = formData.add_author.name.trim().split(' ').slice(1).join(' ')
 
-  return api(dispatch, '/delegations', {
+  return api(dispatch, '/users', {
     method: 'POST',
-    headers: { Prefer: 'return=representation' }, // returns created delegation in response
     body: JSON.stringify({
-      from_id: user.id,
       first_name,
       last_name,
+      username: formData.add_author.username,
       email: formData.add_author.email ? formData.add_author.email.toLowerCase().trim() : null,
     }),
     user,
   })
-  .then((delegations) => {
-    if (event) event.target.reset()
-    return api(dispatch, `/delegations_detailed?id=eq.${delegations[0].id}`, { user }).then(profiles => {
-      return dispatch({
-        type: 'proxy:proxiesUpdated',
-        proxies: (proxies || []).concat(profiles[0] || delegations[0]),
-      })
-    })
+  .then((user) => {
+    dispatch({ type: 'cookieSet', key: 'author_id', value: user.author_id })
+    dispatch({ type: 'cookieSet', key: 'author_username', value: user.username })
+
   })
   .catch(errorHandler(dispatch))
 }

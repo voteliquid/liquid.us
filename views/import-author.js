@@ -2,6 +2,8 @@ const { APP_NAME } = process.env
 const { avatarURL, handleForm, html } = require('../helpers')
 const { icon } = require('@fortawesome/fontawesome-svg-core')
 const { faUser } = require('@fortawesome/free-solid-svg-icons/faUser')
+const { faUserCircle } = require('@fortawesome/free-solid-svg-icons/faUserCircle')
+const { faLink } = require('@fortawesome/free-solid-svg-icons/faLink')
 const { faTwitter } = require('@fortawesome/free-brands-svg-icons/faTwitter')
 const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
 const { faEdit } = require('@fortawesome/free-solid-svg-icons/faEdit')
@@ -33,7 +35,7 @@ const addAuthorByEmailForm = (state, dispatch) => {
   const { error } = state
 
   return html`
-    <form method="POST" onsubmit=${handleForm(dispatch, { type: 'proxy:addedAuthorViaEmail' })}>
+    <form method="POST" onsubmit=${handleForm(dispatch, { type: 'import:addedAuthorViaEmail' })}>
       <label for="add_author[search]" class="label has-text-weight-normal">Add author not on ${APP_NAME} via email:</label>
       <div class="field is-horizontal">
         <div class="field-body">
@@ -52,7 +54,7 @@ const addAuthorByEmailForm = (state, dispatch) => {
               <input autocomplete="off" name="add_author[username]" class=${`input ${error && error.name ? 'is-danger' : ''}`} type="text" placeholder="@username" />
               ${error && error.name
                 ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
-                : html`<span class="icon is-small is-left">${icon(faUser)}</span>`
+                : html`<span class="icon is-small is-left">${icon(faUserCircle)}</span>`
               }
               ${error && error.name ? html`<p class="help is-danger">${error.message}</p>` : ''}
             </div>
@@ -62,7 +64,7 @@ const addAuthorByEmailForm = (state, dispatch) => {
               <input autocomplete="off" name="add_author[image_url]" class=${`input ${error && error.name ? 'is-danger' : ''}`} type="text" placeholder="Profile image link" />
               ${error && error.name
                 ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
-                : html`<span class="icon is-small is-left">${icon(faUser)}</span>`
+                : html`<span class="icon is-small is-left">${icon(faLink)}</span>`
               }
               ${error && error.name ? html`<p class="help is-danger">${error.message}</p>` : ''}
             </div>
