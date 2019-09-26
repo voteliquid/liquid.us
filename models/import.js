@@ -13,6 +13,18 @@ module.exports = (event, state) => {
         default:
           return [state]
       }
+    case 'import:authorSearched':
+      return [{
+        ...state,
+        loading: { ...state.loading, proxySearch: true },
+      }, combineEffects([preventDefault(event.event), importEffect('searchAuthor', event, state.user)])]
+    case 'import:authorSearchResultsUpdated':
+        return [{
+          ...state,
+          loading: { ...state.loading, authorSearch: false },
+          authorSearchResults: event.results,
+          authorSearchTerms: event.terms,
+        }]
     case 'import:voteImportFormSubmitted':
       return [{
         ...state,
@@ -63,4 +75,9 @@ const importVote = ({ type, event, ...form }, url, user) => (dispatch) => {
   })
   .then(() => dispatch({ type: 'redirected', url: url.replace('/import', '') }))
   .catch((error) => dispatch({ type: 'error', error }))
+}
+const importEffect = (name, ...args) => (dispatch) => {
+  return import('../effects/import').then((effects) => {
+    return (effects.default || effects)[name].apply(null, args)(dispatch)
+  })
 }

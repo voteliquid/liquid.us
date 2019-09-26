@@ -1,6 +1,8 @@
 const { handleForm, html } = require('../helpers')
+const authorForm = require('./import-author')
 
-module.exports = ({ error, location, user }, dispatch) => {
+module.exports = (state, dispatch) => {
+  const { error, location, user } = state
   return html`
     <section class="section">
       <div class="container is-widescreen">
@@ -11,7 +13,10 @@ module.exports = ({ error, location, user }, dispatch) => {
         <form onsubmit=${handleForm(dispatch, { type: 'import:voteImportFormSubmitted', short_id: location.params.shortId })} class=${user ? '' : 'is-hidden'}>
 
           ${error ? html`<div class="notification is-danger">${error.message}</div>` : ''}
-
+          <div class="field">
+            <label class="label">Author</label>
+            ${authorForm(state, dispatch)}
+          </div>
           <div class="field">
             <label class="label">Position:</label>
             <div class="control">
@@ -27,12 +32,6 @@ module.exports = ({ error, location, user }, dispatch) => {
                 <input type="radio" name="vote_position" value="abstain" />
                 Undecided
               </label>
-            </div>
-          </div>
-          <div class="field">
-            <label class="label">Twitter Username:</label>
-            <div class="control">
-              <input name="twitter_username" required class="input" placeholder="@username" />
             </div>
           </div>
           <div class="field">
