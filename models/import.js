@@ -8,7 +8,7 @@ module.exports = (event, state) => {
         case '/legislation/:shortId/import':
         case '/nominations/:shortId/import':
         case '/:username/:shortId/import':
-          if (!state.user || !state.user.is_admin) return [{ ...state, loading: { page: true } }, redirect('/')]
+          if (!state.user) return [state, redirect('/join')]
           return [state]
         default:
           return [state]

@@ -28,7 +28,7 @@ const voteOrSignatureView = (state, dispatch) => (vote) => {
 const noCommentsView = () => html`<p class="has-text-centered has-text-grey">No comments yet.</p>`
 
 const filtersView = (state, dispatch) => {
-  const { loading, location, measures, user } = state
+  const { loading, location, measures } = state
   const measure = measures[location.params.shortId]
   const pagination = measure.commentsPagination || { offset: 0, limit: 25 }
   const { path, query } = location
@@ -107,16 +107,15 @@ const filtersView = (state, dispatch) => {
               </button>
             </div>
           </div>
-          ${user && user.is_admin ? html`
-            <div class="field is-narrow">
-              <div class="control">
-                <a href=${`${location.path}/import`} class="button is-link has-text-weight-semibold is-small">
-                  <span class="icon">${icon(faPlus)}</span>
-                  <span>Import external argument</span>
-                </a>
-              </div>
+
+          <div class="field is-narrow">
+            <div class="control">
+              <a href=${`${location.path}/import`} class="button is-link has-text-weight-semibold is-small">
+                <span class="icon">${icon(faPlus)}</span>
+                <span>Import external argument</span>
+              </a>
             </div>
-          ` : ''}
+          </div>
         </div>
       </div>
     </form>
