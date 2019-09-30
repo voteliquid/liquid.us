@@ -1,5 +1,5 @@
 const { handleForm, html } = require('../helpers')
-const authorForm = require('./import-author')
+const authorForm = require('./import-author-form')
 
 module.exports = (state, dispatch) => {
   const { error, location, user } = state
