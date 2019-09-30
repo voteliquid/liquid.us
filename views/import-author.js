@@ -2,7 +2,6 @@ const { APP_NAME } = process.env
 const { avatarURL, handleForm, html } = require('../helpers')
 const { icon } = require('@fortawesome/fontawesome-svg-core')
 const { faUser } = require('@fortawesome/free-solid-svg-icons/faUser')
-const { faUserCircle } = require('@fortawesome/free-solid-svg-icons/faUserCircle')
 const { faLink } = require('@fortawesome/free-solid-svg-icons/faLink')
 const { faTwitter } = require('@fortawesome/free-brands-svg-icons/faTwitter')
 const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
@@ -25,36 +24,24 @@ module.exports = (state, dispatch) => {
         </ul>
       </div>
       ${tab === 'email' ? addAuthorByEmailForm(state, dispatch) : []}
-      ${tab === 'twitter' ? addAuthorByTwitterForm(state, dispatch) : []}
+      ${tab === 'twitter' ? addAuthorByTwitterForm() : []}
       ${tab === 'search' ? addAuthorBySearchForm(state, dispatch) : []}
     </div>
   `
 }
 
-const addAuthorByEmailForm = (state, dispatch) => {
+const addAuthorByEmailForm = (state) => {
   const { error } = state
 
   return html`
-    <form method="POST" onsubmit=${handleForm(dispatch, { type: 'import:addedAuthorViaEmail' })}>
-      <label for="add_author[search]" class="label has-text-weight-normal">Add author not on ${APP_NAME} via email:</label>
       <div class="field is-horizontal">
         <div class="field-body">
           <div class="field">
             <div class="control has-icons-left">
-              <input autocomplete="off" name="add_author[name]" class=${`input ${error && error.name ? 'is-danger' : ''}`} type="text" placeholder="First and Last Name" />
+              <input name="add_author[name]" required class="input" placeholder="First and Last name" />
               ${error && error.name
-                ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
-                : html`<span class="icon is-small is-left">${icon(faUser)}</span>`
-              }
-              ${error && error.name ? html`<p class="help is-danger">${error.message}</p>` : ''}
-            </div>
-          </div>
-          <div class="field">
-            <div class="control has-icons-left">
-              <input autocomplete="off" name="add_author[username]" class=${`input ${error && error.name ? 'is-danger' : ''}`} type="text" placeholder="@username" />
-              ${error && error.name
-                ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
-                : html`<span class="icon is-small is-left">${icon(faUserCircle)}</span>`
+                  ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
+                  : html`<span class="icon is-small is-left">${icon(faUser)}</span>`
               }
               ${error && error.name ? html`<p class="help is-danger">${error.message}</p>` : ''}
             </div>
@@ -79,48 +66,21 @@ const addAuthorByEmailForm = (state, dispatch) => {
               ${error && error.email ? html`<p class="help is-danger">${error.message}</p>` : ''}
             </div>
           </div>
-          <div class="field">
-            <div class="control">
-              <button class="button is-link is-outlined">
-                <span class="icon is-small" style="margin-left:0 !important;">${icon(faEdit)}</span>
-                <span>Add</span>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
       <p class="is-size-7">They'll be sent a <strong>notification email</strong>.</p>
-    </form>
   `
 }
 
-const addAuthorByTwitterForm = (state, dispatch) => {
-  const { error } = state
+const addAuthorByTwitterForm = () => {
   return html`
-    <form method="POST" onsubmit=${handleForm(dispatch, { type: 'proxy:addedAuthorViaTwitter' })}>
-      <label for="add_author[search]" class="label has-text-weight-normal">Choose an author not on ${APP_NAME} by adding their Twitter username:</label>
-      <div class="field is-horizontal">
-        <div class="field-body">
-          <div class="field is-grouped">
-            <div class="control is-expanded has-icons-left">
-              <input autocomplete="off" name="add_author[twitter_username]" class=${`input ${error && error.email ? 'is-danger' : ''}`} type="text" required placeholder="Twitter @username" />
-              ${error && error.message
-                ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
-                : html`<span class="icon is-small is-left">${icon(faTwitter)}</span>`
-              }
-              ${error && error.message ? html`<p class="help is-danger">${error.message}</p>` : ''}
-            </div>
-            <div class="control">
-              <button class="button is-link is-outlined" type="submit">
-                <span class="icon is-small" style="margin-left:0 !important;">${icon(faEdit)}</span>
-                <span>Add</span>
-              </button>
-            </div>
-          </div>
+      <div class="field">
+        <div class="control has-icons-left">
+          <input name="twitter_username" required class="input" placeholder="@username" />
+            <span class="icon is-small is-left">${icon(faTwitter)}</span>
         </div>
       </div>
       <p class="is-size-7">They'll be sent an <a href="https://twitter.com/liquid_notifs" target="_blank"><strong>invitation tweet</strong></a>.</p>
-    </form>
   `
 }
 
