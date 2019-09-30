@@ -8,6 +8,8 @@ const { faStar: faStarOutline } = require('@fortawesome/free-regular-svg-icons/f
 const { faVoteYea } = require('@fortawesome/free-solid-svg-icons/faVoteYea')
 const { faVoteNay } = require('@fortawesome/pro-solid-svg-icons/faVoteNay')
 const { faBoxBallot } = require('@fortawesome/pro-solid-svg-icons/faBoxBallot')
+const { faPlus } = require('@fortawesome/free-solid-svg-icons/faPlus')
+const { faTimes } = require('@fortawesome/free-solid-svg-icons/faTimes')
 
 module.exports = (state, dispatch) => {
   const { key, vote, parent, padded = true, displayTitle = false, user, showIcon = false, measures = {} } = state
@@ -45,21 +47,37 @@ module.exports = (state, dispatch) => {
                   : html`<img src="${avatarURL}" alt="avatar" class="is-rounded" />`}
               </div>
             `}
-        </div>
-        <div class="media-content">
-          <div>
-            <span class="has-text-weight-semibold">
-              ${!is_public && ownVote
-                ? 'You'
-                : vote.user
-                  ? vote.user.public_profile
-                    ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">${vote.user.first_name} ${vote.user.last_name}</a>`
-                    : html`<span>${vote.user.first_name} ${vote.user.last_name}</span>`
-                  : '[private]'}
-            </span>
-            ${html`<span>${delegate_name && delegate_rank !== -1 ? 'inherited' : 'voted'} <strong style="${`color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};`}">${position}</strong>${delegate_rank !== -1 && delegate_name ? ` vote from ${delegate_name}` : ''}${delegate_rank === -1 && vote_power > 1 && is_public ? html` on behalf of <span class="has-text-weight-semibold">${vote_power}</span> people` : ''}${is_public ? '' : ' privately'}</span>`}
-            ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}
+            </div>
+            <div class="media-content">
+              <div>
+                <span class="has-text-weight-semibold">
+                  ${!is_public && ownVote
+                    ? 'You'
+                    : vote.user
+                      ? vote.user.public_profile
+                        ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">${vote.user.first_name} ${vote.user.last_name}</a>`
+                        : html`<span>${vote.user.first_name} ${vote.user.last_name}</span>`
+                      : '[private]'}
+                </span>
+                ${html`<span>${delegate_name && delegate_rank !== -1 ? 'inherited' : 'voted'} <strong style="${`color: ${position === 'yea' ? 'hsl(141, 80%, 38%)' : (position === 'abstain' ? 'default' : 'hsl(348, 80%, 51%)')};`}">${position}</strong>${delegate_rank !== -1 && delegate_name ? ` vote from ${delegate_name}` : ''}${delegate_rank === -1 && vote_power > 1 && is_public ? html` on behalf of <span class="has-text-weight-semibold">${vote_power}</span> people` : ''}${is_public ? '' : ' privately'}</span>`}
+                ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}
+              </div>
+            </div>
           </div>
+          ${user.is_admin ?
+            html`<br /><div class="buttons has-addons">
+              <form method="POST" onsubmit=${handleForm(dispatch, { type: 'import:denyImportedComment', measure })}>
+                <button type="submit" class="button is-small">
+                  <span class="icon is-small">${icon(faPlus)}</span><span>Approve</span>
+                </button>
+              </form>
+              <form method="POST" onsubmit=${handleForm(dispatch, { type: 'import:denyImportedComment', measure })}>
+                <button type="submit" class="button is-small">
+                  <span class="icon is-small">${icon(faTimes)}</span><span>Deny</span>
+                </button>
+              </form>
+            </div>`
+            : ``}
           ${displayTitle ? html`<div><a class="has-text-weight-semibold" href="${measure_url}">${measure_title}</a></div>` : ''}
           ${commentContent(key, vote, parent, dispatch)}
           <div class="${`field is-grouped ${!is_public && !ownVote ? 'is-hidden' : ''}`}">
