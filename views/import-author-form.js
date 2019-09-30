@@ -18,9 +18,9 @@ module.exports = (state, dispatch) => {
     <div>
       <div class="tabs">
         <ul>
-          <li class=${tab === 'search' ? 'is-active' : ''}><a href=${`${path}?tab=search`}>Search by Name</a></li>
-          <li class=${tab === 'email' ? 'is-active' : ''}><a href=${`${path}?tab=email`}>Add author by Email</a></li>
-          <li class=${tab === 'twitter' ? 'is-active' : ''}><a href=${`${path}?tab=twitter`}>Add author by Twitter</a></li>
+          <li class=${tab === 'search' ? 'is-active' : ''}><a href=${`${path}?tab=search`}>Search Liquid Profiles</a></li>
+          <li class=${tab === 'email' ? 'is-active' : ''}><a href=${`${path}?tab=email`}>Add by Email</a></li>
+          <li class=${tab === 'twitter' ? 'is-active' : ''}><a href=${`${path}?tab=twitter`}>Add by Twitter</a></li>
         </ul>
       </div>
       ${tab === 'email' ? addAuthorByEmailForm(state, dispatch) : []}
@@ -96,7 +96,7 @@ const addAuthorBySearchForm = (state, dispatch) => {
       <label for="add_author[search]" class="label has-text-weight-normal">Search for author among public ${APP_NAME} profiles:</label>
       <div class="field has-addons">
         <div class="${`control is-expanded has-icons-left ${loading.authorSearch ? 'is-loading' : ''}`}">
-          <input autocomplete="off" onkeypress="autoSubmitAuthorSearch()" name="add_author[search]" class=${`input ${error && error.email ? 'is-danger' : ''}`} type="text" placeholder=${state.cookies.author_username || 'Name or @username'} />
+          <input autocomplete="off" onkeypress="autoSubmitAuthorSearch()" name="add_author[search]" class=${`input ${error && error.email ? 'is-danger' : ''}`} type="text" placeholder="Name or @username'}" />
           ${error && error.message
             ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
             : html`<span class="icon is-small is-left">${icon(faUser)}</span>`

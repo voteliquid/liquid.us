@@ -14,8 +14,7 @@ module.exports = (state, dispatch) => {
 
           ${error ? html`<div class="notification is-danger">${error.message}</div>` : ''}
           <div class="field">
-            <label class="label">Author Username:</label>
-            @${state.cookies.author_username}
+            <label class="label">Add author:</label>
             ${authorForm(state, dispatch)}
           </div>
           <div class="field">
