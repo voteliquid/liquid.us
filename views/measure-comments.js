@@ -12,7 +12,14 @@ module.exports = (state, dispatch) => {
   const comments = (measure.comments || []).map((id) => votes[id])
   return html`
     <div>
-      ${displayFilters ? filtersView(state, dispatch) : html``}
+      ${displayFilters ? filtersView(state, dispatch) : html`
+        <div class="control is-right">
+          <a href=${`${location.path}/import`} class="button is-link has-text-weight-semibold is-small">
+            <span class="icon">${icon(faPlus)}</span>
+            <span>Import external argument</span>
+          </a>
+        </div>
+      `}
       ${loading.comments ? activityIndicator() : html``}
       ${!loading.comments && comments.length ? comments.map(voteOrSignatureView(state, dispatch)) : html``}
       ${!loading.comments && !comments.length ? noCommentsView() : html``}
