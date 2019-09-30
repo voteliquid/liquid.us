@@ -38,22 +38,14 @@ const addAuthorByEmailForm = (state) => {
         <div class="field-body">
           <div class="field">
             <div class="control has-icons-left">
-              <input name="add_author[name]" required class="input" placeholder="First and Last name" />
-              ${error && error.name
-                  ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
-                  : html`<span class="icon is-small is-left">${icon(faUser)}</span>`
-              }
-              ${error && error.name ? html`<p class="help is-danger">${error.message}</p>` : ''}
+              <input name="add_author[name]" required class="input" placeholder="First and Last Name" />
+              <span class="icon is-small is-left">${icon(faUser)}</span>
             </div>
           </div>
           <div class="field">
             <div class="control has-icons-left">
-              <input autocomplete="off" name="add_author[image_url]" class=${`input ${error && error.name ? 'is-danger' : ''}`} type="text" placeholder="Profile image link" />
-              ${error && error.name
-                ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
-                : html`<span class="icon is-small is-left">${icon(faLink)}</span>`
-              }
-              ${error && error.name ? html`<p class="help is-danger">${error.message}</p>` : ''}
+              <input autocomplete="off" name="add_author[image_url]" class="input" type="text" placeholder="Profile image link" />
+              <span class="icon is-small is-left">${icon(faLink)}</span>
             </div>
           </div>
           <div class="field">
@@ -104,7 +96,7 @@ const addAuthorBySearchForm = (state, dispatch) => {
       <label for="add_author[search]" class="label has-text-weight-normal">Search for author among public ${APP_NAME} profiles:</label>
       <div class="field has-addons">
         <div class="${`control is-expanded has-icons-left ${loading.authorSearch ? 'is-loading' : ''}`}">
-          <input autocomplete="off" onkeypress="autoSubmitAuthorSearch()" name="add_author[search]" class=${`input ${error && error.email ? 'is-danger' : ''}`} type="text" placeholder="Name or @username" />
+          <input autocomplete="off" onkeypress="autoSubmitAuthorSearch()" name="add_author[search]" class=${`input ${error && error.email ? 'is-danger' : ''}`} type="text" placeholder=${state.cookies.author_username || 'Name or @username'} />
           ${error && error.message
             ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
             : html`<span class="icon is-small is-left">${icon(faUser)}</span>`
