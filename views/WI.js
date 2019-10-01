@@ -12,19 +12,21 @@ module.exports = (state, dispatch) => {
     <section onconnected="${activateScrollReveal}" class="hero is-link is-bold is-fullheight subtract-toolbar">
       <div class="hero-body">
         <div class="container reveal">
-          <h2 class="title is-2 is-size-3-mobile has-text-centered delayed">WI CD-7 Can Lead the Way to a Better Democracy</h2>
-          <br />
-          <br />
+          <h3 class="subtitle is-3 is-size-4-mobile delayed1">
+          "Let us dedicate ourselves to winning back the independence of this country, to emancipating this generation and throwing off the yoke of the political machine." ~ Fighting Bob La Follette, 1897</h3>
+          <br /><br />
+
           <div class="columns">
             <div class="column">
               ${getInvolvedCTA(state, dispatch)}
             </div>
             <div class="column is-1"></div>
             <div class="column is is-paddingless">
-              <h3 class="subtitle is-3 is-size-4-mobile delayed1">
-              Are you tired of unaccountable politicians more loyal to donors and DC insiders than voters?
+              <h2 class="title is-3 is-size-4-mobile has-text-centered delayed">120 Years Ago, Voters Faced a Political Process as Corrupt as We Do Today.
+              <br /><br /> Wisconsin Fought this Corruption & Led the Country to a Better Way of Choosing Our Representatives
               <br /><br />
-              Let's use the upcoming special election in Wisconsin Congressional District 7 to do something about it.
+              Let's Do It Again</h2>
+              <br /><br />
               <br />
             </div>
           </div>
@@ -63,16 +65,14 @@ module.exports = (state, dispatch) => {
       <div class="hero-body">
         <div class="container">
           <br />
-          <h2 class="title is-2 is-size-1-desktop text=is-centered is-size-3-mobile reveal"><strong>Elect a liquid candidate</strong></h2>
-          <br />
-          <br />
+          <h2 class="title is-2 is-size-1-desktop text=is-centered is-size-3-mobile reveal"><strong>Be or support a liquid candidate</strong></h2>
           <br />
           <br />
           <br />
           <div class="columns is-vcentered">
-            <div class="column is-2"></div>
+            <div class="column is-1"></div>
             <div class="column">
-              <h3 class="subtitle is-4 is-size-4-desktop reveal"><strong>Liquid candidates</strong> vote in office as instructed by voters through an online platform where voters can vote directly on bills themselves or choose people they trust to vote for them. </h3>
+              <h3 class="subtitle is-4 is-size-4-desktop reveal"><strong>Liquid candidates</strong> vote in office as instructed by voters through an online platform. Voters debate and vote on bills directly and choose reps they trust to speak for them when they don't. </h3>
             </div>
             <div class="column is-1"></div>
             <div class="column has-text-centered">
@@ -86,14 +86,14 @@ module.exports = (state, dispatch) => {
           <div class="columns is-vcentered">
             <div class="column is-1"></div>
             <div class="column has-text-left-tablet is-hidden-desktop is-hidden-tablet">
-              <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Choose anyone</strong> to vote on bills for you when you do not. They can delegate to others, creating a trust network to measure the public's support and opposition on every policy proposal.</h4>
+              <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Choose anyone to represent you</strong> on an issue-by-issue basis. They can delegate to others, creating a trust network to measure the public's support and opposition on every policy proposal.</h4>
             </div>
             <div class="column has-text-centered">
               <img src="/assets/delegatecolor2.png" width="60%">
             </div>
             <div class="column is-1"></div>
             <div class="column has-text-left-tablet is-hidden-mobile">
-              <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Choose people you trust</strong> to vote on bills for you when you do not. They can delegate to others, creating a trust network to measure the public's support and opposition on every policy proposal.</h4>
+              <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Choose anyone to represent you</strong> on an issue-by-issue basis. They can delegate to others, creating a trust network to measure the public's support and opposition on every policy proposal.</h4>
             </div>
             <div class="column is-1"></div>
           </div>
@@ -101,9 +101,9 @@ module.exports = (state, dispatch) => {
           <br />
           <br />
           <div class="columns is-vcentered">
-            <div class="column is-2"></div>
+            <div class="column is-1"></div>
             <div class="column">
-              <h3 class="subtitle is-4 is-size-4-desktop reveal"><strong>Amplify your voice</strong> on issues where you have expertise by representing voters who trust you - without being forced to compete in a winner-take-all election.</h3>
+              <h3 class="subtitle is-4 is-size-4-desktop reveal"><strong>Be part of the legislative process</strong> on issues where you have expertise by representing voters who trust you - without being forced to compete in a winner-take-all election.</h3>
             </div>
             <div class="column is-1"></div>
             <div class="column has-text-centered">
@@ -135,16 +135,8 @@ module.exports = (state, dispatch) => {
     <section class="hero is-dark is-bold is-fullheight">
       <div class="hero-body">
         <div class="container">
-          <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal"><span>This special election presents a unique opportunity</span></h2>
-          <br />
-          <br />
-          <br />
           <h4 class="subtitle is-3 is-size-4-mobile reveal">
-          <strong>Many voters have not heard of liquid democracy</strong> and those who have are not convinced that it can win an election.
-          <br /> <br />
-          <strong>Let's prove them wrong and demonstrate that we the people want change.</strong> Special elections get more media attention and have often provided opportunities for outsider candidates to win.
-          <br /> <br />
-          <strong>Instead of electing yet another Republican or Democrat, let's put voters in control.</strong></h4>
+          <strong>Spread the word about liquid</strong>  and demonstrate that we the people want real change.<br /> <br /> Instead of electing yet another Republican or Democrat, let's put voters in control.</h4>
         </div>
       </div>
     </section>
