@@ -35,6 +35,16 @@ module.exports = (state, dispatch) => {
             <hr />
             ${vote && vote.comment ? html.for(vote, `petition-comment-content-${vote.id}`)`
               <div>
+                <div>
+                  <span class="has-text-weight-semibold">
+                    ${vote.user
+                      ? vote.user.public_profile
+                        ? html`<a href="${`/${vote.user.username || `twitter/${vote.user.twitter_username}`}`}">${vote.user.first_name} ${vote.user.last_name}</a>`
+                        : html`<span>${vote.user.first_name} ${vote.user.last_name}</span>`
+                      : '[Private]'}
+                  </span>
+                  <span>commented:</span>
+                </div>
                 <div class="content is-size-5">
                   ${{ html: linkifyUrls(vote.comment) }}
                 </div>
