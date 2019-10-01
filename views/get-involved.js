@@ -12,7 +12,7 @@ module.exports = (state, dispatch) => {
     <section onconnected="${activateScrollReveal}" class="hero is-link is-bold is-fullheight subtract-toolbar">
       <div class="hero-body">
         <div class="container reveal">
-          <h2 class="title is-2 is-size-2-desktop is-size-3-mobile has-text-centered delayed">Together we can fix our democracy</h2>
+          <h2 class="title is-2 is-size-2-desktop is-size-3-mobile has-text-centered delayed">Fight Corruption, Empower Voters, Strengthen Democracy</h2>
           <br />
           <br />
           <div class="columns">
@@ -26,7 +26,7 @@ module.exports = (state, dispatch) => {
               <br /><br />
               Of beauty pageants masquerading as elections that give voters no real choice or control?
               <br /><br />
-              So are we. And we have a plan.
+              So are we. Let's do something about it.
               <br />
             </div>
           </div>
@@ -131,6 +131,9 @@ module.exports = (state, dispatch) => {
             <div class="column is-2">
             </div>
           </div>
+          <br />
+          <br />
+          <br />
           <div class="columns is-vcentered">
             <div class="column is-2"></div>
             <div class="column has-text-left-tablet">
