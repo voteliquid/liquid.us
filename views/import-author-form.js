@@ -38,19 +38,19 @@ const addAuthorByEmailForm = (state) => {
         <div class="field-body">
           <div class="field">
             <div class="control has-icons-left">
-              <input name="add_author[name]" required class="input" placeholder="First and Last Name" />
+              <input name="author_name" required class="input" placeholder="First and Last Name" />
               <span class="icon is-small is-left">${icon(faUser)}</span>
             </div>
           </div>
           <div class="field">
             <div class="control has-icons-left">
-              <input autocomplete="off" name="add_author[image_url]" class="input" type="text" placeholder="Profile image link" />
+              <input autocomplete="off" name="profile_image_url" class="input" type="text" placeholder="Profile image link" />
               <span class="icon is-small is-left">${icon(faLink)}</span>
             </div>
           </div>
           <div class="field">
             <div class="control has-icons-left">
-              <input autocomplete="off" name="add_author[email]" class=${`input ${error && error.email ? 'is-danger' : ''}`} type="text" required placeholder="Email" />
+              <input autocomplete="off" name="email" class=${`input ${error && error.email ? 'is-danger' : ''}`} type="text" required placeholder="Email" />
               ${error && error.email
                 ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
                 : html`<span class="icon is-small is-left">${icon(faEnvelope)}</span>`
@@ -166,7 +166,7 @@ const searchResultAdd = (id, username, twitter_username, dispatch) => {
 const searchResultAdded = ({ id }) => {
   return html`
     <form style="display: inline;" method="POST">
-      <input name="add_proxy[to_id]" type="hidden" value="${id}" />
+      <input name="author_id" type="hidden" value="${id}" />
       <button class="button is-small" disabled type="submit">
         <span class="icon">${icon(faEdit)}</span>
         <span>Current author</span>
