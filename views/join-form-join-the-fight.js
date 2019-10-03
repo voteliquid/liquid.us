@@ -1,12 +1,14 @@
 const { handleForm, html } = require('../helpers')
-
+const { icon } = require('@fortawesome/fontawesome-svg-core')
+const { faEnvelope } = require('@fortawesome/free-solid-svg-icons/faEnvelope')
+const { faExclamationTriangle } = require('@fortawesome/free-solid-svg-icons/faExclamationTriangle')
 module.exports = ({ error, loading }, dispatch) => {
 
   return html`
     <div class="has-text-centered">
-      <form class="box has-text-centered" method="POST" onsubmit="${handleForm(dispatch, { type: 'contactForm:messageSent', url: 'https://liquid.us/cd7' })}">
+      <form class="box has-text-centered" method="POST" onsubmit="${handleForm(dispatch, { type: 'contactForm:messageSent', url: 'https://liquid.us/get_involved' })}">
         <div class="field has-text-left">
-          <strong><label for="idea">Join the fight and suggest other reformers we should contact</label><strong>
+          <strong><label for="idea">Join the fight</label><strong>
         </div>
         <style>
           .join-input-field {
@@ -15,7 +17,7 @@ module.exports = ({ error, loading }, dispatch) => {
         </style>
         <div class="field has-addons join-input-field">
           <div class="${`control is-expanded has-icons-left ${error ? 'has-icons-right' : ''}`}">
-            <textarea class="textarea" name="message" placeholder="You should also contact...(optional)" />
+            <textarea class="textarea" name="message" required placeholder="Connect to other reformers by sharing your location (optional)" />
           </div>
 
         </div>
@@ -25,11 +27,9 @@ module.exports = ({ error, loading }, dispatch) => {
         <div class="field has-addons join-input-field">
           <div class="${`control is-expanded has-icons-left ${error ? 'has-icons-right' : ''}`}">
             <input name="email" class="${`input ${error ? 'is-danger' : ''}`}" type="text" required placeholder="you@example.com" />
-            <span class="icon is-small is-left">
-              <i class="fa fa-user"></i>
-            </span>
+            <span class="icon is-small is-left">${icon(faEnvelope)}</span>
             ${error ? html`<span class="icon is-small is-right">
-              <i class="fa fa-warning"></i>
+              ${icon(faExclamationTriangle)}
             </span>` : ''}
             ${error ? html`<p class="help is-danger">${error.message}</p>` : ''}
           </div>
