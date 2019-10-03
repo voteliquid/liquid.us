@@ -31,20 +31,28 @@ module.exports = (event, state) => {
           authorSearchResults: event.results,
           authorSearchTerms: event.terms,
         }]
-    case 'import:voteImportFormSubmitted':
+
+      case 'import:voteImportFormSubmitted':
       return [{
         ...state,
         loading: {
           ...state.loading,
           voteImport: true,
         },
-      }, combineEffects([preventDefault(event.event), importVote(event, state.location.url, state.user)])]
+      }, combineEffects([preventDefault(event.event), importVoteTwitter(event, state.location.url, state.user)])]
     default:
       return [state]
   }
 }
+const importVote = ({ type, event, ...form }, url, user) => {
+  if (form.twitter_username) {
+    return importVoteTwitter({ type, event, ...form }, url, user)
+  }
+    return importVoteEmailOrLiquid({ type, event, ...form }, url, user)
 
-const importVote = ({ type, event, ...form }, url, user) => (dispatch) => {
+}
+
+const importVoteTwitter = ({ type, event, ...form }, url, user) => (dispatch) => {
   const twitter_username = (form.twitter_username || '').replace('@', '')
   fetch('/rpc/twitter_username_search', {
     headers: {
@@ -63,7 +71,7 @@ const importVote = ({ type, event, ...form }, url, user) => (dispatch) => {
     return res.json()
   })
   .then((twitterApiResult) => {
-    if (!twitterApiResult) {
+    if (!twitterApiResult && !twitter_username) {
       return Promise.reject(new Error('No Twitter user found'))
     }
 
@@ -82,6 +90,20 @@ const importVote = ({ type, event, ...form }, url, user) => (dispatch) => {
   .then(() => dispatch({ type: 'redirected', url: url.replace('/import', '') }))
   .catch((error) => dispatch({ type: 'error', error }))
 }
+
+const importVoteEmailOrLiquid = ({ type, event, ...form }, url, user) => (dispatch) => {
+
+    return api(dispatch, '/rpc/import_vote', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...form,
+      }),
+      user,
+    })
+  .then(() => dispatch({ type: 'redirected', url: url.replace('/import', '') }))
+  .catch((error) => dispatch({ type: 'error', error }))
+}
+
 const importEffect = (name, ...args) => (dispatch) => {
   return import('../effects/import').then((effects) => {
     return (effects.default || effects)[name].apply(null, args)(dispatch)

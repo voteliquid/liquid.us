@@ -49,7 +49,7 @@ module.exports = (state, dispatch) => {
           <div class="field">
             <label class="label">Comment:</label>
             <div class="control">
-              <textarea required name="comment" autocomplete="off" class="textarea" placeholder="Copy an excerpt from an externally published opinion to add to the bill page.\nOnce imported & approved, anyone will be able to Back it."></textarea>
+              <textarea required name="comment" autocomplete="off" class="textarea" placeholder="Copy an excerpt from an externally published opinion.\nOnce imported & approved, anyone will be able to Back it."></textarea>
             </div>
           </div>
           <div class="field">
