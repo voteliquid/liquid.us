@@ -64,9 +64,9 @@ module.exports = (state, dispatch) => {
               </div>
             </div>
           </div>
-          ${user.is_admin ?
+          ${user && user.is_admin ?
             html`<br /><div class="buttons has-addons">
-              <form method="POST" onsubmit=${handleForm(dispatch, { type: 'import:denyImportedComment', measure })}>
+              <form method="POST" onsubmit=${handleForm(dispatch, { type: 'import:allowImportedComment', measure })}>
                 <button type="submit" class="button is-small">
                   <span class="icon is-small">${icon(faPlus)}</span><span>Approve</span>
                 </button>

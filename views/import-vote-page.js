@@ -6,9 +6,9 @@ module.exports = (state, dispatch) => {
   return html`
     <section class="section">
       <div class="container is-widescreen">
-        <h2 class="title is-size-5">Import Argument to <a href=${location.path.slice(0, -7)}>${location.params.shortId}</a></h2>
+        <h2 class="title is-size-5">Import External Opinion Related to <a href=${location.path.slice(0, -7)}>${location.params.shortId}</a></h2>
 
-        ${!user ? html`<div class="notification is-danger">Login to import votes.</div>` : ''}
+        ${!user ? html`<div class="notification is-danger">Login to import comments.</div>` : html`<div class="is-size-5"><p>Once imported & approved, it will be displayed alongside other comments.</p><br /></div>`}
 
         <form onsubmit=${handleForm(dispatch, { type: 'import:voteImportFormSubmitted', short_id: location.params.shortId })} class=${user ? '' : 'is-hidden'}>
 
@@ -49,7 +49,7 @@ module.exports = (state, dispatch) => {
           <div class="field">
             <label class="label">Comment:</label>
             <div class="control">
-              <textarea required name="comment" autocomplete="off" class="textarea" placeholder="Copy an excerpt from an externally published opinion.\nOnce imported & approved, anyone will be able to Back it."></textarea>
+              <textarea required name="comment" autocomplete="off" class="textarea" placeholder="Copy an excerpt from the opinion."></textarea>
             </div>
           </div>
           <div class="field">
