@@ -64,20 +64,7 @@ module.exports = (state, dispatch) => {
               </div>
             </div>
           </div>
-          ${user && user.is_admin ?
-            html`<br /><div class="buttons has-addons">
-              <form method="POST" onsubmit=${handleForm(dispatch, { type: 'import:allowImportedComment', measure })}>
-                <button type="submit" class="button is-small">
-                  <span class="icon is-small">${icon(faPlus)}</span><span>Approve</span>
-                </button>
-              </form>
-              <form method="POST" onsubmit=${handleForm(dispatch, { type: 'import:denyImportedComment', measure })}>
-                <button type="submit" class="button is-small">
-                  <span class="icon is-small">${icon(faTimes)}</span><span>Deny</span>
-                </button>
-              </form>
-            </div>`
-            : ``}
+          
           ${displayTitle ? html`<div><a class="has-text-weight-semibold" href="${measure_url}">${measure_title}</a></div>` : ''}
           ${commentContent(key, vote, parent, dispatch)}
           <div class="${`field is-grouped ${!is_public && !ownVote ? 'is-hidden' : ''}`}">
