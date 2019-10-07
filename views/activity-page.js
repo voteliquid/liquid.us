@@ -37,7 +37,9 @@ module.exports = (state, dispatch) => {
               <p class="menu-label">Action</p>
               <ul class="menu-list">
                 <li><a href="/petitions/create">Start a Petition</a></li>
+                <li><a href="/petitions/import">Import a Petition</a></li>
                 <li><a href="/legislation/create">Propose a Bill</a></li>
+                <li><a href="/legislation/import">Import a Bill</a></li>
               </ul>
             </nav>
           </div>

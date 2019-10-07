@@ -151,12 +151,15 @@ module.exports = {
               return require('./models/activity')(event, state)
             case '/legislation/create':
             case '/petitions/create':
+            case '/legislation/import':
+            case '/petitions/import':
             case '/petitions/yours':
             case '/legislation/yours':
             case '/legislation/:shortId':
             case '/nominations/:shortId':
             case '/:username/:shortId':
             case '/:username/:shortId/edit':
+            case '/:user.id/:shortId':
               return require('./models/measure')(event, state)
             case '/legislation/:shortId/import':
             case '/nominations/:shortId/import':
