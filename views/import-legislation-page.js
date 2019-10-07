@@ -1,7 +1,6 @@
 const { WWW_URL } = process.env
 const { handleForm, html } = require('../helpers')
 const activityIndicator = require('./activity-indicator')
-const authorForm = require('./import-author-form')
 
 module.exports = (state, dispatch) => {
   const { location, measures = {}, user } = state
@@ -9,7 +8,8 @@ module.exports = (state, dispatch) => {
   return html`
     <section class="section">
       <div class="container is-widescreen">
-        <h2 class="title is-5">${measure ? 'Edit Petition' : 'Import a Petition'}</h2>
+        <h2 class="title is-5">${measure ? 'Edit Petition' : 'Import External Policy Proposal as a Bill'}</h2>
+        <div class="is-size-5">Once imported and approved, it will be displayed alongside other policy proposals and available for voting for or against.</div><br />
         ${user.username
           ? location.params.shortId && !measure
             ? activityIndicator()
@@ -33,18 +33,19 @@ const publicProfileRequiredMsg = (verified) => {
 }
 
 const form = (state, dispatch) => {
-  const { error, forms, legislatures = [], loading, location, measures = {}, user } = state
+  const { error, forms, legislatures = [], loading, location, user, measures = {} } = state
   const measure = measures[location.params.shortId] || {}
   const form = forms.editMeasure || {}
   const { legislature_id, summary, title } = measure
-  console.log(location.query.tab)
   const auto_short_id = (form.title || title || '').toLowerCase().replace(/ /g, '-').replace(/[^A-z0-9-_]/g, '').slice(0, 32)
   const short_id = !forms.editMeasureShortId && !measure.short_id ? auto_short_id : (form.short_id || measure.short_id)
 
   return html`
     <form method="POST" onsubmit=${handleForm(dispatch, { type: 'measure:editFormSaved', oldShortId: measure.short_id })} onkeyup=${handleForm(dispatch, { type: 'measure:editFormChanged' })} onchange=${handleForm(dispatch, { type: 'measure:editFormChanged' })}>
       ${error ? html`<div class="notification is-danger">${error.message}</div>` : ''}
-      <input type="hidden" name="measure_type" value="petition" />
+      <input type="hidden" name="measure_type" value="bill" />
+      <input type="hidden" name="imported_by" value="${user.id}" />
+      <input type="hidden" name="approval_status" value="undefined" />
       <div class="${`field ${legislatures.length === 1 ? 'is-hidden' : ''}`}">
         <label for="short_id" class="label has-text-grey">Legislature</label>
         <div class="control">
@@ -58,9 +59,9 @@ const form = (state, dispatch) => {
         </div>
       </div>
       <div class="field">
-        <label for="short_id" class="label has-text-grey">Bill Author</label>
+        <label for="short_id" class="label has-text-grey">Bill Author's Twitter Username</label>
         <div class="control">
-
+          <input name="twitter_username" required class="input" placeholder="Twitter @username" />
         </div>
       </div>
       <div class="field">
