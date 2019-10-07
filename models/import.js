@@ -8,51 +8,25 @@ module.exports = (event, state) => {
         case '/legislation/:shortId/import':
         case '/nominations/:shortId/import':
         case '/:username/:shortId/import':
-          if (!state.user) return [state, redirect('/join')]
+          if (!state.user || !state.user.is_admin) return [{ ...state, loading: { page: true } }, redirect('/')]
           return [state]
         default:
           return [state]
       }
-    case 'import:authorSearched':
-      return [{
-        ...state,
-        loading: { ...state.loading, proxySearch: true },
-      }, combineEffects([preventDefault(event.event), importEffect('searchAuthor', event, state.user)])]
-    case 'import:addedAuthorViaEmail':
-      return [state, combineEffects([preventDefault(event.event), importEffect('addAuthorViaEmail', event, state.user)])]
-    case 'import:addedAuthorViaTwitter':
-      return [state, combineEffects([preventDefault(event.event), importEffect('addAuthorViaTwitter', event, state.user)])]
-    case 'import:addedAuthorViaSearch':
-      return [state, combineEffects([preventDefault(event.event), importEffect('addAuthorViaSearch', event, state.user)])]
-    case 'import:authorSearchResultsUpdated':
-        return [{
-          ...state,
-          loading: { ...state.loading, authorSearch: false },
-          authorSearchResults: event.results,
-          authorSearchTerms: event.terms,
-        }]
-
-      case 'import:voteImportFormSubmitted':
+    case 'import:voteImportFormSubmitted':
       return [{
         ...state,
         loading: {
           ...state.loading,
           voteImport: true,
         },
-      }, combineEffects([preventDefault(event.event), importVoteTwitter(event, state.location.url, state.user)])]
+      }, combineEffects([preventDefault(event.event), importVote(event, state.location.url, state.user)])]
     default:
       return [state]
   }
 }
-const importVote = ({ type, event, ...form }, url, user) => {
-  if (form.twitter_username) {
-    return importVoteTwitter({ type, event, ...form }, url, user)
-  }
-    return importVoteEmailOrLiquid({ type, event, ...form }, url, user)
 
-}
-
-const importVoteTwitter = ({ type, event, ...form }, url, user) => (dispatch) => {
+const importVote = ({ type, event, ...form }, url, user) => (dispatch) => {
   const twitter_username = (form.twitter_username || '').replace('@', '')
   fetch('/rpc/twitter_username_search', {
     headers: {
@@ -71,7 +45,7 @@ const importVoteTwitter = ({ type, event, ...form }, url, user) => (dispatch) =>
     return res.json()
   })
   .then((twitterApiResult) => {
-    if (!twitterApiResult && !twitter_username) {
+    if (!twitterApiResult) {
       return Promise.reject(new Error('No Twitter user found'))
     }
 
@@ -89,23 +63,4 @@ const importVoteTwitter = ({ type, event, ...form }, url, user) => (dispatch) =>
   })
   .then(() => dispatch({ type: 'redirected', url: url.replace('/import', '') }))
   .catch((error) => dispatch({ type: 'error', error }))
-}
-
-const importVoteEmailOrLiquid = ({ type, event, ...form }, url, user) => (dispatch) => {
-
-    return api(dispatch, '/rpc/import_vote', {
-      method: 'POST',
-      body: JSON.stringify({
-        ...form,
-      }),
-      user,
-    })
-  .then(() => dispatch({ type: 'redirected', url: url.replace('/import', '') }))
-  .catch((error) => dispatch({ type: 'error', error }))
-}
-
-const importEffect = (name, ...args) => (dispatch) => {
-  return import('../effects/import').then((effects) => {
-    return (effects.default || effects)[name].apply(null, args)(dispatch)
-  })
 }
