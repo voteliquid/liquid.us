@@ -43,16 +43,14 @@ module.exports = (event, state) => {
           ...state.loading,
           voteImport: true,
         },
-      }, combineEffects([preventDefault(event.event), importVoteTwitter(event, state.location.url, state.user)])]
+      }, combineEffects([preventDefault(event.event), importVote(event, state)])]
     default:
       return [state]
   }
 }
-const importVote = ({ type, event, ...form }, url, user) => {
-  if (form.twitter_username) {
-    return importVoteTwitter({ type, event, ...form }, url, user)
-  }
-    return importVoteEmailOrLiquid({ type, event, ...form }, url, user)
+const importVote = ({ measure, type, event, ...form }, state) => {
+  return form.twitter_username ?
+    importVoteTwitter({ type, event, ...form }, state.locationn.url, state.user) : form.email ? importVoteEmail({ type, event, ...form }, state.location.url, state.user) : importVoteLiquid({ type, event, ...form }, state.location.url, state.user, state.cookies.author_id, state.cookies_measure_id)
 
 }
 
@@ -95,7 +93,7 @@ const importVoteTwitter = ({ type, event, ...form }, url, user) => (dispatch) =>
   .catch((error) => dispatch({ type: 'error', error }))
 }
 
-const importVoteEmailOrLiquid = ({ type, event, ...form }, url, user) => (dispatch) => {
+const importVoteEmail = ({ type, event, ...form }, url, user) => (dispatch) => {
 
     return api(dispatch, '/rpc/import_vote', {
       method: 'POST',
@@ -107,7 +105,23 @@ const importVoteEmailOrLiquid = ({ type, event, ...form }, url, user) => (dispat
   .then(() => dispatch({ type: 'redirected', url: url.replace('/import', '') }))
   .catch((error) => dispatch({ type: 'error', error }))
 }
+const importVoteLiquid = ({ measure, type, event, ...form }, url, user, author_id, measure_id) => (dispatch) => {
 
+    return api(dispatch, `/votes?user_id=eq.${author_id}&measure_id=eq.${measure_id}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        position: form.vote_position,
+        source_url: form.source_url,
+        comment: form.comment,
+        user_id: author_id,
+        measure_id: measure_id
+
+      }),
+      user,
+    })
+  .then(() => dispatch({ type: 'redirected', url: url.replace('/import', '') }))
+  .catch((error) => dispatch({ type: 'error', error }))
+}
 const importEffect = (name, ...args) => (dispatch) => {
   return import('../effects/import').then((effects) => {
     return (effects.default || effects)[name].apply(null, args)(dispatch)

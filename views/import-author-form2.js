@@ -153,7 +153,8 @@ const searchResult = (cookies, result, dispatch) => {
 const searchResultAdd = (id, username, twitter_username, dispatch) => {
   return html`
     <form method="POST" onsubmit=${handleForm(dispatch, { type: 'import:addedAuthorViaSearch' })}>
-      <input name="user_id" type="hidden" value="${id}" />
+      <input name="author_id" type="hidden" value="${id}" />
+      <input name="author_username" type="hidden" value="${username || twitter_username}" />
       <button class="button is-outline is-small" type="submit">
         <span class="icon">${icon(faPlus)}</span>
         <span>Select author</span>

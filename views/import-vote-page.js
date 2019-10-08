@@ -1,5 +1,6 @@
 const { handleForm, html } = require('../helpers')
 const authorForm = require('./import-author-form')
+const { fetchMeasure } = require('../effects/measure')
 
 module.exports = (state, dispatch) => {
   const { cookies, error, location, measures, user } = state

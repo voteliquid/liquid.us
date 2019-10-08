@@ -13,6 +13,7 @@ const updatesView = require('./measure-updates')
 
 module.exports = (state, dispatch) => {
   const { location, measures, user, votes } = state
+  console.log(state)
   const measure = measures[location.params.shortId]
   const vote = votes[location.params.voteId]
   const { showVoteForm } = measure
