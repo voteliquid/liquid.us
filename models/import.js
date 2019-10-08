@@ -8,12 +8,11 @@ module.exports = (event, state) => {
         case '/legislation/:shortId/import':
         case '/nominations/:shortId/import':
         case '/:username/:shortId/import':
-          if (!state.user) return [{ ...state, loading: { page: true } }, redirect('/join')]
-          return if (!state.user) return [state, redirect('/join')]
-          return [{
-            ...state,
-          },             importEffect('fetchMeasure', state.location.params.shortId, state),
-          ]
+        if (!state.user) return [state, redirect('/join')]
+        return [{
+          ...state,
+        },             importEffect('fetchMeasure', state.location.params.shortId, state),
+        ]
         default:
           return [state]
       }
@@ -69,7 +68,7 @@ const importVote = ({ type, event, ...form }, url, user) => (dispatch) => {
   .catch((error) => dispatch({ type: 'error', error }))
 }
 const importEffect = (name, ...args) => (dispatch) => {
-  return import('../import/vote').then((importEffects) => {
+  return import('../effects/import').then((importEffects) => {
     return (importEffects.default || importEffects)[name].apply(null, args)(dispatch)
   })
 }
