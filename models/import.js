@@ -9,10 +9,14 @@ module.exports = (event, state) => {
         case '/nominations/:shortId/import':
         case '/:username/:shortId/import':
           if (!state.user) return [state, redirect('/join')]
-          return [state]
+          return [{
+            ...state,
+          },             importEffect('fetchMeasure', state.location.params.shortId, state),
+          ]
         default:
           return [state]
       }
+
     case 'import:authorSearched':
       return [{
         ...state,

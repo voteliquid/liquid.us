@@ -2,11 +2,11 @@ const { handleForm, html } = require('../helpers')
 const authorForm = require('./import-author-form')
 
 module.exports = (state, dispatch) => {
-  const { error, location, user } = state
+  const { cookies, error, location, measures, user } = state
   return html`
     <section class="section">
       <div class="container is-widescreen">
-        <h2 class="title is-size-5">Import External Opinion Related to <a href=${location.path.slice(0, -7)}>${location.params.shortId}</a></h2>
+        <h2 class="title is-size-5">Import External Opinion Related to <a href=${location.path.slice(0, -7)}>${cookies.measure_short_id === location.params.shortId ? cookies.measure_title : location.params.shortId}</a></h2>
 
         ${!user ? html`<div class="notification is-danger">Login to import comments.</div>` : html`<div class="is-size-5"><p>Once imported & approved, it will be displayed alongside other comments.</p><br /></div>`}
 
