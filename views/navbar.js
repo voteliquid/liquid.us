@@ -114,9 +114,9 @@ const navbarAuthed = ({ location, user }) => {
         <a class=${`navbar-item ${path === '/settings' ? 'is-active' : ''}`} href="/settings">Settings</a>
         <hr />
         <a class=${`navbar-item ${path === `/petitions/create` ? 'is-active' : ''}`} href="/petitions/create">Start a Petition</a>
-        <a class=${`navbar-item ${path === `/petitions/create` ? 'is-active' : ''}`} href="/petitions/import">Import a Petition</a>
+        <a class=${`navbar-item ${path === `/petitions/import` ? 'is-active' : ''}`} href="/petitions/import">Import a Petition</a>
         <a class=${`navbar-item ${path === `/legislation/create` ? 'is-active' : ''}`} href="/legislation/create">Propose a Bill</a>
-        <a class=${`navbar-item ${path === `/legislation/create` ? 'is-active' : ''}`} href="/legislation/create">Import a Bill</a>
+        <a class=${`navbar-item ${path === `/legislation/import` ? 'is-active' : ''}`} href="/legislation/import">Import a Bill</a>
         <a class=${`navbar-item ${path === '/sign_out' ? 'is-active' : ''}`} href=${`${WWW_URL}/sign_out`}>Sign out</a>
       </div>
     </div>
