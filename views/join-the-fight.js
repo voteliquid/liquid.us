@@ -1,6 +1,6 @@
 const { WWW_DOMAIN } = process.env
 const { html } = require('../helpers')
-const joinForm = require('./join-form-get-involved')
+const joinForm = require('./join-form-join-the-fight')
 const video = require('./video')
 
 module.exports = (state, dispatch) => {
@@ -12,7 +12,7 @@ module.exports = (state, dispatch) => {
     <section onconnected="${activateScrollReveal}" class="hero is-link is-bold is-fullheight subtract-toolbar">
       <div class="hero-body">
         <div class="container reveal">
-          <h2 class="title is-2 is-size-2-desktop is-size-3-mobile has-text-centered delayed">Together we can fix our democracy</h2>
+          <h2 class="title is-2 is-size-2-desktop is-size-3-mobile has-text-centered delayed">Fight Corruption, Empower Voters, Strengthen Democracy</h2>
           <br />
           <br />
           <div class="columns">
@@ -21,14 +21,12 @@ module.exports = (state, dispatch) => {
             </div>
             <div class="column is-1"></div>
             <div class="column is is-paddingless">
-              <h3 class="subtitle is-3 is-size-4-mobile delayed1">
-              Are you tired of politicians who are loyal to party, donors, and DC insiders over voters?
+              <br /><h3 class="subtitle is-3 is-size-4-mobile delayed1">
+              Are you tired of politicians more loyal to party, donors, and DC insiders than voters?
               <br /><br />
-              Of beauty pageants masquerading as elections that give voters no real choice or control?
+              Of divisive elections with few real choices?
               <br /><br />
-              So are we.
-              <br /><br />
-              We have a plan, but we need your help.
+              Help us do something about it.
               <br />
             </div>
           </div>
@@ -133,6 +131,9 @@ module.exports = (state, dispatch) => {
             <div class="column is-2">
             </div>
           </div>
+          <br />
+          <br />
+          <br />
           <div class="columns is-vcentered">
             <div class="column is-2"></div>
             <div class="column has-text-left-tablet">
