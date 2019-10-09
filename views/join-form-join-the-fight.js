@@ -6,7 +6,7 @@ module.exports = ({ error, loading }, dispatch) => {
 
   return html`
     <div class="has-text-centered">
-      <form class="box has-text-centered" method="POST" onsubmit="${handleForm(dispatch, { type: 'contactForm:messageSent', url: 'https://liquid.us/get_involved' })}">
+      <form class="box has-text-centered" method="POST" onsubmit="${handleForm(dispatch, { type: 'contactForm:messageSent', url: 'https://liquid.us/join-the-fight' })}">
         <div class="field has-text-left">
           <strong><label for="idea">Join the fight</label><strong>
         </div>
@@ -17,7 +17,7 @@ module.exports = ({ error, loading }, dispatch) => {
         </style>
         <div class="field has-addons join-input-field">
           <div class="${`control is-expanded has-icons-left ${error ? 'has-icons-right' : ''}`}">
-            <textarea class="textarea" name="message" required placeholder="Connect to other reformers by sharing your location (optional)" />
+            <textarea class="textarea" name="message" required placeholder="Share a policy change you'd like to see or provide your location to meet other reformers (optional)" />
           </div>
 
         </div>

@@ -21,7 +21,7 @@ module.exports = (state, dispatch) => {
             </div>
             <div class="column is-1"></div>
             <div class="column is is-paddingless">
-              <h3 class="subtitle is-3 is-size-4-mobile delayed1">
+              <br /><h3 class="subtitle is-3 is-size-4-mobile delayed1">
               Are you tired of politicians more loyal to party, donors, and DC insiders than voters?
               <br /><br />
               Of divisive elections with few real choices?
