@@ -34,6 +34,8 @@ const filtersView = (state, dispatch) => {
   const { path, query } = location
   const { order, position } = query
   const prevOffset = Math.max(0, Number(pagination.offset) - Number(pagination.limit))
+  const importLink = location.path.includes('/vote') ? location.path.split('/vote')[0] : location.path
+
   return html`
     <form
       name="vote-filters"
@@ -110,7 +112,7 @@ const filtersView = (state, dispatch) => {
           ${user && user.is_admin ? html`
             <div class="field is-narrow">
               <div class="control">
-                <a href=${`${location.path}/import`} class="button is-link has-text-weight-semibold is-small">
+                <a href=${`${importLink}/import`} class="button is-link has-text-weight-semibold is-small">
                   <span class="icon">${icon(faPlus)}</span>
                   <span>Import external argument</span>
                 </a>
