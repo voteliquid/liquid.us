@@ -147,7 +147,7 @@ exports.fetchUserMeasures = (user) => (dispatch) => {
     .then((measures) => dispatch({ type: 'measure:receivedList', measures }))
 }
 
-exports.saveMeasure = (measure, { oldShortId, ...form }, state) => (dispatch) => {
+exports.saveMeasure = (measure, { oldShortId, event, ...form }, state) => (dispatch) => {
   return (measure && measure.id ? updateMeasure : insertMeasure)(measure, form, state)(dispatch)
 }
 
