@@ -179,7 +179,15 @@ const updateMeasure = (measure, form, state) => (dispatch) => {
   return api(dispatch, `/measures?id=eq.${measure.id}`, {
     method: 'PATCH',
     headers: { Prefer: 'return=representation' },
-    body: JSON.stringify({ ...form, short_id: form.short_id.toLowerCase(), type: form.measure_type }),
+    body: JSON.stringify({
+      author_id: user.id,
+      legislature_id: form.legislature_id,
+      title: form.title,
+      summary: form.summary,
+      chamber: 'Lower',
+      type: form.measure_type,
+      short_id: form.short_id.toLowerCase(),
+    }),
     user,
   })
   .then(() => exports.fetchMeasure(form.short_id, state)(dispatch))
