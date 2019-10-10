@@ -10,7 +10,7 @@ const signaturesView = require('./measure-votes')
 const updatesView = require('./measure-updates')
 
 module.exports = (state, dispatch) => {
-  const { location, measures, votes } = state
+  const { location, measures, votes, user } = state
   const measure = measures[location.params.shortId]
   const vote = votes[location.params.voteId]
   const hideTargetReps = (l) => l.author_username === 'councilmemberbas'
@@ -19,6 +19,7 @@ module.exports = (state, dispatch) => {
   const path = location.path
   const commentCount = measure.commentsPagination ? measure.commentsPagination.count : 0
   const signatureCount = measure.yeas || 0
+  const ownPetition = user && user.id === measure.author_id
 
   return html`
     <section class="section">
@@ -77,6 +78,9 @@ module.exports = (state, dispatch) => {
                   <li class=${tab === 'votes' ? 'is-active' : ''}>
                     <a href=${`${path}?tab=votes`}>Signatures${signatureCount ? ` (${signatureCount})` : ''}</a>
                   </li>
+                  ${ownPetition ? html`
+                    <li><a href=${`/${user.username}/${measure.short_id}/edit`}>Edit</a></li>
+                  ` : ''}
                 </ul>
               </div>
               ${tab === 'votes'
