@@ -51,7 +51,9 @@ module.exports = (state, dispatch) => {
                 <hr />
               </div>
             ` : html``}
-            ${measureSummary({ measure, size: vote ? 6 : 5 }, dispatch)}
+            <div style="border: 1px solid hsl(0, 0%, 85%); padding: 1.2rem; height: 400px; overflow-y: scroll; box-shadow: inset hsl(0, 0%, 92%) 3px 3px 3px 0px; margin-bottom: 2rem;">
+              ${measureSummary({ measure, alwaysExpanded: true, size: 5 }, dispatch)}
+            </div>
             ${measure.latest_update ? html`
               <div class="content">
                 <h4 class="is-size-6">Latest Update</h4>

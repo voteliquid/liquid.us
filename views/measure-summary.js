@@ -3,8 +3,8 @@ const { icon } = require('@fortawesome/fontawesome-svg-core')
 const { faMinus } = require('@fortawesome/free-solid-svg-icons/faMinus')
 const { faPlus } = require('@fortawesome/free-solid-svg-icons/faPlus')
 
-module.exports = ({ measure, size = 6 }, dispatch) => {
-  const expanded = measure.alwaysExpanded ? true : measure.expanded
+module.exports = ({ measure, alwaysExpanded, size = 6 }, dispatch) => {
+  const expanded = alwaysExpanded ? true : measure.expanded
   const summary =
     measure.type === 'nomination' && measure.summary
       ? `Confirmation of ${measure.summary}`
