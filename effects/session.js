@@ -1,6 +1,7 @@
 const { WWW_DOMAIN } = process.env
 const { logVote } = require('../effects/analytics')
 const { api } = require('../helpers')
+const { fetchOfficesFromAddress } = require('./office')
 const debug = require('debug')('liquid:effects:session')
 
 const createSession = exports.createSession = (dispatch, params, extras) => {
@@ -24,6 +25,7 @@ const createSession = exports.createSession = (dispatch, params, extras) => {
       debug(user)
       const authedUser = { ...user, address: user.address[0], jwt, refresh_token }
       dispatch({ type: 'user:received', user: authedUser })
+      fetchOfficesFromAddress(authedUser)(dispatch)
       return authedUser
     })
   })
