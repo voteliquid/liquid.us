@@ -41,7 +41,7 @@ const form = (state, dispatch) => {
   const { error, forms, legislatures = [], loading, location, measures = {}, user } = state
   const measure = measures[location.params.shortId] || {}
   const form = forms.editMeasure || {}
-  const { legislature_id, summary, title } = measure
+  const { legislature_id, summary, fulltext, title } = measure
   const auto_short_id = (form.title || title || '').toLowerCase().replace(/ /g, '-').replace(/[^A-z0-9-_]/g, '').slice(0, 32)
   const short_id = !forms.editMeasureShortId && !measure.short_id ? auto_short_id : (form.short_id || measure.short_id)
 
@@ -82,7 +82,12 @@ const form = (state, dispatch) => {
         <label for="summary" class="label has-text-grey">Summary</label>
         <div class="control">
           <textarea name="summary" autocomplete="off" class="textarea" rows="4" placeholder="A short summary of your proposed bill." required value="${summary || ''}"></textarea>
-          <p class="help">You can continue to edit your proposed bill later.</p>
+        </div>
+      </div>
+      <div class="field">
+        <label for="fulltext" class="label has-text-grey">Measure Text</label>
+        <div class="control">
+          <textarea name="fulltext" autocomplete="off" class="textarea" rows="4" placeholder="The full text of the measure." required value="${fulltext || ''}"></textarea>
         </div>
       </div>
       <div class="field is-grouped">
