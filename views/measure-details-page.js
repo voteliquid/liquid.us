@@ -39,11 +39,6 @@ module.exports = (state, dispatch) => {
           <div class="column is-two-thirds-tablet is-three-quarters-desktop">
             ${vote && vote.comment ? voteDetailView({ ...state, vote }, dispatch) : html``}
             ${(!vote || !vote.comment) && measure.type !== 'nomination' && measure.summary && measure.summary.trim() ? measureSummary({ measure }, dispatch) : ''}
-            ${measure.fulltext ? html`
-              <div style="border: 1px solid hsl(0, 0%, 85%); padding: 1.2rem; height: 300px; overflow-y: scroll; box-shadow: inset hsl(0, 0%, 92%) 3px 3px 3px 0px; margin-bottom: 2rem;">
-                ${measure.fulltext}
-              </div>
-            ` : ''}
             ${topComments({ ...state, measure, yea: votes[measure.topYea], nay: votes[measure.topNay] }, dispatch)}
             <div id="votes">
               <div id="measure-vote-form">${showVoteForm ? measureVoteForm({ ...state, measure }, dispatch) : ''}</div>

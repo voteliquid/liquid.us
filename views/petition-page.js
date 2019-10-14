@@ -53,11 +53,6 @@ module.exports = (state, dispatch) => {
               </div>
             ` : html``}
             ${measureSummary({ measure, size: 5 }, dispatch)}
-            ${measure.fulltext ? html`
-              <div style="border: 1px solid hsl(0, 0%, 85%); padding: 1.2rem; height: 300px; overflow-y: scroll; box-shadow: inset hsl(0, 0%, 92%) 3px 3px 3px 0px; margin-bottom: 2rem;">
-                ${measure.fulltext}
-              </div>
-            ` : ''}
             ${measure.latest_update ? html`
               <div class="content">
                 <h4 class="is-size-6">Latest Update</h4>

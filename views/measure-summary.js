@@ -18,10 +18,15 @@ module.exports = ({ measure, alwaysExpanded, size = 6 }, dispatch) => {
     >
       <div class=${`content is-size-${size}`}>
         ${{ html: summaryWithoutRepeatedTitle.replace(/\n/g, '<br />') }}
+        ${measure.fulltext && measure.fulltext.trim() ? html`
+          <div style="border: 1px solid hsl(0, 0%, 85%); padding: 1.2rem; height: 300px; overflow-y: scroll; box-shadow: inset hsl(0, 0%, 92%) 3px 3px 3px 0px; margin: 2rem 0; font-size: .75em;">
+            ${{ html: measure.fulltext.replace(/\n/g, '<br />') }}
+          </div>
+        ` : ''}
       </div>
       <div class="${`read-more ${summary && summary.length > 512 ? '' : 'is-hidden'}`}"></div>
       <a class="${`read-more-link is-size-7 ${summary && summary.length > 512 ? '' : 'is-hidden'}`}" href="#" onclick=${(event) => dispatch({ type: 'measure:toggleSummaryExpanded', measure, event })}>
-        ${summary && !measure.alwaysExpanded
+        ${summary && !alwaysExpanded
           ? html`<span class="icon is-small">${expanded ? icon(faMinus) : icon(faPlus)}</span> ${expanded ? 'Show less' : 'Show more'}`
           : ''}
       </a>
