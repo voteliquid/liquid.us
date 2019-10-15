@@ -52,7 +52,7 @@ module.exports = (state, dispatch) => {
                 <hr />
               </div>
             ` : html``}
-            ${measureSummary({ measure, size: 5 }, dispatch)}
+            ${measureSummary({ measure, alwaysExpanded: true, size: 5 }, dispatch)}
             ${measure.latest_update ? html`
               <div class="content">
                 <h4 class="is-size-6">Latest Update</h4>
