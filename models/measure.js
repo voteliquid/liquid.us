@@ -125,6 +125,8 @@ module.exports = (event, state) => {
           ...state.location,
           title: isMeasureDetailPage(state.location.route) ? `${hideLegNameSocial ? '' : `${event.measure.legislature_name}: `}${event.measure.title}` : state.location.title,
           ogImage: isMeasureDetailPage(state.location.route) && measureOgImage(event.measure),
+          description: `Sign the peition to be heard by the ${event.measure.legislature_name}.`,
+          ogTitle: event.measure.title,
         },
         measures: {
           ...state.measures,
