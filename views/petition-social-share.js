@@ -13,11 +13,10 @@ module.exports = (measure) => {
 
   return html`
     <div class="content">
-      <p class="has-text-weight-semibold">Share your comment and invite your friends and family to sign as well.</p>
       <div class="buttons is-centered">
         <a class="button is-link has-text-weight-bold" title="Share on Facebook" target="_blank" href="${`https://www.facebook.com/sharer/sharer.php?u=${share_url}`}">
           <span class="icon">${icon(faFacebook)}</span>
-          <span>Post on Facebook</span>
+          <span>Share on Facebook</span>
         </a>
         <a class="button is-link has-text-weight-bold" title="Share on Twitter" target="_blank" href="${`https://twitter.com/intent/tweet?text=${share_text}`}">
           <span class="icon">${icon(faTwitter)}</span>

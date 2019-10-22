@@ -5,10 +5,9 @@ module.exports = (state, dispatch) => {
 
   return html`
     <form class="content" onsubmit="${handleForm(dispatch, { type: 'petition:commentFormSubmitted', measure })}">
-      <p>Tell others why you signed:</p>
       <div class="field">
         <div class="control">
-          <textarea name="comment" class="textarea" required style="resize:none;"></textarea>
+          <textarea name="comment" class="textarea" required style="resize:none;" placeholder="Tell others why you signed."></textarea>
         </div>
       </div>
       <div class="control">
