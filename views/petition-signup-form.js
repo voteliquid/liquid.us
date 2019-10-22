@@ -74,6 +74,7 @@ module.exports = (state, dispatch) => {
           <button class=${`button is-success is-fullwidth has-text-weight-bold fix-bulma-centered-text is-size-5 ${loading.form ? 'is-loading' : ''}`} disabled=${loading.form} type="submit">Sign Petition</button>
         </div>
       </div>
+      <p class="is-size-7"><a href="/policies">Read our commitment to your privacy</a></p>
     </form>
   `
 }
