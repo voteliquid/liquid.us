@@ -16,7 +16,7 @@ module.exports = (state, dispatch) => {
   )
 
   return html`
-    <div class=${`${measure.showMobileEndorsementForm ? 'modal is-active' : 'not-modal'} panel`}>
+    <div class=${`${measure.showMobileEndorsementForm ? 'modal is-active' : 'not-modal'} panel sticky`}>
       <div class="${measure.showMobileEndorsementForm ? 'modal-background' : ''}" onclick=${(event) => dispatch({ type: 'petition:toggledMobileEndorsementForm', measure, event })}></div>
       <div class="${measure.showMobileEndorsementForm ? 'modal-content' : ''}">
         <nav class="box">
@@ -55,9 +55,26 @@ module.exports = (state, dispatch) => {
         .modal-content, .modal-card {
           max-height: calc(100vh - 100px) !important;
         }
+
+        .panel.sticky {
+          position: fixed;
+          margin-right: 4rem;
+          z-index: 15;
+        }
+
         @media (max-width: 1050px) {
           .not-modal.mobile-only {
             display: none !important;
+          }
+        }
+
+        @media (max-height: 675px) {
+          /* Don't position:fixed the sidebar if window isn't tall enough */
+          .panel.sticky {
+            position: relative;
+            margin-left: 0;
+            margin-right: 0;
+            z-index: 1;
           }
         }
       </style>
