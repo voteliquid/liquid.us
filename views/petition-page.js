@@ -150,7 +150,7 @@ const rep = (r) => {
         </div>
         <div class="media-content">
           <span class="has-text-weight-semibold">${firstLine}</span><br />
-          <span class="has-text-grey">${secondLine}</span>
+          <span class="has-text-grey" style="font-size: .87rem;">${secondLine}</span>
         </div>
       </div>
     </div>
