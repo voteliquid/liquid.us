@@ -9,7 +9,7 @@ module.exports = (measure) => {
   const { author, short_id, title } = measure
   const measure_url = `/${author.username}/${short_id}`
   const share_url = `${WWW_URL}${measure_url}`
-  const share_text = `Join me to ${title}: ${share_url}`
+  const share_text = `Join me to ${title}: ${share_url}`.replace(/&/g, '%26')
 
   return html`
     <div class="content">
