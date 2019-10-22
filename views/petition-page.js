@@ -159,7 +159,13 @@ const rep = (r) => {
 
 const legislature = (measure) => {
   const local = measure.legislature_name.includes(',') || measure.legislature_name.includes('County')
-  const measureImage = local ? `${ASSETS_URL}/legislature-images/local.png` : `${ASSETS_URL}/legislature-images/${stateAbbreviations[measure.legislature_name] || 'U.S. Congress'}.png`
+  const measureImage =
+    local ? `${ASSETS_URL}/legislature-images/local.png`
+    : measure.legislature_name === 'San Francisco Board of Supervisors' ? `${ASSETS_URL}/legislature-images/San Francisco.png`
+    : `${ASSETS_URL}/legislature-images/${
+      stateAbbreviations[measure.legislature_name]
+      || 'U.S. Congress'
+    }.png`
 
   return html`
     <div class="column">
