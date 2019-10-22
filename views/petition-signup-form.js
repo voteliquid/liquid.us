@@ -1,3 +1,4 @@
+const { WWW_URL } = process.env
 const { handleForm, html } = require('../helpers')
 const { icon } = require('@fortawesome/fontawesome-svg-core')
 const { faUser } = require('@fortawesome/free-solid-svg-icons/faUser')
@@ -74,7 +75,7 @@ module.exports = (state, dispatch) => {
           <button class=${`button is-success is-fullwidth has-text-weight-bold fix-bulma-centered-text is-size-5 ${loading.form ? 'is-loading' : ''}`} disabled=${loading.form} type="submit">Sign Petition</button>
         </div>
       </div>
-      <p class="is-size-7"><a href="/policies">Read our commitment to your privacy</a></p>
+      <p class="is-size-7"><a href=${`${WWW_URL}/policies`} target="_blank">Read our commitment to your privacy</a></p>
     </form>
   `
 }
