@@ -24,7 +24,7 @@ module.exports = (state, dispatch) => {
   return html`
     <section class="section">
       <div class="container">
-        <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-left-mobile has-text-dark">
+        <h2 class="title has-text-weight-semibold is-2 has-text-centered has-text-left-mobile has-text-dark" style="margin-bottom: 3rem">
           ${measure.title}
         </h2>
         <div class="columns">
