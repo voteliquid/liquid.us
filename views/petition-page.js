@@ -18,7 +18,7 @@ module.exports = (state, dispatch) => {
   const tab = location.query.tab || 'comments'
   const path = location.path
   const commentCount = measure.commentsPagination ? measure.commentsPagination.count : 0
-  const signatureCount = measure.yeas || 0
+  const signatureCount = measure.yeas_direct || 0
   const ownPetition = user && user.id === measure.author_id
 
   return html`

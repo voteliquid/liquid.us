@@ -46,7 +46,7 @@ const fetchMeasureVoteCountsByOffice = (dispatch, measure, offices, user) => {
     return api(dispatch, `/measure_vote_counts?measure_id=eq.${measure.id}&office_id=eq.${office.id}`, { user })
       .then((voteCounts) => {
         if (voteCounts.length === 0) {
-          return [{ measure_id: measure.id, office_name: office.short_name, office_id: office.id || null, yeas: 0, nays: 0, abstains: 0 }]
+          return [{ measure_id: measure.id, office_name: office.short_name, office_id: office.id || null, yeas: 0, nays: 0, abstains: 0, yeas_direct: 0, nays_direct: 0, abstains_direct: 0 }]
         }
         return voteCounts
       })
@@ -59,6 +59,9 @@ exports.fetchVotes = (measure, { location, user }, pagination) => (dispatch) => 
   const params = {
     measure_id: `eq.${measure.id}`,
     order: 'created_at.desc',
+  }
+  if (measure.type === 'petition') {
+    params.delegate_rank = 'eq.-1'
   }
   if (search) {
     params.or = `(locality.like.${search}*,administrative_area_level_1.like.${search}*,user->>name.like.${search}*,offices->0->>short_name.like.${search}*)`
@@ -105,7 +108,7 @@ exports.fetchComments = (measure, { location, user }, pagination) => (dispatch) 
 
 const fetchVotesReport = exports.fetchVotesReport = (measure, state, pagination = { offset: 0, limit: 500 }) => (dispatch) => {
   const { user } = state
-  return api(dispatch, `/votes_detailed_with_offices?select=id,position,public,comment,user->>first_name,user->>last_name,city:locality,state:administrative_area_level_1,district:offices->0->>short_name,registered_voter:voter_verified,date:created_at&measure_id=eq.${measure.id}`, {
+  return api(dispatch, `/votes_detailed_with_offices?select=id,position,public,comment,user->>first_name,user->>last_name,city:locality,state:administrative_area_level_1,district:offices->0->>short_name,registered_voter:voter_verified,date:created_at&measure_id=eq.${measure.id}${measure.type === 'petition' ? '&delegate_rank=eq.-1' : ''}`, {
     headers: { Accept: 'text/csv' },
     pagination,
     user,

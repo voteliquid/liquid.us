@@ -1,7 +1,7 @@
 const { html } = require('../helpers')
 const milestones = [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000]
 
-module.exports = ({ vote, yeas }) => {
+module.exports = ({ vote, yeas_direct: yeas }) => {
   return html`
     <div>
       <p>
