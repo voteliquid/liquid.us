@@ -185,7 +185,7 @@ const legislature = (measure) => {
 
 const mobileHoverBar = (measure, dispatch) => {
   let action = 'Sign Petition'; let color = 'is-success'
-  if (measure.vote) { action = 'Share'; color = 'is-link' }
+  if (measure.vote && measure.vote.delegate_rank === -1) { action = 'Share'; color = 'is-link' }
 
   return html`
     <div style="
