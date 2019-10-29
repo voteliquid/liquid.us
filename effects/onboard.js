@@ -185,6 +185,7 @@ exports.requestOTP = ({ phone }, user) => (dispatch) => {
 }
 
 exports.verifyOTP = ({ phone, otp }, user) => (dispatch) => {
+  phone = phone.replace(/\D/g, '')
   return api(dispatch, '/phone_verifications', {
     method: 'POST',
     body: JSON.stringify({ otp, user_id: user.id, phone_number: phone }),
