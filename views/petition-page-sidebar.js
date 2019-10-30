@@ -56,7 +56,7 @@ module.exports = (state, dispatch) => {
           max-height: calc(100vh - 100px) !important;
         }
 
-        .panel.sticky {
+        .panel.sticky.not-modal {
           position: fixed;
           margin-right: 4rem;
           z-index: 15;
@@ -70,7 +70,7 @@ module.exports = (state, dispatch) => {
 
         @media (max-height: 675px) {
           /* Don't position:fixed the sidebar if window isn't tall enough */
-          .panel.sticky {
+          .panel.sticky.not-modal {
             position: relative;
             margin-left: 0;
             margin-right: 0;
