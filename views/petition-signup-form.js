@@ -23,7 +23,7 @@ module.exports = (state, dispatch) => {
             ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
             : html`<span class="icon is-small is-left">${icon(faUser)}</span>`
           }
-          ${error && error.field === 'name' ? html`<p class="help is-danger">${error.message}</p>` : ''}
+          ${error && error.field === 'name' ? html`<p class="help is-danger">${error.message}</p>` : html``}
         </div>
       </div>
       <div class="field">
@@ -35,7 +35,7 @@ module.exports = (state, dispatch) => {
               ? html`<span class="icon is-small is-left">${icon(faExclamationTriangle)}</span>`
               : html`<span class="icon is-small is-left">${icon(faEnvelope)}</span>`
             }
-            ${error && error.field === 'email' ? html`<p class="help is-danger">This email is invalid.</p>` : ''}
+            ${error && error.field === 'email' ? html`<p class="help is-danger">This email is invalid.</p>` : html``}
           </div>
         </div>
       </div>
