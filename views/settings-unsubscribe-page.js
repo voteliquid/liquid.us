@@ -9,7 +9,7 @@ module.exports = ({ error, location, measures }, dispatch) => {
           <div class="content">
             <p class="title is-4">
               ${error
-                ? html`<p>There was an error on our end. Please <a href="mailto:support@liquid.us" onclick=${(event) => dispatch({ type: 'contactForm:toggled', event })}>contact support<a> to unsubscribe.</p>`
+                ? html`<p>There was an error on our end. Please <a href="mailto:support@democracy.space" onclick=${(event) => dispatch({ type: 'contactForm:toggled', event })}>contact support<a> to unsubscribe.</p>`
                 : html`<p>You have successfully unsubscribed${measure ? html`<span> from updates for <a href="${`/${measure.author ? measure.author.username : 'legislation'}/${measure.short_id}`}">${measure.title}</a></span>` : html`.`}</p>`
               }
             </p>

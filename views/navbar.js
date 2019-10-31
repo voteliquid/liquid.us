@@ -45,9 +45,8 @@ const style = `
   }
 
   .navbar-brand .navbar-item img {
-    margin: 4px 0;
+    margin: 2px 0 4px;
     max-height: 40px;
-    padding-left: 3px;
   }
 
   @media (max-width: 720px) {

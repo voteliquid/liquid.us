@@ -2,7 +2,7 @@ const { WWW_DOMAIN } = process.env
 const { logVote } = require('../effects/analytics')
 const { api } = require('../helpers')
 const { fetchOfficesFromAddress } = require('./office')
-const debug = require('debug')('liquid:effects:session')
+const debug = require('debug')('demspace:effects:session')
 
 const createSession = exports.createSession = (dispatch, params, extras) => {
   return api(dispatch, '/sessions?select=refresh_token,user_id,jwt', {

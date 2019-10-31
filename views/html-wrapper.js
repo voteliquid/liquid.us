@@ -7,7 +7,7 @@ const nprogressStyle = fs.readFileSync('node_modules/nprogress/nprogress.css')
 module.exports = (state, html, jsBundleUrls) => {
   const { location } = state
   const pageDescription = location.description || 'The Most Powerful Way to Advocate for Your Community.'
-  const pageTitle = location.title ? `${location.title} | Liquid US` : `Liquid US | Digital Democracy Voting Platform`
+  const pageTitle = location.title ? `${location.title} | Democracy Space` : `Democracy Space | Digital Voting Platform`
   const ogTitle = location.ogTitle || pageTitle
   const ogDescription = location.ogDescription || pageDescription
   const ogImage = location.ogImage || `https://blog.${WWW_DOMAIN}/assets/twitter_large.png`

@@ -1,4 +1,4 @@
-const debug = require('debug')('liquid:app')
+const debug = require('debug')('demspace:app')
 const fs = require('fs')
 const path = require('path')
 const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'))

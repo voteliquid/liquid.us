@@ -1,6 +1,6 @@
-# liquid.us
+# democracy.space
 
-The future of democracy.
+Democracy for the 21st century.
 
 ### Install
 
@@ -8,7 +8,7 @@ The future of democracy.
     - [git](https://git-scm.com/)
     - [node](https://nodejs.org/)
 2. Fork this repo.
-3. Clone down: `git clone https://github.com/YOU/liquid.us.git`
+3. Clone down: `git clone https://github.com/YOU/democracy.space.git`
 4. Install required node modules: `npm install`
 
 ### Development
@@ -25,13 +25,13 @@ Your local version should now be running at [`http://localhost:3000`](http://loc
 Read `.template.env` and write your own `environment.bat` file. It should look like the text below:
 
 ```
-set API_URL=https://api.liquid.us
-set APP_NAME=Liquid
+set API_URL=https://api.democracy.space
+set APP_NAME=Democracy Space
 set WWW_PORT=3000
 set WWW_URL=http://localhost:%WWW_PORT%
-set WWW_DOMAIN=liquid.us
+set WWW_DOMAIN=democracy.space
 set ASSETS_URL=%WWW_URL%/assets
-set APP_LOGO=%WWW_URL%/assets/liquid-us-logo.png
+set APP_LOGO=%WWW_URL%/assets/democracy-space-logo.png
 set GOOGLE_GEOCODER_KEY=AIzaSyCJYJN-fUm5FqN8-DvFYz-9GH8hokSCbdQ
 set NODE_ENV=development
 set STRIPE_API_PUBLIC_KEY=pk_test_hLhLcJepsaktxBMieH9tApxE
@@ -118,5 +118,5 @@ into the event object before dispatching.
 
 To debug the application, enable
 [debug](https://github.com/visionmedia/debug#readme) output by setting the
-`DEBUG=liquid:*` environment variable or `localStorage.setItem('debug', 'liquid:*')` in the
+`DEBUG=demspace:*` environment variable or `localStorage.setItem('debug', 'demspace:*')` in the
 browser. Every event and associated state change will be logged to the console.

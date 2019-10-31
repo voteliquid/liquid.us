@@ -32,7 +32,7 @@ module.exports = {
       params: {},
       query: {},
       status: 200,
-      title: 'Liquid',
+      title: 'Democracy Space',
       url: '/',
     },
     navbar: { hamburgerVisible: false },
@@ -135,7 +135,6 @@ module.exports = {
             case '/sign_in':
             case '/sign_in/verify':
             case '/join':
-            case '/candidate':
             case '/sign_out':
               return require('./models/session')(event, state)
             case '/get_started':

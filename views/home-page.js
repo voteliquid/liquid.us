@@ -1,4 +1,4 @@
-const { APP_NAME, WWW_DOMAIN } = process.env
+const { WWW_DOMAIN } = process.env
 const { html } = require('../helpers')
 const joinForm = require('./join-form')
 const yourLegislators = require('./your-legislators')
@@ -92,7 +92,7 @@ module.exports = (state, dispatch) => {
     <section class="hero is-dark is-bold is-fullheight">
       <div class="hero-body">
         <div class="container">
-          <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Most online petitions today do not verify who is signing. Liquid <span class="has-text-info">verifies constituent identities</span> so reps know what real residents want.</h2>
+          <h2 class="title is-3 is-size-2-desktop is-size-4-mobile reveal">Most online petitions today do not verify who is signing. But we <span class="has-text-info">verify constituent identities</span> so reps know what real residents want.</h2>
           <br />
           <br />
           <br />
@@ -150,7 +150,7 @@ module.exports = (state, dispatch) => {
     <section class="hero is-dark is-bold is-fullheight">
       <div class="hero-body">
         <div class="container">
-          <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal"><span class="has-text-info">${APP_NAME}</span> makes a new kind of democracy possible:</h2>
+          <h2 class="title is-2 is-size-1-desktop is-size-3-mobile reveal">We're making a new kind of democracy possible:</h2>
           <br />
           <br />
           <br />
@@ -179,7 +179,7 @@ module.exports = (state, dispatch) => {
           <br />
           <br />
           <div class="reveal">
-            <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">① ${APP_NAME} Scorecards</h3>
+            <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">① Scorecards</h3>
             <h4 class="subtitle is-5 is-size-4-desktop">Politicians are <em>automatically graded</em> for how much they follow their constituents' votes.</h4>
             ${yourLegislators(state)}
             <br />
@@ -195,7 +195,7 @@ module.exports = (state, dispatch) => {
           <br />
           <br />
           <div class="reveal">
-            <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">② Liquid Candidates</h3>
+            <h3 class="title is-4 is-size-3-desktop" style="margin-bottom: 35px">② Candidates</h3>
             <h4 class="subtitle is-5 is-size-4-desktop">Pledged to vote as directed by their local liquid democracy.</h4>
             <h4 class="subtitle is-5 is-size-4-desktop">Voters can elect this upgraded representation, <em>when we're ready</em>, one seat at a time.</h4>
             <div class="has-text-centered">

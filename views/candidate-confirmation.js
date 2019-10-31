@@ -74,7 +74,7 @@ module.exports = () => {
             <br />
             <li><strong>Create awesome sharing copy.</strong> You're going to be asking influencers first and then everyone you know to share your policy idea. It makes their life easier to have social and email sharing copy to work from.</li>
             <br />
-            <li><strong>Format your argument to go viral.</strong> We'll help with this part, but the idea is to use a platform like Liquid.US to prepare your policy idea to go viral.</li>
+            <li><strong>Format your argument to go viral.</strong> We'll help with this part, but the idea is to use a platform like <a href="https://democracy.space">democracy.space</a> to prepare your policy idea to go viral.</li>
             <br />
             <li><strong>Send, send, send!</strong> When it's launch day, make sure everyone knows it's time to send, post, msg, and call. Email everyone on your list. Hit up Facebook, Twitter, Instagram,
             NextDoor. Post in relevant online groups and message boards. Remind the influencers and core
@@ -83,7 +83,7 @@ module.exports = () => {
             <li><strong>Follow up.</strong> Make sure your supporters, aligned activists and legislators see the level of support for your proposal. We automatically sends comments to the appropriate legislators on your behalf, but it's valuable to keep the pressure on.</li>
             <br />
             <li><strong>Share with media.</strong> Once you’ve built up a significant level of support, you can garner media
-            coverage by sharing the traction you've received. Liquid provides a centralized location for reporters to review comments and votes from verified voters.</li>
+            coverage by sharing the traction you've received. We provides a centralized location for reporters to review comments and votes from verified voters.</li>
           </ol>
         </div>
       </div>

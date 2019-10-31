@@ -169,7 +169,7 @@ module.exports = (state, dispatch) => {
           <br />
           <br />
           <h4 class="subtitle is-3 is-size-4-mobile reveal">
-          1. <strong>Send us your policy ideas in writing.</strong> We'll sculpt them into a kickass Liquid Initiative.
+          1. <strong>Send us your policy ideas in writing.</strong> We'll sculpt them into a kickass Democracy.space Initiative.
           <br /> <br />
           2. <strong>Invite the community.</strong> Leverage the press and social media to reach 10x more people than your campaign has before.
           <br /> <br />
@@ -236,14 +236,14 @@ module.exports = (state, dispatch) => {
           <div class="columns is-vcentered">
             <div class="column is-2"></div>
             <div class="column has-text-left-tablet is-hidden-desktop is-hidden-tablet">
-              <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Hold elected leaders accountable.</strong> Liquid automatically compares what the people want with how elected leaders vote.</h4>
+              <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Hold elected leaders accountable.</strong> We automatically compare what the people want with how elected leaders vote.</h4>
             </div>
             <div class="column has-text-centered">
               <img src="/assets/accountability3.png" width="60%">
             </div>
             <div class="column is-1"></div>
             <div class="column has-text-left-tablet is-hidden-mobile">
-              <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Hold elected leaders accountable.</strong> Liquid automatically compares what the people want with how elected leaders vote.</h4>
+              <h4 class="subtitle is-4 is-size-4-desktop reveal"><strong>Hold elected leaders accountable.</strong> We automatically compare what the people want with how elected leaders vote.</h4>
             </div>
             <div class="column is-2">
             </div>

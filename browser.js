@@ -1,8 +1,8 @@
 require('core-js/stable')
 require('regenerator-runtime/runtime')
-const debug = require('debug')('liquid:app')
+const debug = require('debug')('demspace:app')
 
-window.name = 'liquid.us'
+window.name = 'democracy.space'
 
 const cookies = require('browser-cookies')
 const lighterhtml = require('lighterhtml-plus')

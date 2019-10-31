@@ -18,7 +18,7 @@ exports.scrollToTop = (scroll) => () => {
 
 exports.changePageTitle = (newTitle) => () => {
   if (typeof window === 'object') {
-    document.title = newTitle ? `${newTitle} | Liquid US` : 'Liquid US | Digital Democracy Voting Platform'
+    document.title = newTitle ? `${newTitle} | democracy.space` : 'democracy.space | Digital Voting Platform'
     window.history.replaceState(null, document.title, document.location.pathname + document.location.search)
   }
 }
