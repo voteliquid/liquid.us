@@ -24,13 +24,13 @@ module.exports = (state, dispatch) => {
       <table class="table is-fullwidth is-striped">
         <thead>
           <tr>
-            <th>Id</th>
+            <th>Time</th>
             ${displayPosition ? html`<th>Position</th>` : html``}
             <th>Name</th>
-            <th>Location</th>
+            <th>City</th>
             <th>District</th>
             <th>Voter Registration</th>
-            <th>Time</th>
+            <th>Vote ID</th>
           </tr>
         </thead>
         <tbody class="is-size-7">
@@ -47,13 +47,13 @@ const voteTableRow = (vote, { displayPosition = true }) => {
   const district = vote.offices.filter(({ chamber }) => chamber === 'Lower').map(({ short_name }) => short_name)[0]
   return html`
     <tr>
-      <td>${vote.id}</td>
+      <td>${vote.created_at}</td>
       ${displayPosition ? html`<td>${vote.position}</td>` : html``}
       <td>${vote.name}</td>
       <td>${vote.location}</td>
       <td>${district}</td>
-      <td>${vote.voter_verified ? 'Verified' : 'Unverified'}</td>
-      <td>${vote.created_at}</td>
+      <td>${vote.voter_verified ? 'Verified' : ''}</td>
+      <td>${vote.id}</td>
     </tr>
   `
 }
