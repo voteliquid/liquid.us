@@ -13,7 +13,7 @@ module.exports = (state, dispatch) => {
           bottom: 0;
           right: 15px;
           margin-bottom: 0 !important;
-          z-index: 10;
+          z-index: 20;
         }
         .contact-window {
           border: 1px solid #deeaf2;
