@@ -142,7 +142,7 @@ exports.linkifyUrls = (text = '') => {
         `
       }
       if (url.match(/\.(png|jpg|jpeg|gif)$/i)) {
-        return `<div class="responsive-image" style="max-width: 100%; background: hsla(0, 0%, 87%, 0.25); text-align: center; line-height: 0;"><a href="${url}"><img alt="${url}" src="${url}" style="max-height: 380px; max-width: 100%; height: auto;" /></a></div>`
+        return `<div class="responsive-image" style="max-width: 100%; background: hsla(0, 0%, 87%, 0.25); text-align: center; line-height: 0;"><img alt="${url}" src="${url}" style="max-height: 380px; max-width: 100%; height: auto;" /></div>`
       }
       let displayedUrl = url.replace(/https?:\/\/(www\.)?/, '')
       if (displayedUrl.length > 25) {
