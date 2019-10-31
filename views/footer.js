@@ -28,7 +28,7 @@ module.exports = ({ randomQuote }) => {
     <footer class="footer has-text-centered">
       <div class="columns is-centered">
         <div class="column is-half section is-clearfix" style="padding: 3rem 3rem 0;">
-          <div style="margin: 6rem 0 3rem; position: relative;">
+          <div style="margin: 6rem 1.3rem 3rem; position: relative;">
             <span class="quote-icon default-cursor">“</span>
             <p class="title has-text-grey is-4 has-text-justified default-cursor">${{ html: randomQuote.text.replace(/\n/g, '<br />') }}</p>
             ${randomQuote.author ? html`<p class="title is-5 has-text-grey has-text-right">— <em>${randomQuote.author}</em></p>` : ''}
