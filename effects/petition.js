@@ -74,8 +74,8 @@ exports.signupAndSign = (form, state) => (dispatch) => {
         nameData: { first_name, last_name, voter_status },
         user,
       })(dispatch)
-        .then(() => sign(form, user)(dispatch))
-        .then(() => fetchMeasure(form.measure.short_id, state)(dispatch))
+      .then(() => sign(form, user)(dispatch))
+      .then(() => fetchMeasure(form.measure.short_id, { ...state, user })(dispatch))
     }
   })
 }
