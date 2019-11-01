@@ -44,7 +44,7 @@ module.exports = (state, dispatch) => {
 }
 
 const voteTableRow = (vote, { displayPosition = true }) => {
-  const district = vote.offices.filter(({ chamber }) => chamber === 'Lower').map(({ short_name }) => short_name)[0]
+  const district = (vote.offices.filter(({ chamber }) => chamber === 'Lower').map(({ short_name }) => short_name)[0] || '').replace(vote.locality, '')
   return html`
     <tr>
       <td>${vote.created_at}</td>
