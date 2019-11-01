@@ -12,7 +12,7 @@ module.exports = (state, dispatch) => {
     return {
       ...vote,
       name: vote.public ? `${vote.user.first_name} ${vote.user.last_name}` : '[private]',
-      created_at: new Date(vote.created_at).toLocaleString(),
+      created_at: new Date(`${vote.created_at}Z`).toLocaleString(),
       location: `${vote.locality || ''}${vote.locality && stateNames[vote.administrative_area_level_1] ? `, ` : ''}${stateNames[vote.administrative_area_level_1] || ''}`,
     }
   })
