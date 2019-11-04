@@ -30,10 +30,10 @@ const noCommentsView = () => html`<p class="has-text-centered has-text-grey">No 
 const filtersView = (state, dispatch) => {
   const { loading, location, measures, user } = state
   const measure = measures[location.params.shortId]
-  const pagination = measure.commentsPagination || { offset: 0, limit: 25 }
+  const pagination = measure.commentsPagination
   const { path, query } = location
   const { order, position } = query
-  const prevOffset = Math.max(0, Number(pagination.offset) - Number(pagination.limit))
+  const currOffset = Number(location.query.offset) || 0
   return html`
     <form
       name="vote-filters"
@@ -46,17 +46,17 @@ const filtersView = (state, dispatch) => {
         <div class="field-body">
           ${Number(pagination.count) > Number(pagination.limit) ? html`
             <nav class="field is-narrow has-addons">
-              ${prevOffset ? html`
+              ${pagination.prev ? html`
                 <div class="control">
                   <a class="${`button ${loading.comments ? 'is-loading' : ''}`}" href="${prevPage(state)}">Previous</a>
                 </div>
               ` : html``}
               <div class="control">
                 <div class="button is-static">
-                  ${prevOffset + 1} - ${Math.min((measure.comments || []).length, pagination.limit) + prevOffset} of ${pagination.count}
+                  ${currOffset + 1} - ${Math.min((measure.comments || []).length, pagination.limit) + currOffset} of ${pagination.count}
                 </div>
               </div>
-              ${Number(pagination.offset) < Number(pagination.count) ? html`
+              ${pagination.next ? html`
                 <div class="control">
                   <a class="${`button ${loading.comments ? 'is-loading' : ''}`}" href="${nextPage(state)}">Next</a>
                 </div>
@@ -127,22 +127,20 @@ const autosubmit = () => document.querySelector('.vote-filters-submit').click()
 
 const prevPage = ({ location, measures }) => {
   const measure = measures[location.params.shortId]
-  const pagination = measure.commentsPagination || { offset: 0, limit: 50 }
+  const pagination = measure.commentsPagination
   const query = {
     ...location.query,
-    limit: pagination.limit,
-    offset: Math.max(0, Number(pagination.offset) - Number(pagination.limit)),
+    ...pagination.prev,
   }
   return `${location.path}?${Object.keys(query).map((key) => `${key}=${query[key]}`).join('&')}`
 }
 
 const nextPage = ({ location, measures }) => {
   const measure = measures[location.params.shortId]
-  const pagination = measure.commentsPagination || { offset: 0, limit: 50 }
+  const pagination = measure.commentsPagination
   const query = {
     ...location.query,
-    limit: pagination.limit,
-    offset: Number(pagination.offset) + Number(pagination.limit),
+    ...pagination.next,
   }
   return `${location.path}?${Object.keys(query).map((key) => `${key}=${query[key]}`).join('&')}`
 }

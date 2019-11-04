@@ -108,23 +108,22 @@ exports.fetchComments = (measure, { location, user }, pagination) => (dispatch) 
 
 const fetchVotesReport = exports.fetchVotesReport = (measure, state, pagination = { offset: 0, limit: 500 }) => (dispatch) => {
   const { user } = state
+  const currPagination = pagination
   return api(dispatch, `/votes_detailed_with_offices?select=id,position,public,comment,user->>first_name,user->>last_name,city:locality,state:administrative_area_level_1,district:offices->0->>short_name,registered_voter:voter_verified,date:created_at&measure_id=eq.${measure.id}${measure.type === 'petition' ? '&delegate_rank=eq.-1' : ''}`, {
     headers: { Accept: 'text/csv' },
     pagination,
     user,
   })
-  .then(({ pagination: nextPagination, results: csv }) => {
+  .then(({ pagination, results: csv }) => {
     dispatch({
       type: 'measure:voteCSVReceivedChunk',
-      csv: pagination.offset ? csv.substring(csv.indexOf('\n') + 1) : csv,
+      csv: currPagination.offset ? csv.substring(csv.indexOf('\n') + 1) : csv,
       measure,
-      pagination,
-      nextPagination,
     })
-    if ((pagination ? pagination.count : nextPagination.count) > nextPagination.offset) {
-      return fetchVotesReport(measure, state, { ...pagination, ...nextPagination })(dispatch)
+    if (pagination.next) {
+      return fetchVotesReport(measure, state, pagination.next)(dispatch)
     }
-    dispatch({ type: 'measure:voteCSVReceived', measure, pagination, nextPagination })
+    dispatch({ type: 'measure:voteCSVReceived', measure })
   })
 }
 

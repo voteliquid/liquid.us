@@ -262,13 +262,20 @@ const parseApiResponse = (res, params) => {
   const isJSON = ~res.headers.get('Content-Type').indexOf('json')
   return (isJSON ? res.json() : res.text()).then((results) => {
     if (params.pagination) {
+      const count = typeof params.pagination.count !== 'number' ? Number(res.headers.get('Content-Range').split('/')[1]) : null
       return {
         results,
         pagination: {
           ...params.pagination,
-          limit: Number(params.pagination.limit),
-          offset: Number(params.pagination.offset) + Number(params.pagination.limit),
-          count: typeof params.pagination.count !== 'number' ? Number(res.headers.get('Content-Range').split('/')[1]) : null,
+          next: (Number(params.pagination.offset) + Number(params.pagination.limit)) < count ? {
+            limit: Number(params.pagination.limit),
+            offset: Number(params.pagination.offset) + Number(params.pagination.limit),
+          } : null,
+          prev: Number(params.pagination.offset) > 0 ? {
+            limit: Number(params.pagination.limit),
+            offset: Number(params.pagination.offset) - Number(params.pagination.limit),
+          } : null,
+          count,
         },
       }
     }
