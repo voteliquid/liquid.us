@@ -58,21 +58,17 @@ const proposedLegislationItem = (state, measure, dispatch) => {
   const l = measure
 
   return html`
-    <div class="card highlight-hover">
-      <div class="card-content">
-        <div class="columns">
-          <div class="column">
-            <h3><a href="${`/${user.username}/${l.short_id}`}">${l.title}</a></h3>
-            <p class="is-size-7 has-text-grey">
-              ${l.type === 'petition' ? 'Petition to' : 'Proposed for'} ${l.legislature_name} &bullet; ${l.author
-            ? html`Authored by <a href="${`/${l.author.username}`}">${l.author.first_name} ${l.author.last_name}</a> on ${(new Date(l.created_at)).toLocaleDateString()}`
-            : html`Authored anonymously on ${(new Date(l.created_at)).toLocaleDateString()}`}
-            </p>
-          </div>
-          <div class="column has-text-right has-text-left-mobile">
-            ${editButtons(user, measure, dispatch)}
-          </div>
-        </div>
+    <div class="columns">
+      <div class="column">
+        <h3><a href="${`/${user.username}/${l.short_id}`}">${l.title}</a></h3>
+        <p class="is-size-7 has-text-grey">
+          ${l.type === 'petition' ? 'Petition to' : 'Proposed for'} ${l.legislature_name} &bullet; ${l.author
+        ? html`Authored by <a href="${`/${l.author.username}`}">${l.author.first_name} ${l.author.last_name}</a> on ${(new Date(l.created_at)).toLocaleDateString()}`
+        : html`Authored anonymously on ${(new Date(l.created_at)).toLocaleDateString()}`}
+        </p>
+      </div>
+      <div class="column has-text-right has-text-left-mobile">
+        ${editButtons(user, measure, dispatch)}
       </div>
     </div>
   `

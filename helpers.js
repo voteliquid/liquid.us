@@ -9,8 +9,10 @@ exports.handleForm = (dispatch, appEvent) => (domEvent) => {
   const method = domEvent.currentTarget.getAttribute('method')
   const data = {
     ...appEvent.location ? appEvent.location.query : {},
-    ...require('parse-form').parse(domEvent.currentTarget).body,
+    ...parse(domEvent.currentTarget).body,
   }
+
+  console.log(data)
   Object.keys(data).forEach((key) => {
     if (data[key] === 'false') data[key] = false
     if (method !== 'GET') {
@@ -400,3 +402,120 @@ exports.prettyShortId = (shortId) => {
     .toUpperCase()
     .replace(/(\d+)/, ' $1')
 }
+
+const q_set_1 = typeof window === 'object' && require("q-set")
+const validTags = {
+    BUTTON: true,
+    INPUT: true,
+    SELECT: true,
+    TEXTAREA: true
+}
+
+/* eslint-disable */
+/**
+ * @description
+ * Serialize a html form as JS object.
+ *
+ * @param form The html form to parse.
+ * @param shallow If true, nested properties such as "a[b]" will not be resolved.
+ */
+function parse(form, shallow) {
+  if (!form || !(form instanceof HTMLFormElement)) {
+      throw new Error("Can only parse form elements.")
+  }
+  var enctype = form.enctype, elements = form.elements
+  var set = shallow ? q_set_1.shallow : q_set_1.deep
+  var isMultiPart = enctype === "multipart/form-data"
+  var body = {}
+  /* istanbul ignore next */
+  var files = isMultiPart ? {} : undefined
+  var activeElement = getActiveElement()
+  for (var _i = 0, _a = elements; _i < _a.length; _i++) {
+      var el = _a[_i]
+      var name_1 = el.name
+      // Check if this el should be serialized.
+      if (el.disabled || !(name_1 && validTags[el.nodeName])) {
+          continue // eslint-disable-line no-continue
+      }
+      switch (el.type) {
+          case "submit":
+              // We check if the submit button is active
+              // otherwise all type=submit buttons would be serialized.
+              if (el === activeElement) {
+                  set(body, name_1, el.value)
+              }
+              break
+          case "checkbox":
+          case "radio":
+              if (el.checked) {
+                  set(body, name_1, el.value)
+              }
+              break
+          case "select-one":
+              if (el.selectedIndex >= 0) {
+                  set(body, name_1, el.options[el.selectedIndex].value)
+              }
+              break
+          case "select-multiple":
+              var selected = []
+              for (var _b = 0, _c = el.options; _b < _c.length; _b++) {
+                  var option = _c[_b]
+                  if (option && option.selected) {
+                      selected.push(option.value)
+                  }
+              }
+              set(body, name_1, selected)
+              break
+          case "file":
+              /* istanbul ignore next */
+              if (isMultiPart && el.files) {
+                  for (var _d = 0, _e = el.files; _d < _e.length; _d++) {
+                      var file = _e[_d]
+                      set(files, name_1, file)
+                  }
+              }
+              break
+          default:
+              set(body, name_1, el.value)
+      }
+  }
+  return { body, files }
+}
+
+/**
+ * Tracks which button submitted a form last.
+ * This is a patch for safari which does not properly focus the clicked button.
+ */
+let clickTarget = null
+
+if (typeof window === 'object') {
+  window.addEventListener("click", (e) => {
+      // Ignore canceled events, modified clicks, and right clicks.
+      if (e.defaultPrevented ||
+          e.metaKey ||
+          e.ctrlKey ||
+          e.shiftKey ||
+          e.button !== 0) {
+          return
+      }
+      let el = e.target
+      // Find an <button> element that may have been clicked.
+      while (el != null && (el.nodeName !== "BUTTON" || el.type !== "submit")) {
+          el = el.parentNode
+      }
+      // Store the button that was clicked.
+      clickTarget = el
+  })
+}
+
+/**
+ * Patch for document.activeElement for safari.
+ */
+function getActiveElement() {
+  const el = document.activeElement === document.body
+      ? clickTarget
+      : document.activeElement
+  clickTarget = null
+  return el
+}
+/* eslint-enable */

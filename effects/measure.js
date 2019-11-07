@@ -214,10 +214,25 @@ exports.postUpdate = ({ measure, ...form }, { user }) => (dispatch) => {
     method: form.id ? 'PATCH' : 'POST',
     body: JSON.stringify({
       measure_id: measure.id,
+      title: form.title,
       message: form.message,
-      notify_voters: !!form.notify_voters,
+      published_at: form.publish ? new Date() : null,
+      last_previewed_at: form.preview ? new Date() : null,
     }),
     user,
+  })
+  .then(() => {
+    return dispatch({
+      type: 'measure:updateNotificationDisplayed',
+      measure,
+      notification: {
+        type: 'is-success',
+        message:
+          form.publish ? `Your update has been published and sent to your supporters.`
+          : form.preview ? `A preview of the update has been emailed to you.`
+          : `Draft update saved.`
+      },
+    })
   })
   .then(() => dispatch({ type: 'measure:updatesRequested', measure }))
 }

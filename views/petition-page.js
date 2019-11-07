@@ -53,14 +53,6 @@ module.exports = (state, dispatch) => {
               </div>
             ` : html``}
             ${measureSummary({ measure, alwaysExpanded: true, size: 5 }, dispatch)}
-            ${measure.latest_update ? html`
-              <div class="content">
-                <h4 class="is-size-6">Latest Update</h4>
-                <p>
-                  <span class="has-text-grey has-text-uppercase">${new Date(measure.latest_update.created_at).toLocaleDateString()} &mdash;</span>
-                  ${{ html: linkifyUrls(measure.latest_update.message) }}</p>
-              </div>
-            ` : html``}
             <div class="is-hidden-tablet">
               ${measure.showMobileEndorsementForm ? '' : mobileHoverBar(measure, dispatch)}
             </div>

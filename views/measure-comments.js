@@ -30,7 +30,7 @@ const noCommentsView = () => html`<p class="has-text-centered has-text-grey">No 
 const filtersView = (state, dispatch) => {
   const { loading, location, measures, user } = state
   const measure = measures[location.params.shortId]
-  const pagination = measure.commentsPagination
+  const pagination = measure.commentsPagination || { count: 0 }
   const { path, query } = location
   const { order, position } = query
   const currOffset = Number(location.query.offset) || 0

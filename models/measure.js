@@ -338,18 +338,50 @@ module.exports = (event, state) => {
           [event.measure.short_id]: {
             ...state.measures[event.measure.short_id],
             showUpdateForm: !state.measures[event.measure.short_id].showUpdateForm,
+            updateNotification: null,
+          },
+        },
+      }, preventDefault(event.event)]
+    case 'measure:updateNotificationDisplayed':
+      return [{
+        ...state,
+        measures: {
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
+            updateNotification: event.notification,
+          },
+        },
+      }]
+    case 'measure:updateNotificationDismissed':
+      return [{
+        ...state,
+        measures: {
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
+            updateNotification: null,
           },
         },
       }, preventDefault(event.event)]
     case 'measure:updateFormSubmitted':
+      if (event.publish) {
+        if (!window.confirm(`Publishing will send the update to your supporters. Are you sure you want to continue?`)) {
+          return [state, preventDefault(event.event)]
+        }
+      }
       return [{
         ...state,
         loading: { ...state.loading, form: true },
+        measures: {
+          [event.measure.short_id]: {
+            ...state.measures[event.measure.short_id],
+            showUpdateForm: !event.publish,
+          },
+        },
       }, combineEffects([
         preventDefault(event.event),
         combineEffectsInSeries([
           importEffect('postUpdate', event, state),
-          redirect(`${state.location.path}?tab=updates`, 303),
+          event.publish && redirect(`${state.location.path}?tab=updates`, 303),
         ]),
       ])]
     case 'measure:updateDeleted':
@@ -359,7 +391,6 @@ module.exports = (event, state) => {
         measures: {
           [event.measure.short_id]: {
             ...state.measures[event.measure.short_id],
-            latest_update: null,
             showUpdateForm: false,
           },
         },
@@ -376,8 +407,7 @@ module.exports = (event, state) => {
         measures: {
           [event.measure.short_id]: {
             ...state.measures[event.measure.short_id],
-            latest_update: state.measures[event.measure.short_id].latest_update || event.updates[0],
-            showUpdateForm: false,
+            showUpdateForm: !!state.location.query.edit,
             updates: event.updates,
           },
         },
