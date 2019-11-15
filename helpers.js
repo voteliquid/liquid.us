@@ -12,7 +12,6 @@ exports.handleForm = (dispatch, appEvent) => (domEvent) => {
     ...parse(domEvent.currentTarget).body,
   }
 
-  console.log(data)
   Object.keys(data).forEach((key) => {
     if (data[key] === 'false') data[key] = false
     if (method !== 'GET') {
@@ -223,7 +222,7 @@ exports.api = (dispatch, url, params = {}) => {
   if (params.user && params.user.jwt) {
     params.headers.Authorization = `Bearer ${params.user.jwt}`
   }
-  if (params.pagination) {
+  if (typeof params.pagination === 'object') {
     params.headers['Range-Unit'] = 'items'
     params.headers.Range = `${params.pagination.offset}-${Number(params.pagination.offset) + Number(params.pagination.limit)}`
     if (typeof params.pagination.count !== 'number') {
@@ -263,7 +262,7 @@ exports.api = (dispatch, url, params = {}) => {
 const parseApiResponse = (res, params) => {
   const isJSON = ~res.headers.get('Content-Type').indexOf('json')
   return (isJSON ? res.json() : res.text()).then((results) => {
-    if (params.pagination) {
+    if (typeof params.pagination === 'object') {
       const count = typeof params.pagination.count !== 'number' ? Number(res.headers.get('Content-Range').split('/')[1]) : null
       return {
         results,

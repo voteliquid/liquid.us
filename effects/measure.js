@@ -68,11 +68,15 @@ exports.fetchVotes = (measure, { location, user }, pagination) => (dispatch) => 
   }
   const qs = Object.keys(params).map((key) => `${key}=${encodeURIComponent(params[key])}`).join('&')
   return api(dispatch, `/votes_detailed_with_offices?${qs}`, {
-    pagination: pagination || { offset, limit },
+    pagination: search ? false : (pagination || { offset, limit }),
     user,
   })
-  .then(({ pagination, results }) => {
-    dispatch({ type: 'measure:votesReceived', measure, votes: results, pagination })
+  .then((results) => {
+    if (results.pagination) {
+      dispatch({ type: 'measure:votesReceived', measure, votes: results.results || [], pagination: results.pagination })
+    } else {
+      dispatch({ type: 'measure:votesReceived', measure, votes: results || [], pagination })
+    }
   })
 }
 
