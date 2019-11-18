@@ -64,7 +64,7 @@ exports.fetchVotes = (measure, { location, user }, pagination) => (dispatch) => 
     params.delegate_rank = 'eq.-1'
   }
   if (search) {
-    params.or = `(locality.like.${search}*,administrative_area_level_1.like.${search}*,user->>name.like.*${search}*,offices->0->>short_name.like.*${search}*)`
+    params.or = `(locality.ilike.${search}*,administrative_area_level_1.ilike.${search}*,user->>name.ilike.*${search}*,offices->0->>short_name.ilike.*${search}*)`
   }
   const qs = Object.keys(params).map((key) => `${key}=${encodeURIComponent(params[key])}`).join('&')
   return api(dispatch, `/votes_detailed_with_offices?${qs}`, {
