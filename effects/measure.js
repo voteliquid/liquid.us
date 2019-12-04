@@ -97,6 +97,9 @@ exports.fetchComments = (measure, { location, user }, pagination) => (dispatch) 
     measure_id: `eq.${measure.id}`,
     comment: 'not.is.null&comment=not.eq.',
     delegate_rank: 'eq.-1',
+    // hide comments for users that aren't phone verified, unless they were created before 2019-12-03, and unless
+    // it is the user's own comment.
+    or: `(created_at.lt.2019-12-03,phone_verified.is.true${user ? `,user_id.eq.${user.id}` : ''})`,
     order: `${orders[order]}${positions[position]}`,
   }
 

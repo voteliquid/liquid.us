@@ -61,6 +61,10 @@ module.exports = (state, dispatch) => {
             ${source_url ? html`<span class="is-size-7"> <a href="${source_url}" target="_blank">[source]</a></span>` : ''}
           </div>
           ${displayTitle ? html`<div><a class="has-text-weight-semibold" href="${measure_url}">${measure_title}</a></div>` : ''}
+          ${ownVote && user && !user.phone_verified ? html`
+          <div class="notification" style="margin: 0.5em 0 0;">
+            Your comment is hidden. <a href="/get_started/verification">Verify your identity</a> so we can make your comment public, and send it to your reps.
+          </div>` : html``}
           ${commentContent(key, vote, parent, dispatch)}
           <div class="${`field is-grouped ${!is_public && !ownVote ? 'is-hidden' : ''}`}">
             <div class="control">
