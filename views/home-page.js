@@ -251,7 +251,7 @@ module.exports = (state, dispatch) => {
               </style>
             </div>
             <div class="column">
-              ${video({ url: 'https://www.youtube.com/embed/GFh0aZ_u9FQ' })}
+              ${video({ url: 'https://www.youtube.com/embed/4Zd65MqJv0Y' })}
             </div>
           </div>
         </div>
