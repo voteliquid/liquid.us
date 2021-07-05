@@ -28,6 +28,7 @@ module.exports = {
   '/get_started/profile': () => import('./views/get-started-profile-page'),
   '/twitter/:username': () => import('./views/profile-page'),
   '/policies': () => import('./views/policies-page'),
+  '/about': () => import('./views/about-page'),
   '/metrics': () => import('./views/metrics-page'),
   '/:username': () => import('./views/profile-page'),
   '/:username/:shortId': () => import('./views/measure-details-page'),
