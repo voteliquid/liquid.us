@@ -12,7 +12,14 @@ module.exports = (state, dispatch) => {
   const comments = (measure.comments || []).map((id) => votes[id])
   return html`
     <div>
-      ${displayFilters ? filtersView(state, dispatch) : html``}
+      ${displayFilters ? filtersView(state, dispatch) : html`
+        <div class="control is-right">
+          <a href=${`${location.path}/import`} class="button is-link has-text-weight-semibold is-small">
+            <span class="icon">${icon(faPlus)}</span>
+            <span>Import external argument</span>
+          </a>
+        </div>
+      `}
       ${loading.comments ? activityIndicator() : html``}
       ${!loading.comments && comments.length ? comments.map(voteOrSignatureView(state, dispatch)) : html``}
       ${!loading.comments && !comments.length ? noCommentsView() : html``}
@@ -28,7 +35,7 @@ const voteOrSignatureView = (state, dispatch) => (vote) => {
 const noCommentsView = () => html`<p class="has-text-centered has-text-grey">No comments yet.</p>`
 
 const filtersView = (state, dispatch) => {
-  const { loading, location, measures, user } = state
+  const { loading, location, measures } = state
   const measure = measures[location.params.shortId]
   const pagination = measure.commentsPagination || { count: 0 }
   const { path, query } = location
@@ -107,16 +114,15 @@ const filtersView = (state, dispatch) => {
               </button>
             </div>
           </div>
-          ${user && user.is_admin ? html`
-            <div class="field is-narrow">
-              <div class="control">
-                <a href=${`${location.path}/import`} class="button is-link has-text-weight-semibold is-small">
-                  <span class="icon">${icon(faPlus)}</span>
-                  <span>Import external argument</span>
-                </a>
-              </div>
+
+          <div class="field is-narrow">
+            <div class="control">
+              <a href=${`${location.path}/import`} class="button is-link has-text-weight-semibold is-small">
+                <span class="icon">${icon(faPlus)}</span>
+                <span>Import external argument</span>
+              </a>
             </div>
-          ` : ''}
+          </div>
         </div>
       </div>
     </form>
