@@ -49,7 +49,7 @@
     "isomorphic-fetch": "^2.2.1",
     "lighterhtml-plus": "^1.5.0",
     "moment": "^2.20.1",
-    "moment-timezone": "^0.5.14",
+    "moment-timezone": "^0.5.35",
     "nprogress": "^0.2.0",
     "ordinal-suffix": "0.0.1",
     "outdatedbrowser": "^1.1.5",
